@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { useQueryClient } from "@tanstack/react-query"
-import { Download, FileArchive, LoaderCircle, LogOut, Upload } from "lucide-react"
+import { Download, FileArchive, ImageUp, LoaderCircle, LogOut, Upload } from "lucide-react"
 import { toast } from "sonner"
 import { Botao } from "@/components/ui/button"
 import { Cabecalho, Progresso, Secao, Segmentos } from "@/components/ui/basicos"
@@ -12,7 +12,8 @@ import { useSessao, useTema, type Tema } from "@/components/provedores"
 import { supabase } from "@/lib/supabase/client"
 import { novoId } from "@/lib/data"
 import { numero } from "@/lib/utils"
-import { useConfiguracoes, useSalvarConfiguracoes } from "./dados"
+import { useConfiguracoes, useSalvarConfiguracoes, type Preferencias } from "./dados"
+import { FRASE_PADRAO } from "@/features/hoje/painel"
 import { abrirZip } from "@/features/importar/zip"
 import { montarPlano, resumoPlano, type Plano } from "@/features/importar/notion"
 import { executarImportacao, exportarTudo, type Progresso as EstadoProgresso } from "@/features/importar/executar"
@@ -58,18 +59,94 @@ function Perfil() {
 
 function Aparencia() {
   const { tema, mudarTema } = useTema()
+  const { usuario } = useSessao()
+  const { data: cfg } = useConfiguracoes()
+  const salvar = useSalvarConfiguracoes()
+  const prefs = (cfg?.prefs ?? {}) as Preferencias & { frase?: string; capa?: string }
+  const [frase, setFrase] = React.useState<string | null>(null)
+  const [enviando, setEnviando] = React.useState(false)
+  const entradaCapa = React.useRef<HTMLInputElement>(null)
+  const valorFrase = frase ?? prefs.frase ?? FRASE_PADRAO
+
+  const salvarPrefs = (mudancas: Record<string, string | null>, aviso: string) =>
+    salvar.mutate({ prefs: { ...prefs, ...mudancas } as Preferencias }, { onSuccess: () => toast.success(aviso), onError: (e) => toast.error(e.message) })
+
+  async function enviarCapa(arquivo: File) {
+    if (!usuario) return
+    if (!arquivo.type.startsWith("image/")) return toast.error("Escolha uma imagem (PNG, JPG ou WebP).")
+    setEnviando(true)
+    try {
+      const ext = arquivo.name.split(".").pop()?.toLowerCase() || "png"
+      const caminho = `${usuario.id}/capa/capa-${Date.now()}.${ext}`
+      const { error } = await supabase().storage.from("arquivos").upload(caminho, arquivo, { contentType: arquivo.type })
+      if (error) throw new Error(error.message)
+      if (prefs.capa) await supabase().storage.from("arquivos").remove([prefs.capa])
+      salvarPrefs({ capa: caminho }, "Capa atualizada")
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Não foi possível enviar a imagem.")
+    } finally {
+      setEnviando(false)
+    }
+  }
+
   return (
     <Secao titulo="Aparência">
-      <Segmentos<Tema>
-        rotulo="Tema"
-        valor={tema}
-        aoMudar={mudarTema}
-        opcoes={[
-          { valor: "sistema", rotulo: "Igual ao sistema" },
-          { valor: "claro", rotulo: "Claro" },
-          { valor: "escuro", rotulo: "Escuro" },
-        ]}
-      />
+      <div className="grid gap-6">
+        <Segmentos<Tema>
+          rotulo="Tema"
+          valor={tema}
+          aoMudar={mudarTema}
+          opcoes={[
+            { valor: "escuro", rotulo: "Escuro" },
+            { valor: "claro", rotulo: "Claro" },
+            { valor: "sistema", rotulo: "Igual ao sistema" },
+          ]}
+        />
+        <form
+          className="flex max-w-xl items-end gap-2"
+          onSubmit={(e) => {
+            e.preventDefault()
+            salvarPrefs({ frase: valorFrase.trim() || null }, "Frase salva")
+          }}
+        >
+          <Campo rotulo="Frase da capa" htmlFor="cfg-frase" className="flex-1">
+            <Entrada id="cfg-frase" value={valorFrase} onChange={(e) => setFrase(e.target.value)} />
+          </Campo>
+          <Botao type="submit" variante="contorno" disabled={salvar.isPending}>Salvar</Botao>
+        </form>
+        <div>
+          <p className="mb-1.5 text-sm font-medium">Imagem de capa</p>
+          <p className="mb-3 text-sm text-ink-3">Use a capa do seu Notion ou qualquer imagem larga. Sem imagem, a capa mostra o nome e a frase.</p>
+          <input
+            ref={entradaCapa}
+            type="file"
+            accept="image/*"
+            className="sr-only"
+            aria-label="Imagem de capa"
+            onChange={(e) => {
+              const f = e.target.files?.[0]
+              if (f) void enviarCapa(f)
+              e.target.value = ""
+            }}
+          />
+          <div className="flex flex-wrap gap-2">
+            <Botao variante="contorno" onClick={() => entradaCapa.current?.click()} disabled={enviando}>
+              {enviando ? <LoaderCircle className="animate-spin" /> : <ImageUp />} {prefs.capa ? "Trocar imagem" : "Enviar imagem"}
+            </Botao>
+            {prefs.capa ? (
+              <Botao
+                variante="fantasma"
+                onClick={async () => {
+                  await supabase().storage.from("arquivos").remove([prefs.capa!])
+                  salvarPrefs({ capa: null }, "Capa removida")
+                }}
+              >
+                Remover imagem
+              </Botao>
+            ) : null}
+          </div>
+        </div>
+      </div>
     </Secao>
   )
 }

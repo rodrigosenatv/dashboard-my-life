@@ -19,6 +19,13 @@ const texto = localFont({
   display: "swap",
 })
 
+const assinatura = localFont({
+  src: "./fonts/allura.woff2",
+  variable: "--font-script",
+  weight: "400",
+  display: "swap",
+})
+
 export const metadata: Metadata = {
   title: { default: "My Life", template: "%s | My Life" },
   description: "Seu painel de vida: hábitos, tarefas, projetos, estudos e conteúdo em um só lugar.",
@@ -32,13 +39,13 @@ export const viewport: Viewport = {
   viewportFit: "cover",
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#f4f5f7" },
-    { media: "(prefers-color-scheme: dark)", color: "#0e1121" },
+    { media: "(prefers-color-scheme: dark)", color: "#191919" },
   ],
 }
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="pt-BR" suppressHydrationWarning className={`${titulo.variable} ${texto.variable}`}>
+    <html lang="pt-BR" suppressHydrationWarning className={`${titulo.variable} ${texto.variable} ${assinatura.variable}`}>
       <head>
         <script dangerouslySetInnerHTML={{ __html: scriptTema }} />
       </head>

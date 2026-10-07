@@ -326,6 +326,27 @@ export type OpcoesPlano = {
   novoId: () => string
 }
 
+/** Colunas de texto que repetem o mesmo valor em quase todas as linhas (cabeçalhos do modelo, como "☀️ R. Matutino"). */
+const cacheConstantes = new WeakMap<Banco, Set<string>>()
+function colunasConstantes(b: Banco): Set<string> {
+  const salvo = cacheConstantes.get(b)
+  if (salvo) return salvo
+  const saida = new Set<string>()
+  if (b.linhas.length >= 5) {
+    for (const c of b.colunas) {
+      const cont = new Map<string, number>()
+      for (const l of b.linhas) {
+        const v = (l[c] ?? "").trim()
+        if (v) cont.set(v, (cont.get(v) ?? 0) + 1)
+      }
+      const maior = Math.max(0, ...cont.values())
+      if (maior >= b.linhas.length * 0.8) saida.add(c)
+    }
+  }
+  cacheConstantes.set(b, saida)
+  return saida
+}
+
 export function montarPlano(arquivos: Map<string, Uint8Array>, opcoes: OpcoesPlano): Plano {
   const { usuarioId, novoId } = opcoes
   const avisos: string[] = []
@@ -360,7 +381,8 @@ export function montarPlano(arquivos: Map<string, Uint8Array>, opcoes: OpcoesPla
     const dir = dirname(p)
     const banco = bancoDaPasta.get(dir) ?? bancoDaPasta.get(semId(dir))
     const md = lerMarkdown(p, texto(arquivos.get(p)!), Boolean(banco))
-    if (banco) linhasMd.set(banco, [...(linhasMd.get(banco) ?? []), md])
+    // Linhas do banco "Menu"/"Home" são as páginas do menu (Treino, Viagens…): viram páginas comuns.
+    if (banco && destinoDoBanco(banco.chave, banco.colunas) !== "ignorar") linhasMd.set(banco, [...(linhasMd.get(banco) ?? []), md])
     else paginasSoltas.push(md)
   }
 
@@ -597,17 +619,18 @@ export function montarPlano(arquivos: Map<string, Uint8Array>, opcoes: OpcoesPla
       case "habit_logs": {
         const d = dia(get(r, "Data")) ?? dia(t)
         if (!d) break
+        const constantes = colunasConstantes(r.banco)
         const nota: Record<string, string> = {}
         for (const c of r.banco.colunas) {
           const v = r.valores[c] ?? ""
           if (c === tituloCol(r.banco) || n(c) === "data") continue
           if (ehBool(v)) {
             if (lerBool(v)) marcacoes.push({ nomeHabito: c.trim(), day: d })
-          } else if (v.trim() && !["dia da semana", "progresso"].includes(n(c))) {
+          } else if (v.trim() && !["dia da semana", "progresso"].includes(n(c)) && !constantes.has(c) && !/^[\s\-—–_.·•]+$/.test(v)) {
             nota[c.trim()] = v.trim()
           }
         }
-        if (t && !lerDataNotion(t)) nota[tituloCol(r.banco)] = t
+        if (t && !lerDataNotion(t) && !constantes.has(tituloCol(r.banco))) nota[tituloCol(r.banco)] = t
         const obs = nota["Observação"] ?? null
         delete nota["Observação"]
         if (obs || Object.keys(nota).length) add("day_notes", { user_id: usuarioId, day: d, note: obs, extra: { ...nota, importado: true } })
@@ -823,25 +846,45 @@ export function montarPlano(arquivos: Map<string, Uint8Array>, opcoes: OpcoesPla
   }
 
   /* ---------- hábitos a partir das colunas do registro diário ---------- */
+  // Nomes do cadastro, para casar "Dicção" com "Treino de Dicção" (só palavra inteira, nunca "Yourself" com "Yourself II")
+  const nomesCadastro = new Map(habitoPorNome)
+  const palavras = (t: string) => t.split(" ").filter(Boolean)
   const acharHabito = (nome: string): string | null => {
     const k = n(nome)
     if (habitoPorNome.has(k)) return habitoPorNome.get(k)!
-    for (const [nomeH, id] of habitoPorNome) if (nomeH.includes(k) || k.includes(nomeH)) return id
-    return null
+    const candidatos = [...nomesCadastro].filter(([nomeH]) => {
+      const a = palavras(nomeH)
+      const b = palavras(k)
+      const [menor, maior] = a.length <= b.length ? [a, b] : [b, a]
+      return menor.length > 0 && menor.every((w) => maior.includes(w)) && !/\b(ii|iii|2|3)\b/.test(maior.filter((w) => !menor.includes(w)).join(" "))
+    })
+    return candidatos.length === 1 ? candidatos[0][1] : null
   }
   const ultimoUso = new Map<string, string>()
-  for (const m of marcacoes) {
-    let id = acharHabito(m.nomeHabito)
+  const garantirHabito = (nome: string): string => {
+    let id = acharHabito(nome)
     if (!id) {
       id = novoId()
-      habitoPorNome.set(n(m.nomeHabito), id)
-      add("habits", { id, user_id: usuarioId, notion_id: `habito:${n(m.nomeHabito)}`, name: m.nomeHabito, active: false, position: linhas.habits.length + 1 })
+      habitoPorNome.set(n(nome), id)
+      add("habits", { id, user_id: usuarioId, notion_id: `habito:${n(nome)}`, name: nome, active: false, position: linhas.habits.length + 1 })
     }
+    return id
+  }
+  // Toda coluna de caixa de seleção do registro diário é um hábito, mesmo sem marcações
+  for (const b of bancos) {
+    if (destinoDoBanco(b.chave, b.colunas) !== "habit_logs" || !b.linhas.length) continue
+    for (const c of b.colunas) {
+      if (c === tituloCol(b) || n(c) === "data") continue
+      if (b.linhas.some((l) => l[c]?.trim()) && b.linhas.every((l) => !l[c]?.trim() || ehBool(l[c]))) garantirHabito(c.trim())
+    }
+  }
+  for (const m of marcacoes) {
+    const id = garantirHabito(m.nomeHabito)
     if (!ultimoUso.has(id) || ultimoUso.get(id)! < m.day) ultimoUso.set(id, m.day)
     add("habit_logs", { user_id: usuarioId, habit_id: id, day: m.day })
   }
-  // Hábitos criados só pelo registro ficam ativos se usados nos últimos 30 dias
-  const corte = new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10)
+  // Hábitos criados só pelo registro ficam ativos se usados nos últimos 90 dias
+  const corte = new Date(Date.now() - 90 * 86400000).toISOString().slice(0, 10)
   for (const h of linhas.habits) if (!h.active && h.notion_id?.startsWith("habito:") && (ultimoUso.get(h.id) ?? "") >= corte) h.active = true
   // remove marcações repetidas
   const chavesLog = new Set<string>()

@@ -14,6 +14,7 @@ import { DialogoTarefa } from "@/features/tarefas/dialogo-tarefa"
 import { useNomeExibicao } from "@/features/configuracoes/dados"
 import type { Tables } from "@/lib/supabase/database.types"
 import { abrirNovo } from "@/components/shell/novo"
+import { Capa, MenuAtalhos } from "./painel"
 
 /* ------------------------------------------------------------------ */
 /* Cabeçalho do dia                                                    */
@@ -418,7 +419,9 @@ function ProjetosAndamento() {
 export function Hoje() {
   return (
     <div>
+      <Capa />
       <CabecalhoDia />
+      <MenuAtalhos />
       <HabitosHoje />
       <div className="mb-12 grid gap-10 md:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
         <TarefasHoje />

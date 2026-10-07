@@ -21,15 +21,15 @@ const TemaCtx = React.createContext<ContextoTema>({ tema: "sistema", mudarTema: 
 export const useTema = () => React.useContext(TemaCtx)
 
 /** Script que roda antes da primeira pintura para evitar piscar o tema. */
-export const scriptTema = `(function(){try{var t=localStorage.getItem('${CHAVE_TEMA}')||'sistema';var d=t==='escuro'||(t==='sistema'&&matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.classList.toggle('dark',d);}catch(e){}})();`
+export const scriptTema = `(function(){try{var t=localStorage.getItem('${CHAVE_TEMA}')||'escuro';var d=t==='escuro'||(t==='sistema'&&matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.classList.toggle('dark',d);}catch(e){}})();`
 
 function ProvedorTema({ children }: { children: React.ReactNode }) {
-  const [tema, setTema] = React.useState<Tema>("sistema")
+  const [tema, setTema] = React.useState<Tema>("escuro")
   const [escuro, setEscuro] = React.useState(false)
 
   React.useEffect(() => {
     try {
-      setTema((localStorage.getItem(CHAVE_TEMA) as Tema) || "sistema")
+      setTema((localStorage.getItem(CHAVE_TEMA) as Tema) || "escuro")
     } catch {}
   }, [])
 
