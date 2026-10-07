@@ -1,0 +1,1 @@
+export { PaginaColecoes } from "./paginas"
