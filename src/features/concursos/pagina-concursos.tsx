@@ -13,6 +13,7 @@ import { supabase } from "@/lib/supabase/client"
 import type { Tables } from "@/lib/supabase/database.types"
 import { cn, formatar, isoDia, porcentagem, somarDias } from "@/lib/utils"
 import { useArvorePaginas } from "@/features/paginas/dados"
+import { Pomodoro } from "@/components/pomodoro"
 
 type Assunto = Tables<"exam_topics">
 
@@ -24,7 +25,7 @@ function nivel(acerto: number, questoes: number) {
   return { rotulo: "Atenção", cor: "text-danger" }
 }
 
-function DialogoSessao({ aberta, aoMudar, assuntos, inicial }: { aberta: boolean; aoMudar: (v: boolean) => void; assuntos: (Assunto & { disciplina: string })[]; inicial?: string }) {
+function DialogoSessao({ aberta, aoMudar, assuntos, inicial, minutosIniciais }: { aberta: boolean; aoMudar: (v: boolean) => void; assuntos: (Assunto & { disciplina: string })[]; inicial?: string; minutosIniciais?: number }) {
   const qc = useQueryClient()
   const [assunto, setAssunto] = React.useState("")
   const [questoes, setQuestoes] = React.useState("")
@@ -36,9 +37,9 @@ function DialogoSessao({ aberta, aoMudar, assuntos, inicial }: { aberta: boolean
       setAssunto(inicial ?? assuntos[0]?.id ?? "")
       setQuestoes("")
       setAcertos("")
-      setMinutos("")
+      setMinutos(minutosIniciais ? String(minutosIniciais) : "")
     }
-  }, [aberta, inicial, assuntos])
+  }, [aberta, inicial, assuntos, minutosIniciais])
 
   const salvar = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -95,6 +96,7 @@ export function PaginaConcursos() {
   const excluirAssunto = useExcluir("exam_topics")
   const atualizarDisc = useAtualizar("exam_subjects")
   const [sessao, setSessao] = React.useState<string | null | undefined>(undefined)
+  const [minutosFoco, setMinutosFoco] = React.useState<number | undefined>(undefined)
   const [novaDisc, setNovaDisc] = React.useState("")
   const [novoAssunto, setNovoAssunto] = React.useState<Record<string, string>>({})
 
@@ -111,11 +113,12 @@ export function PaginaConcursos() {
       <Cabecalho
         area="estudos"
         titulo="Concursos"
-        descricao="Disciplinas e assuntos do edital, com o aproveitamento nas questões de cada um."
+        descricao="Disciplinas e assuntos do edital, com o aproveitamento nas questões de cada um. Ao fim de um Pomodoro, o app já abre o registro do estudo."
         acoes={assuntos.length ? <Botao variante="primario" onClick={() => setSessao(null)}><Plus /> Registrar estudo</Botao> : null}
       />
 
-      <dl className="mb-10 grid grid-cols-2 gap-6 border-b border-line pb-8 sm:grid-cols-4">
+      <div className="mb-10 grid gap-6 border-b border-line pb-8 lg:grid-cols-[minmax(0,1fr)_16rem] lg:items-start">
+      <dl className="grid grid-cols-2 gap-6 sm:grid-cols-4">
         {[
           { r: "Questões resolvidas", v: totalQ.toLocaleString("pt-BR") },
           { r: "Aproveitamento geral", v: totalQ ? `${porcentagem(totalC, totalQ)}%` : "–" },
@@ -128,6 +131,14 @@ export function PaginaConcursos() {
           </div>
         ))}
       </dl>
+      <Pomodoro
+        aoConcluirFoco={(min) => {
+          if (!assuntos.length) return
+          setMinutosFoco(min)
+          setSessao(null)
+        }}
+      />
+      </div>
 
       {metodologia.length ? (
         <Secao titulo="Metodologia" className="mb-10">
@@ -234,7 +245,7 @@ export function PaginaConcursos() {
         </div>
       )}
 
-      <DialogoSessao aberta={sessao !== undefined} aoMudar={(v) => !v && setSessao(undefined)} assuntos={comDisc} inicial={sessao ?? undefined} />
+      <DialogoSessao aberta={sessao !== undefined} aoMudar={(v) => { if (!v) { setSessao(undefined); setMinutosFoco(undefined) } }} assuntos={comDisc} inicial={sessao ?? undefined} minutosIniciais={minutosFoco} />
     </div>
   )
 }

@@ -23,6 +23,26 @@ const corResultado: Record<string, "rotina" | "perigo" | "estudos" | "neutra"> =
   indefinido: "neutra",
 }
 
+// Mesmo roteiro do modelo "Novo Experimento" do Notion
+const MODELO_EXPERIMENTO = `### Objetivo
+-
+
+### Procedimento
+1.
+
+### Evidências
+Prints, links ou observações diárias.
+
+### Resultado
+- Funcionou?
+- Nota:
+
+### Aprendizados-chave
+-
+
+### Conclusão final
+`
+
 function DialogoExperimento({ aberta, aoMudar, exp }: { aberta: boolean; aoMudar: (v: boolean) => void; exp?: Experimento | null }) {
   const criar = useCriar("experiments")
   const atualizar = useAtualizar("experiments")
@@ -44,7 +64,7 @@ function DialogoExperimento({ aberta, aoMudar, exp }: { aberta: boolean; aoMudar
     setInicio(exp?.starts_on ?? "")
     setFim(exp?.ends_on ?? "")
     setHipotese(exp?.hypothesis ?? "")
-    setNotas(exp?.notes ?? "")
+    setNotas(exp ? (exp.notes ?? "") : MODELO_EXPERIMENTO)
   }, [aberta, exp])
   const salvar = (e: React.FormEvent) => {
     e.preventDefault()
@@ -92,7 +112,7 @@ function DialogoExperimento({ aberta, aoMudar, exp }: { aberta: boolean; aoMudar
           <Campo rotulo="Fim" htmlFor="x-fim"><Entrada id="x-fim" type="date" value={fim} onChange={(e) => setFim(e.target.value)} /></Campo>
         </div>
         <Campo rotulo="Hipótese" htmlFor="x-hip"><AreaTexto id="x-hip" value={hipotese} onChange={(e) => setHipotese(e.target.value)} rows={2} placeholder="Se eu fizer X, espero que Y" /></Campo>
-        <Campo rotulo="Anotações e aprendizados" htmlFor="x-notas"><AreaTexto id="x-notas" value={notas} onChange={(e) => setNotas(e.target.value)} rows={6} /></Campo>
+        <Campo rotulo="Roteiro, evidências e aprendizados" htmlFor="x-notas"><AreaTexto id="x-notas" value={notas} onChange={(e) => setNotas(e.target.value)} rows={12} className="font-mono text-[13px]" /></Campo>
       </form>
     </Janela>
   )

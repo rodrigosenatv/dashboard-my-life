@@ -4,13 +4,14 @@ import * as React from "react"
 import { useSearchParams } from "next/navigation"
 import { ExternalLink, Plus } from "lucide-react"
 import { Botao } from "@/components/ui/button"
-import { Cabecalho, Carregando, Etiqueta, Progresso, Vazio } from "@/components/ui/basicos"
+import { Segmentos, Cabecalho, Carregando, Etiqueta, Progresso, Vazio } from "@/components/ui/basicos"
 import { AreaTexto, Campo, Entrada, Seletor } from "@/components/ui/campos"
 import { Janela } from "@/components/ui/janela"
 import { novoId, useAtualizar, useCriar, useExcluir, useLista } from "@/lib/data"
 import type { Tables } from "@/lib/supabase/database.types"
 import { STATUS_CURSO, type StatusCurso } from "@/lib/rotulos"
 import { urlValida } from "@/lib/utils"
+import { Pomodoro } from "@/components/pomodoro"
 
 type Curso = Tables<"courses">
 
@@ -93,12 +94,28 @@ export function PaginaCursos() {
   const atualizar = useAtualizar("courses")
   const [aberto, setAberto] = React.useState<Curso | null>(null)
   const [novo, setNovo] = React.useState(false)
+  const [visao, setVisao] = React.useState<"aprendendo" | "fila" | "concluidos" | "categorias">("aprendendo")
 
   React.useEffect(() => {
     const id = params.get("abrir")
     const c = id ? cursos.find((x) => x.id === id) : null
     if (c) setAberto(c)
   }, [params, cursos])
+
+  const porStatus = (st: StatusCurso[]) => cursos.filter((c) => st.includes(c.status as StatusCurso))
+  const porCategoria = (lista: typeof cursos) => {
+    const mapa = new Map<string, typeof cursos>()
+    for (const c of lista) for (const k of c.categories.length ? c.categories : ["Sem categoria"]) mapa.set(k, [...(mapa.get(k) ?? []), c])
+    return [...mapa.entries()].sort(([a], [b]) => (a === "Sem categoria" ? 1 : b === "Sem categoria" ? -1 : a.localeCompare(b))).map(([titulo, itens]) => ({ titulo, itens }))
+  }
+  const grupos =
+    visao === "aprendendo"
+      ? [{ titulo: "Em andamento", itens: porStatus(["em_andamento"]) }, { titulo: "Pausados", itens: porStatus(["pausado"]) }].filter((g) => g.itens.length)
+      : visao === "fila"
+        ? [{ titulo: "Não começou", itens: porStatus(["nao_comecou"]) }].filter((g) => g.itens.length)
+        : visao === "concluidos"
+          ? porCategoria(porStatus(["concluido"]))
+          : porCategoria(cursos)
 
   return (
     <div>
@@ -113,17 +130,30 @@ export function PaginaCursos() {
       ) : cursos.length === 0 ? (
         <Vazio titulo="Nenhum curso cadastrado." />
       ) : (
-        <div className="grid gap-10">
-          {(Object.keys(STATUS_CURSO) as StatusCurso[]).map((s) => {
-            const lista = cursos.filter((c) => c.status === s)
-            if (!lista.length) return null
-            return (
-              <section key={s}>
-                <h2 className="mb-3 flex items-baseline gap-2 font-display text-lg font-semibold">
-                  {STATUS_CURSO[s]} <span className="tabular text-sm font-normal text-ink-3">{lista.length}</span>
-                </h2>
-                <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                  {lista.map((c) => {
+        <>
+          <Segmentos
+            rotulo="Visualização dos cursos"
+            className="mb-6"
+            valor={visao}
+            aoMudar={setVisao}
+            opcoes={[
+              { valor: "aprendendo", rotulo: "Aprendendo", contagem: cursos.filter((c) => c.status === "em_andamento" || c.status === "pausado").length },
+              { valor: "fila", rotulo: "Não começou", contagem: cursos.filter((c) => c.status === "nao_comecou").length },
+              { valor: "concluidos", rotulo: "Concluídos", contagem: cursos.filter((c) => c.status === "concluido").length },
+              { valor: "categorias", rotulo: "Por categoria" },
+            ]}
+          />
+          <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_16rem]">
+            <div className="grid min-w-0 gap-10">
+              {grupos.length === 0 ? <Vazio titulo="Nenhum curso aqui." /> : null}
+              {grupos.map((g) => (
+                <section key={g.titulo}>
+                  <h2 className="mb-3 flex items-baseline gap-2 font-display text-lg font-semibold">
+                    {g.titulo} <span className="tabular text-sm font-normal text-ink-3">{g.itens.length}</span>
+                  </h2>
+                  <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                    {g.itens.map((c) => {
+                      const s = c.status as StatusCurso
                     const link = urlValida(c.url)
                     return (
                       <li key={c.id} className="flex flex-col rounded-lg border border-line bg-surface p-4">
@@ -149,12 +179,16 @@ export function PaginaCursos() {
                         </Seletor>
                       </li>
                     )
-                  })}
-                </ul>
-              </section>
-            )
-          })}
-        </div>
+                    })}
+                  </ul>
+                </section>
+              ))}
+            </div>
+            <aside className="order-first xl:order-none">
+              <Pomodoro className="xl:sticky xl:top-6" />
+            </aside>
+          </div>
+        </>
       )}
       <DialogoCurso aberta={novo || Boolean(aberto)} aoMudar={(v) => { if (!v) { setNovo(false); setAberto(null) } }} curso={aberto} />
     </div>

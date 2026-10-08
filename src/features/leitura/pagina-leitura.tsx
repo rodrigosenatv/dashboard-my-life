@@ -3,16 +3,18 @@
 import Link from "next/link"
 import * as React from "react"
 import { useSearchParams } from "next/navigation"
-import { Plus, Quote, Star } from "lucide-react"
+import { BookOpenCheck, Plus, Quote, Star } from "lucide-react"
 import { Botao } from "@/components/ui/button"
 import { Cabecalho, Carregando, Progresso, Segmentos, Vazio } from "@/components/ui/basicos"
 import { novoId, useAtualizar, useCriar, useExcluir, useLista } from "@/lib/data"
 import type { Tables } from "@/lib/supabase/database.types"
 import { contem, porcentagem } from "@/lib/utils"
 import { DialogoLivro } from "./dialogo-livro"
+import { Pomodoro } from "@/components/pomodoro"
+import { isoDia } from "@/lib/utils"
 
 type Livro = Tables<"books">
-type Aba = "estante" | "lidos" | "desejos" | "insights"
+type Aba = "estante" | "pausados" | "lidos" | "desejos" | "insights"
 
 function Lombada({ livro }: { livro: Livro }) {
   // Capa tipográfica: sem imagem, o título é a capa.
@@ -112,14 +114,36 @@ export function PaginaLeitura() {
   const [novo, setNovo] = React.useState(false)
   const { data: livros = [], isLoading } = useLista("books", { ordem: [{ coluna: "title" }] })
 
-  const lendo = livros.filter((l) => l.status === "lendo" || l.status === "pausado")
+  const atualizarLivro = useAtualizar("books")
+  const [soFavoritos, setSoFavoritos] = React.useState(false)
+  const lendo = livros.filter((l) => l.status === "lendo")
+  const pausados = livros.filter((l) => l.status === "pausado")
   const lidos = livros.filter((l) => l.status === "finalizado").sort((a, b) => (b.finished_at ?? "").localeCompare(a.finished_at ?? ""))
   const desejos = livros.filter((l) => l.status === "desejo")
   const ano = new Date().getFullYear()
   const lidosAno = lidos.filter((l) => l.read_years.includes(ano) || l.finished_at?.startsWith(String(ano))).length
 
-  const grade = (lista: Livro[]) => {
-    const f = lista.filter((l) => contem(`${l.title} ${l.author ?? ""}`, busca))
+  const anoDe = (l: Livro) => (l.finished_at ? Number(l.finished_at.slice(0, 4)) : l.read_years.length ? Math.max(...l.read_years) : 0)
+  const porAno = () => {
+    const f = lidos.filter((l) => contem(`${l.title} ${l.author ?? ""}`, busca) && (!soFavoritos || l.favorite))
+    const anos = [...new Set(f.map(anoDe))].sort((a, b) => b - a)
+    if (!f.length) return <Vazio titulo="Nenhum livro aqui." />
+    return (
+      <div className="grid gap-10">
+        {anos.map((a) => (
+          <section key={a}>
+            <h2 className="mb-3 flex items-baseline gap-2 font-display text-lg font-semibold">
+              {a || "Sem data"} <span className="tabular text-sm font-normal text-ink-3">{f.filter((l) => anoDe(l) === a).length}</span>
+            </h2>
+            {grade(f.filter((l) => anoDe(l) === a))}
+          </section>
+        ))}
+      </div>
+    )
+  }
+
+  const grade = (lista: Livro[], acao?: (l: Livro) => React.ReactNode) => {
+    const f = lista.filter((l) => contem(`${l.title} ${l.author ?? ""}`, busca) && (!soFavoritos || l.favorite))
     if (!f.length) return <Vazio titulo="Nenhum livro aqui." />
     return (
       <ul className="grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-4 lg:grid-cols-6">
@@ -133,6 +157,7 @@ export function PaginaLeitura() {
                 {l.read_years.length ? <span className="tabular">{l.read_years.join(", ")}</span> : null}
               </div>
             </Link>
+            {acao ? acao(l) : null}
           </li>
         ))}
       </ul>
@@ -144,7 +169,7 @@ export function PaginaLeitura() {
       <Cabecalho
         area="estudos"
         titulo="Leitura"
-        descricao={`${lidosAno === 0 ? `Nenhum livro terminado em ${ano} ainda` : lidosAno === 1 ? `1 livro lido em ${ano}` : `${lidosAno} livros lidos em ${ano}`}. Atualize a página em que parou e o progresso se ajusta sozinho.`}
+        descricao={`${lidosAno === 0 ? `Nenhum livro terminado em ${ano} ainda` : lidosAno === 1 ? `1 livro lido em ${ano}` : `${lidosAno} livros lidos em ${ano}`}, ${lidos.length} no total. Atualize a página em que parou e o progresso se ajusta sozinho.`}
         acoes={<Botao variante="primario" onClick={() => setNovo(true)}><Plus /> Adicionar livro</Botao>}
       />
       <div className="mb-8 flex flex-wrap items-center gap-2">
@@ -154,16 +179,29 @@ export function PaginaLeitura() {
           aoMudar={setAba}
           opcoes={[
             { valor: "estante", rotulo: "Lendo", contagem: lendo.length },
+            { valor: "pausados", rotulo: "Pausados", contagem: pausados.length },
             { valor: "lidos", rotulo: "Lidos", contagem: lidos.length },
             { valor: "desejos", rotulo: "Quero ler", contagem: desejos.length },
             { valor: "insights", rotulo: "Insights" },
           ]}
         />
         {aba !== "insights" && aba !== "estante" ? (
-          <input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Filtrar por título ou autor" aria-label="Filtrar livros" className="h-9 min-w-56 rounded-md border border-line-strong bg-surface px-3 text-sm focus-visible:border-pen focus-visible:outline-none" />
+          <>
+            <input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Filtrar por título ou autor" aria-label="Filtrar livros" className="h-9 min-w-56 rounded-md border border-line-strong bg-surface px-3 text-sm focus-visible:border-pen focus-visible:outline-none" />
+            <button
+              type="button"
+              aria-pressed={soFavoritos}
+              onClick={() => setSoFavoritos((v) => !v)}
+              className={`inline-flex h-9 items-center gap-1.5 rounded-md border px-3 text-sm ${soFavoritos ? "border-estudos bg-estudos-soft text-ink" : "border-line-strong text-ink-2 hover:text-ink"}`}
+            >
+              <Star className={`size-4 ${soFavoritos ? "fill-estudos text-estudos" : ""}`} /> Favoritos
+            </button>
+          </>
         ) : null}
       </div>
 
+      <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_16rem]">
+      <div className="min-w-0">
       {isLoading ? (
         <Carregando />
       ) : aba === "estante" ? (
@@ -193,13 +231,32 @@ export function PaginaLeitura() {
             })}
           </ul>
         )
+      ) : aba === "pausados" ? (
+        grade(pausados, (l) => (
+          <button type="button" onClick={() => atualizarLivro.mutate({ id: l.id, status: "lendo" })} className="mt-1 text-xs font-medium text-pen hover:underline">
+            Retomar leitura
+          </button>
+        ))
       ) : aba === "lidos" ? (
-        grade(lidos)
+        porAno()
       ) : aba === "desejos" ? (
-        grade(desejos)
+        grade(desejos, (l) => (
+          <button
+            type="button"
+            onClick={() => atualizarLivro.mutate({ id: l.id, status: "lendo", started_at: l.started_at ?? isoDia() })}
+            className="mt-1 inline-flex items-center gap-1 text-xs font-medium text-pen hover:underline"
+          >
+            <BookOpenCheck className="size-3.5" /> Comecei a ler
+          </button>
+        ))
       ) : (
         <Insights livros={livros} />
       )}
+      </div>
+      <aside className="order-first xl:order-none">
+        <Pomodoro className="xl:sticky xl:top-6" />
+      </aside>
+      </div>
 
       <DialogoLivro aberta={novo} aoMudar={setNovo} statusInicial={aba === "desejos" ? "desejo" : aba === "lidos" ? "finalizado" : "lendo"} />
     </div>

@@ -1,5 +1,7 @@
 "use client"
 
+import * as React from "react"
+
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { LogOut, Monitor, Moon, Search, Sun } from "lucide-react"
@@ -99,8 +101,14 @@ const temas: { valor: Tema; rotulo: string; icone: typeof Sun }[] = [
 export function MenuUsuario({ compacto }: { compacto?: boolean }) {
   const { usuario, sair } = useSessao()
   const { tema, mudarTema } = useTema()
-  const email = usuario?.email ?? ""
-  const inicial = (email[0] ?? "?").toUpperCase()
+  // A sessão só existe no navegador; antes de montar, servidor e cliente mostram o mesmo vazio
+  const montado = React.useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  )
+  const email = montado ? (usuario?.email ?? "") : ""
+  const inicial = (email[0] ?? "").toUpperCase()
   return (
     <Menu>
       <MenuGatilho
