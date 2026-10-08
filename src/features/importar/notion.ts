@@ -490,6 +490,40 @@ export function montarPlano(arquivos: Map<string, Uint8Array>, opcoes: OpcoesPla
     }
   }
 
+  /* ---------- segunda tentativa: texto da linha numa pasta com nome diferente ----------
+     O Notion às vezes grava a pasta das linhas com nome cortado ou diferente do .csv.
+     Procura, entre as páginas soltas, uma com o mesmo título numa pasta vizinha ao .csv. */
+  const normPasta = (p: string) =>
+    p
+      .split("/")
+      .map((seg) => normalizarNome(seg.replace(/\s[0-9a-f]{32}$/i, "")))
+      .join("/")
+  const soltasPorTitulo = new Map<string, PaginaMd[]>()
+  for (const p of paginasSoltas) soltasPorTitulo.set(n(p.titulo), [...(soltasPorTitulo.get(n(p.titulo)) ?? []), p])
+  const usadas = new Set<string>()
+  for (const r of registros) {
+    if (r.md) continue
+    const titulo = n(r.valores[tituloCol(r.banco)] ?? "")
+    if (!titulo) continue
+    const pastaCsv = normPasta(dirname(r.banco.caminho))
+    const nomeBanco = normPasta(basename(r.banco.pastaLinhas))
+    const candidatos = (soltasPorTitulo.get(titulo) ?? []).filter((p) => {
+      if (usadas.has(p.caminho)) return false
+      const pastaMd = dirname(p.caminho)
+      if (normPasta(dirname(pastaMd)) !== pastaCsv) return false
+      const nomePasta = normPasta(basename(pastaMd))
+      return nomePasta.startsWith(nomeBanco.slice(0, 12)) || nomeBanco.startsWith(nomePasta.slice(0, 12))
+    })
+    if (candidatos.length !== 1) continue
+    const p = candidatos[0]
+    usadas.add(p.caminho)
+    r.md = lerMarkdown(p.caminho, texto(arquivos.get(p.caminho)!), true)
+    appId.set(r.md.id, r.id)
+  }
+  if (usadas.size) {
+    for (let i = paginasSoltas.length - 1; i >= 0; i--) if (usadas.has(paginasSoltas[i].caminho)) paginasSoltas.splice(i, 1)
+  }
+
   // Rotas para links internos
   for (const r of registros) {
     if (!r.md) continue

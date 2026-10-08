@@ -3,7 +3,7 @@
 import Link from "next/link"
 import * as React from "react"
 import { useQueryClient } from "@tanstack/react-query"
-import { FileText, Plus } from "lucide-react"
+import { FileText, Plus, NotebookText } from "lucide-react"
 import { Botao } from "@/components/ui/button"
 import { Cabecalho, Carregando, Secao, Vazio } from "@/components/ui/basicos"
 import { Campo, Entrada, Seletor } from "@/components/ui/campos"
@@ -14,6 +14,7 @@ import type { Tables } from "@/lib/supabase/database.types"
 import { cn, formatar, isoDia, porcentagem, somarDias } from "@/lib/utils"
 import { useArvorePaginas } from "@/features/paginas/dados"
 import { Pomodoro } from "@/components/pomodoro"
+import { JanelaNotas } from "@/components/janela-notas"
 
 type Assunto = Tables<"exam_topics">
 
@@ -95,6 +96,8 @@ export function PaginaConcursos() {
   const criarAssunto = useCriar("exam_topics")
   const excluirAssunto = useExcluir("exam_topics")
   const atualizarDisc = useAtualizar("exam_subjects")
+  const atualizarAssunto = useAtualizar("exam_topics")
+  const [notas, setNotas] = React.useState<{ tipo: "disc" | "assunto"; id: string; titulo: string } | null>(null)
   const [sessao, setSessao] = React.useState<string | null | undefined>(undefined)
   const [minutosFoco, setMinutosFoco] = React.useState<number | undefined>(undefined)
   const [novaDisc, setNovaDisc] = React.useState("")
@@ -174,6 +177,13 @@ export function PaginaConcursos() {
                     className="min-w-0 flex-1 bg-transparent font-display text-lg font-semibold outline-none"
                   />
                   <span className="tabular text-sm text-ink-2">{q ? `${porcentagem(c, q)}% de acerto em ${q} questões` : "Sem questões ainda"}</span>
+                  <button
+                    type="button"
+                    onClick={() => setNotas({ tipo: "disc", id: d.id, titulo: d.name })}
+                    className={cn("inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs hover:bg-surface-2", d.notes ? "font-medium text-pen" : "text-ink-3")}
+                  >
+                    <NotebookText className="size-3.5" /> {d.notes ? "Anotações" : "Anotar"}
+                  </button>
                 </header>
                 <div className="overflow-x-auto">
                   <table className="w-full min-w-[520px] text-sm">
@@ -188,12 +198,17 @@ export function PaginaConcursos() {
                       </tr>
                     </thead>
                     <tbody>
-                      {lista.map((a) => {
+                      {lista.flatMap((pai) => [pai, ...comDisc.filter((x) => x.parent_id === pai.id)]).map((a) => {
                         const pct = porcentagem(a.correct, a.questions)
                         const n = nivel(pct, a.questions)
                         return (
                           <tr key={a.id} className="group border-t border-line">
-                            <td className="px-4 py-2">{a.name}</td>
+                            <td className={cn("px-4 py-2", a.parent_id && "pl-9 text-ink-2")}>
+                              <button type="button" onClick={() => setNotas({ tipo: "assunto", id: a.id, titulo: a.name })} className="inline-flex items-center gap-1.5 text-left hover:underline" title={a.notes ? "Ver anotações" : "Anotar"}>
+                                {a.name}
+                                {a.notes ? <NotebookText aria-label="Tem anotações" className="size-3.5 shrink-0 text-pen" /> : null}
+                              </button>
+                            </td>
                             <td className="tabular py-2 text-right">{a.questions}</td>
                             <td className="tabular py-2 text-right">{a.correct}</td>
                             <td className="px-4 py-2">
@@ -245,6 +260,17 @@ export function PaginaConcursos() {
         </div>
       )}
 
+      <JanelaNotas
+        aberta={Boolean(notas)}
+        aoMudar={(v) => !v && setNotas(null)}
+        titulo={notas?.titulo ?? ""}
+        texto={notas ? (notas.tipo === "disc" ? disciplinas.find((d) => d.id === notas.id)?.notes : assuntos.find((a) => a.id === notas.id)?.notes) : ""}
+        aoSalvar={(v) => {
+          if (!notas) return
+          if (notas.tipo === "disc") atualizarDisc.mutate({ id: notas.id, notes: v || null })
+          else atualizarAssunto.mutate({ id: notas.id, notes: v || null })
+        }}
+      />
       <DialogoSessao aberta={sessao !== undefined} aoMudar={(v) => { if (!v) { setSessao(undefined); setMinutosFoco(undefined) } }} assuntos={comDisc} inicial={sessao ?? undefined} minutosIniciais={minutosFoco} />
     </div>
   )

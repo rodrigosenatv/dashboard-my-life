@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { useSearchParams } from "next/navigation"
-import { ExternalLink, Plus } from "lucide-react"
+import { ExternalLink, NotebookText, Pencil, Plus } from "lucide-react"
 import { Botao } from "@/components/ui/button"
 import { Segmentos, Cabecalho, Carregando, Etiqueta, Progresso, Vazio } from "@/components/ui/basicos"
 import { AreaTexto, Campo, Entrada, Seletor } from "@/components/ui/campos"
@@ -12,6 +12,7 @@ import type { Tables } from "@/lib/supabase/database.types"
 import { STATUS_CURSO, type StatusCurso } from "@/lib/rotulos"
 import { urlValida } from "@/lib/utils"
 import { Pomodoro } from "@/components/pomodoro"
+import { JanelaNotas } from "@/components/janela-notas"
 
 type Curso = Tables<"courses">
 
@@ -94,6 +95,7 @@ export function PaginaCursos() {
   const atualizar = useAtualizar("courses")
   const [aberto, setAberto] = React.useState<Curso | null>(null)
   const [novo, setNovo] = React.useState(false)
+  const [notasCurso, setNotasCurso] = React.useState<(typeof cursos)[number] | null>(null)
   const [visao, setVisao] = React.useState<"aprendendo" | "fila" | "concluidos" | "categorias">("aprendendo")
 
   React.useEffect(() => {
@@ -157,7 +159,17 @@ export function PaginaCursos() {
                     const link = urlValida(c.url)
                     return (
                       <li key={c.id} className="flex flex-col rounded-lg border border-line bg-surface p-4">
-                        <button type="button" onClick={() => setAberto(c)} className="text-left font-medium leading-snug hover:underline">{c.name}</button>
+                        <div className="flex items-start gap-2">
+                          <button type="button" onClick={() => setNotasCurso(c)} className="flex-1 text-left font-medium leading-snug hover:underline" title="Abrir anotações">
+                            {c.name}
+                          </button>
+                          <button type="button" onClick={() => setAberto(c)} aria-label={`Editar ${c.name}`} className="rounded p-1 text-ink-3 hover:bg-surface-2 hover:text-ink">
+                            <Pencil className="size-3.5" />
+                          </button>
+                        </div>
+                        <button type="button" onClick={() => setNotasCurso(c)} className={`mt-1 inline-flex items-center gap-1 self-start text-xs ${c.notes ? "font-medium text-pen" : "text-ink-3"} hover:underline`}>
+                          <NotebookText className="size-3.5" /> {c.notes ? "Anotações" : "Anotar"}
+                        </button>
                         <div className="mt-2 flex flex-wrap gap-1">{c.categories.map((t) => <Etiqueta key={t}>{t}</Etiqueta>)}</div>
                         <div className="mt-auto flex items-center gap-2 pt-4">
                           {c.progress !== null && s !== "concluido" ? (
@@ -190,6 +202,13 @@ export function PaginaCursos() {
           </div>
         </>
       )}
+      <JanelaNotas
+        aberta={Boolean(notasCurso)}
+        aoMudar={(v) => !v && setNotasCurso(null)}
+        titulo={notasCurso?.name ?? ""}
+        texto={notasCurso ? cursos.find((x) => x.id === notasCurso.id)?.notes : ""}
+        aoSalvar={(v) => notasCurso && atualizar.mutate({ id: notasCurso.id, notes: v || null })}
+      />
       <DialogoCurso aberta={novo || Boolean(aberto)} aoMudar={(v) => { if (!v) { setNovo(false); setAberto(null) } }} curso={aberto} />
     </div>
   )
