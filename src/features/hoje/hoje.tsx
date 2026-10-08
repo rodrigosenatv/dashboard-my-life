@@ -174,7 +174,7 @@ function HabitosHoje() {
 
 type Tarefa = Tables<"tasks">
 
-function TarefasHoje() {
+export function TarefasHoje() {
   const hoje = isoDia()
   const { data: tarefas = [], isLoading } = useLista("tasks", { ordem: [{ coluna: "position" }] })
   const { data: projetos = [] } = useLista("projects", { colunas: "id,name,parent_id,archived,done", ordem: [{ coluna: "name" }] })
@@ -258,7 +258,7 @@ const corCategoria: Record<string, string> = {
   Viagem: "bg-estudos",
 }
 
-function AgendaProxima() {
+export function AgendaProxima() {
   const hoje = isoDia()
   const limite = somarDias(hoje, 8)
   const { data: eventos = [], isLoading } = useLista("events", { ordem: [{ coluna: "starts_at" }] })

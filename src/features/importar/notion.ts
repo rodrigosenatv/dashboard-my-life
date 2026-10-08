@@ -962,7 +962,14 @@ export function montarPlano(arquivos: Map<string, Uint8Array>, opcoes: OpcoesPla
       else if (valores.length && new Set(valores).size <= Math.max(3, valores.length / 3) && valores.every((v) => v.length < 40)) type = "select"
       return { name: c, type }
     })
-    add("collections", { id, user_id: usuarioId, notion_id: b.id, name: b.nome.replace(/^Database:\s*/i, ""), section: "outros", schema, position: linhas.collections.length + 1 })
+    // Caminho de páginas onde o banco morava no Notion (ex.: "Menu › Viagens"), usado nas páginas de Vida pessoal
+    const origem = dirname(b.caminho)
+      .split("/")
+      .filter(Boolean)
+      .map((seg) => seg.replace(/\s[0-9a-f]{32}$/i, "").trim())
+      .filter((seg) => seg && !/^export/i.test(seg))
+      .join(" › ")
+    add("collections", { id, user_id: usuarioId, notion_id: b.id, name: b.nome.replace(/^Database:\s*/i, ""), section: "outros", description: origem ? `Notion › ${origem}` : null, schema, position: linhas.collections.length + 1 })
   }
 
   /* ---------- páginas soltas ---------- */

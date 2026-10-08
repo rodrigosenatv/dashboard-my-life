@@ -20,6 +20,14 @@ import {
   Settings,
   Sun,
   Clapperboard,
+  Crown,
+  Dumbbell,
+  FolderOpen,
+  Plane,
+  Popcorn,
+  Rocket,
+  Shirt,
+  UtensilsCrossed,
   Target,
   type LucideIcon,
 } from "lucide-react"
@@ -88,6 +96,22 @@ export const GRUPOS: GrupoNav[] = [
     ],
   },
 ]
+
+GRUPOS.push({
+  area: "geral",
+  rotulo: "Vida pessoal",
+  inicio: "/vida/flow",
+  itens: [
+    { rotulo: "Flow", href: "/vida/flow", icone: Rocket },
+    { rotulo: "Treino", href: "/vida/treino", icone: Dumbbell },
+    { rotulo: "Alimentação", href: "/vida/alimentacao", icone: UtensilsCrossed },
+    { rotulo: "Viagens", href: "/vida/viagens", icone: Plane },
+    { rotulo: "Hobbies", href: "/vida/hobbies", icone: Crown },
+    { rotulo: "Pessoal", href: "/vida/pessoal", icone: FolderOpen },
+    { rotulo: "Filmes & Séries", href: "/vida/filmes-series", icone: Popcorn },
+    { rotulo: "Guarda Roupa", href: "/vida/guarda-roupa", icone: Shirt },
+  ],
+})
 
 export const EXTRAS: ItemNav[] = [
   { rotulo: "Coleções", href: "/colecoes", icone: Layers },
