@@ -1,9 +1,9 @@
 import type { Metadata } from "next"
-import { PaginaCapturas } from "@/features/capturas/pagina-capturas"
+import { PaginaAnotacoes } from "@/features/segundo-cerebro/paginas"
 
-export const metadata: Metadata = { title: "Capturas" }
+export const metadata: Metadata = { title: "Anotações" }
 export const instant = false
 
 export default function Pagina() {
-  return <PaginaCapturas />
+  return <PaginaAnotacoes />
 }

@@ -31,7 +31,8 @@ function CabecalhoDia() {
     const t = texto.trim()
     if (!t) return
     const ehLink = /^https?:\/\//i.test(t)
-    criar.mutate({ id: novoId(), title: t, url: ehLink ? t : null, kind: ehLink ? "Link" : "Anotação" })
+    // Sem tipo: a captura cai na Caixa de Entrada do Segundo Cérebro para ser organizada depois
+    criar.mutate({ id: novoId(), title: t, url: ehLink ? t : null, kind: null })
     setTexto("")
   }
 
@@ -375,7 +376,7 @@ function LendoAgora() {
 
 function ProjetosAndamento() {
   const { data: projetos = [] } = useLista("projects", { ordem: [{ coluna: "position" }, { coluna: "name" }] })
-  const { data: capturas = [] } = useLista("captures", { colunas: "id,area_id,archived" })
+  const { data: capturas = [] } = useLista("captures", { colunas: "id,area_id,archived,kind" })
   const { data: vinculos = [] } = useLista("capture_projects", { colunas: "capture_id,project_id" })
 
   const filhos = new Map<string, { total: number; feitos: number }>()
@@ -389,7 +390,7 @@ function ProjetosAndamento() {
   const ativos = projetos.filter((p) => !p.parent_id && !p.archived && !p.done).slice(0, 5)
 
   const comProjeto = new Set(vinculos.map((v) => v.capture_id))
-  const caixa = capturas.filter((c) => !c.archived && !c.area_id && !comProjeto.has(c.id)).length
+  const caixa = capturas.filter((c) => !c.archived && !c.area_id && !c.kind && !comProjeto.has(c.id)).length
 
   return (
     <Secao titulo="Projetos em andamento" acao={<Link href="/projetos" className="text-sm text-ink-2 hover:text-ink">Projetos</Link>}>
@@ -415,7 +416,7 @@ function ProjetosAndamento() {
         </ul>
       )}
       {caixa > 0 ? (
-        <Link href="/projetos/capturas" className="mt-5 flex items-center gap-2 text-sm text-ink-2 hover:text-ink">
+        <Link href="/projetos/entrada" className="mt-5 flex items-center gap-2 text-sm text-ink-2 hover:text-ink">
           <Etiqueta cor="projetos">{caixa}</Etiqueta>
           {caixa === 1 ? "captura esperando organização" : "capturas esperando organização"}
         </Link>

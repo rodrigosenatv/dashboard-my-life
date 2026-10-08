@@ -95,7 +95,7 @@ export const MENU: Atalho[] = [
   { rotulo: "Filmes & Séries", icone: Popcorn, paginas: ["Filmes & Séries", "Filmes e Séries"] },
   { rotulo: "Guarda Roupa", icone: Shirt, paginas: ["Guarda Roupa", "Guarda-Roupa"] },
   { rotulo: "Segundo Cérebro", icone: Brain, href: "/projetos" },
-  { rotulo: "Anotações", icone: NotebookPen, href: "/projetos/notas" },
+  { rotulo: "Anotações", icone: NotebookPen, href: "/projetos/capturas" },
   { rotulo: "Dominando a IA", icone: Zap, href: "/conteudo/biblioteca" },
   { rotulo: "Laboratório", icone: Microscope, href: "/estudos/laboratorio" },
   { rotulo: "SCA", icone: GraduationCap, href: "/estudos/concursos" },

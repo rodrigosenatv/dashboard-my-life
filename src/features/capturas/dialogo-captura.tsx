@@ -17,11 +17,13 @@ export function DialogoCaptura({
   aoMudar,
   captura,
   projetoInicial,
+  areaInicial,
 }: {
   aberta: boolean
   aoMudar: (v: boolean) => void
   captura?: Captura | null
   projetoInicial?: string
+  areaInicial?: string
 }) {
   const qc = useQueryClient()
   const criar = useCriar("captures")
@@ -48,10 +50,10 @@ export function DialogoCaptura({
     setCategoria(captura?.category ?? "")
     setLink(captura?.url ?? "")
     setConteudo(captura?.content ?? "")
-    setArea(captura?.area_id ?? "")
+    setArea(captura?.area_id ?? areaInicial ?? "")
     setTags((captura?.tags ?? []).join(", "))
     setProjeto(projetoInicial ?? "")
-  }, [aberta, captura, projetoInicial])
+  }, [aberta, captura, projetoInicial, areaInicial])
 
   const salvar = async (e: React.FormEvent) => {
     e.preventDefault()

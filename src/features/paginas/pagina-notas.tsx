@@ -6,8 +6,8 @@ export function PaginaNotas() {
   return (
     <ListaPaginas
       area="projetos"
-      titulo="Notas"
-      descricao="Anotações, recursos de consulta e o que ficou guardado no arquivo."
+      titulo="Páginas"
+      descricao="Páginas trazidas do Notion e escritas aqui: wiki pessoal, documentos e textos longos."
       secoes={["notas", "recursos", "wiki", "geral", "arquivo"]}
       secaoNova="notas"
     />

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import * as React from "react"
 import { CalendarClock, Plus } from "lucide-react"
 import { Botao } from "@/components/ui/button"
-import { Cabecalho, Carregando, Etiqueta, Progresso, Secao, Segmentos, Vazio } from "@/components/ui/basicos"
+import { Cabecalho, Carregando, Etiqueta, Progresso, Segmentos, Vazio } from "@/components/ui/basicos"
 import { AreaTexto, Campo, Entrada, Seletor } from "@/components/ui/campos"
 import { Janela } from "@/components/ui/janela"
 import { novoId, useAtualizar, useCriar, useLista } from "@/lib/data"
@@ -72,7 +72,7 @@ function DialogoNovoProjeto({ aberta, aoMudar }: { aberta: boolean; aoMudar: (v:
   )
 }
 
-function DialogoArea({ aberta, aoMudar, area }: { aberta: boolean; aoMudar: (v: boolean) => void; area?: AreaPara | null }) {
+export function DialogoArea({ aberta, aoMudar, area }: { aberta: boolean; aoMudar: (v: boolean) => void; area?: AreaPara | null }) {
   const criar = useCriar("areas")
   const atualizar = useAtualizar("areas")
   const [nome, setNome] = React.useState("")
@@ -154,7 +154,7 @@ export function PaginaProjetos() {
       <Cabecalho
         area="projetos"
         titulo="Projetos"
-        descricao="Seu segundo cérebro: projetos com começo e fim, áreas de responsabilidade e tudo que você captura."
+        descricao="Projetos têm começo, fim e etapas. Abra um projeto para ver as etapas, as tarefas e as capturas ligadas a ele."
         acoes={
           <Botao variante="primario" onClick={() => setNovo(true)}>
             <Plus /> Novo projeto
@@ -162,7 +162,7 @@ export function PaginaProjetos() {
         }
       />
 
-      <div className="grid gap-12 xl:grid-cols-[minmax(0,1fr)_17rem]">
+      <div>
         <section>
           <div className="mb-5 flex flex-wrap items-center gap-3">
             <Segmentos
@@ -175,10 +175,13 @@ export function PaginaProjetos() {
                 { valor: "arquivados", rotulo: "Arquivados", contagem: contagem.arquivados },
               ]}
             />
-            {filtroArea ? (
-              <button type="button" onClick={() => setFiltroArea(null)} className="text-sm text-ink-2 hover:text-ink">
-                Área: {nomesArea.get(filtroArea)} (limpar)
-              </button>
+            {areas.length ? (
+              <Seletor aria-label="Filtrar por área" value={filtroArea ?? ""} onChange={(e) => setFiltroArea(e.target.value || null)} className="w-auto max-w-60">
+                <option value="">Todas as áreas</option>
+                {areas.map((a) => (
+                  <option key={a.id} value={a.id}>{a.name}</option>
+                ))}
+              </Seletor>
             ) : null}
           </div>
 
@@ -187,7 +190,7 @@ export function PaginaProjetos() {
           ) : lista.length === 0 ? (
             <Vazio titulo={aba === "ativos" ? "Nenhum projeto em andamento." : "Nada por aqui."} />
           ) : (
-            <ul className="grid gap-3 sm:grid-cols-2">
+            <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
               {lista.map((p) => {
                 const pr = progresso(p.id, projetos)
                 const pct = porcentagem(pr.feitos, pr.total)
@@ -225,43 +228,6 @@ export function PaginaProjetos() {
           )}
         </section>
 
-        <Secao
-          titulo="Áreas"
-          acao={
-            <button type="button" onClick={() => setNovaArea(true)} className="text-sm text-ink-2 hover:text-ink">
-              Nova área
-            </button>
-          }
-        >
-          {areas.length === 0 ? (
-            <p className="text-sm text-ink-2">Nenhuma área cadastrada.</p>
-          ) : (
-            <ul className="grid gap-1">
-              {areas.map((a) => {
-                const n = raiz.filter((p) => p.area_id === a.id && !p.archived && !p.done).length
-                return (
-                  <li key={a.id} className="group flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setFiltroArea(filtroArea === a.id ? null : a.id)}
-                      className={cn(
-                        "flex min-w-0 flex-1 items-center justify-between rounded-md px-2.5 py-1.5 text-left text-sm hover:bg-surface-2",
-                        filtroArea === a.id && "bg-projetos-soft",
-                        a.status === "arquivada" && "text-ink-3",
-                      )}
-                    >
-                      <span className="truncate">{a.name}</span>
-                      <span className="tabular text-xs text-ink-3">{n || ""}</span>
-                    </button>
-                    <button type="button" onClick={() => setAreaAberta(a)} className="rounded px-1.5 text-xs text-ink-3 opacity-0 hover:text-ink group-hover:opacity-100 focus-visible:opacity-100">
-                      Editar
-                    </button>
-                  </li>
-                )
-              })}
-            </ul>
-          )}
-        </Secao>
       </div>
 
       <DialogoNovoProjeto aberta={novo} aoMudar={setNovo} />

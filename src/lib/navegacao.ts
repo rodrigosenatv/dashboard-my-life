@@ -1,5 +1,9 @@
 import {
+  Archive,
   BookOpen,
+  Boxes,
+  StickyNote,
+  Shapes,
   CalendarDays,
   CircleCheck,
   ClipboardCheck,
@@ -50,12 +54,16 @@ export const GRUPOS: GrupoNav[] = [
   },
   {
     area: "projetos",
-    rotulo: "Projetos",
+    rotulo: "Segundo Cérebro",
     inicio: "/projetos",
     itens: [
+      { rotulo: "Caixa de Entrada", href: "/projetos/entrada", icone: Inbox },
+      { rotulo: "Anotações", href: "/projetos/capturas", icone: StickyNote },
       { rotulo: "Projetos", href: "/projetos", icone: FolderKanban },
-      { rotulo: "Capturas", href: "/projetos/capturas", icone: Inbox },
-      { rotulo: "Notas", href: "/projetos/notas", icone: NotebookText },
+      { rotulo: "Áreas", href: "/projetos/areas", icone: Shapes },
+      { rotulo: "Recursos", href: "/projetos/recursos", icone: Boxes },
+      { rotulo: "Arquivo", href: "/projetos/arquivo", icone: Archive },
+      { rotulo: "Páginas", href: "/projetos/notas", icone: NotebookText },
     ],
   },
   {
@@ -89,7 +97,7 @@ export const EXTRAS: ItemNav[] = [
 
 export function ativo(pathname: string, href: string): boolean {
   if (href === "/") return pathname === "/"
-  if (href === "/projetos") return pathname === "/projetos" || /^\/projetos\/(?!capturas|notas)[^/]+/.test(pathname)
+  if (href === "/projetos") return pathname === "/projetos" || /^\/projetos\/(?!capturas|notas|entrada|recursos|arquivo|areas)[^/]+/.test(pathname)
   return pathname === href || pathname.startsWith(`${href}/`)
 }
 
