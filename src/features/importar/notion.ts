@@ -520,6 +520,26 @@ export function montarPlano(arquivos: Map<string, Uint8Array>, opcoes: OpcoesPla
     r.md = lerMarkdown(p.caminho, texto(arquivos.get(p.caminho)!), true)
     appId.set(r.md.id, r.id)
   }
+  /* Terceira tentativa, sem depender das pastas: título único dos dois lados.
+     Ex.: o livro "COMO CONVENCER ALGUÉM EM 90 SEGUNDOS" sem texto e uma única página solta com esse título. */
+  const semTexto = new Map<string, Registro[]>()
+  for (const r of registros) {
+    if (r.md || r.destino === "habit_logs" || r.destino === "goal_months") continue
+    const t = n(r.valores[tituloCol(r.banco)] ?? "")
+    if (t) semTexto.set(t, [...(semTexto.get(t) ?? []), r])
+  }
+  let ligadasPorTitulo = 0
+  for (const [t, regs] of semTexto) {
+    if (regs.length !== 1) continue
+    const soltas = (soltasPorTitulo.get(t) ?? []).filter((p) => !usadas.has(p.caminho) && !PAGINAS_SENSIVEIS.includes(n(p.titulo)))
+    if (soltas.length !== 1) continue
+    const p = soltas[0]
+    usadas.add(p.caminho)
+    regs[0].md = lerMarkdown(p.caminho, texto(arquivos.get(p.caminho)!), true)
+    appId.set(regs[0].md.id, regs[0].id)
+    ligadasPorTitulo++
+  }
+  if (ligadasPorTitulo) avisos.push(`${ligadasPorTitulo} ${ligadasPorTitulo === 1 ? "texto foi ligado" : "textos foram ligados"} ao item do banco pelo título (livros, cursos, assuntos…).`)
   if (usadas.size) {
     for (let i = paginasSoltas.length - 1; i >= 0; i--) if (usadas.has(paginasSoltas[i].caminho)) paginasSoltas.splice(i, 1)
   }
