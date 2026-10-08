@@ -8,9 +8,84 @@ import { AreaTexto, Campo, Entrada } from "@/components/ui/campos"
 import { Janela } from "@/components/ui/janela"
 import { novoId, useAtualizar, useCriar, useExcluir, useLista } from "@/lib/data"
 import type { Tables } from "@/lib/supabase/database.types"
-import { numero, porcentagem } from "@/lib/utils"
+import { cn, numero, porcentagem } from "@/lib/utils"
 
 type Meta = Tables<"goals">
+type MesMeta = Tables<"goal_months">
+
+const MESES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"]
+
+/** Resultado mensal da meta: um quadrinho por mês, clicável para anotar. */
+function MesesMeta({ meta, meses, aoEditar }: { meta: Meta; meses: MesMeta[]; aoEditar: (mes: number, atual?: MesMeta) => void }) {
+  const ano = meta.year ?? new Date().getFullYear()
+  const mesAtual = new Date().getFullYear() === ano ? new Date().getMonth() + 1 : 0
+  return (
+    <div className="mt-3 grid grid-cols-6 gap-1 sm:grid-cols-12" aria-label={`Resultado mensal de ${meta.name}`}>
+      {MESES.map((nome, i) => {
+        const mes = i + 1
+        const r = meses.find((x) => x.month === mes && x.year === ano)
+        const p = r?.target ? porcentagem(Number(r.progress), Number(r.target)) : null
+        return (
+          <button
+            key={nome}
+            type="button"
+            onClick={() => aoEditar(mes, r)}
+            title={r ? `${nome}: ${numero(Number(r.progress), 1)}${r.target ? ` de ${numero(Number(r.target), 1)}` : ""}${r.note ? `. ${r.note}` : ""}` : `Anotar ${nome}`}
+            className={cn(
+              "rounded-md border px-1 py-1 text-center transition-colors hover:border-ink-3",
+              mes === mesAtual ? "border-pen" : "border-line",
+              r ? "bg-surface-2" : "bg-transparent",
+            )}
+          >
+            <span className="block text-[10px] uppercase text-ink-3">{nome}</span>
+            <span className={cn("tabular block text-xs font-medium", p !== null && p >= 100 ? "text-rotina" : "text-ink")}>
+              {r ? (p !== null ? `${p}%` : numero(Number(r.progress), 1)) : "–"}
+            </span>
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
+function DialogoMes({ alvo, aoFechar }: { alvo: { meta: Meta; mes: number; atual?: MesMeta } | null; aoFechar: () => void }) {
+  const criar = useCriar("goal_months")
+  const atualizar = useAtualizar("goal_months")
+  const [feito, setFeito] = React.useState("")
+  const [metaMes, setMetaMes] = React.useState("")
+  const [nota, setNota] = React.useState("")
+  React.useEffect(() => {
+    if (!alvo) return
+    setFeito(alvo.atual ? String(alvo.atual.progress) : "")
+    setMetaMes(alvo.atual?.target != null ? String(alvo.atual.target) : "")
+    setNota(alvo.atual?.note ?? "")
+  }, [alvo])
+  if (!alvo) return null
+  const num = (v: string) => (v.trim() ? Number(v.replace(",", ".")) : null)
+  const salvar = (e: React.FormEvent) => {
+    e.preventDefault()
+    const campos = { progress: num(feito) ?? 0, target: num(metaMes), note: nota.trim() || null }
+    if (alvo.atual) atualizar.mutate({ id: alvo.atual.id, ...campos })
+    else criar.mutate({ id: novoId(), goal_id: alvo.meta.id, year: alvo.meta.year ?? new Date().getFullYear(), month: alvo.mes, ...campos })
+    aoFechar()
+  }
+  return (
+    <Janela
+      aberta
+      aoMudar={(v) => !v && aoFechar()}
+      titulo={`${alvo.meta.name}: ${MESES[alvo.mes - 1]}`}
+      rodape={<><Botao variante="fantasma" onClick={aoFechar}>Cancelar</Botao><Botao variante="primario" type="submit" form="form-mes">Salvar</Botao></>}
+    >
+      <form id="form-mes" onSubmit={salvar} className="grid gap-4">
+        <div className="grid grid-cols-2 gap-3">
+          <Campo rotulo="Feito no mês" htmlFor="m-feito"><Entrada id="m-feito" inputMode="decimal" autoFocus value={feito} onChange={(e) => setFeito(e.target.value)} /></Campo>
+          <Campo rotulo="Meta do mês" htmlFor="m-meta"><Entrada id="m-meta" inputMode="decimal" value={metaMes} onChange={(e) => setMetaMes(e.target.value)} placeholder="Opcional" /></Campo>
+        </div>
+        <Campo rotulo="Observação" htmlFor="m-nota"><Entrada id="m-nota" value={nota} onChange={(e) => setNota(e.target.value)} /></Campo>
+      </form>
+    </Janela>
+  )
+}
 
 function DialogoMeta({ aberta, aoMudar, meta }: { aberta: boolean; aoMudar: (v: boolean) => void; meta?: Meta | null }) {
   const criar = useCriar("goals")
@@ -106,7 +181,7 @@ function DialogoMeta({ aberta, aoMudar, meta }: { aberta: boolean; aoMudar: (v: 
   )
 }
 
-function CartaoMeta({ meta, aoAbrir }: { meta: Meta; aoAbrir: () => void }) {
+function CartaoMeta({ meta, aoAbrir, meses, aoEditarMes }: { meta: Meta; aoAbrir: () => void; meses: MesMeta[]; aoEditarMes: (mes: number, atual?: MesMeta) => void }) {
   const atualizar = useAtualizar("goals")
   const alvo = Number(meta.target ?? 0)
   const feito = Number(meta.progress ?? 0)
@@ -148,6 +223,7 @@ function CartaoMeta({ meta, aoAbrir }: { meta: Meta; aoAbrir: () => void }) {
         ) : null}
         {meta.done ? <Etiqueta cor="rotina">Concluída</Etiqueta> : null}
       </div>
+      <MesesMeta meta={meta} meses={meses} aoEditar={aoEditarMes} />
     </li>
   )
 }
@@ -156,6 +232,8 @@ export function PaginaMetas() {
   const { data: metas = [], isLoading } = useLista("goals", { ordem: [{ coluna: "position" }, { coluna: "name" }] })
   const [aberta, setAberta] = React.useState<Meta | null>(null)
   const [nova, setNova] = React.useState(false)
+  const { data: meses = [] } = useLista("goal_months", { ordem: [{ coluna: "year" }, { coluna: "month" }] })
+  const [mesAberto, setMesAberto] = React.useState<{ meta: Meta; mes: number; atual?: MesMeta } | null>(null)
 
   const anos = [...new Set(metas.map((m) => m.year ?? 0))].sort((a, b) => b - a)
 
@@ -164,7 +242,7 @@ export function PaginaMetas() {
       <Cabecalho
         area="rotina"
         titulo="Metas"
-        descricao="Defina alvos para o ano e atualize o progresso com os botões de mais e menos."
+        descricao="Alvos do ano, com o resultado de cada mês. Use mais e menos para o total e clique num mês para anotar."
         acoes={<Botao variante="primario" onClick={() => setNova(true)}><Plus /> Nova meta</Botao>}
       />
       {isLoading ? (
@@ -177,13 +255,20 @@ export function PaginaMetas() {
             <Secao key={ano} titulo={ano ? String(ano) : "Sem ano"}>
               <ul>
                 {metas.filter((m) => (m.year ?? 0) === ano).map((m) => (
-                  <CartaoMeta key={m.id} meta={m} aoAbrir={() => setAberta(m)} />
+                  <CartaoMeta
+                    key={m.id}
+                    meta={m}
+                    aoAbrir={() => setAberta(m)}
+                    meses={meses.filter((x) => x.goal_id === m.id)}
+                    aoEditarMes={(mes, atual) => setMesAberto({ meta: m, mes, atual })}
+                  />
                 ))}
               </ul>
             </Secao>
           ))}
         </div>
       )}
+      <DialogoMes alvo={mesAberto} aoFechar={() => setMesAberto(null)} />
       <DialogoMeta aberta={nova || Boolean(aberta)} aoMudar={(v) => { if (!v) { setNova(false); setAberta(null) } }} meta={aberta} />
     </div>
   )

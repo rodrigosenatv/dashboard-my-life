@@ -8,7 +8,7 @@ import { Check, CornerDownLeft, Flame } from "lucide-react"
 import { Etiqueta, Progresso, Secao, Vazio } from "@/components/ui/basicos"
 import { novoId, useCriar, useLista } from "@/lib/data"
 import { cn, dataRelativa, isoDia, porcentagem, saudacao, somarDias } from "@/lib/utils"
-import { indexar, sequencia, useAlternarHabito, useHabitos, useRegistros, valeNoDia } from "@/features/habitos/dados"
+import { agruparPorRitual, indexar, sequencia, useAlternarHabito, useHabitos, useRegistros, useRituais, valeNoDia } from "@/features/habitos/dados"
 import { ItemTarefa } from "@/features/tarefas/item-tarefa"
 import { DialogoTarefa } from "@/features/tarefas/dialogo-tarefa"
 import { useNomeExibicao } from "@/features/configuracoes/dados"
@@ -78,29 +78,26 @@ function HabitosHoje() {
   const { data: habitos = [], isLoading } = useHabitos()
   const { data: registros = [] } = useRegistros(somarDias(hoje, -400))
   const alternar = useAlternarHabito()
+  const { ritualDe } = useRituais()
 
   const indice = React.useMemo(() => indexar(registros), [registros])
   const doDia = habitos.filter((h) => h.active && valeNoDia(h, hoje))
   const feitos = doDia.filter((h) => indice.get(h.id)?.has(hoje)).length
+  const grupos = agruparPorRitual(doDia, ritualDe)
+  const pct = porcentagem(feitos, doDia.length)
 
   return (
     <Secao
-      titulo="Hábitos de hoje"
+      titulo="Rituais de hoje"
       className="mb-10"
       acao={
-        doDia.length ? (
-          <span className="tabular text-sm text-ink-2">
-            {feitos} de {doDia.length}
-          </span>
-        ) : null
+        <Link href="/rotina/habitos" className="text-sm text-ink-2 hover:text-ink">
+          Ver hábitos
+        </Link>
       }
     >
       {isLoading ? (
-        <div className="flex gap-2">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-11 w-32 animate-pulse rounded-full bg-surface-2" />
-          ))}
-        </div>
+        <div className="h-40 animate-pulse rounded-xl bg-surface-2" />
       ) : doDia.length === 0 ? (
         <Vazio
           titulo="Nenhum hábito para hoje."
@@ -112,44 +109,59 @@ function HabitosHoje() {
           }
         />
       ) : (
-        <ul className="flex flex-wrap gap-2">
-          {doDia.map((h) => {
-            const registro = indice.get(h.id)?.get(hoje)
-            const feito = Boolean(registro)
-            const seq = sequencia(h, indice.get(h.id), hoje)
-            return (
-              <li key={h.id}>
-                <button
-                  type="button"
-                  aria-pressed={feito}
-                  onClick={() => alternar.mutate({ habito: h.id, dia: hoje, registro })}
-                  className={cn(
-                    "flex h-11 items-center gap-2.5 rounded-full border pl-1.5 pr-4 text-sm font-medium transition-colors",
-                    feito
-                      ? "border-rotina/40 bg-rotina-soft text-ink"
-                      : "border-line-strong bg-surface text-ink-2 hover:border-ink-3 hover:text-ink",
-                  )}
-                >
-                  <span
-                    className={cn(
-                      "grid size-8 place-items-center rounded-full transition-colors",
-                      feito ? "bg-rotina text-white" : "bg-surface-2 text-ink-3",
-                    )}
-                  >
-                    {feito ? <Check className="size-4" strokeWidth={2.5} /> : <span className="text-xs">{h.icon || h.name.charAt(0)}</span>}
-                  </span>
-                  {h.name}
-                  {seq >= 2 ? (
-                    <span className="inline-flex items-center gap-0.5 text-xs text-ink-3" title={`${seq} dias seguidos`}>
-                      <Flame className="size-3.5 text-estudos" />
-                      {seq}
-                    </span>
-                  ) : null}
-                </button>
-              </li>
-            )
-          })}
-        </ul>
+        <div className="rounded-xl border border-line bg-surface p-4 sm:p-5">
+          <div className="mb-4 flex items-center gap-3">
+            <Progresso valor={pct} cor="rotina" rotulo="Progresso dos rituais de hoje" className="h-2" />
+            <span className="tabular shrink-0 text-sm font-medium">{pct}%</span>
+            <span className="tabular shrink-0 text-sm text-ink-3">
+              {feitos} de {doDia.length}
+            </span>
+          </div>
+          <div className={cn("grid gap-x-8 gap-y-5", grupos.length > 1 && "md:grid-cols-2")}>
+            {grupos.map((g) => (
+              <div key={g.valor}>
+                <p className="mb-2 text-sm font-semibold">
+                  {g.emoji ? <span aria-hidden className="mr-1.5">{g.emoji}</span> : null}
+                  {g.titulo}
+                </p>
+                <ul className="grid gap-0.5">
+                  {g.habitos.map((h) => {
+                    const registro = indice.get(h.id)?.get(hoje)
+                    const feito = Boolean(registro)
+                    const seq = sequencia(h, indice.get(h.id), hoje)
+                    return (
+                      <li key={h.id}>
+                        <button
+                          type="button"
+                          role="checkbox"
+                          aria-checked={feito}
+                          onClick={() => alternar.mutate({ habito: h.id, dia: hoje, registro })}
+                          className="flex w-full items-center gap-3 rounded-md px-1.5 py-1.5 text-left text-sm hover:bg-surface-2"
+                        >
+                          <span
+                            className={cn(
+                              "grid size-5 shrink-0 place-items-center rounded-[5px] border transition-colors",
+                              feito ? "border-rotina bg-rotina text-white" : "border-line-strong",
+                            )}
+                          >
+                            {feito ? <Check className="size-3.5" strokeWidth={3} /> : null}
+                          </span>
+                          <span className={cn("flex-1", feito && "text-ink-3 line-through decoration-ink-3/50")}>{h.name}</span>
+                          {seq >= 2 ? (
+                            <span className="inline-flex items-center gap-0.5 text-xs text-ink-3" title={`${seq} dias seguidos`}>
+                              <Flame className="size-3.5 text-estudos" />
+                              {seq}
+                            </span>
+                          ) : null}
+                        </button>
+                      </li>
+                    )
+                  })}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
       )}
     </Secao>
   )

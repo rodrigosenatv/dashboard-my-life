@@ -7,6 +7,7 @@ import { novoId, useLista } from "@/lib/data"
 import { supabase } from "@/lib/supabase/client"
 import type { Tables } from "@/lib/supabase/database.types"
 import { isoDia, lerData } from "@/lib/utils"
+import { useConfiguracoes, useSalvarConfiguracoes, type Preferencias } from "@/features/configuracoes/dados"
 
 export type Habito = Tables<"habits">
 export type RegistroHabito = Pick<Tables<"habit_logs">, "id" | "habit_id" | "day">
@@ -143,4 +144,55 @@ export function taxa(h: Habito, dias: Map<string, RegistroHabito> | undefined, i
     d = addDays(d, 1)
   }
   return validos ? Math.round((feitos / validos) * 100) : 0
+}
+
+/* ------------------------------------------------------------------ */
+/* Rituais (matutino / noturno), como no cartão "Rituais" do Notion     */
+/* ------------------------------------------------------------------ */
+
+export type Ritual = "manha" | "noite" | "livre"
+
+export const RITUAIS: { valor: Ritual; titulo: string; emoji: string }[] = [
+  { valor: "manha", titulo: "Ritual Matutino", emoji: "☀️" },
+  { valor: "noite", titulo: "Ritual Noturno", emoji: "🌒" },
+  { valor: "livre", titulo: "Outros hábitos", emoji: "" },
+]
+
+// Divisão usada no Dashboard My Life; vale até a pessoa escolher outra no app.
+const PADRAO: Record<string, Ritual> = {
+  "500ml de agua": "manha",
+  pnl: "manha",
+  treino: "manha",
+  yourself: "manha",
+  "check-in": "manha",
+  meditacao: "manha",
+  visualizacao: "manha",
+  "yourself ii": "noite",
+  estudo: "noite",
+  devocional: "noite",
+  "preparacao do amanha": "noite",
+  leitura: "noite",
+}
+
+const chaveNome = (t: string) =>
+  t.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/\s+/g, " ").trim()
+
+export function ritualPadrao(nome: string): Ritual {
+  return PADRAO[chaveNome(nome)] ?? "livre"
+}
+
+export function useRituais() {
+  const { data: cfg } = useConfiguracoes()
+  const salvar = useSalvarConfiguracoes()
+  const prefs = (cfg?.prefs ?? {}) as Preferencias & { rituais?: Record<string, Ritual> }
+  const escolhidos = prefs.rituais ?? {}
+  const ritualDe = (h: Pick<Habito, "id" | "name">): Ritual => escolhidos[h.id] ?? ritualPadrao(h.name)
+  const definir = (id: string, ritual: Ritual) =>
+    salvar.mutate({ prefs: { ...prefs, rituais: { ...escolhidos, [id]: ritual } } as Preferencias })
+  return { ritualDe, definir }
+}
+
+/** Agrupa os hábitos por ritual, mantendo a ordem. Grupos vazios ficam de fora. */
+export function agruparPorRitual<T extends Pick<Habito, "id" | "name">>(habitos: T[], ritualDe: (h: T) => Ritual) {
+  return RITUAIS.map((r) => ({ ...r, habitos: habitos.filter((h) => ritualDe(h) === r.valor) })).filter((g) => g.habitos.length)
 }

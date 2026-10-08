@@ -4,15 +4,16 @@ import * as React from "react"
 import { useSearchParams } from "next/navigation"
 import { addDays, addMonths, endOfMonth, endOfWeek, format, startOfMonth, startOfWeek } from "date-fns"
 import { ptBR } from "date-fns/locale"
-import { ChevronLeft, ChevronRight, Plus } from "lucide-react"
+import { Check, ChevronLeft, ChevronRight, Plus } from "lucide-react"
 import { Botao } from "@/components/ui/button"
-import { Cabecalho, Carregando, Secao } from "@/components/ui/basicos"
-import { useLista } from "@/lib/data"
+import { Cabecalho, Carregando, Secao, Segmentos } from "@/components/ui/basicos"
+import { useAtualizar, useLista } from "@/lib/data"
 import type { Tables } from "@/lib/supabase/database.types"
 import { cn, dataRelativa, isoDia } from "@/lib/utils"
 import { DialogoEvento } from "./dialogo-evento"
 
 type Evento = Tables<"events">
+type Visao = "mes" | "semana" | "lista" | "historico"
 
 const corCategoria: Record<string, string> = {
   Reunião: "bg-projetos",
@@ -38,6 +39,9 @@ export function PaginaAgenda() {
   const params = useSearchParams()
   const hoje = isoDia()
   const [mes, setMes] = React.useState(() => startOfMonth(new Date()))
+  const [visao, setVisao] = React.useState<Visao>("mes")
+  const [semana, setSemana] = React.useState(() => startOfWeek(new Date(), { weekStartsOn: 0 }))
+  const atualizar = useAtualizar("events")
   const [aberto, setAberto] = React.useState<Evento | null>(null)
   const [novoDia, setNovoDia] = React.useState<string | null>(null)
   const { data: eventos = [], isLoading } = useLista("events", { ordem: [{ coluna: "starts_at" }] })
@@ -53,7 +57,7 @@ export function PaginaAgenda() {
 
   const porDia = React.useMemo(() => {
     const mapa = new Map<string, Evento[]>()
-    for (const e of eventos) for (const d of diasDoEvento(e)) mapa.set(d, [...(mapa.get(d) ?? []), e])
+    for (const e of eventos) if (!e.done) for (const d of diasDoEvento(e)) mapa.set(d, [...(mapa.get(d) ?? []), e])
     return mapa
   }, [eventos])
 
@@ -68,7 +72,39 @@ export function PaginaAgenda() {
   const dias: Date[] = []
   for (let d = inicio; d <= fim; d = addDays(d, 1)) dias.push(d)
 
-  const proximos = eventos.filter((e) => isoDia(new Date(e.ends_at ?? e.starts_at)) >= hoje).slice(0, 15)
+  const proximos = eventos.filter((e) => !e.done && isoDia(new Date(e.ends_at ?? e.starts_at)) >= hoje).slice(0, 15)
+  const pendentes = eventos.filter((e) => !e.done)
+  const historico = eventos.filter((e) => e.done).sort((a, b) => b.starts_at.localeCompare(a.starts_at))
+  const diasSemana = Array.from({ length: 7 }, (_, i) => addDays(semana, i))
+  const tarefasDoDia = (iso: string) => tarefas.filter((t) => t.due_date === iso && t.status !== "done")
+
+  const linhaEvento = (e: Evento) => (
+    <li key={e.id} className="flex items-center gap-3 border-b border-line py-2.5 last:border-0">
+      <button
+        type="button"
+        role="checkbox"
+        aria-checked={e.done}
+        aria-label={e.done ? `Reabrir ${e.title}` : `Marcar ${e.title} como feito`}
+        onClick={() => atualizar.mutate({ id: e.id, done: !e.done })}
+        className={cn("grid size-5 shrink-0 place-items-center rounded-[5px] border", e.done ? "border-rotina bg-rotina text-white" : "border-line-strong hover:border-rotina")}
+      >
+        {e.done ? <Check className="size-3.5" strokeWidth={3} /> : null}
+      </button>
+      <button type="button" onClick={() => setAberto(e)} className="min-w-0 flex-1 text-left">
+        <span className="flex items-center gap-2 text-sm font-medium">
+          <span className={cn("size-2 shrink-0 rounded-full", corCategoria[e.category ?? ""] ?? "bg-pen")} />
+          <span className="truncate">{e.title}</span>
+        </span>
+        <span className="ml-4 block text-xs text-ink-3">
+          {format(new Date(e.starts_at), "EEE, d 'de' MMM 'de' yyyy", { locale: ptBR })}
+          {e.all_day ? "" : `, ${format(new Date(e.starts_at), "HH:mm")}`}
+          {e.category ? `, ${e.category}` : ""}
+          {e.location ? `, ${e.location}` : ""}
+        </span>
+        {e.description ? <span className="ml-4 block truncate text-xs text-ink-2">{e.description}</span> : null}
+      </button>
+    </li>
+  )
 
   return (
     <div>
@@ -83,8 +119,75 @@ export function PaginaAgenda() {
         }
       />
 
+      <Segmentos
+        rotulo="Visualização da agenda"
+        className="mb-6"
+        valor={visao}
+        aoMudar={setVisao}
+        opcoes={[
+          { valor: "mes", rotulo: "Mês" },
+          { valor: "semana", rotulo: "Semana" },
+          { valor: "lista", rotulo: "Lista", contagem: pendentes.length },
+          { valor: "historico", rotulo: "Histórico", contagem: historico.length },
+        ]}
+      />
+
       {isLoading ? (
         <Carregando />
+      ) : visao === "semana" ? (
+        <section aria-label="Semana">
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="font-display text-xl font-semibold">
+              {format(diasSemana[0], "d 'de' MMM", { locale: ptBR })} a {format(diasSemana[6], "d 'de' MMM", { locale: ptBR })}
+            </h2>
+            <div className="flex items-center gap-1">
+              <Botao variante="fantasma" tamanho="icone-sm" aria-label="Semana anterior" onClick={() => setSemana((d) => addDays(d, -7))}>
+                <ChevronLeft />
+              </Botao>
+              <Botao variante="fantasma" tamanho="sm" onClick={() => setSemana(startOfWeek(new Date(), { weekStartsOn: 0 }))}>
+                Hoje
+              </Botao>
+              <Botao variante="fantasma" tamanho="icone-sm" aria-label="Próxima semana" onClick={() => setSemana((d) => addDays(d, 7))}>
+                <ChevronRight />
+              </Botao>
+            </div>
+          </div>
+          <div className="grid gap-2 sm:grid-cols-7">
+            {diasSemana.map((d) => {
+              const iso = isoDia(d)
+              const lista = porDia.get(iso) ?? []
+              const ts = tarefasDoDia(iso)
+              return (
+                <div key={iso} className={cn("min-h-40 rounded-lg border bg-surface p-2", iso === hoje ? "border-pen" : "border-line")}>
+                  <button type="button" onClick={() => setNovoDia(iso)} className="mb-2 flex w-full items-baseline justify-between text-left">
+                    <span className="text-xs text-ink-3 first-letter:uppercase">{format(d, "EEE", { locale: ptBR })}</span>
+                    <span className={cn("tabular text-lg font-semibold", iso === hoje && "text-pen")}>{d.getDate()}</span>
+                  </button>
+                  <div className="grid gap-1">
+                    {lista.map((e) => (
+                      <button key={e.id} type="button" onClick={() => setAberto(e)} className="rounded-md bg-surface-2 px-2 py-1 text-left text-xs hover:bg-surface-3">
+                        <span className="flex items-center gap-1.5 font-medium">
+                          <span className={cn("size-1.5 shrink-0 rounded-full", corCategoria[e.category ?? ""] ?? "bg-pen")} />
+                          <span className="truncate">{e.title}</span>
+                        </span>
+                        {e.all_day ? null : <span className="tabular text-ink-3">{format(new Date(e.starts_at), "HH:mm")}</span>}
+                      </button>
+                    ))}
+                    {ts.map((t) => (
+                      <p key={t.id} className="truncate px-2 text-xs text-ink-2" title={t.title}>
+                        ○ {t.title}
+                      </p>
+                    ))}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </section>
+      ) : visao === "lista" ? (
+        pendentes.length === 0 ? <p className="text-sm text-ink-2">Nenhum compromisso pendente.</p> : <ul className="max-w-3xl">{pendentes.map(linhaEvento)}</ul>
+      ) : visao === "historico" ? (
+        historico.length === 0 ? <p className="text-sm text-ink-2">Nenhum compromisso concluído ainda.</p> : <ul className="max-w-3xl">{historico.map(linhaEvento)}</ul>
       ) : (
         <div className="grid gap-10 xl:grid-cols-[minmax(0,1fr)_18rem]">
           <section aria-label="Calendário do mês">

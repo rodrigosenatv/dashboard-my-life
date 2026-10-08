@@ -6,7 +6,7 @@ import { ptBR } from "date-fns/locale"
 import { Check, ChevronLeft, ChevronRight, Ellipsis, Plus } from "lucide-react"
 import { Botao } from "@/components/ui/button"
 import { Cabecalho, Carregando, Secao, Vazio } from "@/components/ui/basicos"
-import { Campo, Entrada, AreaTexto } from "@/components/ui/campos"
+import { Campo, Entrada, AreaTexto, Seletor } from "@/components/ui/campos"
 import { Janela, Confirmar } from "@/components/ui/janela"
 import { Menu, MenuConteudo, MenuGatilho, MenuItem, MenuSeparador } from "@/components/ui/menu"
 import { novoId, useAtualizar, useCriar, useExcluir } from "@/lib/data"
@@ -20,7 +20,11 @@ import {
   useHabitos,
   useRegistros,
   valeNoDia,
+  agruparPorRitual,
+  useRituais,
+  RITUAIS,
   type Habito,
+  type Ritual,
 } from "./dados"
 
 const DIAS = ["D", "S", "T", "Q", "Q", "S", "S"]
@@ -33,6 +37,8 @@ function DialogoHabito({ aberta, aoMudar, habito }: { aberta: boolean; aoMudar: 
   const [icone, setIcone] = React.useState("")
   const [dias, setDias] = React.useState<number[]>([0, 1, 2, 3, 4, 5, 6])
   const [descricao, setDescricao] = React.useState("")
+  const { ritualDe, definir } = useRituais()
+  const [ritual, setRitual] = React.useState<Ritual>("livre")
 
   React.useEffect(() => {
     if (!aberta) return
@@ -40,14 +46,18 @@ function DialogoHabito({ aberta, aoMudar, habito }: { aberta: boolean; aoMudar: 
     setIcone(habito?.icon ?? "")
     setDias(habito?.weekdays?.length ? habito.weekdays : [0, 1, 2, 3, 4, 5, 6])
     setDescricao(habito?.description ?? "")
+    setRitual(habito ? ritualDe(habito) : "manha")
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [aberta, habito])
 
   const salvar = (e: React.FormEvent) => {
     e.preventDefault()
     if (!nome.trim() || dias.length === 0) return
     const campos = { name: nome.trim(), icon: icone.trim() || null, weekdays: [...dias].sort(), description: descricao.trim() || null }
-    if (habito) atualizar.mutate({ id: habito.id, ...campos })
-    else criar.mutate({ id: novoId(), position: Date.now() % 1_000_000, ...campos })
+    const id = habito?.id ?? novoId()
+    if (habito) atualizar.mutate({ id, ...campos })
+    else criar.mutate({ id, position: Date.now() % 1_000_000, ...campos })
+    if (!habito || ritualDe(habito) !== ritual) definir(id, ritual)
     aoMudar(false)
   }
 
@@ -74,6 +84,16 @@ function DialogoHabito({ aberta, aoMudar, habito }: { aberta: boolean; aoMudar: 
             <Entrada id="h-icone" maxLength={2} value={icone} onChange={(e) => setIcone(e.target.value)} />
           </Campo>
         </div>
+        <Campo rotulo="Ritual" htmlFor="h-ritual">
+          <Seletor id="h-ritual" value={ritual} onChange={(e) => setRitual(e.target.value as Ritual)}>
+            {RITUAIS.map((r) => (
+              <option key={r.valor} value={r.valor}>
+                {r.emoji ? `${r.emoji} ` : ""}
+                {r.titulo}
+              </option>
+            ))}
+          </Seletor>
+        </Campo>
         <fieldset>
           <legend className="mb-1.5 text-sm font-medium text-ink-2">Em quais dias</legend>
           <div className="flex gap-1.5">
@@ -171,7 +191,9 @@ export function PaginaHabitos() {
   const excluir = useExcluir("habits")
 
   const indice = React.useMemo(() => indexar(registros), [registros])
+  const { ritualDe, definir } = useRituais()
   const ativos = habitos.filter((h) => h.active)
+  const grupos = agruparPorRitual(ativos, ritualDe)
   const inativos = habitos.filter((h) => !h.active)
 
   const inicioSemana = addDays(startOfWeek(new Date(), { weekStartsOn: 1 }), semana * 7)
@@ -229,8 +251,17 @@ export function PaginaHabitos() {
                     <th className="w-10" />
                   </tr>
                 </thead>
-                <tbody>
-                  {ativos.map((h) => {
+                {grupos.map((g) => (
+                  <tbody key={g.valor}>
+                    {grupos.length > 1 ? (
+                      <tr className="border-b border-line bg-surface-2/60">
+                        <th colSpan={10} scope="colgroup" className="px-4 py-1.5 text-left text-xs font-semibold text-ink-2">
+                          {g.emoji ? <span aria-hidden className="mr-1.5">{g.emoji}</span> : null}
+                          {g.titulo}
+                        </th>
+                      </tr>
+                    ) : null}
+                    {g.habitos.map((h) => {
                     const mapa = indice.get(h.id)
                     const seq = sequencia(h, mapa, hoje)
                     return (
@@ -276,6 +307,11 @@ export function PaginaHabitos() {
                             </MenuGatilho>
                             <MenuConteudo>
                               <MenuItem onSelect={() => setEditar(h)}>Editar</MenuItem>
+                              {RITUAIS.filter((r) => r.valor !== ritualDe(h)).map((r) => (
+                                <MenuItem key={r.valor} onSelect={() => definir(h.id, r.valor)}>
+                                  Mover para {r.titulo}
+                                </MenuItem>
+                              ))}
                               <MenuItem onSelect={() => atualizar.mutate({ id: h.id, active: false })}>Pausar</MenuItem>
                               <MenuSeparador />
                               <MenuItem perigo onSelect={() => setApagar(h)}>Excluir</MenuItem>
@@ -285,7 +321,24 @@ export function PaginaHabitos() {
                       </tr>
                     )
                   })}
-                </tbody>
+                  </tbody>
+                ))}
+                <tfoot>
+                  <tr className="border-t border-line-strong">
+                    <td className="px-4 py-2.5 text-sm font-medium">Progresso do dia</td>
+                    {dias.map((d) => {
+                      const validos = ativos.filter((h) => valeNoDia(h, d))
+                      const feitos = validos.filter((h) => indice.get(h.id)?.has(d)).length
+                      const pct = validos.length ? Math.round((feitos / validos.length) * 100) : 0
+                      return (
+                        <td key={d} className={cn("tabular py-2.5 text-center text-xs", d > hoje ? "text-ink-3/50" : pct >= 100 ? "font-semibold text-rotina" : "text-ink-2")}>
+                          {d > hoje ? "–" : `${pct}%`}
+                        </td>
+                      )
+                    })}
+                    <td colSpan={2} />
+                  </tr>
+                </tfoot>
               </table>
             </div>
             <p className="mt-2 text-xs text-ink-3">Sequência atual / melhor sequência. Círculo tracejado: dia em que o hábito não vale.</p>

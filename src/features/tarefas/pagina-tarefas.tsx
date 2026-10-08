@@ -18,13 +18,21 @@ import { Cabecalho, Carregando, ErroCarregar, Segmentos, Secao } from "@/compone
 import { Seletor } from "@/components/ui/campos"
 import { useAtualizar, useLista } from "@/lib/data"
 import type { Tables } from "@/lib/supabase/database.types"
-import { STATUS_TAREFA, type StatusTarefa } from "@/lib/rotulos"
 import { cn, contem, isoDia, somarDias } from "@/lib/utils"
 import { DialogoTarefa } from "./dialogo-tarefa"
 import { ItemTarefa } from "./item-tarefa"
 
 type Tarefa = Tables<"tasks">
-type Visao = "lista" | "quadro"
+type Visao = "triade" | "prazo" | "quadro"
+
+const TRIADE = [
+  { valor: "urgente", titulo: "Urgente", cor: "text-danger" },
+  { valor: "necessario", titulo: "Necessário", cor: "text-rotina" },
+  { valor: "bom_fazer", titulo: "Bom fazer", cor: "text-ink-2" },
+  { valor: "sem", titulo: "Sem prioridade", cor: "text-ink-3" },
+] as const
+type ChaveTriade = (typeof TRIADE)[number]["valor"]
+const triadeDe = (t: Tarefa): ChaveTriade => (t.priority as ChaveTriade | null) ?? "sem"
 
 function ordenar(a: Tarefa, b: Tarefa) {
   const da = a.due_date ?? "9999"
@@ -57,13 +65,13 @@ function Cartao({ tarefa, projeto, aoAbrir }: { tarefa: Tarefa; projeto?: string
   )
 }
 
-function Coluna({ status, children, total }: { status: StatusTarefa; children: React.ReactNode; total: number }) {
-  const { setNodeRef, isOver } = useDroppable({ id: status })
+function Coluna({ id, titulo, cor, children, total }: { id: string; titulo: string; cor?: string; children: React.ReactNode; total: number }) {
+  const { setNodeRef, isOver } = useDroppable({ id })
   return (
     <div ref={setNodeRef} className={cn("min-h-40 rounded-xl bg-surface-2/60 p-2.5 transition-colors", isOver && "bg-pen-soft")}>
-      <p className="mb-2 flex items-center justify-between px-1 text-sm font-medium">
-        {STATUS_TAREFA[status]}
-        <span className="tabular text-ink-3">{total}</span>
+      <p className={cn("mb-2 flex items-center justify-between px-1 text-sm font-semibold", cor)}>
+        {titulo}
+        <span className="tabular font-normal text-ink-3">{total}</span>
       </p>
       <div className="grid gap-2">{children}</div>
     </div>
@@ -73,7 +81,7 @@ function Coluna({ status, children, total }: { status: StatusTarefa; children: R
 export function PaginaTarefas() {
   const params = useSearchParams()
   const hoje = isoDia()
-  const [visao, setVisao] = React.useState<Visao>("lista")
+  const [visao, setVisao] = React.useState<Visao>("triade")
   const [busca, setBusca] = React.useState("")
   const [projetoFiltro, setProjetoFiltro] = React.useState("")
   const [aberta, setAberta] = React.useState<Tarefa | null>(null)
@@ -114,12 +122,14 @@ export function PaginaTarefas() {
     { titulo: "Sem data", itens: abertas.filter((t) => !t.due_date) },
   ]
 
+  // Quadro pela Tríade do Tempo: soltar numa coluna muda a prioridade
   const soltar = (e: DragEndEvent) => {
-    const destino = e.over?.id as StatusTarefa | undefined
+    const destino = e.over?.id as ChaveTriade | undefined
     const t = tarefas.find((x) => x.id === e.active.id)
-    if (!t || !destino || t.status === destino) return
-    atualizar.mutate({ id: t.id, status: destino, done_at: destino === "done" ? new Date().toISOString() : null })
+    if (!t || !destino || triadeDe(t) === destino) return
+    atualizar.mutate({ id: t.id, priority: destino === "sem" ? null : destino })
   }
+  const porTriade = TRIADE.map((g) => ({ ...g, itens: abertas.filter((t) => triadeDe(t) === g.valor) }))
 
   const projetosComTarefa = projetos.filter((p) => tarefas.some((t) => t.project_id === p.id))
 
@@ -128,7 +138,7 @@ export function PaginaTarefas() {
       <Cabecalho
         area="rotina"
         titulo="Tarefas"
-        descricao="Tudo o que precisa ser feito, organizado por prazo. Arraste no quadro para mudar a situação."
+        descricao="Organizadas pela Tríade do Tempo: urgente, necessário e bom fazer. No quadro, arraste para mudar a prioridade."
         acoes={
           <Botao variante="primario" onClick={() => setNova(true)}>
             <Plus /> Nova tarefa
@@ -142,7 +152,8 @@ export function PaginaTarefas() {
           valor={visao}
           aoMudar={setVisao}
           opcoes={[
-            { valor: "lista", rotulo: "Lista" },
+            { valor: "triade", rotulo: "Tríade" },
+            { valor: "prazo", rotulo: "Por prazo" },
             { valor: "quadro", rotulo: "Quadro" },
           ]}
         />
@@ -170,10 +181,10 @@ export function PaginaTarefas() {
         <ErroCarregar erro={error} aoTentar={() => refetch()} />
       ) : isLoading ? (
         <Carregando />
-      ) : visao === "lista" ? (
+      ) : visao !== "quadro" ? (
         <div className="grid gap-8">
           {abertas.length === 0 ? <p className="text-ink-2">Nenhuma tarefa pendente{busca ? " com esse filtro" : ""}.</p> : null}
-          {grupos
+          {(visao === "triade" ? porTriade.map((g) => ({ titulo: g.titulo, itens: g.itens, destaque: g.valor === "urgente" })) : grupos)
             .filter((g) => g.itens.length)
             .map((g) => (
               <Secao key={g.titulo} titulo={g.titulo} acao={<span className={cn("tabular text-sm", g.destaque ? "text-danger" : "text-ink-3")}>{g.itens.length}</span>}>
@@ -201,17 +212,14 @@ export function PaginaTarefas() {
         </div>
       ) : (
         <DndContext sensors={sensores} onDragEnd={soltar}>
-          <div className="grid gap-4 md:grid-cols-3">
-            {(Object.keys(STATUS_TAREFA) as StatusTarefa[]).map((s) => {
-              const itens = s === "done" ? concluidas.slice(0, 30) : abertas.filter((t) => t.status === s)
-              return (
-                <Coluna key={s} status={s} total={s === "done" ? concluidas.length : itens.length}>
-                  {itens.map((t) => (
-                    <Cartao key={t.id} tarefa={t} projeto={t.project_id ? nomes.get(t.project_id) : null} aoAbrir={setAberta} />
-                  ))}
-                </Coluna>
-              )
-            })}
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            {porTriade.map((g) => (
+              <Coluna key={g.valor} id={g.valor} titulo={g.titulo} cor={g.cor} total={g.itens.length}>
+                {g.itens.map((t) => (
+                  <Cartao key={t.id} tarefa={t} projeto={t.project_id ? nomes.get(t.project_id) : null} aoAbrir={setAberta} />
+                ))}
+              </Coluna>
+            ))}
           </div>
         </DndContext>
       )}
