@@ -728,8 +728,14 @@ export function montarPlano(arquivos: Map<string, Uint8Array>, opcoes: OpcoesPla
           title: t || url || "Link",
           url,
           collection: grupo,
-          tags: grupo === "ferramentas" ? lerLista(get(r, "Tags")) : grupo === "favoritos" ? lerLista(get(r, "Tipo")) : [],
-          kind: grupo === "favoritos" ? null : get(r, "Tipo") || null,
+          // Ferramentas: Categoria vira o grupo e Tipo (Pago/Gratuito) entra nas tags
+          tags:
+            grupo === "ferramentas"
+              ? [...new Set([...lerLista(get(r, "Tags")), ...lerLista(get(r, "Tipo"))])]
+              : grupo === "favoritos"
+                ? lerLista(get(r, "Tipo"))
+                : [],
+          kind: grupo === "ferramentas" ? get(r, "Categoria") || get(r, "Tipo") || null : grupo === "favoritos" ? null : get(r, "Tipo") || null,
           description: corpo(r) || null,
           position: linhas.bookmarks.length + 1,
         })

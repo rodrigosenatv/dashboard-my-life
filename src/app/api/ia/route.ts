@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
         const stream = cliente.messages.stream({
           model: MODELO,
           max_tokens: 4096,
-          system: SISTEMA,
+          system: `${SISTEMA} Hoje é ${new Date().toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo", weekday: "long", day: "numeric", month: "long", year: "numeric" })}.`,
           messages: mensagens,
         })
         for await (const evento of stream) {
@@ -56,7 +56,17 @@ export async function POST(request: NextRequest) {
           }
         }
       } catch (erro) {
-        const msg = erro instanceof Error ? erro.message : "erro desconhecido"
+        const status = (erro as { status?: number }).status
+        const msg =
+          status === 401
+            ? "a chave ANTHROPIC_API_KEY configurada na Vercel não foi aceita. Confira se ela foi copiada inteira."
+            : status === 429
+              ? "muitos pedidos seguidos ou limite de uso atingido. Tente de novo em instantes."
+              : status === 529 || status === 503
+                ? "o serviço está sobrecarregado agora. Tente de novo em instantes."
+                : erro instanceof Error
+                  ? erro.message
+                  : "erro desconhecido"
         controle.enqueue(codificador.encode(`\n\n[Não foi possível concluir a resposta: ${msg}]`))
       } finally {
         controle.close()

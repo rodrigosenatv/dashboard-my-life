@@ -23,6 +23,7 @@ export const SECOES: Record<string, string> = {
   wiki: "Wiki pessoal",
   arquivo: "Arquivo",
   geral: "Outras páginas",
+  assistente: "Conversas do assistente",
 }
 
 export function filhosDe(paginas: PaginaResumo[], id: string | null) {
