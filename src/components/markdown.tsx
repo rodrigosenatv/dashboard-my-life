@@ -109,11 +109,52 @@ function permitirUrl(url: string) {
   return ""
 }
 
-export function Markdown({ texto, className }: { texto: string | null | undefined; className?: string }) {
+/** Marca ou desmarca a caixa "- [ ]" do item de lista que começa em `inicio`. */
+export function alternarTarefa(texto: string, inicio: number): string {
+  const resto = texto.slice(inicio)
+  const m = /\[( |x|X)\]/.exec(resto)
+  if (!m || resto.slice(0, m.index).includes("\n")) return texto
+  const pos = inicio + m.index
+  return texto.slice(0, pos) + (m[1] === " " ? "[x]" : "[ ]") + texto.slice(pos + 3)
+}
+
+export function Markdown({
+  texto,
+  className,
+  aoMudar,
+}: {
+  texto: string | null | undefined
+  className?: string
+  /** Quando informado, as caixas de seleção ficam clicáveis e devolvem o texto atualizado. */
+  aoMudar?: (texto: string) => void
+}) {
+  const comps = React.useMemo<Components>(() => {
+    if (!aoMudar || !texto) return componentes
+    return {
+      ...componentes,
+      li: ({ node, className: cls, children, ...resto }) => {
+        const inicio = node?.position?.start.offset
+        if (!String(cls ?? "").includes("task-list-item") || inicio === undefined) return <li className={cls} {...resto}>{children}</li>
+        return (
+          <li
+            className={cn(cls, "cursor-pointer")}
+            onClick={(e) => {
+              if ((e.target as HTMLElement).closest("a")) return
+              aoMudar(alternarTarefa(texto, inicio))
+            }}
+            {...resto}
+          >
+            {children}
+          </li>
+        )
+      },
+      input: ({ node, ...props }) => (void node, props.type === "checkbox" ? <input {...props} disabled={false} readOnly className="cursor-pointer" /> : <input {...props} />),
+    }
+  }, [aoMudar, texto])
   if (!texto?.trim()) return null
   return (
     <div className={cn("prosa", className)}>
-      <ReactMarkdown remarkPlugins={[remarkGfm]} components={componentes} urlTransform={permitirUrl}>
+      <ReactMarkdown remarkPlugins={[remarkGfm]} components={comps} urlTransform={permitirUrl}>
         {texto}
       </ReactMarkdown>
     </div>
@@ -168,7 +209,13 @@ export function EditorMarkdown({
           className="min-h-72 font-mono text-[13px]"
         />
       ) : texto.trim() ? (
-        <Markdown texto={texto} />
+        <Markdown
+          texto={texto}
+          aoMudar={(novo) => {
+            setTexto(novo)
+            aoSalvar(novo)
+          }}
+        />
       ) : (
         <p className="text-sm text-ink-3">Nada escrito ainda.</p>
       )}

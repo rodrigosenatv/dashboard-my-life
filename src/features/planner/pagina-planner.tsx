@@ -6,18 +6,102 @@ import { useSearchParams } from "next/navigation"
 import { addDays, addMonths, endOfMonth, endOfWeek, format, startOfMonth, startOfWeek } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { DndContext, PointerSensor, TouchSensor, useDraggable, useDroppable, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core"
-import { ChevronLeft, ChevronRight, FileText, Plus } from "lucide-react"
+import { ArrowRight, ChevronLeft, ChevronRight, ExternalLink, FileText, Lightbulb, Plus, Wrench } from "lucide-react"
 import { Botao } from "@/components/ui/button"
 import { Cabecalho, Carregando, Etiqueta, Segmentos, Secao } from "@/components/ui/basicos"
 import { novoId, useAtualizar, useCriar, useLista } from "@/lib/data"
 import type { Tables } from "@/lib/supabase/database.types"
 import { STATUS_CONTEUDO, type StatusConteudo } from "@/lib/rotulos"
-import { cn, dataRelativa, isoDia, numero } from "@/lib/utils"
+import { cn, contem, dataRelativa, isoDia, numero, normalizar } from "@/lib/utils"
 import { useArvorePaginas } from "@/features/paginas/dados"
 import { DialogoConteudo } from "./dialogo-conteudo"
 
 type Conteudo = Tables<"content_items">
-type Visao = "quadro" | "calendario" | "desempenho"
+type Visao = "ideias" | "quadro" | "calendario" | "desempenho"
+
+/** Páginas do Planner que no Notion ficam em "Ferramentas". */
+const FERRAMENTAS = ["viral canva", "como editar", "gpt prompts", "prompts"]
+const ehFerramenta = (titulo: string) => FERRAMENTAS.some((f) => normalizar(titulo).includes(f))
+
+function BancoIdeias({
+  ideias,
+  linhas,
+  aoAbrir,
+}: {
+  ideias: Conteudo[]
+  linhas: Tables<"editorial_lines">[]
+  aoAbrir: (c: Conteudo) => void
+}) {
+  const criar = useCriar("content_items")
+  const atualizar = useAtualizar("content_items")
+  const [texto, setTexto] = React.useState("")
+  const [linha, setLinha] = React.useState("")
+  const [busca, setBusca] = React.useState("")
+  const nomes = new Map(linhas.map((l) => [l.id, l.name]))
+  const visiveis = ideias.filter((i) => !busca || contem(i.title, busca)).sort((a, b) => b.created_at.localeCompare(a.created_at))
+
+  const adicionar = (e: React.FormEvent) => {
+    e.preventDefault()
+    const t = texto.trim()
+    if (!t) return
+    criar.mutate({ id: novoId(), title: t, status: "ideia", editorial_line_id: linha || null, position: Date.now() })
+    setTexto("")
+  }
+
+  return (
+    <section aria-label="Banco de ideias">
+      <form onSubmit={adicionar} className="mb-4 flex flex-wrap gap-2">
+        <input
+          value={texto}
+          onChange={(e) => setTexto(e.target.value)}
+          placeholder="Anote uma ideia de conteúdo e aperte Enter"
+          aria-label="Nova ideia"
+          className="h-10 min-w-0 flex-1 basis-64 rounded-md border border-line-strong bg-surface px-3 text-sm placeholder:text-ink-3 focus-visible:border-pen focus-visible:outline-none"
+        />
+        {linhas.length ? (
+          <select value={linha} onChange={(e) => setLinha(e.target.value)} aria-label="Linha editorial da ideia" className="h-10 rounded-md border border-line-strong bg-surface px-2 text-sm">
+            <option value="">Sem linha editorial</option>
+            {linhas.map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}
+          </select>
+        ) : null}
+        <Botao type="submit" variante="primario" disabled={!texto.trim()}>
+          <Plus /> Guardar ideia
+        </Botao>
+      </form>
+      {ideias.length > 8 ? (
+        <input
+          value={busca}
+          onChange={(e) => setBusca(e.target.value)}
+          placeholder="Filtrar ideias"
+          aria-label="Filtrar ideias"
+          className="mb-3 h-9 w-full max-w-xs rounded-md border border-line-strong bg-surface px-3 text-sm placeholder:text-ink-3 focus-visible:border-pen focus-visible:outline-none"
+        />
+      ) : null}
+      {visiveis.length === 0 ? (
+        <p className="rounded-lg border border-dashed border-line p-6 text-center text-sm text-ink-2">
+          {busca ? "Nenhuma ideia com esse texto." : "O banco está vazio. Toda ideia que surgir cabe aqui, mesmo pela metade."}
+        </p>
+      ) : (
+        <ul className="divide-y divide-line rounded-lg border border-line bg-surface">
+          {visiveis.map((i) => (
+            <li key={i.id} className="flex items-center gap-3 px-3 py-2.5">
+              <Lightbulb className="size-4 shrink-0 text-conteudo" aria-hidden />
+              <button type="button" onClick={() => aoAbrir(i)} className="min-w-0 flex-1 text-left">
+                <span className="block truncate text-sm font-medium hover:underline">{i.title}</span>
+                <span className="block text-xs text-ink-3">
+                  {[nomes.get(i.editorial_line_id ?? ""), i.format, dataRelativa(i.created_at.slice(0, 10))].filter(Boolean).join(", ")}
+                </span>
+              </button>
+              <Botao variante="fantasma" tamanho="sm" onClick={() => atualizar.mutate({ id: i.id, status: "idealizando" })} title="Levar para Idealizando no quadro">
+                Produzir <ArrowRight />
+              </Botao>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  )
+}
 
 function Cartao({ item, linha, aoAbrir }: { item: Conteudo; linha?: string; aoAbrir: () => void }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id: item.id })
@@ -135,6 +219,21 @@ function Desempenho({ itens }: { itens: Conteudo[] }) {
   )
 }
 
+function ListaGuias({ paginas, icone: Icone }: { paginas: { id: string; title: string; icon: string | null }[]; icone: typeof FileText }) {
+  return (
+    <ul className="grid gap-0.5">
+      {paginas.map((p) => (
+        <li key={p.id}>
+          <Link href={`/paginas/${p.id}`} className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-surface-2">
+            {p.icon && !p.icon.startsWith("/") && p.icon.length <= 4 ? <span className="w-4 text-center">{p.icon}</span> : <Icone className="size-4 shrink-0 text-ink-3" />}
+            <span className="truncate">{p.title}</span>
+          </Link>
+        </li>
+      ))}
+    </ul>
+  )
+}
+
 export function PaginaPlanner() {
   const params = useSearchParams()
   const [visao, setVisao] = React.useState<Visao>("quadro")
@@ -158,6 +257,10 @@ export function PaginaPlanner() {
   const nomesLinha = new Map(linhas.map((l) => [l.id, l.name]))
   const filtrados = itens.filter((i) => !filtroLinha || i.editorial_line_id === filtroLinha)
   const guias = paginas.filter((p) => p.section === "planner" && !p.parent_id)
+  const estrategia = guias.filter((p) => !ehFerramenta(p.title))
+  const ferramentas = guias.filter((p) => ehFerramenta(p.title))
+  const { data: links = [] } = useLista("bookmarks", { filtro: (q) => q.eq("collection", "links"), ordem: [{ coluna: "position" }], chave: ["links-planner"] })
+  const ideias = filtrados.filter((i) => i.status === "ideia")
 
   const soltar = (e: DragEndEvent) => {
     const destino = e.over?.id as StatusConteudo | undefined
@@ -174,7 +277,7 @@ export function PaginaPlanner() {
         acoes={<Botao variante="primario" onClick={() => setNovo({})}><Plus /> Novo conteúdo</Botao>}
       />
       <div className="mb-6 flex flex-wrap items-center gap-2">
-        <Segmentos rotulo="Visualização" valor={visao} aoMudar={setVisao} opcoes={[{ valor: "quadro", rotulo: "Quadro" }, { valor: "calendario", rotulo: "Calendário" }, { valor: "desempenho", rotulo: "Desempenho" }]} />
+        <Segmentos rotulo="Visualização" valor={visao} aoMudar={setVisao} opcoes={[{ valor: "ideias", rotulo: "Banco de ideias", contagem: ideias.length }, { valor: "quadro", rotulo: "Quadro" }, { valor: "calendario", rotulo: "Calendário" }, { valor: "desempenho", rotulo: "Desempenho" }]} />
         {linhas.length ? (
           <select value={filtroLinha} onChange={(e) => setFiltroLinha(e.target.value)} aria-label="Linha editorial" className="h-9 rounded-md border border-line-strong bg-surface px-2 text-sm">
             <option value="">Todas as linhas editoriais</option>
@@ -185,10 +288,12 @@ export function PaginaPlanner() {
 
       {isLoading ? (
         <Carregando />
+      ) : visao === "ideias" ? (
+        <BancoIdeias ideias={ideias} linhas={linhas} aoAbrir={setAberto} />
       ) : visao === "quadro" ? (
         <DndContext sensors={sensores} onDragEnd={soltar}>
           <div className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-4 scrollbar-thin sm:mx-0 sm:px-0">
-            {(Object.keys(STATUS_CONTEUDO) as StatusConteudo[]).map((s) => {
+            {(Object.keys(STATUS_CONTEUDO) as StatusConteudo[]).filter((s) => s !== "ideia").map((s) => {
               const lista = filtrados.filter((i) => i.status === s).sort((a, b) => (a.publish_date ?? "9").localeCompare(b.publish_date ?? "9"))
               const mostrar = s === "publicado" ? lista.slice(-12).reverse() : lista
               return (
@@ -205,35 +310,55 @@ export function PaginaPlanner() {
         <Desempenho itens={filtrados} />
       )}
 
-      <div className="mt-12 grid gap-10 md:grid-cols-2">
-        <Secao titulo="Linhas editoriais">
-          <ul className="mb-3 flex flex-wrap gap-2">
-            {linhas.map((l) => (
-              <li key={l.id}>
-                <Etiqueta cor="conteudo" className="px-3 py-1 text-sm">
-                  {l.name} <span className="tabular opacity-70">{itens.filter((i) => i.editorial_line_id === l.id).length}</span>
-                </Etiqueta>
-              </li>
-            ))}
-          </ul>
-          <form onSubmit={(e) => { e.preventDefault(); if (linhaNova.trim()) { criarLinha.mutate({ id: novoId(), name: linhaNova.trim(), position: linhas.length + 1 }); setLinhaNova("") } }} className="flex max-w-sm gap-2">
-            <input value={linhaNova} onChange={(e) => setLinhaNova(e.target.value)} placeholder="Nova linha editorial" aria-label="Nova linha editorial" className="h-9 flex-1 rounded-md border border-line-strong bg-surface px-3 text-sm focus-visible:border-pen focus-visible:outline-none" />
-            <Botao type="submit" disabled={!linhaNova.trim()}>Adicionar</Botao>
-          </form>
-        </Secao>
-        {guias.length ? (
+      <div className="mt-12 grid gap-10 lg:grid-cols-3">
+        {estrategia.length ? (
           <Secao titulo="Estratégia">
-            <ul className="grid gap-1 sm:grid-cols-2">
-              {guias.map((p) => (
-                <li key={p.id}>
-                  <Link href={`/paginas/${p.id}`} className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-surface-2">
-                    <FileText className="size-4 text-ink-3" /> <span className="truncate">{p.title}</span>
-                  </Link>
+            <ListaGuias paginas={estrategia} icone={FileText} />
+          </Secao>
+        ) : null}
+        <div className="grid content-start gap-10">
+          {ferramentas.length ? (
+            <Secao titulo="Ferramentas">
+              <ListaGuias paginas={ferramentas} icone={Wrench} />
+            </Secao>
+          ) : null}
+          <Secao titulo="Linhas editoriais">
+            <ul className="mb-3 flex flex-wrap gap-2">
+              {linhas.map((l) => (
+                <li key={l.id}>
+                  <button type="button" onClick={() => setFiltroLinha((f) => (f === l.id ? "" : l.id))} aria-pressed={filtroLinha === l.id}>
+                    <Etiqueta cor="conteudo" className={cn("px-3 py-1 text-sm", filtroLinha === l.id && "ring-1 ring-conteudo")}>
+                      {l.name} <span className="tabular opacity-70">{itens.filter((i) => i.editorial_line_id === l.id).length}</span>
+                    </Etiqueta>
+                  </button>
                 </li>
               ))}
             </ul>
+            <form onSubmit={(e) => { e.preventDefault(); if (linhaNova.trim()) { criarLinha.mutate({ id: novoId(), name: linhaNova.trim(), position: linhas.length + 1 }); setLinhaNova("") } }} className="flex max-w-sm gap-2">
+              <input value={linhaNova} onChange={(e) => setLinhaNova(e.target.value)} placeholder="Nova linha editorial" aria-label="Nova linha editorial" className="h-9 min-w-0 flex-1 rounded-md border border-line-strong bg-surface px-3 text-sm focus-visible:border-pen focus-visible:outline-none" />
+              <Botao type="submit" disabled={!linhaNova.trim()}>Adicionar</Botao>
+            </form>
           </Secao>
-        ) : null}
+        </div>
+        <Secao titulo="Links externos">
+          {links.length ? (
+            <ul className="grid gap-0.5">
+              {links.map((l) => (
+                <li key={l.id}>
+                  <a href={l.url ?? "#"} target="_blank" rel="noreferrer" className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-surface-2">
+                    <ExternalLink className="size-4 shrink-0 text-ink-3" />
+                    <span className="min-w-0 flex-1 truncate">{l.title}</span>
+                    {l.kind ? <span className="shrink-0 text-xs text-ink-3">{l.kind}</span> : null}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-sm text-ink-2">
+              Nenhum link ainda. Adicione em <Link href="/links" className="text-pen hover:underline">Links úteis</Link>, na coleção Links.
+            </p>
+          )}
+        </Secao>
       </div>
 
       <DialogoConteudo

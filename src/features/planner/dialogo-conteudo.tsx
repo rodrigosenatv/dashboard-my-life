@@ -1,12 +1,16 @@
 "use client"
 
 import * as React from "react"
+import { LayoutTemplate } from "lucide-react"
+import { Markdown } from "@/components/markdown"
+import { Segmentos } from "@/components/ui/basicos"
 import { Botao } from "@/components/ui/button"
 import { AreaTexto, Campo, Entrada, Seletor } from "@/components/ui/campos"
 import { Janela } from "@/components/ui/janela"
 import { novoId, useAtualizar, useCriar, useExcluir, useLista } from "@/lib/data"
 import type { Tables } from "@/lib/supabase/database.types"
 import { FORMATOS_CONTEUDO, STATUS_CONTEUDO } from "@/lib/rotulos"
+import { MODELOS } from "./modelos"
 
 type Conteudo = Tables<"content_items">
 
@@ -48,6 +52,7 @@ export function DialogoConteudo({
   const [likes, setLikes] = React.useState("")
   const [comentarios, setComentarios] = React.useState("")
   const [compart, setCompart] = React.useState("")
+  const [modoRoteiro, setModoRoteiro] = React.useState<"editar" | "ler">("editar")
 
   React.useEffect(() => {
     if (!aberta) return
@@ -64,7 +69,14 @@ export function DialogoConteudo({
     setLikes(item?.likes?.toString() ?? "")
     setComentarios(item?.comments?.toString() ?? "")
     setCompart(item?.shares?.toString() ?? "")
+    setModoRoteiro(item?.script?.trim() ? "ler" : "editar")
   }, [aberta, item, statusInicial, dataInicial])
+
+  const usarModelo = (m: (typeof MODELOS)[number]) => {
+    setRoteiro((atual) => (atual.trim() ? `${atual.trimEnd()}\n\n${m.texto}` : m.texto))
+    if (!formato) setFormato(m.formato)
+    setModoRoteiro("ler")
+  }
 
   const alternar = (p: string) =>
     setPlataformas((atual) => (atual.includes(p) ? atual.filter((x) => x !== p) : [...atual, p]))
@@ -181,9 +193,44 @@ export function DialogoConteudo({
             })}
           </div>
         </fieldset>
-        <Campo rotulo="Roteiro" htmlFor="ct-roteiro" dica="Aceita markdown.">
-          <AreaTexto id="ct-roteiro" value={roteiro} onChange={(e) => setRoteiro(e.target.value)} rows={8} />
-        </Campo>
+        <section aria-labelledby="ct-roteiro-rotulo" className="grid gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <h3 id="ct-roteiro-rotulo" className="mr-auto text-sm font-medium text-ink-2">
+              Roteiro
+            </h3>
+            {MODELOS.map((m) => (
+              <Botao key={m.id} type="button" variante="contorno" tamanho="sm" onClick={() => usarModelo(m)} title={`Inserir o modelo Viral Canva de ${m.rotulo}`}>
+                <LayoutTemplate /> Modelo {m.rotulo}
+              </Botao>
+            ))}
+            <Segmentos
+              rotulo="Modo do roteiro"
+              valor={modoRoteiro}
+              aoMudar={setModoRoteiro}
+              opcoes={[
+                { valor: "ler", rotulo: "Ler" },
+                { valor: "editar", rotulo: "Editar" },
+              ]}
+            />
+          </div>
+          {modoRoteiro === "editar" ? (
+            <AreaTexto
+              id="ct-roteiro"
+              aria-labelledby="ct-roteiro-rotulo"
+              value={roteiro}
+              onChange={(e) => setRoteiro(e.target.value)}
+              rows={10}
+              className="font-mono text-[13px]"
+              placeholder="Escreva o roteiro em markdown ou comece por um modelo."
+            />
+          ) : roteiro.trim() ? (
+            <div className="max-h-[55vh] overflow-y-auto rounded-md border border-line p-4 scrollbar-thin">
+              <Markdown texto={roteiro} aoMudar={setRoteiro} className="[&>*:first-child]:mt-0" />
+            </div>
+          ) : (
+            <p className="rounded-md border border-dashed border-line p-4 text-sm text-ink-3">Roteiro vazio. Escolha um modelo ou passe para Editar.</p>
+          )}
+        </section>
         <div className="grid gap-3 sm:grid-cols-2">
           <Campo rotulo="Post de referência" htmlFor="ct-ref">
             <Entrada id="ct-ref" type="url" value={referencia} onChange={(e) => setReferencia(e.target.value)} placeholder="https://" />

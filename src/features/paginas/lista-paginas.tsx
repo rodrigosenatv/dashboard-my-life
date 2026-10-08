@@ -60,7 +60,13 @@ export function ListaPaginas({
   secoes,
   secaoNova,
   area,
+  topo,
+  substituir,
 }: {
+  /** Fica logo abaixo do cabeçalho (ex.: abas). */
+  topo?: React.ReactNode
+  /** Quando informado, aparece no lugar da árvore de páginas. */
+  substituir?: React.ReactNode
   titulo: string
   descricao: string
   secoes: string[]
@@ -87,6 +93,9 @@ export function ListaPaginas({
   return (
     <div>
       <Cabecalho area={area} titulo={titulo} descricao={descricao} acoes={<Botao variante="primario" onClick={nova}><Plus /> Nova página</Botao>} />
+      {topo}
+      {substituir ?? (
+      <>
       <div className="relative mb-6 max-w-sm">
         <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-ink-3" />
         <input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Filtrar pelo título" aria-label="Filtrar páginas" className="h-9 w-full rounded-md border border-line-strong bg-surface pl-8 pr-3 text-sm placeholder:text-ink-3 focus-visible:border-pen focus-visible:outline-none" />
@@ -126,6 +135,8 @@ export function ListaPaginas({
               </section>
             ))}
         </div>
+      )}
+      </>
       )}
     </div>
   )
