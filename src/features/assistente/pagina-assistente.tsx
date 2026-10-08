@@ -12,6 +12,8 @@ import { CHAVE_PROMPT, Markdown } from "@/components/markdown"
 import { novoId, useAtualizar, useCriar, useExcluir } from "@/lib/data"
 import { supabase } from "@/lib/supabase/client"
 import { cn, contem, dataRelativa } from "@/lib/utils"
+import { infoProvedor, type Provedor } from "@/lib/ia/info"
+import { credencial, provedoresAtivos, useConfigIA } from "@/lib/ia/chaves-locais"
 import { camposDoPrompt, preencherPrompt, usePromptsBiblioteca } from "@/features/paginas/prompts"
 import { SECAO_CONVERSAS, conversaParaTexto, textoParaConversa, tituloDaConversa, useConversas, type Mensagem } from "./conversas"
 
@@ -174,9 +176,14 @@ function AcoesResposta({ texto, pergunta }: { texto: string; pergunta: string })
 export function PaginaAssistente() {
   const { data: status } = useQuery({
     queryKey: ["ia-status"],
-    queryFn: async () => (await fetch("/api/ia")).json() as Promise<{ disponivel: boolean; modelo: string }>,
+    queryFn: async () => (await fetch("/api/ia")).json() as Promise<{ vercel: boolean }>,
     staleTime: Infinity,
   })
+  const cfgIA = useConfigIA()
+  const ativos = provedoresAtivos(cfgIA)
+  const opcoesIA: Provedor[] = status?.vercel && !ativos.includes("anthropic") ? [...ativos, "anthropic"] : ativos
+  const [escolhida, setEscolhida] = React.useState<Provedor | null>(null)
+  const provedor: Provedor | undefined = escolhida && opcoesIA.includes(escolhida) ? escolhida : opcoesIA[0]
   const criarPagina = useCriar("pages")
   const atualizarPagina = useAtualizar("pages", { silencioso: true })
 
@@ -260,8 +267,9 @@ export function PaginaAssistente() {
     const ctrl = new AbortController()
     abortar.current = ctrl
     let acumulado = ""
+    const cred = provedor ? credencial(cfgIA, provedor) : null
     try {
-      const r = await fetch("/api/ia", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ mensagens: historico }), signal: ctrl.signal })
+      const r = await fetch("/api/ia", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ mensagens: historico, provedor, chave: cred?.chave, modelo: cred?.modelo }), signal: ctrl.signal })
       if (!r.ok || !r.body) {
         const corpo = await r.json().catch(() => ({}))
         throw new Error(corpo.erro ?? `Erro ${r.status}`)
@@ -290,13 +298,18 @@ export function PaginaAssistente() {
     }
   }
 
-  if (status && !status.disponivel) {
+  if (status && !opcoesIA.length) {
     return (
       <div>
         <Cabecalho area="conteudo" titulo="Assistente" />
         <Vazio
-          titulo="O assistente ainda não está ligado."
-          descricao="Para usar a IA dentro do app, crie uma chave de API no Claude Console e adicione-a na Vercel como ANTHROPIC_API_KEY. O uso é cobrado pela Anthropic conforme o consumo."
+          titulo="Nenhuma IA ligada neste navegador."
+          descricao="Cadastre a chave de API do Claude, do ChatGPT ou do Gemini em Configurações. A chave fica guardada só neste navegador, e o uso é cobrado pela empresa da IA conforme o consumo."
+          acao={
+            <Link href="/configuracoes#ia" className="text-sm font-medium text-pen hover:underline">
+              Abrir Configurações
+            </Link>
+          }
         />
       </div>
     )
@@ -310,7 +323,7 @@ export function PaginaAssistente() {
           titulo="Assistente"
           descricao={
             <>
-              Converse com o Claude ou use um prompt da <Link href="/conteudo/biblioteca" className="text-pen hover:underline">biblioteca</Link>. As conversas ficam salvas.
+              Converse com a IA ou use um prompt da <Link href="/conteudo/biblioteca" className="text-pen hover:underline">biblioteca</Link>. As conversas ficam salvas.
             </>
           }
           acoes={
@@ -383,6 +396,20 @@ export function PaginaAssistente() {
               <Botao type="button" variante="fantasma" tamanho="icone" aria-label="Escolher prompt da biblioteca" title="Prompts da biblioteca" onClick={() => setVerPrompts(true)}>
                 <Library />
               </Botao>
+              {opcoesIA.length > 1 ? (
+                <select
+                  value={provedor}
+                  onChange={(e) => setEscolhida(e.target.value as Provedor)}
+                  aria-label="IA usada"
+                  className="h-9 max-w-28 shrink-0 rounded-md border border-line bg-surface-2 px-1.5 text-xs text-ink-2"
+                >
+                  {opcoesIA.map((id) => (
+                    <option key={id} value={id}>
+                      {infoProvedor(id)?.nome}
+                    </option>
+                  ))}
+                </select>
+              ) : null}
               <textarea
                 ref={entrada}
                 value={texto}

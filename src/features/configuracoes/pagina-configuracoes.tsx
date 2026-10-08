@@ -13,6 +13,7 @@ import { supabase } from "@/lib/supabase/client"
 import { novoId } from "@/lib/data"
 import { numero } from "@/lib/utils"
 import { useConfiguracoes, useSalvarConfiguracoes, type Preferencias } from "./dados"
+import { ChavesIA } from "./chaves-ia"
 import { FRASE_PADRAO } from "@/features/hoje/painel"
 import { abrirZip } from "@/features/importar/zip"
 import { montarPlano, resumoPlano, type Plano } from "@/features/importar/notion"
@@ -21,10 +22,13 @@ import { executarImportacao, exportarTudo, type Progresso as EstadoProgresso } f
 export function PaginaConfiguracoes() {
   return (
     <div className="max-w-3xl">
-      <Cabecalho titulo="Configurações" descricao="Seu perfil, a aparência do app e a importação do Notion." />
+      <Cabecalho titulo="Configurações" descricao="Seu perfil, a aparência do app, as chaves de IA e a importação do Notion." />
       <div className="grid gap-12">
         <Perfil />
         <Aparencia />
+        <div id="ia" className="scroll-mt-6">
+          <ChavesIA />
+        </div>
         <ImportarNotion />
         <CopiaSeguranca />
         <Conta />
