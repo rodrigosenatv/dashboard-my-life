@@ -51,11 +51,16 @@ const DESEMPATE: Partial<Record<TableName, string>> = {
   settings: "user_id",
 }
 
-/** Lista completa de uma tabela, com cache compartilhado pela chave [tabela, ...chave]. */
+/**
+ * Lista completa de uma tabela. O cache é compartilhado entre telas que pedem a mesma coisa:
+ * as colunas e a ordem entram na chave, para uma tela que pede só alguns campos não
+ * entregar linhas incompletas (ou em outra ordem) a outra que pede todos.
+ * Quem usa `filtro` precisa informar `chave`, porque uma função não entra na chave.
+ */
 export function useLista<T extends TableName>(tabela: T, opcoes: OpcoesLista = {}) {
   const { colunas = "*", ordem = [], filtro, chave = [], enabled } = opcoes
   return useQuery({
-    queryKey: [tabela, ...chave],
+    queryKey: [tabela, ...chave, { colunas, ordem }],
     enabled,
     queryFn: () =>
       buscarTodos<Tables<T>>((de, ate) => {

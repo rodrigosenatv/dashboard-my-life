@@ -213,6 +213,9 @@ export function PaginaAssistente() {
     fim.current?.scrollIntoView({ block: "end" })
   }, [mensagens])
 
+  // Sair da tela interrompe a resposta em andamento (e a cobrança dela)
+  React.useEffect(() => () => abortar.current?.abort(), [])
+
   const listaCampos = camposDoPrompt(texto)
 
   const usarTexto = (t: string) => {

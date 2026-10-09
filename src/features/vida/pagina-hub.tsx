@@ -10,7 +10,7 @@ import { Cabecalho, Carregando, Secao, Vazio } from "@/components/ui/basicos"
 import { Markdown } from "@/components/markdown"
 import { Pomodoro } from "@/components/pomodoro"
 import { novoId, useCriar, useLista, useRegistro } from "@/lib/data"
-import { cn, normalizar } from "@/lib/utils"
+import { cn, normalizar, urlValida } from "@/lib/utils"
 import { BlocoColecao, type Colecao } from "@/features/colecoes/visao-colecao"
 import { AgendaProxima, TarefasHoje } from "@/features/hoje/hoje"
 import { contarDescendentes, filhosDe, useArvorePaginas } from "@/features/paginas/dados"
@@ -37,7 +37,7 @@ function Ferramentas() {
         <ul className="grid gap-1 sm:grid-cols-2">
           {links.map((l) => (
             <li key={l.id}>
-              <a href={l.url ?? "#"} target="_blank" rel="noreferrer" className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-surface-2">
+              <a href={urlValida(l.url) ?? "#"} target="_blank" rel="noreferrer" className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-surface-2">
                 <ExternalLink className="size-4 shrink-0 text-ink-3" />
                 <span className="min-w-0 flex-1 truncate">{l.title}</span>
                 {l.tags?.[0] ? <span className="shrink-0 text-xs text-ink-3">{l.tags[0]}</span> : null}

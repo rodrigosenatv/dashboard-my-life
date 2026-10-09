@@ -41,6 +41,8 @@ function tocar() {
       o.start(ctx.currentTime + t)
       o.stop(ctx.currentTime + t + 0.22)
     })
+    // O navegador limita quantos contextos de áudio ficam abertos
+    window.setTimeout(() => void ctx.close().catch(() => {}), 1200)
   } catch {}
 }
 
@@ -88,7 +90,11 @@ export function Pomodoro({ className, aoConcluirFoco }: { className?: string; ao
       const s = Math.max(0, Math.round(((fim.current ?? Date.now()) - Date.now()) / 1000))
       setRestante(s)
       document.title = `${mmss(s)} ${ROTULO[modo]}`
-      if (s <= 0) terminar()
+      if (s <= 0) {
+        // Para já: com a aba em segundo plano o próximo tique pode chegar antes de a tela atualizar
+        window.clearInterval(id)
+        terminar()
+      }
     }, 250)
     return () => {
       window.clearInterval(id)

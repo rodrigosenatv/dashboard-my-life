@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { useSearchParams } from "next/navigation"
+import { useAbrirDoEndereco } from "@/lib/abrir-do-endereco"
 import {
   DndContext,
   PointerSensor,
@@ -79,7 +79,6 @@ function Coluna({ id, titulo, cor, children, total }: { id: string; titulo: stri
 }
 
 export function PaginaTarefas() {
-  const params = useSearchParams()
   const hoje = isoDia()
   const [visao, setVisao] = React.useState<Visao>("triade")
   const [busca, setBusca] = React.useState("")
@@ -93,13 +92,7 @@ export function PaginaTarefas() {
   const atualizar = useAtualizar("tasks")
   const nomes = React.useMemo(() => new Map(projetos.map((p) => [p.id, p.name])), [projetos])
 
-  React.useEffect(() => {
-    const id = params.get("abrir")
-    if (id) {
-      const t = tarefas.find((x) => x.id === id)
-      if (t) setAberta(t)
-    }
-  }, [params, tarefas])
+  useAbrirDoEndereco(tarefas, setAberta)
 
   const sensores = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),

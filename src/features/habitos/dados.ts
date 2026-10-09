@@ -188,7 +188,7 @@ export function useRituais() {
   const escolhidos = prefs.rituais ?? {}
   const ritualDe = (h: Pick<Habito, "id" | "name">): Ritual => escolhidos[h.id] ?? ritualPadrao(h.name)
   const definir = (id: string, ritual: Ritual) =>
-    salvar.mutate({ prefs: { ...prefs, rituais: { ...escolhidos, [id]: ritual } } as Preferencias })
+    salvar.mutate({ prefs: { rituais: { ...escolhidos, [id]: ritual } } })
   return { ritualDe, definir }
 }
 

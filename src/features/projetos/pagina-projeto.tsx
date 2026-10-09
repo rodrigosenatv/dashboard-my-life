@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 import * as React from "react"
+import { toast } from "sonner"
 import { useQueryClient } from "@tanstack/react-query"
 import { Archive, ArrowLeft, ChevronRight, Ellipsis, Link2, Plus, RotateCcw, Trash } from "lucide-react"
 import { Botao } from "@/components/ui/button"
@@ -131,7 +132,8 @@ export function PaginaProjeto() {
   }
 
   const desvincular = async (captura: string) => {
-    await supabase().from("capture_projects").delete().eq("capture_id", captura).eq("project_id", projeto.id)
+    const { error } = await supabase().from("capture_projects").delete().eq("capture_id", captura).eq("project_id", projeto.id)
+    if (error) toast.error("Não foi possível desvincular a captura.", { description: error.message })
     qc.invalidateQueries({ queryKey: ["capture_projects"] })
   }
 

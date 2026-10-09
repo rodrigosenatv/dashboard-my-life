@@ -119,6 +119,15 @@ export function posicaoEntre(antes: number | null | undefined, depois: number | 
   return (antes + depois) / 2
 }
 
+/**
+ * Destino para redirecionar depois do login. Só aceita caminhos do próprio app:
+ * "//site.com" e "/\\site.com" também começam com barra, mas levam para fora.
+ */
+export function caminhoInterno(destino: string | null | undefined, padrao = "/"): string {
+  if (!destino || !destino.startsWith("/") || destino.startsWith("//") || destino.includes("\\")) return padrao
+  return destino
+}
+
 export function urlValida(u: string | null | undefined): string | null {
   if (!u) return null
   const t = u.trim()

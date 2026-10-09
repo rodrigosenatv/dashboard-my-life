@@ -8,6 +8,9 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* Barra lateral recolhida para a faixa de ícones (atributo posto no <html> antes da primeira pintura) */
+@custom-variant recolhido (&:where([data-menu="recolhido"] *));
+
 /* Tela de toque ou sem barra lateral: os alvos crescem para caber no dedo (44px) */
 @custom-variant toque {
   @media (pointer: coarse), (width < 64rem) {

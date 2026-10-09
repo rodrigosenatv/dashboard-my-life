@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next"
 import localFont from "next/font/local"
 import { Provedores, scriptTema } from "@/components/provedores"
+import { RegistroPwa } from "@/components/pwa"
 import "./globals.css"
 
 const titulo = localFont({
@@ -51,6 +52,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       </head>
       <body className="min-h-dvh">
         <Provedores>{children}</Provedores>
+        <RegistroPwa />
       </body>
     </html>
   )

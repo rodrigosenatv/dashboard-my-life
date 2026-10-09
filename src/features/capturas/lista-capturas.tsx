@@ -1,8 +1,9 @@
 "use client"
 
 import * as React from "react"
-import { useSearchParams } from "next/navigation"
+import { useAbrirDoEndereco } from "@/lib/abrir-do-endereco"
 import { useQueryClient } from "@tanstack/react-query"
+import { toast } from "sonner"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { Archive, ArchiveRestore, ExternalLink, FolderKanban, Plus, Search } from "lucide-react"
@@ -64,7 +65,6 @@ const VAZIOS: Record<string, { titulo: string; descricao?: string }> = {
 }
 
 export function ListaCapturas({ modo, agrupamentos = [] }: { modo: ModoCapturas; agrupamentos?: Agrupar[] }) {
-  const params = useSearchParams()
   const qc = useQueryClient()
   const [busca, setBusca] = React.useState("")
   const [tipo, setTipo] = React.useState("")
@@ -82,13 +82,7 @@ export function ListaCapturas({ modo, agrupamentos = [] }: { modo: ModoCapturas;
   const { data: areas = [] } = useLista("areas", { ordem: [{ coluna: "name" }] })
   const atualizar = useAtualizar("captures")
 
-  React.useEffect(() => {
-    const id = params.get("abrir")
-    if (id) {
-      const c = capturas.find((x) => x.id === id)
-      if (c) setAberta(c)
-    }
-  }, [params, capturas])
+  useAbrirDoEndereco(capturas, setAberta)
 
   const nomeProjeto = new Map(projetos.map((p) => [p.id, p.name]))
   const nomeArea = new Map(areas.map((a) => [a.id, a.name]))
@@ -121,7 +115,8 @@ export function ListaCapturas({ modo, agrupamentos = [] }: { modo: ModoCapturas;
   })()
 
   const ligar = async (captura: string, projeto: string) => {
-    await supabase().from("capture_projects").upsert({ capture_id: captura, project_id: projeto }, { onConflict: "capture_id,project_id", ignoreDuplicates: true })
+    const { error } = await supabase().from("capture_projects").upsert({ capture_id: captura, project_id: projeto }, { onConflict: "capture_id,project_id", ignoreDuplicates: true })
+    if (error) toast.error("Não foi possível ligar ao projeto.", { description: error.message })
     qc.invalidateQueries({ queryKey: ["capture_projects"] })
   }
 

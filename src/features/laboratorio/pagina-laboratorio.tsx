@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { useSearchParams } from "next/navigation"
+import { useAbrirDoEndereco } from "@/lib/abrir-do-endereco"
 import { Lightbulb, Plus } from "lucide-react"
 import { Botao } from "@/components/ui/button"
 import { Cabecalho, Carregando, Etiqueta, Secao, Vazio } from "@/components/ui/basicos"
@@ -119,7 +119,6 @@ function DialogoExperimento({ aberta, aoMudar, exp }: { aberta: boolean; aoMudar
 }
 
 export function PaginaLaboratorio() {
-  const params = useSearchParams()
   const { data: exps = [], isLoading } = useLista("experiments", { ordem: [{ coluna: "starts_on", asc: false }] })
   const { data: insights = [] } = useLista("insights", { ordem: [{ coluna: "created_at", asc: false }] })
   const criarInsight = useCriar("insights")
@@ -127,11 +126,7 @@ export function PaginaLaboratorio() {
   const [novo, setNovo] = React.useState(false)
   const [texto, setTexto] = React.useState("")
 
-  React.useEffect(() => {
-    const id = params.get("abrir")
-    const e = id ? exps.find((x) => x.id === id) : null
-    if (e) setAberto(e)
-  }, [params, exps])
+  useAbrirDoEndereco(exps, setAberto)
 
   const ordem: StatusExperimento[] = ["em_teste", "a_iniciar", "pausado", "concluido", "abandonado"]
   const doLab = insights.filter((i) => i.source === "laboratorio")

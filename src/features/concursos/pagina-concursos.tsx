@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import * as React from "react"
+import { toast } from "sonner"
 import { useQueryClient } from "@tanstack/react-query"
 import { FileText, Plus, NotebookText } from "lucide-react"
 import { Botao } from "@/components/ui/button"
@@ -49,13 +50,20 @@ function DialogoSessao({ aberta, aoMudar, assuntos, inicial, minutosIniciais }: 
     const q = Number(questoes) || 0
     const c = Math.min(q, Number(acertos) || 0)
     setSalvando(true)
-    const sb = supabase()
-    await sb.from("study_sessions").insert({ id: novoId(), topic_id: a.id, subject_id: a.subject_id, questions: q, correct: c, minutes: Number(minutos) || 0, day: isoDia() })
-    await sb.from("exam_topics").update({ questions: a.questions + q, correct: a.correct + c, last_review: isoDia() }).eq("id", a.id)
-    qc.invalidateQueries({ queryKey: ["exam_topics"] })
-    qc.invalidateQueries({ queryKey: ["study_sessions"] })
-    setSalvando(false)
-    aoMudar(false)
+    try {
+      const sb = supabase()
+      const sessao = await sb.from("study_sessions").insert({ id: novoId(), topic_id: a.id, subject_id: a.subject_id, questions: q, correct: c, minutes: Number(minutos) || 0, day: isoDia() })
+      if (sessao.error) throw new Error(sessao.error.message)
+      const total = await sb.from("exam_topics").update({ questions: a.questions + q, correct: a.correct + c, last_review: isoDia() }).eq("id", a.id)
+      if (total.error) throw new Error(total.error.message)
+      aoMudar(false)
+    } catch (erro) {
+      toast.error("Não foi possível registrar o estudo.", { description: erro instanceof Error ? erro.message : undefined })
+    } finally {
+      qc.invalidateQueries({ queryKey: ["exam_topics"] })
+      qc.invalidateQueries({ queryKey: ["study_sessions"] })
+      setSalvando(false)
+    }
   }
 
   return (

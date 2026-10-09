@@ -39,9 +39,16 @@ export function DialogoTarefa({
   const [status, setStatus] = React.useState<string>("todo")
   const [projeto, setProjeto] = React.useState<string>("")
 
+  // `padrao` costuma vir como objeto novo a cada renderização de quem chama;
+  // se entrasse nas dependências, o formulário seria zerado enquanto a pessoa digita
+  const padraoAtual = React.useRef(padrao)
+  React.useEffect(() => {
+    padraoAtual.current = padrao
+  })
+
   React.useEffect(() => {
     if (!aberta) return
-    const base = { ...padrao, ...tarefa }
+    const base = { ...padraoAtual.current, ...tarefa }
     setTitulo(base.title ?? "")
     setDescricao(base.description ?? "")
     setData(base.due_date ?? (tarefa ? "" : isoDia()))
@@ -50,7 +57,7 @@ export function DialogoTarefa({
     setTipo(base.kind ?? "tarefa")
     setStatus(base.status ?? "todo")
     setProjeto(base.project_id ?? "")
-  }, [aberta, tarefa, padrao])
+  }, [aberta, tarefa])
 
   const ativos = projetos.filter((p) => !p.archived && !p.done && !p.parent_id)
 

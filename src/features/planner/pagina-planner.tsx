@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import * as React from "react"
-import { useSearchParams } from "next/navigation"
+import { useAbrirDoEndereco } from "@/lib/abrir-do-endereco"
 import { addDays, addMonths, endOfMonth, endOfWeek, format, startOfMonth, startOfWeek } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { DndContext, PointerSensor, TouchSensor, useDraggable, useDroppable, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core"
@@ -12,7 +12,7 @@ import { Cabecalho, Carregando, Etiqueta, Segmentos, Secao } from "@/components/
 import { novoId, useAtualizar, useCriar, useLista } from "@/lib/data"
 import type { Tables } from "@/lib/supabase/database.types"
 import { STATUS_CONTEUDO, type StatusConteudo } from "@/lib/rotulos"
-import { cn, contem, dataRelativa, isoDia, numero, normalizar } from "@/lib/utils"
+import { cn, contem, dataRelativa, isoDia, numero, normalizar, urlValida } from "@/lib/utils"
 import { useArvorePaginas } from "@/features/paginas/dados"
 import { DialogoConteudo } from "./dialogo-conteudo"
 
@@ -235,7 +235,6 @@ function ListaGuias({ paginas, icone: Icone }: { paginas: { id: string; title: s
 }
 
 export function PaginaPlanner() {
-  const params = useSearchParams()
   const [visao, setVisao] = React.useState<Visao>("quadro")
   const { data: itens = [], isLoading } = useLista("content_items", { ordem: [{ coluna: "position" }] })
   const { data: linhas = [] } = useLista("editorial_lines", { ordem: [{ coluna: "position" }, { coluna: "name" }] })
@@ -247,11 +246,7 @@ export function PaginaPlanner() {
   const [linhaNova, setLinhaNova] = React.useState("")
   const [filtroLinha, setFiltroLinha] = React.useState("")
 
-  React.useEffect(() => {
-    const id = params.get("abrir")
-    const c = id ? itens.find((x) => x.id === id) : null
-    if (c) setAberto(c)
-  }, [params, itens])
+  useAbrirDoEndereco(itens, setAberto)
 
   const sensores = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }), useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 6 } }))
   const nomesLinha = new Map(linhas.map((l) => [l.id, l.name]))
@@ -345,7 +340,7 @@ export function PaginaPlanner() {
             <ul className="grid gap-0.5">
               {links.map((l) => (
                 <li key={l.id}>
-                  <a href={l.url ?? "#"} target="_blank" rel="noreferrer" className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-surface-2">
+                  <a href={urlValida(l.url) ?? "#"} target="_blank" rel="noreferrer" className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-surface-2">
                     <ExternalLink className="size-4 shrink-0 text-ink-3" />
                     <span className="min-w-0 flex-1 truncate">{l.title}</span>
                     {l.kind ? <span className="shrink-0 text-xs text-ink-3">{l.kind}</span> : null}

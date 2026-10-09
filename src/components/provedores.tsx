@@ -14,14 +14,15 @@ import { supabaseConfigurado } from "@/lib/supabase/env"
 
 export type Tema = "sistema" | "claro" | "escuro"
 const CHAVE_TEMA = "dml-tema"
+export const CHAVE_MENU_RECOLHIDO = "dml:menu-recolhido"
 
 type ContextoTema = { tema: Tema; mudarTema: (t: Tema) => void; escuro: boolean }
 const TemaCtx = React.createContext<ContextoTema>({ tema: "sistema", mudarTema: () => {}, escuro: false })
 
 export const useTema = () => React.useContext(TemaCtx)
 
-/** Script que roda antes da primeira pintura para evitar piscar o tema. */
-export const scriptTema = `(function(){try{var t=localStorage.getItem('${CHAVE_TEMA}')||'escuro';var d=t==='escuro'||(t==='sistema'&&matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.classList.toggle('dark',d);}catch(e){}})();`
+/** Script que roda antes da primeira pintura para evitar piscar o tema e a largura do menu. */
+export const scriptTema = `(function(){try{var t=localStorage.getItem('${CHAVE_TEMA}')||'escuro';var d=t==='escuro'||(t==='sistema'&&matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.classList.toggle('dark',d);if(localStorage.getItem('${CHAVE_MENU_RECOLHIDO}')==='1')document.documentElement.dataset.menu='recolhido';}catch(e){}})();`
 
 function ProvedorTema({ children }: { children: React.ReactNode }) {
   const [tema, setTema] = React.useState<Tema>("escuro")
@@ -90,7 +91,9 @@ function ProvedorSessao({ children, cliente }: { children: React.ReactNode; clie
   }, [cliente, router])
 
   const sair = React.useCallback(async () => {
-    await supabase().auth.signOut()
+    const { error } = await supabase().auth.signOut()
+    // Sem rede o servidor não confirma a saída; a sessão deste aparelho é encerrada mesmo assim
+    if (error) await supabase().auth.signOut({ scope: "local" })
   }, [])
 
   return <SessaoCtx.Provider value={{ usuario, carregando, sair }}>{children}</SessaoCtx.Provider>

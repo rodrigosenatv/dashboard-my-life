@@ -32,14 +32,24 @@ async function* eventosSSE(resposta: Response): AsyncGenerator<unknown> {
     const linhas = resto.split("\n")
     resto = linhas.pop() ?? ""
     for (const l of linhas) {
-      const t = l.trim()
-      if (!t.startsWith("data:")) continue
-      const dado = t.slice(5).trim()
-      if (!dado || dado === "[DONE]") continue
-      try {
-        yield JSON.parse(dado)
-      } catch {}
+      const evento = lerLinhaSSE(l)
+      if (evento !== undefined) yield evento
     }
+  }
+  // O último evento pode chegar sem quebra de linha no fim
+  const evento = lerLinhaSSE(resto)
+  if (evento !== undefined) yield evento
+}
+
+function lerLinhaSSE(linha: string): unknown {
+  const t = linha.trim()
+  if (!t.startsWith("data:")) return undefined
+  const dado = t.slice(5).trim()
+  if (!dado || dado === "[DONE]") return undefined
+  try {
+    return JSON.parse(dado)
+  } catch {
+    return undefined
   }
 }
 
@@ -52,12 +62,15 @@ async function falhaHttp(r: Response): Promise<never> {
   throw new ErroIA(detalhe || `erro ${r.status}`, r.status)
 }
 
-/** Resposta em pedaços de texto, do provedor escolhido. */
-export async function* responder(provedor: Provedor, { chave, modelo }: Chave, sistema: string, mensagens: Mensagem[], maxTokens = 4096): AsyncGenerator<string> {
+/**
+ * Resposta em pedaços de texto, do provedor escolhido.
+ * `sinal` interrompe o pedido ao provedor quando a pessoa cancela ou sai da tela.
+ */
+export async function* responder(provedor: Provedor, { chave, modelo }: Chave, sistema: string, mensagens: Mensagem[], maxTokens = 4096, sinal?: AbortSignal): AsyncGenerator<string> {
   if (provedor === "anthropic") {
     const cliente = new Anthropic({ apiKey: chave })
     try {
-      const stream = cliente.messages.stream({ model: modelo, max_tokens: maxTokens, system: sistema, messages: mensagens })
+      const stream = cliente.messages.stream({ model: modelo, max_tokens: maxTokens, system: sistema, messages: mensagens }, { signal: sinal })
       for await (const ev of stream) {
         if (ev.type === "content_block_delta" && ev.delta.type === "text_delta") yield ev.delta.text
       }
@@ -72,6 +85,7 @@ export async function* responder(provedor: Provedor, { chave, modelo }: Chave, s
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${chave}` },
       body: JSON.stringify({ model: modelo, stream: true, max_completion_tokens: maxTokens, messages: [{ role: "system", content: sistema }, ...mensagens] }),
+      signal: sinal,
     })
     if (!r.ok || !r.body) await falhaHttp(r)
     for await (const ev of eventosSSE(r)) {
@@ -89,6 +103,7 @@ export async function* responder(provedor: Provedor, { chave, modelo }: Chave, s
       contents: mensagens.map((m) => ({ role: m.role === "assistant" ? "model" : "user", parts: [{ text: m.content }] })),
       generationConfig: { maxOutputTokens: maxTokens },
     }),
+    signal: sinal,
   })
   if (!r.ok || !r.body) await falhaHttp(r)
   for await (const ev of eventosSSE(r)) {

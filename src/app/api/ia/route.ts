@@ -3,6 +3,9 @@ import { supabaseServidor } from "@/lib/supabase/server"
 import { infoProvedor, type Provedor } from "@/lib/ia/info"
 import { chaveDaVercel, explicarErro, responder, type Chave, type Mensagem } from "@/lib/ia/servidor"
 
+// Uma conversa longa cabe com folga; acima disso o pedido é um engano ou um abuso
+const MAXIMO_DE_CARACTERES = 400_000
+
 const SISTEMA =
   "Você é o assistente pessoal do app My Life. Responda em português do Brasil, de forma clara e prática. " +
   "Quando receber um prompt da biblioteca do usuário, execute-o como pedido."
@@ -45,6 +48,9 @@ export async function POST(request: NextRequest) {
   const nome = infoProvedor(provedor)!.nome
   if (!credencial) return NextResponse.json({ erro: `Adicione a chave do ${nome} em Configurações.` }, { status: 400 })
   if (!mensagens.length || mensagens[mensagens.length - 1].role !== "user") return NextResponse.json({ erro: "Envie uma mensagem." }, { status: 400 })
+  if (mensagens.reduce((n, m) => n + m.content.length, 0) > MAXIMO_DE_CARACTERES) {
+    return NextResponse.json({ erro: "A conversa ficou longa demais. Comece uma nova conversa." }, { status: 413 })
+  }
 
   const hoje = new Date().toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo", weekday: "long", day: "numeric", month: "long", year: "numeric" })
   const sistema = `${SISTEMA} Hoje é ${hoje}.`
@@ -52,22 +58,31 @@ export async function POST(request: NextRequest) {
   if (teste) {
     try {
       let texto = ""
-      for await (const pedaco of responder(provedor, credencial, sistema, mensagens, 30)) texto += pedaco
+      for await (const pedaco of responder(provedor, credencial, sistema, mensagens, 30, request.signal)) texto += pedaco
       return NextResponse.json({ ok: true, resposta: texto.trim().slice(0, 60) })
     } catch (e) {
       return NextResponse.json({ erro: explicarErro(e, nome) }, { status: 200 })
     }
   }
 
+  // Quando a pessoa cancela ou sai da tela, o pedido ao provedor também para (e deixa de ser cobrado)
+  const parar = new AbortController()
+  request.signal.addEventListener("abort", () => parar.abort(), { once: true })
+
   const codificador = new TextEncoder()
   const fluxo = new ReadableStream<Uint8Array>({
+    cancel() {
+      parar.abort()
+    },
     async start(controle) {
       try {
-        for await (const pedaco of responder(provedor, credencial!, sistema, mensagens)) controle.enqueue(codificador.encode(pedaco))
+        for await (const pedaco of responder(provedor, credencial!, sistema, mensagens, undefined, parar.signal)) controle.enqueue(codificador.encode(pedaco))
       } catch (e) {
+        if (parar.signal.aborted) return
         controle.enqueue(codificador.encode(`\n\n[Não foi possível concluir a resposta: ${explicarErro(e, nome)}]`))
       } finally {
-        controle.close()
+        // Depois de um cancelamento o fluxo já está fechado
+        if (!parar.signal.aborted) controle.close()
       }
     },
   })

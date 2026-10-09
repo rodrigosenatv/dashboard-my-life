@@ -4,11 +4,11 @@ import * as React from "react"
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { ChevronRight, LogOut, Monitor, Moon, Search, Sun } from "lucide-react"
+import { ChevronRight, LogOut, Monitor, Moon, PanelLeftClose, PanelLeftOpen, Search, Sun } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { EXTRAS, GRUPOS, HOJE, ativo, grupoDaRota, type ItemNav } from "@/lib/navegacao"
 import type { Area } from "@/lib/areas"
-import { useSessao, useTema, type Tema } from "@/components/provedores"
+import { CHAVE_MENU_RECOLHIDO, useSessao, useTema, type Tema } from "@/components/provedores"
 import { Menu, MenuConteudo, MenuGatilho, MenuItem, MenuRotulo, MenuSeparador } from "@/components/ui/menu"
 import { BotaoNovo } from "./novo"
 import { abrirBusca } from "./busca"
@@ -28,17 +28,18 @@ function LinkNav({ item, area }: { item: ItemNav; area?: Area }) {
   return (
     <Link
       href={item.href}
+      title={item.rotulo}
       aria-current={sel ? "page" : undefined}
       className={cn(
-        "group relative flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-sm transition-colors",
+        "group relative flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-sm transition-colors recolhido:justify-center recolhido:px-0 recolhido:py-2.5",
         sel ? "bg-surface text-ink font-medium shadow-[0_1px_2px_rgb(0_0_0/0.06)]" : "text-ink-2 hover:bg-surface hover:text-ink",
       )}
     >
       {sel && area ? (
-        <span aria-hidden className={cn("absolute -left-3 top-1/2 h-4 w-1 -translate-y-1/2 rounded-full", corTraco[area])} />
+        <span aria-hidden className={cn("absolute -left-3 top-1/2 h-4 w-1 -translate-y-1/2 rounded-full recolhido:left-0.5", corTraco[area])} />
       ) : null}
       <Icone className={cn("size-4 shrink-0", sel ? "text-ink" : "text-ink-3 group-hover:text-ink-2")} />
-      <span className="truncate">{item.rotulo}</span>
+      <span className="truncate recolhido:hidden">{item.rotulo}</span>
     </Link>
   )
 }
@@ -56,6 +57,38 @@ export function BarraLateral() {
     } catch {}
   }, [])
 
+  // A largura vem de um atributo no <html>, posto antes da pintura; o estado só acompanha para o rótulo do botão
+  const [recolhida, setRecolhida] = React.useState(false)
+
+  React.useEffect(() => {
+    setRecolhida(document.documentElement.dataset.menu === "recolhido")
+  }, [])
+
+  const alternarMenu = React.useCallback(() => {
+    const html = document.documentElement
+    const novo = html.dataset.menu !== "recolhido"
+    if (novo) html.dataset.menu = "recolhido"
+    else delete html.dataset.menu
+    setRecolhida(novo)
+    try {
+      localStorage.setItem(CHAVE_MENU_RECOLHIDO, novo ? "1" : "0")
+    } catch {}
+  }, [])
+
+  React.useEffect(() => {
+    const tecla = (e: KeyboardEvent) => {
+      if (!(e.ctrlKey || e.metaKey) || e.shiftKey || e.altKey || e.key.toLowerCase() !== "b") return
+      // Em campos de texto o Ctrl+B pertence ao campo; em telas sem barra lateral não há o que recolher
+      const alvo = e.target as HTMLElement | null
+      if (alvo?.closest("input, textarea, select, [contenteditable=true]")) return
+      if (!matchMedia("(min-width: 64rem)").matches) return
+      e.preventDefault()
+      alternarMenu()
+    }
+    window.addEventListener("keydown", tecla)
+    return () => window.removeEventListener("keydown", tecla)
+  }, [alternarMenu])
+
   const alternar = (area: Area) => {
     const novo = fechados.includes(area) ? fechados.filter((a) => a !== area) : [...fechados, area]
     setFechados(novo)
@@ -65,11 +98,22 @@ export function BarraLateral() {
   }
 
   return (
-    <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col border-r border-line bg-bg px-3 pb-3 pt-5 lg:flex">
-      <div className="mb-5 flex items-center justify-between px-2.5">
-        <Link href="/" className="font-display text-xl font-bold tracking-tight">
+    <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col border-r border-line bg-bg px-3 pb-3 pt-5 transition-[width] duration-150 recolhido:w-16 recolhido:px-2 lg:flex">
+      <div className="mb-5 flex h-8 items-center justify-between pl-2.5 recolhido:justify-center recolhido:pl-0">
+        <Link href="/" className="font-display text-xl font-bold tracking-tight recolhido:hidden">
           My Life
         </Link>
+        <button
+          type="button"
+          onClick={alternarMenu}
+          aria-expanded={!recolhida}
+          aria-label={recolhida ? "Expandir menu" : "Recolher menu"}
+          title={recolhida ? "Expandir menu (Ctrl+B)" : "Recolher menu (Ctrl+B)"}
+          className="grid size-8 shrink-0 place-items-center rounded-md text-ink-3 hover:bg-surface hover:text-ink"
+        >
+          <PanelLeftClose className="size-4 recolhido:hidden" />
+          <PanelLeftOpen className="hidden size-4 recolhido:block" />
+        </button>
       </div>
 
       <div className="mb-4 grid gap-1.5 px-0.5">
@@ -77,32 +121,35 @@ export function BarraLateral() {
         <button
           type="button"
           onClick={abrirBusca}
-          className="flex h-9 items-center gap-2 rounded-md border border-line bg-surface px-2.5 text-sm text-ink-3 hover:border-line-strong hover:text-ink-2"
+          aria-label="Buscar"
+          title="Buscar (Ctrl+K)"
+          className="flex h-9 items-center gap-2 rounded-md border border-line bg-surface px-2.5 text-sm text-ink-3 hover:border-line-strong hover:text-ink-2 recolhido:justify-center recolhido:px-0"
         >
           <Search className="size-4" />
-          <span className="flex-1 text-left">Buscar</span>
-          <kbd className="rounded border border-line px-1.5 text-[11px] font-sans">Ctrl K</kbd>
+          <span className="flex-1 text-left recolhido:hidden">Buscar</span>
+          <kbd className="rounded border border-line px-1.5 text-[11px] font-sans recolhido:hidden">Ctrl K</kbd>
         </button>
       </div>
 
-      <nav aria-label="Principal" className="-mr-1 flex-1 overflow-y-auto pl-3 pr-1 scrollbar-thin">
+      <nav aria-label="Principal" className="-mr-1 flex-1 overflow-y-auto pl-3 pr-1 scrollbar-thin recolhido:mr-0 recolhido:px-0.5 recolhido:[scrollbar-width:none]">
         <LinkNav item={HOJE} area="geral" />
         {GRUPOS.map((g) => {
           // O grupo da página atual fica sempre aberto, para o item marcado não sumir
           const aberto = g.area === atual || !fechados.includes(g.area)
           return (
-            <div key={g.area} className="mt-5">
+            <div key={g.area} className="mt-5 recolhido:mt-3 recolhido:border-t recolhido:border-line recolhido:pt-2">
               <button
                 type="button"
+                title={g.rotulo}
                 aria-expanded={aberto}
                 disabled={g.area === atual}
                 onClick={() => alternar(g.area)}
-                className="group mb-1 flex w-full items-center gap-2 rounded-md px-2.5 py-1 text-left text-xs font-medium text-ink-3 enabled:hover:text-ink-2"
+                className="group mb-1 flex w-full items-center gap-2 rounded-md px-2.5 py-1 text-left text-xs font-medium text-ink-3 enabled:hover:text-ink-2 recolhido:justify-center recolhido:px-0 recolhido:py-2"
               >
                 <span aria-hidden className={cn("size-1.5 rounded-full", corTraco[g.area])} />
-                <span className="flex-1">{g.rotulo}</span>
+                <span className="flex-1 recolhido:hidden">{g.rotulo}</span>
                 {g.area === atual ? null : (
-                  <ChevronRight aria-hidden className={cn("size-3.5 transition-transform", aberto && "rotate-90")} />
+                  <ChevronRight aria-hidden className={cn("size-3.5 transition-transform recolhido:hidden", aberto && "rotate-90")} />
                 )}
               </button>
               {aberto ? (
@@ -148,7 +195,7 @@ export function MenuUsuario({ compacto }: { compacto?: boolean }) {
     <Menu>
       <MenuGatilho
         className={cn(
-          "mt-2 flex items-center gap-2.5 rounded-md px-2 py-1.5 text-left text-sm hover:bg-surface",
+          "mt-2 flex items-center gap-2.5 rounded-md px-2 py-1.5 text-left text-sm hover:bg-surface recolhido:justify-center recolhido:px-0",
           compacto && "mt-0 size-11 justify-center p-0",
         )}
         aria-label="Conta e tema"
@@ -156,7 +203,7 @@ export function MenuUsuario({ compacto }: { compacto?: boolean }) {
         <span className="grid size-7 shrink-0 place-items-center rounded-full bg-pen-soft font-display text-sm font-semibold text-pen">
           {inicial}
         </span>
-        {compacto ? null : <span className="min-w-0 flex-1 truncate text-ink-2">{email || "Conta"}</span>}
+        {compacto ? null : <span className="min-w-0 flex-1 truncate text-ink-2 recolhido:hidden">{email || "Conta"}</span>}
       </MenuGatilho>
       <MenuConteudo align={compacto ? "end" : "start"} side={compacto ? "bottom" : "top"}>
         <MenuRotulo>Tema</MenuRotulo>

@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { toast } from "sonner"
 import { Botao } from "@/components/ui/button"
 import { AreaTexto, Campo, Entrada, Seletor } from "@/components/ui/campos"
 import { Janela } from "@/components/ui/janela"
@@ -74,9 +75,15 @@ export function DialogoCaptura({
       atualizar.mutate({ id: captura.id, ...campos })
     } else {
       const id = novoId()
-      await criar.mutateAsync({ id, ...campos })
+      try {
+        await criar.mutateAsync({ id, ...campos })
+      } catch {
+        // O aviso de erro já apareceu; a janela fica aberta para a pessoa não perder o que digitou
+        return
+      }
       if (projeto) {
-        await supabase().from("capture_projects").insert({ capture_id: id, project_id: projeto })
+        const { error } = await supabase().from("capture_projects").insert({ capture_id: id, project_id: projeto })
+        if (error) toast.error("A captura foi salva, mas não foi possível ligá-la ao projeto.", { description: error.message })
         qc.invalidateQueries({ queryKey: ["capture_projects"] })
       }
     }

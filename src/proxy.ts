@@ -20,6 +20,12 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
+  if (pathname === "/configurar") {
+    const url = request.nextUrl.clone()
+    url.pathname = "/"
+    return NextResponse.redirect(url)
+  }
+
   let resposta = NextResponse.next({ request })
   let gravouCookies = false
 
@@ -65,7 +71,7 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // Tudo, menos arquivos estáticos, imagens, ícones e a rota de IA (que valida a sessão sozinha).
-    "/((?!_next/static|_next/image|api/|favicon.ico|icon|apple-icon|manifest.webmanifest|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff2?)$).*)",
+    // Tudo, menos arquivos estáticos, imagens, ícones, o service worker com sua página offline e a rota de IA (que valida a sessão sozinha).
+    "/((?!_next/static|_next/image|api/|favicon.ico|icon|apple-icon|manifest.webmanifest|sw.js|offline.html|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff2?)$).*)",
   ],
 }

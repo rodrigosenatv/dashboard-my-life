@@ -26,7 +26,7 @@ export default function LayoutApp({ children }: LayoutProps<"/">) {
   return (
     <div className="flex min-h-dvh">
       {/* A navegação lê a rota atual; em rotas com id ela só resolve na requisição. */}
-      <Suspense fallback={<aside aria-hidden className="sticky top-0 hidden h-dvh w-60 shrink-0 border-r border-line bg-bg lg:block" />}>
+      <Suspense fallback={<aside aria-hidden className="sticky top-0 hidden h-dvh w-60 shrink-0 border-r border-line bg-bg recolhido:w-16 lg:block" />}>
         <BarraLateral />
       </Suspense>
       <div className="flex min-w-0 flex-1 flex-col">

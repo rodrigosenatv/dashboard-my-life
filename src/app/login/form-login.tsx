@@ -5,6 +5,7 @@ import * as React from "react"
 import { Botao } from "@/components/ui/button"
 import { Campo, Entrada } from "@/components/ui/campos"
 import { supabase } from "@/lib/supabase/client"
+import { caminhoInterno } from "@/lib/utils"
 
 function traduzir(msg: string): string {
   const m = msg.toLowerCase()
@@ -21,7 +22,7 @@ function traduzir(msg: string): string {
 export function FormLogin() {
   const router = useRouter()
   const params = useSearchParams()
-  const voltar = params.get("voltar") || "/"
+  const voltar = caminhoInterno(params.get("voltar"))
   const [modo, setModo] = React.useState<"entrar" | "criar">("entrar")
   const [email, setEmail] = React.useState("")
   const [senha, setSenha] = React.useState("")
@@ -41,7 +42,7 @@ export function FormLogin() {
       if (modo === "entrar") {
         const { error } = await sb.auth.signInWithPassword({ email: email.trim(), password: senha })
         if (error) throw error
-        router.replace(voltar.startsWith("/") ? voltar : "/")
+        router.replace(voltar)
         router.refresh()
       } else {
         const { data, error } = await sb.auth.signUp({

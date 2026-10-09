@@ -33,9 +33,9 @@ export function BotaoNovo({ compacto, className }: { compacto?: boolean; classNa
             <Plus />
           </Botao>
         ) : (
-          <Botao variante="primario" className={cn("w-full justify-start", className)}>
+          <Botao variante="primario" aria-label="Novo" title="Novo" className={cn("w-full justify-start recolhido:justify-center recolhido:px-0", className)}>
             <Plus />
-            Novo
+            <span className="recolhido:hidden">Novo</span>
           </Botao>
         )}
       </MenuGatilho>

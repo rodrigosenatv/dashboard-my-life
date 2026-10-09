@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { toast } from "sonner"
 import { Botao } from "@/components/ui/button"
 import { AreaTexto, Campo, Entrada, Seletor } from "@/components/ui/campos"
 import { Janela } from "@/components/ui/janela"
@@ -76,6 +77,10 @@ export function DialogoEvento({
       category: categoria || null,
       location: local.trim() || null,
       description: descricao.trim() || null,
+    }
+    if (campos.ends_at && campos.ends_at < campos.starts_at) {
+      toast.error("O fim do compromisso não pode ser antes do início.")
+      return
     }
     if (evento) atualizar.mutate({ id: evento.id, ...campos })
     else criar.mutate({ id: novoId(), ...campos })

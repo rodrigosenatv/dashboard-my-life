@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { useSearchParams } from "next/navigation"
+import { useAbrirDoEndereco } from "@/lib/abrir-do-endereco"
 import { addDays, addMonths, endOfMonth, endOfWeek, format, startOfMonth, startOfWeek } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { Check, ChevronLeft, ChevronRight, Plus } from "lucide-react"
@@ -36,7 +36,6 @@ function diasDoEvento(e: Evento): string[] {
 }
 
 export function PaginaAgenda() {
-  const params = useSearchParams()
   const hoje = isoDia()
   const [mes, setMes] = React.useState(() => startOfMonth(new Date()))
   const [visao, setVisao] = React.useState<Visao>("mes")
@@ -47,13 +46,7 @@ export function PaginaAgenda() {
   const { data: eventos = [], isLoading } = useLista("events", { ordem: [{ coluna: "starts_at" }] })
   const { data: tarefas = [] } = useLista("tasks", { ordem: [{ coluna: "position" }] })
 
-  React.useEffect(() => {
-    const id = params.get("abrir")
-    if (id) {
-      const e = eventos.find((x) => x.id === id)
-      if (e) setAberto(e)
-    }
-  }, [params, eventos])
+  useAbrirDoEndereco(eventos, setAberto)
 
   const porDia = React.useMemo(() => {
     const mapa = new Map<string, Evento[]>()

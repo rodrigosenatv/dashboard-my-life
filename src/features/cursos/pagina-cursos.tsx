@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { useSearchParams } from "next/navigation"
+import { useAbrirDoEndereco } from "@/lib/abrir-do-endereco"
 import { ExternalLink, NotebookText, Pencil, Plus } from "lucide-react"
 import { Botao } from "@/components/ui/button"
 import { Segmentos, Cabecalho, Carregando, Etiqueta, Progresso, Vazio } from "@/components/ui/basicos"
@@ -90,7 +90,6 @@ function DialogoCurso({ aberta, aoMudar, curso }: { aberta: boolean; aoMudar: (v
 }
 
 export function PaginaCursos() {
-  const params = useSearchParams()
   const { data: cursos = [], isLoading } = useLista("courses", { ordem: [{ coluna: "position" }, { coluna: "name" }] })
   const atualizar = useAtualizar("courses")
   const [aberto, setAberto] = React.useState<Curso | null>(null)
@@ -98,11 +97,7 @@ export function PaginaCursos() {
   const [notasCurso, setNotasCurso] = React.useState<(typeof cursos)[number] | null>(null)
   const [visao, setVisao] = React.useState<"aprendendo" | "fila" | "concluidos" | "categorias">("aprendendo")
 
-  React.useEffect(() => {
-    const id = params.get("abrir")
-    const c = id ? cursos.find((x) => x.id === id) : null
-    if (c) setAberto(c)
-  }, [params, cursos])
+  useAbrirDoEndereco(cursos, setAberto)
 
   const porStatus = (st: StatusCurso[]) => cursos.filter((c) => st.includes(c.status as StatusCurso))
   const porCategoria = (lista: typeof cursos) => {

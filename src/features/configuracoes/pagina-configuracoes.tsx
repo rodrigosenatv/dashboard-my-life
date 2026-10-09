@@ -9,7 +9,9 @@ import { Cabecalho, Progresso, Secao, Segmentos } from "@/components/ui/basicos"
 import { Campo, Entrada } from "@/components/ui/campos"
 import { Confirmar } from "@/components/ui/janela"
 import { useSessao, useTema, type Tema } from "@/components/provedores"
+import { InstalarApp } from "@/components/pwa"
 import { supabase } from "@/lib/supabase/client"
+import { BUCKET_ARQUIVOS } from "@/lib/supabase/env"
 import { novoId } from "@/lib/data"
 import { numero } from "@/lib/utils"
 import { useConfiguracoes, useSalvarConfiguracoes, type Preferencias } from "./dados"
@@ -19,6 +21,8 @@ import { abrirZip } from "@/features/importar/zip"
 import { montarPlano, resumoPlano, type Plano } from "@/features/importar/notion"
 import { executarImportacao, exportarTudo, type Progresso as EstadoProgresso } from "@/features/importar/executar"
 
+const TAMANHO_MAXIMO_CAPA = 8 * 1024 * 1024
+
 export function PaginaConfiguracoes() {
   return (
     <div className="max-w-3xl">
@@ -26,6 +30,7 @@ export function PaginaConfiguracoes() {
       <div className="grid gap-12">
         <Perfil />
         <Aparencia />
+        <InstalarApp />
         <div id="ia" className="scroll-mt-6">
           <ChavesIA />
         </div>
@@ -72,20 +77,38 @@ function Aparencia() {
   const entradaCapa = React.useRef<HTMLInputElement>(null)
   const valorFrase = frase ?? prefs.frase ?? FRASE_PADRAO
 
-  const salvarPrefs = (mudancas: Record<string, string | null>, aviso: string) =>
-    salvar.mutate({ prefs: { ...prefs, ...mudancas } as Preferencias }, { onSuccess: () => toast.success(aviso), onError: (e) => toast.error(e.message) })
+  const arquivos = () => supabase().storage.from(BUCKET_ARQUIVOS)
+
+  const salvarPrefs = (mudancas: Record<string, string | null>, aviso: string, depois?: { deuCerto?: () => void; falhou?: () => void }) =>
+    salvar.mutate(
+      { prefs: mudancas },
+      {
+        onSuccess: () => {
+          toast.success(aviso)
+          depois?.deuCerto?.()
+        },
+        onError: () => depois?.falhou?.(),
+      },
+    )
 
   async function enviarCapa(arquivo: File) {
     if (!usuario) return
     if (!arquivo.type.startsWith("image/")) return toast.error("Escolha uma imagem (PNG, JPG ou WebP).")
+    if (arquivo.size > TAMANHO_MAXIMO_CAPA) return toast.error("A imagem é grande demais. Use uma de até 8 MB.")
     setEnviando(true)
     try {
       const ext = arquivo.name.split(".").pop()?.toLowerCase() || "png"
       const caminho = `${usuario.id}/capa/capa-${Date.now()}.${ext}`
-      const { error } = await supabase().storage.from("arquivos").upload(caminho, arquivo, { contentType: arquivo.type })
+      const { error } = await arquivos().upload(caminho, arquivo, { contentType: arquivo.type })
       if (error) throw new Error(error.message)
-      if (prefs.capa) await supabase().storage.from("arquivos").remove([prefs.capa])
-      salvarPrefs({ capa: caminho }, "Capa atualizada")
+      // A imagem antiga só sai depois que a nova estiver gravada nas preferências; se gravar falhar, a nova é que sai
+      const antiga = prefs.capa
+      salvarPrefs({ capa: caminho }, "Capa atualizada", {
+        deuCerto: () => {
+          if (antiga) void arquivos().remove([antiga])
+        },
+        falhou: () => void arquivos().remove([caminho]),
+      })
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Não foi possível enviar a imagem.")
     } finally {
@@ -140,9 +163,9 @@ function Aparencia() {
             {prefs.capa ? (
               <Botao
                 variante="fantasma"
-                onClick={async () => {
-                  await supabase().storage.from("arquivos").remove([prefs.capa!])
-                  salvarPrefs({ capa: null }, "Capa removida")
+                onClick={() => {
+                  const antiga = prefs.capa!
+                  salvarPrefs({ capa: null }, "Capa removida", { deuCerto: () => void arquivos().remove([antiga]) })
                 }}
               >
                 Remover imagem
