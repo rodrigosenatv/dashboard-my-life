@@ -50,7 +50,7 @@ export function Janela({
                 <Dialog.Description className="sr-only">{titulo}</Dialog.Description>
               )}
             </div>
-            <Dialog.Close className="-mr-1 rounded-md p-1.5 text-ink-3 hover:bg-surface-2 hover:text-ink" aria-label="Fechar">
+            <Dialog.Close className="-mr-1 rounded-md p-1.5 text-ink-3 hover:bg-surface-2 hover:text-ink toque:-mr-2.5 toque:-mt-2 toque:p-3.5" aria-label="Fechar">
               <X className="size-4" />
             </Dialog.Close>
           </div>
@@ -93,14 +93,14 @@ export function Confirmar({
         <>
           <button
             type="button"
-            className="h-9 rounded-md px-3.5 text-sm font-medium text-ink-2 hover:bg-surface-2"
+            className="h-9 rounded-md px-3.5 text-sm font-medium text-ink-2 hover:bg-surface-2 toque:h-11"
             onClick={() => aoMudar(false)}
           >
             Cancelar
           </button>
           <button
             type="button"
-            className="h-9 rounded-md bg-danger px-3.5 text-sm font-medium text-white hover:bg-danger/90"
+            className="h-9 rounded-md bg-danger px-3.5 text-sm font-medium text-white hover:bg-danger/90 toque:h-11"
             onClick={() => {
               aoConfirmar()
               aoMudar(false)

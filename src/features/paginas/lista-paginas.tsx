@@ -27,16 +27,16 @@ function NoArvore({ pagina, todas, nivel, busca }: { pagina: PaginaResumo; todas
             aria-label={expandido ? "Recolher" : "Expandir"}
             aria-expanded={expandido}
             onClick={() => setAberto((a) => !a)}
-            className="grid size-6 place-items-center rounded text-ink-3 hover:bg-surface-2"
+            className="grid size-6 place-items-center rounded text-ink-3 hover:bg-surface-2 toque:size-11"
           >
             <ChevronRight className={cn("size-4 transition-transform", expandido && "rotate-90")} />
           </button>
         ) : (
-          <span className="grid size-6 place-items-center text-ink-3">
+          <span className="grid size-6 place-items-center text-ink-3 toque:size-11">
             <FileText className="size-3.5" />
           </span>
         )}
-        <Link href={`/paginas/${pagina.id}`} className={cn("min-w-0 flex-1 truncate rounded-md px-1.5 py-1.5 text-sm hover:bg-surface-2", nivel === 0 && "font-medium")}>
+        <Link href={`/paginas/${pagina.id}`} className={cn("min-w-0 flex-1 truncate rounded-md px-1.5 py-1.5 text-sm hover:bg-surface-2 toque:py-3", nivel === 0 && "font-medium")}>
           {pagina.icon && !pagina.icon.startsWith("/") && pagina.icon.length <= 4 ? <span className="mr-1.5">{pagina.icon}</span> : null}
           {pagina.title || "Sem título"}
         </Link>
@@ -98,7 +98,7 @@ export function ListaPaginas({
       <>
       <div className="relative mb-6 max-w-sm">
         <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-ink-3" />
-        <input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Filtrar pelo título" aria-label="Filtrar páginas" className="h-9 w-full rounded-md border border-line-strong bg-surface pl-8 pr-3 text-sm placeholder:text-ink-3 focus-visible:border-pen focus-visible:outline-none" />
+        <input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Filtrar pelo título" aria-label="Filtrar páginas" className="h-9 w-full rounded-md border toque:h-11 toque:text-[16px] border-line-strong bg-surface pl-8 pr-3 text-sm placeholder:text-ink-3 focus-visible:border-pen focus-visible:outline-none" />
       </div>
 
       {isLoading ? (

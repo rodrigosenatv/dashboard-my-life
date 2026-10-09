@@ -23,7 +23,7 @@ const corArea: Record<Area, string> = {
 export function TopoCelular() {
   return (
     <header className="sticky top-0 z-30 flex h-14 items-center gap-2 border-b border-line bg-bg/90 px-4 pt-[env(safe-area-inset-top)] backdrop-blur lg:hidden">
-      <Link href="/" className="font-display text-lg font-bold tracking-tight">
+      <Link href="/" className="flex h-11 items-center font-display text-lg font-bold tracking-tight">
         My Life
       </Link>
       <div className="ml-auto flex items-center gap-1">
@@ -31,11 +31,11 @@ export function TopoCelular() {
           type="button"
           onClick={abrirBusca}
           aria-label="Buscar"
-          className="grid size-9 place-items-center rounded-md text-ink-2 hover:bg-surface-2"
+          className="grid size-11 place-items-center rounded-md text-ink-2 hover:bg-surface-2"
         >
           <Search className="size-5" />
         </button>
-        <BotaoNovo compacto className="size-9" />
+        <BotaoNovo compacto />
         <MenuUsuario compacto />
       </div>
     </header>
@@ -152,7 +152,7 @@ export function AbasArea() {
               href={i.href}
               aria-current={sel ? "page" : undefined}
               className={cn(
-                "relative whitespace-nowrap px-3 pb-2.5 pt-1 text-sm font-medium",
+                "relative flex h-11 items-center whitespace-nowrap px-3 text-sm font-medium",
                 sel ? "text-ink" : "text-ink-3 hover:text-ink-2",
               )}
             >

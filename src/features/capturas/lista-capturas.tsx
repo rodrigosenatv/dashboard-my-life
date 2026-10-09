@@ -16,6 +16,7 @@ import { supabase } from "@/lib/supabase/client"
 import type { Tables } from "@/lib/supabase/database.types"
 import { cn, contem, dominio, haQuanto, urlValida } from "@/lib/utils"
 import { DialogoCaptura } from "./dialogo-captura"
+import { previaTexto, semModeloNotion } from "./texto"
 
 export type Captura = Tables<"captures">
 
@@ -126,11 +127,13 @@ export function ListaCapturas({ modo, agrupamentos = [] }: { modo: ModoCapturas;
     const link = urlValida(c.url)
     const projetosC = projetosDe.get(c.id) ?? []
     const aberto = expandida === c.id
+    const corpo = c.content ? semModeloNotion(c.content) : ""
+    const previa = previaTexto(corpo)
     return (
       <li key={c.id} className="px-4 py-3">
         <div className="flex items-start gap-3">
           <button type="button" onClick={() => setAberta(c)} className="min-w-0 flex-1 text-left">
-            <p className="font-medium leading-snug">{c.title || "Sem título"}</p>
+            <p className="break-words font-medium leading-snug">{c.title || "Sem título"}</p>
             <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-ink-3">
               {c.kind ? <span>{c.kind}</span> : null}
               {c.category ? <span>{c.category}</span> : null}
@@ -147,7 +150,7 @@ export function ListaCapturas({ modo, agrupamentos = [] }: { modo: ModoCapturas;
           </button>
           <div className="flex shrink-0 items-center gap-1">
             {link ? (
-              <a href={link} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-ink-2 hover:bg-surface-2" title={link}>
+              <a href={link} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-1 rounded-md px-2 py-1 text-xs text-ink-2 hover:bg-surface-2 toque:min-h-11 toque:min-w-11" title={link}>
                 <ExternalLink className="size-3.5" /> <span className="hidden sm:inline">{dominio(link)}</span>
               </a>
             ) : null}
@@ -179,11 +182,11 @@ export function ListaCapturas({ modo, agrupamentos = [] }: { modo: ModoCapturas;
             )}
           </div>
         </div>
-        {c.content ? (
+        {corpo ? (
           <div className="mt-2">
-            {aberto ? <Markdown texto={c.content} className="text-sm" /> : <p className="line-clamp-2 text-sm text-ink-2">{c.content.replace(/[#*_`>\[\]]/g, "")}</p>}
-            {c.content.length > 160 ? (
-              <button type="button" onClick={() => setExpandida(aberto ? null : c.id)} className="mt-1 text-xs font-medium text-pen">
+            {aberto ? <Markdown texto={corpo} className="text-sm" /> : previa ? <p className="line-clamp-2 text-sm text-ink-2">{previa}</p> : null}
+            {corpo.length > 160 || !previa ? (
+              <button type="button" onClick={() => setExpandida(aberto ? null : c.id)} className="mt-1 text-xs font-medium text-pen toque:-mb-2 toque:mt-0 toque:py-3.5 toque:text-sm">
                 {aberto ? "Mostrar menos" : "Ler tudo"}
               </button>
             ) : null}
@@ -201,7 +204,7 @@ export function ListaCapturas({ modo, agrupamentos = [] }: { modo: ModoCapturas;
         ) : null}
         <div className="relative min-w-48 flex-1 sm:max-w-xs">
           <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-ink-3" />
-          <input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Filtrar" aria-label="Filtrar capturas" className="h-9 w-full rounded-md border border-line-strong bg-surface pl-8 pr-3 text-sm placeholder:text-ink-3 focus-visible:border-pen focus-visible:outline-none" />
+          <input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Filtrar" aria-label="Filtrar capturas" className="h-9 w-full rounded-md border toque:h-11 toque:text-[16px] border-line-strong bg-surface pl-8 pr-3 text-sm placeholder:text-ink-3 focus-visible:border-pen focus-visible:outline-none" />
         </div>
         {tipos.length > 1 && agrupar !== "tipo" ? (
           <Seletor aria-label="Tipo" value={tipo} onChange={(e) => setTipo(e.target.value)} className="w-auto">

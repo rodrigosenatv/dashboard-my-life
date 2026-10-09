@@ -35,7 +35,7 @@ export function MenuItem({
   return (
     <DropdownMenu.Item
       className={cn(
-        "flex cursor-pointer select-none items-center gap-2 rounded-md px-2.5 py-1.5 outline-none data-[highlighted]:bg-surface-2 [&_svg]:size-4 [&_svg]:text-ink-3",
+        "flex cursor-pointer select-none items-center gap-2 rounded-md px-2.5 py-1.5 outline-none toque:min-h-11 data-[highlighted]:bg-surface-2 [&_svg]:size-4 [&_svg]:text-ink-3",
         perigo && "text-danger [&_svg]:text-danger",
         className,
       )}

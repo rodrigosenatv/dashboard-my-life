@@ -92,7 +92,7 @@ function HabitosHoje() {
       titulo="Rituais de hoje"
       className="mb-10"
       acao={
-        <Link href="/rotina/habitos" className="text-sm text-ink-2 hover:text-ink">
+        <Link href="/rotina/habitos" className="text-sm text-ink-2 hover:text-ink toque:-my-3 toque:py-3">
           Ver hábitos
         </Link>
       }
@@ -137,7 +137,7 @@ function HabitosHoje() {
                           role="checkbox"
                           aria-checked={feito}
                           onClick={() => alternar.mutate({ habito: h.id, dia: hoje, registro })}
-                          className="flex w-full items-center gap-3 rounded-md px-1.5 py-1.5 text-left text-sm hover:bg-surface-2"
+                          className="flex w-full items-center gap-3 rounded-md px-1.5 py-1.5 text-left text-sm hover:bg-surface-2 toque:py-3"
                         >
                           <span
                             className={cn(
@@ -202,7 +202,7 @@ export function TarefasHoje() {
       titulo="Para hoje"
       descricao={doDia.length ? undefined : undefined}
       acao={
-        <Link href="/rotina/tarefas" className="text-sm text-ink-2 hover:text-ink">
+        <Link href="/rotina/tarefas" className="text-sm text-ink-2 hover:text-ink toque:-my-3 toque:py-3">
           Todas as tarefas
         </Link>
       }
@@ -233,7 +233,7 @@ export function TarefasHoje() {
               onChange={(e) => setNova(e.target.value)}
               placeholder="Adicionar tarefa para hoje"
               aria-label="Adicionar tarefa para hoje"
-              className="h-9 flex-1 bg-transparent text-sm outline-none placeholder:text-ink-3"
+              className="h-9 flex-1 bg-transparent text-sm outline-none placeholder:text-ink-3 toque:h-11 toque:text-[16px]"
             />
           </form>
           {concluidasHoje.length ? (
@@ -279,7 +279,7 @@ export function AgendaProxima() {
     <Secao
       titulo="Agenda"
       acao={
-        <button type="button" onClick={() => abrirNovo("evento")} className="text-sm text-ink-2 hover:text-ink">
+        <button type="button" onClick={() => abrirNovo("evento")} className="text-sm text-ink-2 hover:text-ink toque:-my-3 toque:py-3">
           Agendar
         </button>
       }
@@ -321,7 +321,7 @@ function MetasAno() {
   const { data: metas = [] } = useLista("goals", { ordem: [{ coluna: "position" }, { coluna: "name" }] })
   const doAno = metas.filter((m) => !m.done && (m.year === ano || m.year === null)).slice(0, 5)
   return (
-    <Secao titulo={`Metas de ${ano}`} acao={<Link href="/rotina/metas" className="text-sm text-ink-2 hover:text-ink">Ver metas</Link>}>
+    <Secao titulo={`Metas de ${ano}`} acao={<Link href="/rotina/metas" className="text-sm text-ink-2 hover:text-ink toque:-my-3 toque:py-3">Ver metas</Link>}>
       {doAno.length === 0 ? (
         <p className="text-sm text-ink-2">Nenhuma meta para este ano.</p>
       ) : (
@@ -348,7 +348,7 @@ function LendoAgora() {
   const { data: livros = [] } = useLista("books", { ordem: [{ coluna: "updated_at", asc: false }] })
   const lendo = livros.filter((l) => l.status === "lendo").slice(0, 3)
   return (
-    <Secao titulo="Lendo agora" acao={<Link href="/estudos/leitura" className="text-sm text-ink-2 hover:text-ink">Estante</Link>}>
+    <Secao titulo="Lendo agora" acao={<Link href="/estudos/leitura" className="text-sm text-ink-2 hover:text-ink toque:-my-3 toque:py-3">Estante</Link>}>
       {lendo.length === 0 ? (
         <p className="text-sm text-ink-2">Nenhum livro em leitura.</p>
       ) : (
@@ -393,7 +393,7 @@ function ProjetosAndamento() {
   const caixa = capturas.filter((c) => !c.archived && !c.area_id && !c.kind && !comProjeto.has(c.id)).length
 
   return (
-    <Secao titulo="Projetos em andamento" acao={<Link href="/projetos" className="text-sm text-ink-2 hover:text-ink">Projetos</Link>}>
+    <Secao titulo="Projetos em andamento" acao={<Link href="/projetos" className="text-sm text-ink-2 hover:text-ink toque:-my-3 toque:py-3">Projetos</Link>}>
       {ativos.length === 0 ? (
         <p className="text-sm text-ink-2">Nenhum projeto ativo.</p>
       ) : (

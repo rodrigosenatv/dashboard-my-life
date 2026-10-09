@@ -168,7 +168,7 @@ export function PaginaLinks() {
         />
         <div className="relative w-full max-w-xs">
           <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-ink-3" />
-          <input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Buscar em todos os links" aria-label="Buscar links" className="h-9 w-full rounded-md border border-line-strong bg-surface pl-8 pr-3 text-sm focus-visible:border-pen focus-visible:outline-none" />
+          <input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Buscar em todos os links" aria-label="Buscar links" className="h-9 w-full rounded-md border toque:h-11 toque:text-[16px] border-line-strong bg-surface pl-8 pr-3 text-sm focus-visible:border-pen focus-visible:outline-none" />
         </div>
       </div>
 
@@ -180,7 +180,7 @@ export function PaginaLinks() {
               type="button"
               aria-pressed={tag === t}
               onClick={() => setTag(t)}
-              className={cn("rounded-full border px-2.5 py-0.5 text-xs", tag === t ? "border-pen bg-pen/15 font-medium text-ink" : "border-line text-ink-2 hover:text-ink")}
+              className={cn("rounded-full border px-2.5 py-0.5 text-xs toque:min-h-9 toque:px-3.5 toque:text-sm", tag === t ? "border-pen bg-pen/15 font-medium text-ink" : "border-line text-ink-2 hover:text-ink")}
             >
               {t || "Todas"}
             </button>

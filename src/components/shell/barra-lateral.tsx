@@ -114,7 +114,7 @@ export function MenuUsuario({ compacto }: { compacto?: boolean }) {
       <MenuGatilho
         className={cn(
           "mt-2 flex items-center gap-2.5 rounded-md px-2 py-1.5 text-left text-sm hover:bg-surface",
-          compacto && "mt-0 p-1",
+          compacto && "mt-0 size-11 justify-center p-0",
         )}
         aria-label="Conta e tema"
       >

@@ -8,6 +8,13 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* Tela de toque ou sem barra lateral: os alvos crescem para caber no dedo (44px) */
+@custom-variant toque {
+  @media (pointer: coarse), (width < 64rem) {
+    @slot;
+  }
+}
+
 :root {
   --bg: #f4f5f7;
   --surface: #ffffff;
@@ -15,7 +22,7 @@
   --surface-3: #e5e8ef;
   --ink: #1a1f36;
   --ink-2: #565c75;
-  --ink-3: #868ca3;
+  --ink-3: #686c7e;
   --line: #e3e6ed;
   --line-strong: #cfd4df;
 
@@ -23,18 +30,18 @@
   --pen-ink: #ffffff;
   --pen-soft: #e6ebff;
 
-  --rotina: #138a5f;
+  --rotina: #117c55;
   --rotina-soft: #dcf5ea;
   --projetos: #6a4ad6;
   --projetos-soft: #ece6ff;
-  --estudos: #a86f00;
+  --estudos: #976400;
   --estudos-soft: #fff1c9;
-  --conteudo: #c8346b;
+  --conteudo: #bc3165;
   --conteudo-soft: #ffe2ec;
 
   --danger: #c62f3b;
   --danger-soft: #fde4e6;
-  --warning: #a86f00;
+  --warning: #976400;
 
   --ring: #2340c9;
   --shadow-overlay: 0 18px 50px -12px rgb(26 31 54 / 0.28), 0 2px 6px rgb(26 31 54 / 0.08);
@@ -54,13 +61,13 @@
   --surface-3: #303030;
   --ink: #ececec;
   --ink-2: #a8a8a8;
-  --ink-3: #7c7c7c;
+  --ink-3: #8d8d8d;
   --line: #2c2c2c;
   --line-strong: #3b3b3b;
 
   --pen: #4aa3c2;
   --pen-ink: #0f1d23;
-  --pen-soft: #173640;
+  --pen-soft: #15323b;
 
   --rotina: #3ccb92;
   --rotina-soft: #143327;
@@ -185,6 +192,11 @@
     font-family: var(--font-display);
     font-optical-sizing: auto;
     letter-spacing: -0.015em;
+  }
+
+  /* Sem isto, um título ou link comprido alarga a coluna e a página vaza para o lado */
+  :where(.grid) > * {
+    min-width: 0;
   }
 }
 

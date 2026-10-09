@@ -164,7 +164,7 @@ export function PaginaTarefas() {
             onChange={(e) => setBusca(e.target.value)}
             placeholder="Filtrar tarefas"
             aria-label="Filtrar tarefas"
-            className="h-9 w-full rounded-md border border-line-strong bg-surface pl-8 pr-3 text-sm placeholder:text-ink-3 focus-visible:border-pen focus-visible:outline-none"
+            className="h-9 w-full rounded-md border toque:h-11 toque:text-[16px] border-line-strong bg-surface pl-8 pr-3 text-sm placeholder:text-ink-3 focus-visible:border-pen focus-visible:outline-none"
           />
         </div>
         {projetosComTarefa.length ? (

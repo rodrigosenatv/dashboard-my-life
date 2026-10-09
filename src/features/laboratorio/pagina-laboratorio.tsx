@@ -190,7 +190,7 @@ export function PaginaLaboratorio() {
             }}
             className="mb-4"
           >
-            <input value={texto} onChange={(e) => setTexto(e.target.value)} placeholder="Uma descoberta, uma observação…" aria-label="Novo insight do laboratório" className="h-9 w-full rounded-md border border-line-strong bg-surface px-3 text-sm focus-visible:border-pen focus-visible:outline-none" />
+            <input value={texto} onChange={(e) => setTexto(e.target.value)} placeholder="Uma descoberta, uma observação…" aria-label="Novo insight do laboratório" className="h-9 w-full rounded-md border toque:h-11 toque:text-[16px] border-line-strong bg-surface px-3 text-sm focus-visible:border-pen focus-visible:outline-none" />
           </form>
           {doLab.length === 0 ? (
             <p className="text-sm text-ink-2">Nenhum insight registrado.</p>

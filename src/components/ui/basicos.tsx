@@ -237,7 +237,7 @@ export function Segmentos<T extends string>({
   className?: string
 }) {
   return (
-    <div role="tablist" aria-label={rotulo} className={cn("inline-flex rounded-lg bg-surface-2 p-0.5", className)}>
+    <div role="tablist" aria-label={rotulo} className={cn("inline-flex max-w-full overflow-x-auto rounded-lg bg-surface-2 p-0.5 scrollbar-thin", className)}>
       {opcoes.map((o) => {
         const ativo = o.valor === valor
         return (
@@ -248,7 +248,7 @@ export function Segmentos<T extends string>({
             aria-selected={ativo}
             onClick={() => aoMudar(o.valor)}
             className={cn(
-              "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+              "inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium transition-colors toque:min-h-10",
               ativo ? "bg-surface text-ink shadow-[0_1px_2px_rgb(0_0_0/0.08)]" : "text-ink-2 hover:text-ink",
             )}
           >
@@ -297,7 +297,7 @@ export function Marcador({
         aoMudar(!marcado)
       }}
       className={cn(
-        "grid shrink-0 place-items-center rounded-full border-[1.5px] transition-colors",
+        "relative grid shrink-0 place-items-center rounded-full border-[1.5px] transition-colors toque:after:absolute toque:after:-inset-3",
         tamanho === "sm" ? "size-4" : "size-5",
         marcado ? cores[area] : "border-line-strong hover:border-ink-3",
       )}
