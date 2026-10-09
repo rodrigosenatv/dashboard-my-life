@@ -39,7 +39,7 @@ function CabecalhoDia() {
   const diaSemana = format(agora, "EEEE", { locale: ptBR })
 
   return (
-    <header className="mb-10 grid gap-6 border-b border-line pb-8 md:grid-cols-[1fr_minmax(0,22rem)] md:items-end">
+    <header className="mb-8 grid gap-6 border-b border-line pb-6 md:grid-cols-[1fr_minmax(0,22rem)] md:items-end">
       <div className="flex items-end gap-5">
         <p className="font-display text-5xl font-bold tabular tracking-tighter" aria-hidden>
           {format(agora, "dd")}
@@ -434,12 +434,13 @@ export function Hoje() {
     <div>
       <Capa />
       <CabecalhoDia />
-      <MenuAtalhos />
       <HabitosHoje />
       <div className="mb-12 grid gap-10 md:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
         <TarefasHoje />
         <AgendaProxima />
       </div>
+      {/* O dia vem antes: os atalhos repetem o menu e ficam depois do que é para fazer hoje */}
+      <MenuAtalhos />
       <div className="grid gap-10 border-t border-line pt-8 sm:grid-cols-2 lg:grid-cols-3">
         <MetasAno />
         <LendoAgora />

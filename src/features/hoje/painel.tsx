@@ -43,15 +43,15 @@ export function Capa() {
 
   if (urlCapa) {
     return (
-      <div className="-mx-4 mb-8 overflow-hidden sm:-mx-6 lg:mx-0 lg:rounded-xl">
+      <div className="-mx-4 mb-6 overflow-hidden sm:-mx-6 lg:mx-0 lg:rounded-xl">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={urlCapa} alt={`Capa: My life. ${frase}`} className="h-44 w-full object-cover sm:h-56" />
+        <img src={urlCapa} alt={`Capa: My life. ${frase}`} className="h-28 w-full object-cover sm:h-40" />
       </div>
     )
   }
 
   return (
-    <div className="relative -mx-4 mb-8 overflow-hidden bg-petroleo px-6 py-9 text-petroleo-tinta sm:-mx-6 sm:py-12 lg:mx-0 lg:rounded-xl">
+    <div className="relative -mx-4 mb-6 overflow-hidden bg-petroleo px-6 py-5 text-petroleo-tinta sm:-mx-6 sm:py-7 lg:mx-0 lg:rounded-xl">
       {/* Textura discreta de papel de parede, como na capa do Notion */}
       <div
         aria-hidden
@@ -62,8 +62,8 @@ export function Capa() {
         }}
       />
       <div className="relative mx-auto flex max-w-xl flex-col items-center text-center">
-        <p className="font-assinatura text-6xl leading-none sm:text-7xl">My life</p>
-        <p className="mt-3 text-base text-white/85 sm:text-lg">“{frase}”</p>
+        <p className="font-assinatura text-[3.25rem] leading-none sm:text-6xl">My life</p>
+        <p className="mt-2 text-base text-white/85">“{frase}”</p>
       </div>
     </div>
   )
