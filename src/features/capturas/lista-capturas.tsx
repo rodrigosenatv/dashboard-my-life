@@ -52,6 +52,9 @@ export function filtroModo(modo: ModoCapturas, projetosDe: Map<string, string[]>
   }
 }
 
+const LOTE = 20
+const LOTE_GRUPO = 6
+
 const VAZIOS: Record<string, { titulo: string; descricao?: string }> = {
   entrada: { titulo: "Caixa de entrada vazia.", descricao: "Tudo organizado. Use a captura rápida da página inicial para anotar ideias." },
   anotacoes: { titulo: "Nenhuma anotação ainda." },
@@ -70,6 +73,8 @@ export function ListaCapturas({ modo, agrupamentos = [] }: { modo: ModoCapturas;
   const [aberta, setAberta] = React.useState<Captura | null>(null)
   const [nova, setNova] = React.useState(false)
   const [expandida, setExpandida] = React.useState<string | null>(null)
+  // Quantos cartões cada grupo mostra além do primeiro lote
+  const [extras, setExtras] = React.useState<Record<string, number>>({})
 
   const { data: capturas = [], isLoading } = useLista("captures", { ordem: [{ coluna: "captured_at", asc: false }] })
   const projetosDe = useVinculosCapturas()
@@ -119,6 +124,9 @@ export function ListaCapturas({ modo, agrupamentos = [] }: { modo: ModoCapturas;
     await supabase().from("capture_projects").upsert({ capture_id: captura, project_id: projeto }, { onConflict: "capture_id,project_id", ignoreDuplicates: true })
     qc.invalidateQueries({ queryKey: ["capture_projects"] })
   }
+
+  // Mudar a busca ou os filtros volta cada grupo ao primeiro lote
+  const chaveFiltro = `${agrupar}|${busca}|${tipo}|${categoria}|`
 
   const ROTULO_AGRUPAR: Record<Agrupar, string> = { nenhum: "Lista", tag: "Por tag", tipo: "Por tipo", categoria: "Por categoria", mes: "Por mês" }
   const chaveVazio = typeof modo === "object" ? "area" : modo
@@ -230,7 +238,10 @@ export function ListaCapturas({ modo, agrupamentos = [] }: { modo: ModoCapturas;
         <Vazio titulo={busca ? "Nenhuma captura encontrada." : VAZIOS[chaveVazio].titulo} descricao={busca ? undefined : VAZIOS[chaveVazio].descricao} />
       ) : (
         <div className="grid gap-8">
-          {grupos.map((g) => (
+          {grupos.map((g) => {
+            const limite = (agrupar === "nenhum" ? LOTE : LOTE_GRUPO) + (extras[chaveFiltro + g.titulo] ?? 0)
+            const restam = g.itens.length - limite
+            return (
             <section key={g.titulo || "todas"}>
               {g.titulo ? (
                 <h2 className={cn("mb-2 flex items-baseline gap-2 font-display text-base font-semibold", agrupar === "mes" && "first-letter:uppercase")}>
@@ -238,9 +249,19 @@ export function ListaCapturas({ modo, agrupamentos = [] }: { modo: ModoCapturas;
                   <span className="tabular text-sm font-normal text-ink-3">{g.itens.length}</span>
                 </h2>
               ) : null}
-              <ul className="divide-y divide-line rounded-lg border border-line bg-surface">{g.itens.map(item)}</ul>
+              <ul className="divide-y divide-line rounded-lg border border-line bg-surface">{g.itens.slice(0, limite).map(item)}</ul>
+              {restam > 0 ? (
+                <Botao
+                  variante="contorno"
+                  className="mt-3 w-full"
+                  onClick={() => setExtras((e) => ({ ...e, [chaveFiltro + g.titulo]: (e[chaveFiltro + g.titulo] ?? 0) + LOTE }))}
+                >
+                  Mostrar mais {Math.min(LOTE, restam)} <span className="font-normal text-ink-3">de {restam} restantes</span>
+                </Botao>
+              ) : null}
             </section>
-          ))}
+            )
+          })}
         </div>
       )}
 

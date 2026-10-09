@@ -13,7 +13,7 @@ import { contarDescendentes, filhosDe, SECOES, useArvorePaginas, type PaginaResu
 
 function NoArvore({ pagina, todas, nivel, busca }: { pagina: PaginaResumo; todas: PaginaResumo[]; nivel: number; busca: string }) {
   const filhos = filhosDe(todas, pagina.id)
-  const [aberto, setAberto] = React.useState(nivel === 0 && filhos.length > 0 && filhos.length < 30)
+  const [aberto, setAberto] = React.useState(false)
   const casa = (p: PaginaResumo): boolean => contem(p.title, busca) || filhosDe(todas, p.id).some(casa)
   if (busca && !casa(pagina)) return null
   const expandido = busca ? true : aberto

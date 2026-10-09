@@ -4,9 +4,9 @@ import * as React from "react"
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { LogOut, Monitor, Moon, Search, Sun } from "lucide-react"
+import { ChevronRight, LogOut, Monitor, Moon, Search, Sun } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { EXTRAS, GRUPOS, HOJE, ativo, type ItemNav } from "@/lib/navegacao"
+import { EXTRAS, GRUPOS, HOJE, ativo, grupoDaRota, type ItemNav } from "@/lib/navegacao"
 import type { Area } from "@/lib/areas"
 import { useSessao, useTema, type Tema } from "@/components/provedores"
 import { Menu, MenuConteudo, MenuGatilho, MenuItem, MenuRotulo, MenuSeparador } from "@/components/ui/menu"
@@ -43,7 +43,27 @@ function LinkNav({ item, area }: { item: ItemNav; area?: Area }) {
   )
 }
 
+const CHAVE_FECHADOS = "dml:menu-fechados"
+
 export function BarraLateral() {
+  const pathname = usePathname()
+  const atual = grupoDaRota(pathname)?.area
+  const [fechados, setFechados] = React.useState<string[]>([])
+
+  React.useEffect(() => {
+    try {
+      setFechados(JSON.parse(localStorage.getItem(CHAVE_FECHADOS) ?? "[]"))
+    } catch {}
+  }, [])
+
+  const alternar = (area: Area) => {
+    const novo = fechados.includes(area) ? fechados.filter((a) => a !== area) : [...fechados, area]
+    setFechados(novo)
+    try {
+      localStorage.setItem(CHAVE_FECHADOS, JSON.stringify(novo))
+    } catch {}
+  }
+
   return (
     <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col border-r border-line bg-bg px-3 pb-3 pt-5 lg:flex">
       <div className="mb-5 flex items-center justify-between px-2.5">
@@ -67,19 +87,34 @@ export function BarraLateral() {
 
       <nav aria-label="Principal" className="-mr-1 flex-1 overflow-y-auto pl-3 pr-1 scrollbar-thin">
         <LinkNav item={HOJE} area="geral" />
-        {GRUPOS.map((g) => (
-          <div key={g.area} className="mt-5">
-            <p className="mb-1 flex items-center gap-2 px-2.5 text-xs font-medium text-ink-3">
-              <span aria-hidden className={cn("size-1.5 rounded-full", corTraco[g.area])} />
-              {g.rotulo}
-            </p>
-            <div className="grid gap-0.5">
-              {g.itens.map((i) => (
-                <LinkNav key={i.href} item={i} area={g.area} />
-              ))}
+        {GRUPOS.map((g) => {
+          // O grupo da página atual fica sempre aberto, para o item marcado não sumir
+          const aberto = g.area === atual || !fechados.includes(g.area)
+          return (
+            <div key={g.area} className="mt-5">
+              <button
+                type="button"
+                aria-expanded={aberto}
+                disabled={g.area === atual}
+                onClick={() => alternar(g.area)}
+                className="group mb-1 flex w-full items-center gap-2 rounded-md px-2.5 py-1 text-left text-xs font-medium text-ink-3 enabled:hover:text-ink-2"
+              >
+                <span aria-hidden className={cn("size-1.5 rounded-full", corTraco[g.area])} />
+                <span className="flex-1">{g.rotulo}</span>
+                {g.area === atual ? null : (
+                  <ChevronRight aria-hidden className={cn("size-3.5 transition-transform", aberto && "rotate-90")} />
+                )}
+              </button>
+              {aberto ? (
+                <div className="grid gap-0.5">
+                  {g.itens.map((i) => (
+                    <LinkNav key={i.href} item={i} area={g.area} />
+                  ))}
+                </div>
+              ) : null}
             </div>
-          </div>
-        ))}
+          )
+        })}
         <div className="mt-5 grid gap-0.5 border-t border-line pt-4">
           {EXTRAS.map((i) => (
             <LinkNav key={i.href} item={i} area="geral" />

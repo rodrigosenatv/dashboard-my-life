@@ -127,7 +127,7 @@ function Cartao({ item, linha, aoAbrir }: { item: Conteudo; linha?: string; aoAb
 function Coluna({ status, children, total, aoCriar }: { status: StatusConteudo; children: React.ReactNode; total: number; aoCriar: () => void }) {
   const { setNodeRef, isOver } = useDroppable({ id: status })
   return (
-    <div ref={setNodeRef} className={cn("w-64 shrink-0 rounded-xl bg-surface-2/60 p-2.5 transition-colors", isOver && "bg-conteudo-soft")}>
+    <div ref={setNodeRef} className={cn("min-h-28 shrink-0 rounded-xl bg-surface-2/60 p-2.5 transition-colors", total === 0 ? "w-40" : "w-64", isOver && "bg-conteudo-soft")}>
       <div className="mb-2 flex items-center justify-between px-1 text-sm font-medium">
         <span>{STATUS_CONTEUDO[status]} <span className="tabular font-normal text-ink-3">{total}</span></span>
         <button type="button" aria-label={`Novo em ${STATUS_CONTEUDO[status]}`} onClick={aoCriar} className="rounded p-0.5 text-ink-3 hover:bg-surface hover:text-ink">
