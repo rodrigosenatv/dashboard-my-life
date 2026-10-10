@@ -76,8 +76,10 @@ function ProvedorSessao({ children, cliente }: { children: React.ReactNode; clie
       return
     }
     const sb = supabase()
-    sb.auth.getUser().then(({ data }) => {
-      setUsuario(data.user ?? null)
+    // A sessão guardada no aparelho basta para saber quem é a pessoa; quem valida o acesso
+    // é o banco (RLS) e o proxy. Perguntar ao servidor aqui custava uma ida à rede em toda abertura.
+    sb.auth.getSession().then(({ data }) => {
+      setUsuario(data.session?.user ?? null)
       setCarregando(false)
     })
     const { data } = sb.auth.onAuthStateChange((evento, sessao) => {
@@ -109,7 +111,9 @@ export function Provedores({ children }: { children: React.ReactNode }) {
       new QueryClient({
         defaultOptions: {
           queries: {
-            staleTime: 30_000,
+            // O app é de uma pessoa só e toda gravação já atualiza as listas afetadas:
+            // dá para reaproveitar o que está em memória por mais tempo ao trocar de tela
+            staleTime: 5 * 60_000,
             gcTime: 30 * 60_000,
             refetchOnWindowFocus: true,
             retry: 1,

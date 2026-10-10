@@ -1,5 +1,8 @@
 export type Provedor = "anthropic" | "openai" | "gemini"
 
+/** Onde um prompt escolhido em outra tela espera até o Assistente abrir (sessionStorage). */
+export const CHAVE_PROMPT = "dml-prompt-para-assistente"
+
 export type InfoProvedor = {
   id: Provedor
   nome: string

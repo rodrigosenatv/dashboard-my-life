@@ -9,6 +9,7 @@ import { Cabecalho, Carregando, Progresso, Segmentos, Vazio } from "@/components
 import { novoId, useAtualizar, useCriar, useExcluir, useLista } from "@/lib/data"
 import type { Tables } from "@/lib/supabase/database.types"
 import { contem, porcentagem } from "@/lib/utils"
+import { COLUNAS_LIVRO_LISTA } from "./dados"
 import { DialogoLivro } from "./dialogo-livro"
 import { Pomodoro } from "@/components/pomodoro"
 import { isoDia } from "@/lib/utils"
@@ -112,7 +113,7 @@ export function PaginaLeitura() {
   const [aba, setAba] = React.useState<Aba>(params.get("aba") === "insights" ? "insights" : "estante")
   const [busca, setBusca] = React.useState("")
   const [novo, setNovo] = React.useState(false)
-  const { data: livros = [], isLoading } = useLista("books", { ordem: [{ coluna: "title" }] })
+  const { data: livros = [], isLoading } = useLista("books", { colunas: COLUNAS_LIVRO_LISTA, ordem: [{ coluna: "title" }] })
 
   const atualizarLivro = useAtualizar("books")
   const [soFavoritos, setSoFavoritos] = React.useState(false)

@@ -3,30 +3,13 @@
 import * as React from "react"
 import ReactMarkdown, { type Components } from "react-markdown"
 import remarkGfm from "remark-gfm"
-import { useQuery } from "@tanstack/react-query"
 import { Check, Copy, MessageSquareText } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { supabase } from "@/lib/supabase/client"
-import { BUCKET_ARQUIVOS } from "@/lib/supabase/env"
+import { PREFIXO_ARQUIVO, useUrlArquivo } from "@/lib/arquivos"
+import { CHAVE_PROMPT } from "@/lib/ia/info"
 import { cn } from "@/lib/utils"
 import { AreaTexto } from "@/components/ui/campos"
 import { Segmentos } from "@/components/ui/basicos"
-
-export const PREFIXO_ARQUIVO = "arquivo://"
-
-/** Gera um link temporário para um arquivo guardado no storage. */
-export function useUrlArquivo(caminho: string | null | undefined) {
-  return useQuery({
-    queryKey: ["arquivo-url", caminho],
-    enabled: Boolean(caminho),
-    staleTime: 50 * 60_000,
-    queryFn: async () => {
-      const { data, error } = await supabase().storage.from(BUCKET_ARQUIVOS).createSignedUrl(caminho!, 60 * 60)
-      if (error) throw new Error(error.message)
-      return data.signedUrl
-    },
-  })
-}
 
 function Imagem({ src, alt }: { src?: string; alt?: string }) {
   const caminho = src?.startsWith(PREFIXO_ARQUIVO) ? decodeURIComponent(src.slice(PREFIXO_ARQUIVO.length)) : null
@@ -46,8 +29,6 @@ function LinkArquivo({ href, children }: { href: string; children: React.ReactNo
     </a>
   )
 }
-
-export const CHAVE_PROMPT = "dml-prompt-para-assistente"
 
 function BlocoCodigo({ children }: { children: React.ReactNode }) {
   const ref = React.useRef<HTMLPreElement>(null)

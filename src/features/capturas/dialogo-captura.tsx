@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useProjetosPorNome } from "@/features/projetos/dados"
 import { toast } from "sonner"
 import { Botao } from "@/components/ui/button"
 import { AreaTexto, Campo, Entrada, Seletor } from "@/components/ui/campos"
@@ -30,10 +31,7 @@ export function DialogoCaptura({
   const criar = useCriar("captures")
   const atualizar = useAtualizar("captures")
   const { data: areas = [] } = useLista("areas", { colunas: "id,name,status", ordem: [{ coluna: "name" }] })
-  const { data: projetos = [] } = useLista("projects", {
-    colunas: "id,name,parent_id,archived,done",
-    ordem: [{ coluna: "name" }],
-  })
+  const { data: projetos = [] } = useProjetosPorNome()
 
   const [titulo, setTitulo] = React.useState("")
   const [tipo, setTipo] = React.useState("Anotação")

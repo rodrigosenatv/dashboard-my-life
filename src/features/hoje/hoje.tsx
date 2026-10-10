@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import * as React from "react"
+import { useProjetos, useProjetosPorNome } from "@/features/projetos/dados"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { Check, CornerDownLeft, Flame } from "lucide-react"
@@ -12,6 +13,7 @@ import { agruparPorRitual, indexar, sequencia, useAlternarHabito, useHabitos, us
 import { ItemTarefa } from "@/features/tarefas/item-tarefa"
 import { DialogoTarefa } from "@/features/tarefas/dialogo-tarefa"
 import { useNomeExibicao } from "@/features/configuracoes/dados"
+import { COLUNAS_LIVRO_LISTA } from "@/features/leitura/dados"
 import type { Tables } from "@/lib/supabase/database.types"
 import { abrirNovo } from "@/components/shell/novo"
 import { Capa, MenuAtalhos } from "./painel"
@@ -177,7 +179,7 @@ type Tarefa = Tables<"tasks">
 export function TarefasHoje() {
   const hoje = isoDia()
   const { data: tarefas = [], isLoading } = useLista("tasks", { ordem: [{ coluna: "position" }] })
-  const { data: projetos = [] } = useLista("projects", { colunas: "id,name,parent_id,archived,done", ordem: [{ coluna: "name" }] })
+  const { data: projetos = [] } = useProjetosPorNome()
   const criar = useCriar("tasks")
   const [nova, setNova] = React.useState("")
   const [aberta, setAberta] = React.useState<Tarefa | null>(null)
@@ -345,7 +347,7 @@ function MetasAno() {
 }
 
 function LendoAgora() {
-  const { data: livros = [] } = useLista("books", { ordem: [{ coluna: "updated_at", asc: false }] })
+  const { data: livros = [] } = useLista("books", { colunas: COLUNAS_LIVRO_LISTA, ordem: [{ coluna: "updated_at", asc: false }] })
   const lendo = livros.filter((l) => l.status === "lendo").slice(0, 3)
   return (
     <Secao titulo="Lendo agora" acao={<Link href="/estudos/leitura" className="text-sm text-ink-2 hover:text-ink toque:-my-3 toque:py-3">Estante</Link>}>
@@ -375,7 +377,7 @@ function LendoAgora() {
 }
 
 function ProjetosAndamento() {
-  const { data: projetos = [] } = useLista("projects", { ordem: [{ coluna: "position" }, { coluna: "name" }] })
+  const { data: projetos = [] } = useProjetos()
   const { data: capturas = [] } = useLista("captures", { colunas: "id,area_id,archived,kind" })
   const { data: vinculos = [] } = useLista("capture_projects", { colunas: "capture_id,project_id" })
 

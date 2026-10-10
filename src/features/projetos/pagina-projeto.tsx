@@ -7,12 +7,12 @@ import { toast } from "sonner"
 import { useQueryClient } from "@tanstack/react-query"
 import { Archive, ArrowLeft, ChevronRight, Ellipsis, Link2, Plus, RotateCcw, Trash } from "lucide-react"
 import { Botao } from "@/components/ui/button"
-import { Carregando, Etiqueta, Marcador, MarcaArea, Progresso, Secao, Vazio } from "@/components/ui/basicos"
+import { Carregando, ErroCarregar, Esqueleto, Etiqueta, Marcador, MarcaArea, Progresso, Secao, Vazio } from "@/components/ui/basicos"
 import { EdicaoEmLinha, Entrada, Seletor } from "@/components/ui/campos"
 import { Confirmar } from "@/components/ui/janela"
 import { Menu, MenuConteudo, MenuGatilho, MenuItem, MenuSeparador } from "@/components/ui/menu"
 import { EditorMarkdown } from "@/components/markdown"
-import { novoId, useAtualizar, useCriar, useExcluir, useLista } from "@/lib/data"
+import { novoId, useAtualizar, useCriar, useExcluir, useLista, useRegistro } from "@/lib/data"
 import { supabase } from "@/lib/supabase/client"
 import { cn, dominio, porcentagem } from "@/lib/utils"
 import { ItemTarefa } from "@/features/tarefas/item-tarefa"
@@ -96,6 +96,8 @@ export function PaginaProjeto() {
   const router = useRouter()
   const qc = useQueryClient()
   const { data: projetos = [], isLoading } = useProjetos()
+  // A lista de projetos não traz as anotações (texto longo); só este projeto busca as suas
+  const anotacoes = useRegistro("projects", id)
   const { data: areas = [] } = useAreas()
   const { data: tarefas = [] } = useLista("tasks", { ordem: [{ coluna: "position" }] })
   const { data: vinculos = [] } = useLista("capture_projects", { colunas: "capture_id,project_id" })
@@ -236,7 +238,13 @@ export function PaginaProjeto() {
         </Secao>
 
         <Secao titulo="Anotações">
-          <EditorMarkdown rotulo="anotações do projeto" valor={projeto.description ?? ""} aoSalvar={(v) => atualizar.mutate({ id: projeto.id, description: v || null })} />
+          {anotacoes.data ? (
+            <EditorMarkdown rotulo="anotações do projeto" valor={anotacoes.data.description ?? ""} aoSalvar={(v) => atualizar.mutate({ id: projeto.id, description: v || null })} />
+          ) : anotacoes.error ? (
+            <ErroCarregar erro={anotacoes.error} aoTentar={() => anotacoes.refetch()} />
+          ) : (
+            <Esqueleto className="h-24" />
+          )}
         </Secao>
 
         <Secao titulo="Capturas ligadas" acao={<button type="button" onClick={() => setNovaCaptura(true)} className="text-sm text-ink-2 hover:text-ink">Nova captura</button>}>

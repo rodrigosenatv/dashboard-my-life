@@ -15,7 +15,7 @@ import { BlocoColecao, Capa, esquema, opcoesDe, valorTexto, type Propriedade } f
 
 export function PaginaColecoes() {
   const { data: colecoes = [], isLoading } = useLista("collections", { ordem: [{ coluna: "position" }, { coluna: "name" }] })
-  const { data: itens = [] } = useLista("collection_items", { colunas: "id,collection_id", chave: ["contagem"] })
+  const { data: itens = [] } = useLista("collection_items", { colunas: "collection_id", chave: ["contagem"] })
   const criar = useCriar("collections")
   const router = useRouter()
   const [nome, setNome] = React.useState("")

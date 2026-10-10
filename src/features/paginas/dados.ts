@@ -6,11 +6,12 @@ import type { Tables } from "@/lib/supabase/database.types"
 export type PaginaResumo = Pick<Tables<"pages">, "id" | "title" | "parent_id" | "section" | "icon" | "position" | "favorite" | "updated_at">
 
 /** Árvore de páginas sem o conteúdo (leve). */
-export function useArvorePaginas() {
+export function useArvorePaginas(opcoes: { enabled?: boolean } = {}) {
   return useLista("pages", {
     colunas: "id,title,parent_id,section,icon,position,favorite,updated_at",
     ordem: [{ coluna: "position" }, { coluna: "title" }],
     chave: ["arvore"],
+    enabled: opcoes.enabled,
   }) as { data: PaginaResumo[] | undefined; isLoading: boolean; error: unknown }
 }
 

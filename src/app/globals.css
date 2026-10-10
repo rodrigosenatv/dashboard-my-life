@@ -159,6 +159,16 @@
   html {
     -webkit-text-size-adjust: 100%;
     text-rendering: optimizeLegibility;
+    /* O espaço da barra de rolagem fica sempre reservado: sem isto, a página inteira dava um
+       salto de lado quando o conteúdo carregava e passava da altura da tela */
+    scrollbar-gutter: stable;
+  }
+
+  /* Com o espaço já reservado, a compensação que as janelas aplicam ao travar a rolagem
+     só empurraria a página para o lado */
+  html body[data-scroll-locked] {
+    margin-right: 0 !important;
+    padding-right: 0 !important;
   }
 
   body {

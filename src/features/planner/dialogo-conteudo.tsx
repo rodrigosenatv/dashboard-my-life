@@ -2,12 +2,12 @@
 
 import * as React from "react"
 import { LayoutTemplate } from "lucide-react"
-import { Markdown } from "@/components/markdown"
-import { Segmentos } from "@/components/ui/basicos"
+import { MarkdownSobDemanda as Markdown } from "@/components/markdown-sob-demanda"
+import { ErroCarregar, Segmentos } from "@/components/ui/basicos"
 import { Botao } from "@/components/ui/button"
 import { AreaTexto, Campo, Entrada, Seletor } from "@/components/ui/campos"
 import { Janela } from "@/components/ui/janela"
-import { novoId, useAtualizar, useCriar, useExcluir, useLista } from "@/lib/data"
+import { novoId, useAtualizar, useCriar, useExcluir, useLista, useRegistro } from "@/lib/data"
 import type { Tables } from "@/lib/supabase/database.types"
 import { FORMATOS_CONTEUDO, STATUS_CONTEUDO } from "@/lib/rotulos"
 import { MODELOS } from "./modelos"
@@ -38,6 +38,10 @@ export function DialogoConteudo({
   const atualizar = useAtualizar("content_items")
   const excluir = useExcluir("content_items")
   const { data: linhas = [] } = useLista("editorial_lines", { ordem: [{ coluna: "position" }, { coluna: "name" }] })
+  // O item vem da lista sem o roteiro; ao editar, o registro inteiro é buscado aqui
+  const completo = useRegistro("content_items", aberta && item ? item.id : null)
+  const esperandoRoteiro = Boolean(item) && !completo.data
+  const preenchido = React.useRef<string | null>(null)
 
   const [titulo, setTitulo] = React.useState("")
   const [status, setStatus] = React.useState("ideia")
@@ -54,8 +58,7 @@ export function DialogoConteudo({
   const [compart, setCompart] = React.useState("")
   const [modoRoteiro, setModoRoteiro] = React.useState<"editar" | "ler">("editar")
 
-  React.useEffect(() => {
-    if (!aberta) return
+  const preencher = (item: Conteudo | null) => {
     setTitulo(item?.title ?? "")
     setStatus(item?.status ?? statusInicial ?? "ideia")
     setFormato(item?.format ?? "")
@@ -70,7 +73,28 @@ export function DialogoConteudo({
     setComentarios(item?.comments?.toString() ?? "")
     setCompart(item?.shares?.toString() ?? "")
     setModoRoteiro(item?.script?.trim() ? "ler" : "editar")
-  }, [aberta, item, statusInicial, dataInicial])
+  }
+
+  React.useEffect(() => {
+    if (!aberta) {
+      preenchido.current = null
+      return
+    }
+    // Preenche uma vez por abertura: assim uma atualização em segundo plano não apaga o que a pessoa está digitando
+    const chave = item?.id ?? "novo"
+    if (preenchido.current === chave) return
+    const inteiro = item && completo.data?.id === item.id ? completo.data : null
+    if (!item || inteiro) {
+      preenchido.current = chave
+      preencher(inteiro)
+      return
+    }
+    // O registro inteiro ainda não chegou: mostra já o que a lista tem (tudo menos o roteiro)
+    if (preenchido.current !== `${chave}:parcial`) {
+      preenchido.current = `${chave}:parcial`
+      preencher({ ...item, script: null })
+    }
+  }, [aberta, item, completo.data, statusInicial, dataInicial]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const usarModelo = (m: (typeof MODELOS)[number]) => {
     setRoteiro((atual) => (atual.trim() ? `${atual.trimEnd()}\n\n${m.texto}` : m.texto))
@@ -83,7 +107,8 @@ export function DialogoConteudo({
 
   const salvar = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!titulo.trim()) return
+    // Sem o registro inteiro em mãos, salvar gravaria um roteiro vazio por cima do existente
+    if (!titulo.trim() || esperandoRoteiro) return
     const campos = {
       title: titulo.trim(),
       status,
@@ -127,13 +152,14 @@ export function DialogoConteudo({
           <Botao variante="fantasma" onClick={() => aoMudar(false)}>
             Cancelar
           </Botao>
-          <Botao variante="primario" type="submit" form="form-conteudo" disabled={!titulo.trim()}>
+          <Botao variante="primario" type="submit" form="form-conteudo" disabled={!titulo.trim() || esperandoRoteiro}>
             {item ? "Salvar" : "Criar conteúdo"}
           </Botao>
         </>
       }
     >
-      <form id="form-conteudo" onSubmit={salvar} className="grid gap-4">
+      {completo.error ? <ErroCarregar erro={completo.error} aoTentar={() => completo.refetch()} /> : null}
+      <form id="form-conteudo" aria-busy={esperandoRoteiro} onSubmit={salvar} className="grid gap-4">
         <Campo rotulo="Título ou gancho" htmlFor="ct-titulo">
           <Entrada id="ct-titulo" autoFocus value={titulo} onChange={(e) => setTitulo(e.target.value)} placeholder="Ex.: 3 erros que reprovam no concurso" />
         </Campo>

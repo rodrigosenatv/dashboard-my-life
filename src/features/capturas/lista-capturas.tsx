@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useProjetosPorNome } from "@/features/projetos/dados"
 import { useAbrirDoEndereco } from "@/lib/abrir-do-endereco"
 import { useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
@@ -11,7 +12,7 @@ import { Botao } from "@/components/ui/button"
 import { Carregando, Etiqueta, Segmentos, Vazio } from "@/components/ui/basicos"
 import { Seletor } from "@/components/ui/campos"
 import { Menu, MenuConteudo, MenuGatilho, MenuItem, MenuRotulo } from "@/components/ui/menu"
-import { Markdown } from "@/components/markdown"
+import { MarkdownSobDemanda } from "@/components/markdown-sob-demanda"
 import { useAtualizar, useLista } from "@/lib/data"
 import { supabase } from "@/lib/supabase/client"
 import type { Tables } from "@/lib/supabase/database.types"
@@ -78,7 +79,7 @@ export function ListaCapturas({ modo, agrupamentos = [] }: { modo: ModoCapturas;
 
   const { data: capturas = [], isLoading } = useLista("captures", { ordem: [{ coluna: "captured_at", asc: false }] })
   const projetosDe = useVinculosCapturas()
-  const { data: projetos = [] } = useLista("projects", { colunas: "id,name,parent_id,archived,done", ordem: [{ coluna: "name" }] })
+  const { data: projetos = [] } = useProjetosPorNome()
   const { data: areas = [] } = useLista("areas", { ordem: [{ coluna: "name" }] })
   const atualizar = useAtualizar("captures")
 
@@ -187,7 +188,7 @@ export function ListaCapturas({ modo, agrupamentos = [] }: { modo: ModoCapturas;
         </div>
         {corpo ? (
           <div className="mt-2">
-            {aberto ? <Markdown texto={corpo} className="text-sm" /> : previa ? <p className="line-clamp-2 text-sm text-ink-2">{previa}</p> : null}
+            {aberto ? <MarkdownSobDemanda texto={corpo} className="text-sm" /> : previa ? <p className="line-clamp-2 text-sm text-ink-2">{previa}</p> : null}
             {corpo.length > 160 || !previa ? (
               <button type="button" onClick={() => setExpandida(aberto ? null : c.id)} className="mt-1 text-xs font-medium text-pen toque:-mb-2 toque:mt-0 toque:py-3.5 toque:text-sm">
                 {aberto ? "Mostrar menos" : "Ler tudo"}

@@ -23,7 +23,7 @@ import {
   type LucideIcon,
 } from "lucide-react"
 import { toast } from "sonner"
-import { useUrlArquivo } from "@/components/markdown"
+import { useUrlArquivo } from "@/lib/arquivos"
 import { novoId, useCriar } from "@/lib/data"
 import { normalizar } from "@/lib/utils"
 import { useConfiguracoes } from "@/features/configuracoes/dados"
@@ -101,6 +101,9 @@ export const MENU: Atalho[] = [
   { rotulo: "SCA", icone: GraduationCap, href: "/estudos/concursos" },
 ]
 
+// Hoje todos os atalhos levam a telas do app; a árvore de páginas só é buscada se algum voltar a abrir uma página pelo título
+const ALGUM_ATALHO_ABRE_PAGINA = MENU.some((a) => a.paginas?.length)
+
 const estiloAtalho =
   "group flex h-[4.5rem] items-center justify-center gap-2.5 rounded-lg border border-petroleo-borda bg-petroleo-2 px-3 text-center text-petroleo-tinta transition-colors hover:bg-petroleo hover:border-white/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pen sm:h-20"
 
@@ -116,7 +119,7 @@ function Conteudo({ a }: { a: Atalho }) {
 
 export function MenuAtalhos() {
   const router = useRouter()
-  const { data: paginas = [] } = useArvorePaginas()
+  const { data: paginas = [] } = useArvorePaginas({ enabled: ALGUM_ATALHO_ABRE_PAGINA })
   const criar = useCriar("pages")
 
   // Título normalizado -> página (prefere as de primeiro nível)

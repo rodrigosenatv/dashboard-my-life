@@ -1,10 +1,11 @@
 "use client"
 
 import * as React from "react"
+import { useProjetosPorNome } from "@/features/projetos/dados"
 import { Botao } from "@/components/ui/button"
 import { AreaTexto, Campo, Entrada, Seletor } from "@/components/ui/campos"
 import { Janela } from "@/components/ui/janela"
-import { novoId, useCriar, useAtualizar, useExcluir, useLista } from "@/lib/data"
+import { novoId, useCriar, useAtualizar, useExcluir } from "@/lib/data"
 import type { Tables } from "@/lib/supabase/database.types"
 import { PRIORIDADE, STATUS_TAREFA, TIPO_TAREFA } from "@/lib/rotulos"
 import { isoDia } from "@/lib/utils"
@@ -25,10 +26,7 @@ export function DialogoTarefa({
   const criar = useCriar("tasks")
   const atualizar = useAtualizar("tasks")
   const excluir = useExcluir("tasks")
-  const { data: projetos = [] } = useLista("projects", {
-    colunas: "id,name,parent_id,archived,done",
-    ordem: [{ coluna: "name" }],
-  })
+  const { data: projetos = [] } = useProjetosPorNome()
 
   const [titulo, setTitulo] = React.useState("")
   const [descricao, setDescricao] = React.useState("")

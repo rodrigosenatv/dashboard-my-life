@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useProjetosPorNome } from "@/features/projetos/dados"
 import { useAbrirDoEndereco } from "@/lib/abrir-do-endereco"
 import {
   DndContext,
@@ -88,7 +89,7 @@ export function PaginaTarefas() {
   const [verConcluidas, setVerConcluidas] = React.useState(false)
 
   const { data: tarefas = [], isLoading, error, refetch } = useLista("tasks", { ordem: [{ coluna: "position" }] })
-  const { data: projetos = [] } = useLista("projects", { colunas: "id,name,parent_id,archived,done", ordem: [{ coluna: "name" }] })
+  const { data: projetos = [] } = useProjetosPorNome()
   const atualizar = useAtualizar("tasks")
   const nomes = React.useMemo(() => new Map(projetos.map((p) => [p.id, p.name])), [projetos])
 

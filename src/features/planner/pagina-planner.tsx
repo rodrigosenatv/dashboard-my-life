@@ -234,9 +234,13 @@ function ListaGuias({ paginas, icone: Icone }: { paginas: { id: string; title: s
   )
 }
 
+// Tudo menos `script`: o roteiro é texto longo e só a janela de edição o usa (ela busca o registro inteiro)
+const COLUNAS_CONTEUDO_LISTA =
+  "id,notion_id,title,status,format,editorial_line_id,platforms,publish_date,media_url,reference_url,published_url,views,likes,comments,shares,idea_type,position,created_at,updated_at"
+
 export function PaginaPlanner() {
   const [visao, setVisao] = React.useState<Visao>("quadro")
-  const { data: itens = [], isLoading } = useLista("content_items", { ordem: [{ coluna: "position" }] })
+  const { data: itens = [], isLoading } = useLista("content_items", { colunas: COLUNAS_CONTEUDO_LISTA, ordem: [{ coluna: "position" }] })
   const { data: linhas = [] } = useLista("editorial_lines", { ordem: [{ coluna: "position" }, { coluna: "name" }] })
   const { data: paginas = [] } = useArvorePaginas()
   const atualizar = useAtualizar("content_items")
