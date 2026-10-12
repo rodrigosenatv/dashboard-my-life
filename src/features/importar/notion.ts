@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import Papa from "papaparse"
 import { texto } from "./zip"
+import { tirarMetadadosDeVisao, tirarMolduraNotion } from "./moldura"
 import {
   ehBool,
   estrelas,
@@ -576,7 +577,10 @@ export function montarPlano(arquivos: Map<string, Uint8Array>, opcoes: OpcoesPla
   if (senhaIgnorada.length) avisos.push("A página “Senhas” (e suas subpáginas) não foi importada, por segurança.")
 
   /* ---------- converter cada registro ---------- */
-  const corpo = (r: Registro) => (r.md ? reescrever(r.md.corpo, r.md.caminho) : "")
+  // O texto de cada registro, já sem a configuração de visões que o Notion deixa no meio
+  const corpo = (r: Registro) => (r.md ? tirarMetadadosDeVisao(reescrever(r.md.corpo, r.md.caminho)) : "")
+  // Capturas, projetos e áreas nascem do modelo "Segundo Cérebro": deles só fica o que a pessoa escreveu
+  const corpoSemMoldura = (r: Registro) => tirarMolduraNotion(corpo(r))
   const get = (r: Registro, ...nomes: string[]) => {
     for (const nome of nomes) {
       const k = r.banco.colunas.find((c) => n(c) === n(nome))
@@ -606,7 +610,7 @@ export function montarPlano(arquivos: Map<string, Uint8Array>, opcoes: OpcoesPla
     const base = { id: r.id, user_id: usuarioId, notion_id: r.notion }
     switch (r.destino) {
       case "areas":
-        add("areas", { ...base, name: t || "Área", status: STATUS_AREA[n(get(r, "Status"))] ?? "ativa", description: corpo(r) || null })
+        add("areas", { ...base, name: t || "Área", status: STATUS_AREA[n(get(r, "Status"))] ?? "ativa", description: corpoSemMoldura(r) || null })
         break
       case "projects": {
         add("projects", {
@@ -616,7 +620,7 @@ export function montarPlano(arquivos: Map<string, Uint8Array>, opcoes: OpcoesPla
           archived: lerBool(get(r, "Arquivar")),
           deadline: dia(get(r, "Prazo")),
           publish_date: dia(get(r, "Publicação")),
-          description: corpo(r) || null,
+          description: corpoSemMoldura(r) || null,
           position: linhas.projects.length,
         })
         pais.push({ tabela: "projects", id: r.id, rels: lerRelacao(get(r, "Projeto")), destino: "projects", campo: "parent_id" })
@@ -624,7 +628,7 @@ export function montarPlano(arquivos: Map<string, Uint8Array>, opcoes: OpcoesPla
       }
       case "captures": {
         const anexos = lerRelacao(get(r, "Anexos"))
-        let conteudo = corpo(r)
+        let conteudo = corpoSemMoldura(r)
         const extras = lerLista(get(r, "Anexos"))
           .map((a) => registrarArquivo(juntar(dirname(r.banco.caminho), a)))
           .filter(Boolean)
@@ -1026,7 +1030,7 @@ export function montarPlano(arquivos: Map<string, Uint8Array>, opcoes: OpcoesPla
       title: p.titulo || "Sem título",
       parent_id: pai && !abaixoDeSenha(pai) ? (idPagina.get(pai.caminho) ?? null) : null,
       section: secaoDe(p),
-      content: reescrever(p.corpo, p.caminho),
+      content: tirarMetadadosDeVisao(reescrever(p.corpo, p.caminho)),
       position: pos++,
       source_path: p.caminho,
     })

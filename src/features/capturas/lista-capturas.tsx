@@ -18,7 +18,7 @@ import { supabase } from "@/lib/supabase/client"
 import type { Tables } from "@/lib/supabase/database.types"
 import { cn, contem, dominio, haQuanto, urlValida } from "@/lib/utils"
 import { DialogoCaptura } from "./dialogo-captura"
-import { previaTexto, semModeloNotion } from "./texto"
+import { previaTexto } from "./texto"
 
 export type Captura = Tables<"captures">
 
@@ -131,7 +131,7 @@ export function ListaCapturas({ modo, agrupamentos = [] }: { modo: ModoCapturas;
     const link = urlValida(c.url)
     const projetosC = projetosDe.get(c.id) ?? []
     const aberto = expandida === c.id
-    const corpo = c.content ? semModeloNotion(c.content) : ""
+    const corpo = c.content ?? ""
     const previa = previaTexto(corpo)
     return (
       <li key={c.id} className="px-4 py-3">
