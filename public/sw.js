@@ -2,7 +2,7 @@
 // Não guarda dados nem telas do app: tudo continua vindo da rede, sempre atualizado.
 // A única função é mostrar a página "Você está offline" quando uma navegação falha.
 
-const CACHE = "my-life-offline-v1"
+const CACHE = "my-life-offline-v2"
 const OFFLINE = "/offline.html"
 const ICONE = "/icons/icon-192.png"
 

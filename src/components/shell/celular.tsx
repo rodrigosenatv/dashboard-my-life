@@ -23,8 +23,8 @@ const corArea: Record<Area, string> = {
 export function TopoCelular() {
   return (
     <header className="sticky top-0 z-30 flex h-14 items-center gap-2 border-b border-line bg-bg/90 px-4 pt-[env(safe-area-inset-top)] backdrop-blur lg:hidden">
-      <Link href="/" className="flex h-11 items-center font-display text-lg font-bold tracking-tight">
-        My Life
+      <Link href="/" aria-label="My Life, ir para Hoje" className="flex h-11 items-center font-assinatura pt-1.5 text-[2rem] leading-none text-pen">
+        My life
       </Link>
       <div className="ml-auto flex items-center gap-1">
         <button
@@ -35,7 +35,7 @@ export function TopoCelular() {
         >
           <Search className="size-5" />
         </button>
-        <BotaoNovo compacto />
+        <BotaoNovo compacto className="relative mx-1 size-9 toque:size-9 after:absolute after:-inset-1" />
         <MenuUsuario compacto />
       </div>
     </header>

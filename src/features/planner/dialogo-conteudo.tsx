@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { BotaoExcluir } from "@/components/ui/botao-excluir"
 import { LayoutTemplate } from "lucide-react"
 import { MarkdownSobDemanda as Markdown } from "@/components/markdown-sob-demanda"
 import { ErroCarregar, Segmentos } from "@/components/ui/basicos"
@@ -34,7 +35,7 @@ export function DialogoConteudo({
   statusInicial?: string
   dataInicial?: string
 }) {
-  const criar = useCriar("content_items")
+  const criar = useCriar("content_items", { aviso: "Conteúdo criado" })
   const atualizar = useAtualizar("content_items")
   const excluir = useExcluir("content_items")
   const { data: linhas = [] } = useLista("editorial_lines", { ordem: [{ coluna: "position" }, { coluna: "name" }] })
@@ -138,16 +139,12 @@ export function DialogoConteudo({
       rodape={
         <>
           {item ? (
-            <Botao
-              variante="fantasma"
-              className="mr-auto text-danger hover:text-danger"
-              onClick={() => {
+            <BotaoExcluir
+              aoExcluir={() => {
                 excluir.mutate(item.id)
                 aoMudar(false)
               }}
-            >
-              Excluir
-            </Botao>
+            />
           ) : null}
           <Botao variante="fantasma" onClick={() => aoMudar(false)}>
             Cancelar

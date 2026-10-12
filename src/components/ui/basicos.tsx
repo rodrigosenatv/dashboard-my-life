@@ -303,7 +303,7 @@ export function Marcador({
       )}
     >
       {marcado ? (
-        <svg viewBox="0 0 12 12" className={cn("text-white", tamanho === "sm" ? "size-2.5" : "size-3")} aria-hidden>
+        <svg viewBox="0 0 12 12" className={cn("animate-marcar text-white", tamanho === "sm" ? "size-2.5" : "size-3")} aria-hidden>
           <path d="M2.5 6.2 5 8.5 9.5 3.8" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       ) : null}

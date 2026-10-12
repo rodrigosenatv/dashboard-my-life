@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { BotaoExcluir } from "@/components/ui/botao-excluir"
 import { useProjetosPorNome } from "@/features/projetos/dados"
 import { Botao } from "@/components/ui/button"
 import { AreaTexto, Campo, Entrada, Seletor } from "@/components/ui/campos"
@@ -23,7 +24,7 @@ export function DialogoTarefa({
   tarefa?: Tarefa | null
   padrao?: Partial<Tarefa>
 }) {
-  const criar = useCriar("tasks")
+  const criar = useCriar("tasks", { aviso: "Tarefa criada" })
   const atualizar = useAtualizar("tasks")
   const excluir = useExcluir("tasks")
   const { data: projetos = [] } = useProjetosPorNome()
@@ -86,16 +87,12 @@ export function DialogoTarefa({
       rodape={
         <>
           {tarefa ? (
-            <Botao
-              variante="fantasma"
-              className="mr-auto text-danger hover:text-danger"
-              onClick={() => {
+            <BotaoExcluir
+              aoExcluir={() => {
                 excluir.mutate(tarefa.id)
                 aoMudar(false)
               }}
-            >
-              Excluir
-            </Botao>
+            />
           ) : null}
           <Botao variante="fantasma" onClick={() => aoMudar(false)}>
             Cancelar

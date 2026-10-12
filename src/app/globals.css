@@ -1,9 +1,12 @@
 @import "tailwindcss";
 
 /*
-  Dashboard My Life — sistema visual "caderno"
-  Papel frio, tinta azul-marinho, caneta azul para ações
-  e marca-textos para identificar cada área da vida.
+  My Life — sistema visual "caderno de capa azul petróleo"
+
+  A capa do caderno (a mesma do painel do Notion, com a assinatura "My life") envolve o app:
+  é a barra lateral e a abertura da tela Hoje. As páginas são o papel: neutros levemente
+  puxados para o petróleo, tinta escura, a caneta petróleo para ações e os marca-textos
+  que identificam cada área da vida.
 */
 
 @custom-variant dark (&:where(.dark, .dark *));
@@ -19,19 +22,19 @@
 }
 
 :root {
-  --bg: #f4f5f7;
+  --bg: #f3f5f6;
   --surface: #ffffff;
-  --surface-2: #eef0f4;
-  --surface-3: #e5e8ef;
-  --ink: #1a1f36;
-  --ink-2: #565c75;
-  --ink-3: #686c7e;
-  --line: #e3e6ed;
-  --line-strong: #cfd4df;
+  --surface-2: #eaeef0;
+  --surface-3: #dde4e7;
+  --ink: #14242b;
+  --ink-2: #40515a;
+  --ink-3: #586a72;
+  --line: #e0e6e9;
+  --line-strong: #c8d2d7;
 
-  --pen: #2340c9;
+  --pen: #1f6079;
   --pen-ink: #ffffff;
-  --pen-soft: #e6ebff;
+  --pen-soft: #dfedf2;
 
   --rotina: #117c55;
   --rotina-soft: #dcf5ea;
@@ -46,31 +49,38 @@
   --danger-soft: #fde4e6;
   --warning: #976400;
 
-  --ring: #2340c9;
-  --shadow-overlay: 0 18px 50px -12px rgb(26 31 54 / 0.28), 0 2px 6px rgb(26 31 54 / 0.08);
+  --ring: #1f6079;
+  --shadow-overlay: 0 18px 50px -12px rgb(20 36 43 / 0.28), 0 2px 6px rgb(20 36 43 / 0.08);
 
-  /* Azul petróleo da capa e dos atalhos do menu */
+  /* Azul petróleo da capa: a abertura da tela Hoje e a tela de entrada */
   --petroleo: #1f4f61;
-  --petroleo-2: #235a6e;
-  --petroleo-borda: #2f6b80;
   --petroleo-tinta: #ffffff;
+
+  /* A capa como moldura do app (barra lateral) */
+  --capa: #1f4f61;
+  --capa-2: #285a6d;
+  --capa-linha: #2f6578;
+  --capa-linha-forte: #3d788c;
+  --capa-tinta: #ffffff;
+  --capa-tinta-2: #d3e2e7;
+  --capa-tinta-3: #b5ccd5;
   color-scheme: light;
 }
 
 .dark {
-  --bg: #191919;
-  --surface: #202020;
-  --surface-2: #272727;
-  --surface-3: #303030;
-  --ink: #ececec;
-  --ink-2: #a8a8a8;
-  --ink-3: #8d8d8d;
-  --line: #2c2c2c;
-  --line-strong: #3b3b3b;
+  --bg: #111618;
+  --surface: #171d20;
+  --surface-2: #1e262a;
+  --surface-3: #283237;
+  --ink: #ecf1f2;
+  --ink-2: #a9b4b8;
+  --ink-3: #929ea3;
+  --line: #222b2f;
+  --line-strong: #334045;
 
   --pen: #4aa3c2;
-  --pen-ink: #0f1d23;
-  --pen-soft: #15323b;
+  --pen-ink: #0b1d24;
+  --pen-soft: #14323c;
 
   --rotina: #3ccb92;
   --rotina-soft: #143327;
@@ -89,10 +99,43 @@
   --shadow-overlay: 0 18px 50px -12px rgb(0 0 0 / 0.6), 0 2px 6px rgb(0 0 0 / 0.4);
 
   --petroleo: #1f4f61;
-  --petroleo-2: #224f60;
-  --petroleo-borda: #2f6578;
   --petroleo-tinta: #ffffff;
+
+  --capa: #12303a;
+  --capa-2: #1b4352;
+  --capa-linha: #24505f;
+  --capa-linha-forte: #2f6578;
+  --capa-tinta: #f1f7f9;
+  --capa-tinta-2: #c3d5db;
+  --capa-tinta-3: #a2bac2;
   color-scheme: dark;
+}
+
+/*
+  Dentro da capa (a barra lateral) as mesmas classes de cor passam a valer sobre o azul petróleo:
+  o que é "superfície" vira um petróleo mais claro, a tinta vira clara e a ação principal se inverte.
+  Menus e janelas abertos a partir dela são desenhados fora e continuam com as cores da página.
+*/
+.capa {
+  --bg: var(--capa);
+  --surface: var(--capa-2);
+  --surface-2: var(--capa-2);
+  --surface-3: var(--capa-linha);
+  --ink: var(--capa-tinta);
+  --ink-2: var(--capa-tinta-2);
+  --ink-3: var(--capa-tinta-3);
+  --line: var(--capa-linha);
+  --line-strong: var(--capa-linha-forte);
+  --pen: var(--capa-tinta);
+  --pen-ink: var(--capa);
+  --pen-soft: var(--capa-2);
+  --ring: var(--capa-tinta);
+  /* Os marca-textos, nos tons que aparecem sobre fundo escuro */
+  --rotina: #3ccb92;
+  --projetos: #a68dff;
+  --estudos: #f2bf3a;
+  --conteudo: #ff7aa6;
+  color: var(--ink);
 }
 
 @theme inline {
@@ -120,9 +163,8 @@
   --color-danger-soft: var(--danger-soft);
   --color-warning: var(--warning);
   --color-petroleo: var(--petroleo);
-  --color-petroleo-2: var(--petroleo-2);
-  --color-petroleo-borda: var(--petroleo-borda);
   --color-petroleo-tinta: var(--petroleo-tinta);
+  --color-capa: var(--capa);
   --font-assinatura: var(--font-script), cursive;
 
   --font-sans: var(--font-texto), ui-sans-serif, system-ui, sans-serif;
@@ -153,6 +195,11 @@
   --radius-xl: 16px;
 
   --shadow-overlay: var(--shadow-overlay);
+
+  /* Movimentos curtos e discretos; com "movimento reduzido" ligado no aparelho eles somem */
+  --animate-subir: subir 200ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  --animate-surgir: surgir 120ms ease-out;
+  --animate-marcar: marcar 180ms cubic-bezier(0.3, 1.4, 0.5, 1);
 }
 
 @layer base {
@@ -197,6 +244,11 @@
   button {
     font: inherit;
     color: inherit;
+  }
+
+  /* Texto de exemplo dos campos: o padrão (metade da cor do texto) fica fraco demais no tema claro */
+  ::placeholder {
+    color: var(--ink-3);
   }
 
   h1,
@@ -356,6 +408,43 @@
 .prosa summary {
   cursor: pointer;
   font-weight: 600;
+}
+
+/* Conteúdo de uma tela ao abrir */
+@keyframes entrar {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
+/* Janelas: sobem de leve ao abrir */
+@keyframes subir {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.985);
+  }
+}
+
+/* Menus: crescem a partir do botão que os abriu */
+@keyframes surgir {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+
+/* Marca de "feito" ao concluir um item */
+@keyframes marcar {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+}
+
+/* A tela que acabou de abrir entra com um movimento curto (o esqueleto de carregamento não) */
+.conteudo-app > :last-child:not([aria-busy]) {
+  animation: entrar 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 @keyframes fade-in {

@@ -131,7 +131,7 @@ export function novoId(): string {
 }
 
 /** Cria uma linha. O id é gerado no navegador para a tela atualizar na hora. */
-export function useCriar<T extends TableName>(tabela: T, opcoes: { invalidar?: string[] } = {}) {
+export function useCriar<T extends TableName>(tabela: T, opcoes: { invalidar?: string[]; aviso?: string } = {}) {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: async (linha: TablesInsert<T>) => {
@@ -150,6 +150,9 @@ export function useCriar<T extends TableName>(tabela: T, opcoes: { invalidar?: s
     onError: (erro, _v, ctx) => {
       if (ctx?.snap) restaurar(qc, ctx.snap)
       falha("salvar", erro)
+    },
+    onSuccess: () => {
+      if (opcoes.aviso) toast.success(opcoes.aviso)
     },
     onSettled: () => {
       qc.invalidateQueries({ queryKey: [tabela] })

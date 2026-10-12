@@ -13,6 +13,7 @@ import { CHAVE_PROMPT } from "@/lib/ia/info"
 import { novoId, useAtualizar, useCriar, useExcluir } from "@/lib/data"
 import { supabase } from "@/lib/supabase/client"
 import { cn, contem, dataRelativa } from "@/lib/utils"
+import { useDoisToques } from "@/components/ui/botao-excluir"
 import { infoProvedor, type Provedor } from "@/lib/ia/info"
 import { credencial, provedoresAtivos, useConfigIA } from "@/lib/ia/chaves-locais"
 import { camposDoPrompt, preencherPrompt, usePromptsBiblioteca } from "@/features/paginas/prompts"
@@ -83,6 +84,25 @@ function EscolherPrompt({ aberta, aoMudar, aoEscolher }: { aberta: boolean; aoMu
 /* Histórico                                                           */
 /* ------------------------------------------------------------------ */
 
+function ExcluirConversa({ titulo, aoExcluir }: { titulo: string; aoExcluir: () => void }) {
+  const { armado, tocar, desarmar } = useDoisToques(aoExcluir)
+  return (
+    <button
+      type="button"
+      aria-label={armado ? `Confirmar exclusão da conversa ${titulo}` : `Excluir conversa ${titulo}`}
+      title={armado ? "Toque de novo para excluir" : "Excluir conversa"}
+      onClick={tocar}
+      onBlur={desarmar}
+      className={cn(
+        "rounded p-1.5 hover:text-danger focus-visible:opacity-100 toque:opacity-100",
+        armado ? "bg-danger-soft text-danger opacity-100" : "text-ink-3 opacity-0 group-hover:opacity-100",
+      )}
+    >
+      {armado ? <Check className="size-3.5" /> : <Trash className="size-3.5" />}
+    </button>
+  )
+}
+
 function ListaConversas({ atual, aoAbrir, aoNova }: { atual: string | null; aoAbrir: (id: string) => void; aoNova: () => void }) {
   const { data: conversas = [] } = useConversas()
   const excluir = useExcluir("pages")
@@ -106,17 +126,13 @@ function ListaConversas({ atual, aoAbrir, aoNova }: { atual: string | null; aoAb
                 <span className="block truncate">{c.title}</span>
                 <span className="block text-xs font-normal text-ink-3 first-letter:uppercase">{dataRelativa(c.updated_at.slice(0, 10))}</span>
               </button>
-              <button
-                type="button"
-                aria-label={`Excluir conversa ${c.title}`}
-                onClick={() => {
+              <ExcluirConversa
+                titulo={c.title}
+                aoExcluir={() => {
                   excluir.mutate(c.id)
                   if (c.id === atual) aoNova()
                 }}
-                className="rounded p-1.5 text-ink-3 opacity-0 hover:text-danger group-hover:opacity-100 focus-visible:opacity-100"
-              >
-                <Trash className="size-3.5" />
-              </button>
+              />
             </li>
           ))}
         </ul>

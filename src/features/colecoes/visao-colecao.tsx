@@ -245,11 +245,11 @@ export function BlocoColecao({
           alternarMarca(i)
         }}
         className={cn(
-          "grid size-5 shrink-0 place-items-center rounded border transition-colors",
+          "relative grid size-5 shrink-0 place-items-center rounded border transition-colors toque:after:absolute toque:after:-inset-3",
           valores(i)[propMarcar] ? "border-pen bg-pen text-pen-ink" : "border-line-strong bg-surface hover:border-pen",
         )}
       >
-        {valores(i)[propMarcar] ? <Check className="size-3.5" strokeWidth={3} /> : null}
+        {valores(i)[propMarcar] ? <Check className="size-3.5 animate-marcar" strokeWidth={3} /> : null}
       </button>
     ) : null
 
@@ -293,7 +293,7 @@ export function BlocoColecao({
                   aba === o ? "border-pen bg-pen/15 font-medium text-ink" : "border-line text-ink-2 hover:border-line-strong hover:text-ink",
                 )}
               >
-                {o || "Todos"} <span className="tabular text-xs text-ink-3">{n}</span>
+                {o || "Todos"} <span className={cn("tabular text-xs", aba === o ? "text-ink-2" : "text-ink-3")}>{n}</span>
               </button>
             )
           })}

@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { BotaoExcluir } from "@/components/ui/botao-excluir"
 import { Gift, Minus, Plus } from "lucide-react"
 import { Botao } from "@/components/ui/button"
 import { Cabecalho, Carregando, Etiqueta, Progresso, Secao, Vazio } from "@/components/ui/basicos"
@@ -138,9 +139,7 @@ function DialogoMeta({ aberta, aoMudar, meta }: { aberta: boolean; aoMudar: (v: 
       rodape={
         <>
           {meta ? (
-            <Botao variante="fantasma" className="mr-auto text-danger hover:text-danger" onClick={() => { excluir.mutate(meta.id); aoMudar(false) }}>
-              Excluir
-            </Botao>
+            <BotaoExcluir aoExcluir={() => { excluir.mutate(meta.id); aoMudar(false) }} />
           ) : null}
           <Botao variante="fantasma" onClick={() => aoMudar(false)}>Cancelar</Botao>
           <Botao variante="primario" type="submit" form="form-meta" disabled={!nome.trim()}>{meta ? "Salvar" : "Criar meta"}</Botao>

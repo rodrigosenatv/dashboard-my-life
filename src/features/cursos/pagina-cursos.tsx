@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { BotaoExcluir } from "@/components/ui/botao-excluir"
 import { useAbrirDoEndereco } from "@/lib/abrir-do-endereco"
 import { ExternalLink, NotebookText, Pencil, Plus } from "lucide-react"
 import { Botao } from "@/components/ui/button"
@@ -60,7 +61,7 @@ function DialogoCurso({ aberta, aoMudar, curso }: { aberta: boolean; aoMudar: (v
       titulo={curso ? "Editar curso" : "Novo curso"}
       rodape={
         <>
-          {curso ? <Botao variante="fantasma" className="mr-auto text-danger hover:text-danger" onClick={() => { excluir.mutate(curso.id); aoMudar(false) }}>Excluir</Botao> : null}
+          {curso ? <BotaoExcluir aoExcluir={() => { excluir.mutate(curso.id); aoMudar(false) }} /> : null}
           <Botao variante="fantasma" onClick={() => aoMudar(false)}>Cancelar</Botao>
           <Botao variante="primario" type="submit" form="form-curso" disabled={!nome.trim()}>{curso ? "Salvar" : "Adicionar"}</Botao>
         </>
@@ -158,7 +159,7 @@ export function PaginaCursos() {
                           <button type="button" onClick={() => setNotasCurso(c)} className="flex-1 text-left font-medium leading-snug hover:underline" title="Abrir anotações">
                             {c.name}
                           </button>
-                          <button type="button" onClick={() => setAberto(c)} aria-label={`Editar ${c.name}`} className="rounded p-1 text-ink-3 hover:bg-surface-2 hover:text-ink">
+                          <button type="button" onClick={() => setAberto(c)} aria-label={`Editar ${c.name}`} className="relative rounded p-1 text-ink-3 hover:bg-surface-2 hover:text-ink toque:after:absolute toque:after:-inset-2.5">
                             <Pencil className="size-3.5" />
                           </button>
                         </div>

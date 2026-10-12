@@ -18,7 +18,7 @@ export function MenuConteudo({
         align={align}
         sideOffset={6}
         className={cn(
-          "z-50 min-w-48 rounded-lg border border-line bg-surface p-1 text-sm text-ink shadow-overlay",
+          "z-50 min-w-48 origin-[var(--radix-dropdown-menu-content-transform-origin)] rounded-lg border border-line bg-surface p-1 text-sm text-ink shadow-overlay data-[state=open]:animate-surgir",
           className,
         )}
         {...props}

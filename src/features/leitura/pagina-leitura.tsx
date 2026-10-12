@@ -8,7 +8,8 @@ import { Botao } from "@/components/ui/button"
 import { Cabecalho, Carregando, Progresso, Segmentos, Vazio } from "@/components/ui/basicos"
 import { novoId, useAtualizar, useCriar, useExcluir, useLista } from "@/lib/data"
 import type { Tables } from "@/lib/supabase/database.types"
-import { contem, porcentagem } from "@/lib/utils"
+import { cn, contem, porcentagem } from "@/lib/utils"
+import { useDoisToques } from "@/components/ui/botao-excluir"
 import { COLUNAS_LIVRO_LISTA } from "./dados"
 import { DialogoLivro } from "./dialogo-livro"
 import { Pomodoro } from "@/components/pomodoro"
@@ -59,6 +60,20 @@ function AtualizarPagina({ livro }: { livro: Livro }) {
   )
 }
 
+function ExcluirInsight({ aoExcluir }: { aoExcluir: () => void }) {
+  const { armado, tocar, desarmar } = useDoisToques(aoExcluir)
+  return (
+    <button
+      type="button"
+      onClick={tocar}
+      onBlur={desarmar}
+      className={cn("ml-3 hover:text-danger focus-visible:opacity-100 toque:opacity-100", armado ? "font-medium text-danger opacity-100" : "opacity-0 group-hover:opacity-100")}
+    >
+      {armado ? "Confirmar exclusão" : "Excluir"}
+    </button>
+  )
+}
+
 function Insights({ livros }: { livros: Livro[] }) {
   const { data: insights = [] } = useLista("insights", { ordem: [{ coluna: "created_at", asc: false }] })
   const criar = useCriar("insights")
@@ -97,7 +112,7 @@ function Insights({ livros }: { livros: Livro[] }) {
                 <p className="font-display text-lg leading-snug">{i.text}</p>
                 <p className="mt-1 text-xs text-ink-3">
                   {i.book_id ? <Link href={`/estudos/leitura/${i.book_id}`} className="hover:underline">{titulos.get(i.book_id)}</Link> : "Pessoal"}
-                  <button type="button" onClick={() => excluir.mutate(i.id)} className="ml-3 opacity-0 hover:text-danger group-hover:opacity-100 focus-visible:opacity-100">Excluir</button>
+                  <ExcluirInsight aoExcluir={() => excluir.mutate(i.id)} />
                 </p>
               </div>
             </li>

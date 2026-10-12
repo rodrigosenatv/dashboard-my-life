@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { BotaoExcluir } from "@/components/ui/botao-excluir"
 import { toast } from "sonner"
 import { Botao } from "@/components/ui/button"
 import { AreaTexto, Campo, Entrada, Seletor } from "@/components/ui/campos"
@@ -37,7 +38,7 @@ export function DialogoEvento({
   evento?: Evento | null
   diaInicial?: string
 }) {
-  const criar = useCriar("events")
+  const criar = useCriar("events", { aviso: "Compromisso agendado" })
   const atualizar = useAtualizar("events")
   const excluir = useExcluir("events")
 
@@ -95,16 +96,12 @@ export function DialogoEvento({
       rodape={
         <>
           {evento ? (
-            <Botao
-              variante="fantasma"
-              className="mr-auto text-danger hover:text-danger"
-              onClick={() => {
+            <BotaoExcluir
+              aoExcluir={() => {
                 excluir.mutate(evento.id)
                 aoMudar(false)
               }}
-            >
-              Excluir
-            </Botao>
+            />
           ) : null}
           <Botao variante="fantasma" onClick={() => aoMudar(false)}>
             Cancelar

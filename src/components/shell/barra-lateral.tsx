@@ -32,7 +32,7 @@ function LinkNav({ item, area }: { item: ItemNav; area?: Area }) {
       aria-current={sel ? "page" : undefined}
       className={cn(
         "group relative flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-sm transition-colors recolhido:justify-center recolhido:px-0 recolhido:py-2.5",
-        sel ? "bg-surface text-ink font-medium shadow-[0_1px_2px_rgb(0_0_0/0.06)]" : "text-ink-2 hover:bg-surface hover:text-ink",
+        sel ? "bg-surface text-ink font-medium" : "text-ink-2 hover:bg-surface/60 hover:text-ink",
       )}
     >
       {sel && area ? (
@@ -98,10 +98,11 @@ export function BarraLateral() {
   }
 
   return (
-    <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col border-r border-line bg-bg px-3 pb-3 pt-5 transition-[width] duration-150 recolhido:w-16 recolhido:px-2 lg:flex">
-      <div className="mb-5 flex h-8 items-center justify-between pl-2.5 recolhido:justify-center recolhido:pl-0">
-        <Link href="/" className="font-display text-xl font-bold tracking-tight recolhido:hidden">
-          My Life
+    <aside className="capa sticky top-0 hidden h-dvh w-60 shrink-0 flex-col bg-bg px-3 pb-3 pt-4 transition-[width] duration-150 recolhido:w-16 recolhido:px-2 lg:flex">
+      <div className="mb-4 flex h-11 items-center justify-between pl-2.5 recolhido:justify-center recolhido:pl-0">
+        {/* A mesma assinatura da capa do painel */}
+        <Link href="/" aria-label="My Life, ir para Hoje" className="font-assinatura pt-1.5 text-[2.15rem] leading-none recolhido:hidden">
+          My life
         </Link>
         <button
           type="button"
@@ -144,7 +145,7 @@ export function BarraLateral() {
                 aria-expanded={aberto}
                 disabled={g.area === atual}
                 onClick={() => alternar(g.area)}
-                className="group mb-1 flex w-full items-center gap-2 rounded-md px-2.5 py-1 text-left text-xs font-medium text-ink-3 enabled:hover:text-ink-2 recolhido:justify-center recolhido:px-0 recolhido:py-2"
+                className="group mb-1 flex w-full items-center gap-2 rounded-md px-2.5 py-1 text-left text-[0.6875rem] font-semibold uppercase tracking-[0.09em] text-ink-3 enabled:hover:text-ink-2 recolhido:justify-center recolhido:px-0 recolhido:py-2"
               >
                 <span aria-hidden className={cn("size-1.5 rounded-full", corTraco[g.area])} />
                 <span className="flex-1 recolhido:hidden">{g.rotulo}</span>

@@ -20,8 +20,8 @@ export default function ErroGlobal({ error, retry }: { error: Error & { digest?:
           display: "grid",
           placeItems: "center",
           padding: 24,
-          background: "#191919",
-          color: "#ececec",
+          background: "#111618",
+          color: "#ecf1f2",
           fontFamily: 'ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif',
           lineHeight: 1.5,
         }}
@@ -29,7 +29,7 @@ export default function ErroGlobal({ error, retry }: { error: Error & { digest?:
         <title>Erro | My Life</title>
         <main style={{ maxWidth: "22rem", textAlign: "center" }}>
           <h1 style={{ margin: "0 0 8px", fontSize: "1.5rem", lineHeight: 1.25 }}>O app encontrou um erro</h1>
-          <p style={{ margin: 0, color: "#a8a8a8" }}>Seus dados estão salvos. Tente abrir de novo.</p>
+          <p style={{ margin: 0, color: "#a9b4b8" }}>Seus dados estão salvos. Tente abrir de novo.</p>
           <button
             type="button"
             onClick={() => retry()}
@@ -40,7 +40,7 @@ export default function ErroGlobal({ error, retry }: { error: Error & { digest?:
               border: 0,
               borderRadius: 8,
               background: "#4aa3c2",
-              color: "#0f1d23",
+              color: "#0b1d24",
               font: "inherit",
               fontWeight: 600,
               cursor: "pointer",

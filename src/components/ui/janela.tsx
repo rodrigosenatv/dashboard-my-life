@@ -32,7 +32,7 @@ export function Janela({
         <Dialog.Overlay className="fixed inset-0 z-50 bg-ink/30 backdrop-blur-[2px] data-[state=open]:animate-[fade-in_120ms_ease-out] dark:bg-black/50" />
         <Dialog.Content
           className={cn(
-            "fixed z-50 flex max-h-[92dvh] flex-col bg-surface text-ink shadow-overlay outline-none",
+            "fixed z-50 flex max-h-[92dvh] flex-col bg-surface text-ink shadow-overlay outline-none data-[state=open]:animate-subir",
             "inset-x-0 bottom-0 rounded-t-xl sm:inset-x-auto sm:bottom-auto sm:left-1/2 sm:top-[12vh] sm:-translate-x-1/2 sm:rounded-xl",
             "w-full",
             largura === "sm" && "sm:max-w-sm",

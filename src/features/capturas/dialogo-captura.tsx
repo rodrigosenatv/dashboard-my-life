@@ -28,7 +28,7 @@ export function DialogoCaptura({
   areaInicial?: string
 }) {
   const qc = useQueryClient()
-  const criar = useCriar("captures")
+  const criar = useCriar("captures", { aviso: "Captura guardada" })
   const atualizar = useAtualizar("captures")
   const { data: areas = [] } = useLista("areas", { colunas: "id,name,status", ordem: [{ coluna: "name" }] })
   const { data: projetos = [] } = useProjetosPorNome()

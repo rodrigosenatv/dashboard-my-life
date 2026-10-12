@@ -7,7 +7,7 @@ export default function NaoEncontrada() {
   return (
     <main className="grid min-h-dvh place-items-center px-5 py-10">
       <div className="w-full max-w-sm">
-        <p className="font-display text-5xl font-bold tracking-tight">My Life</p>
+        <p className="font-assinatura text-6xl leading-none text-pen">My life</p>
         <h1 className="mt-8 font-display text-2xl font-semibold">Página não encontrada</h1>
         <p className="mt-2 text-ink-2">O endereço não existe ou a página foi removida.</p>
         <Link

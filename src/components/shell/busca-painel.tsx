@@ -84,8 +84,8 @@ export function PainelBusca({ aberta, aoMudar: setAberta }: { aberta: boolean; a
   return (
     <Dialog.Root open={aberta} onOpenChange={setAberta}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-ink/30 backdrop-blur-[2px] dark:bg-black/50" />
-        <Dialog.Content className="fixed inset-x-3 top-[10vh] z-50 mx-auto max-w-xl overflow-hidden rounded-xl border border-line bg-surface shadow-overlay outline-none">
+        <Dialog.Overlay className="fixed inset-0 z-50 bg-ink/30 backdrop-blur-[2px] data-[state=open]:animate-[fade-in_120ms_ease-out] dark:bg-black/50" />
+        <Dialog.Content className="fixed inset-x-3 top-[10vh] z-50 mx-auto max-w-xl overflow-hidden rounded-xl border border-line bg-surface shadow-overlay outline-none data-[state=open]:animate-subir">
           <Dialog.Title className="sr-only">Buscar</Dialog.Title>
           <Dialog.Description className="sr-only">Busque páginas, tarefas, projetos e mais.</Dialog.Description>
           <Command shouldFilter={false} label="Buscar" className="flex max-h-[70vh] flex-col">

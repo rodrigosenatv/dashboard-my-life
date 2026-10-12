@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { BotaoExcluir } from "@/components/ui/botao-excluir"
 import { ExternalLink, Pencil, Plus, Search } from "lucide-react"
 import { Botao } from "@/components/ui/button"
 import { Cabecalho, Carregando, Etiqueta, Segmentos, Vazio } from "@/components/ui/basicos"
@@ -72,9 +73,7 @@ function DialogoLink({ aberta, aoMudar, link, grupoInicial }: { aberta: boolean;
       rodape={
         <>
           {link ? (
-            <Botao variante="fantasma" className="mr-auto text-danger hover:text-danger" onClick={() => { excluir.mutate(link.id); aoMudar(false) }}>
-              Excluir
-            </Botao>
+            <BotaoExcluir aoExcluir={() => { excluir.mutate(link.id); aoMudar(false) }} />
           ) : null}
           <Botao variante="fantasma" onClick={() => aoMudar(false)}>Cancelar</Botao>
           <Botao variante="primario" type="submit" form="form-link" disabled={!titulo.trim() && !url.trim()}>Salvar</Botao>

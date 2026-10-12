@@ -327,7 +327,7 @@ export function PaginaPlanner() {
                 <li key={l.id}>
                   <button type="button" onClick={() => setFiltroLinha((f) => (f === l.id ? "" : l.id))} aria-pressed={filtroLinha === l.id}>
                     <Etiqueta cor="conteudo" className={cn("px-3 py-1 text-sm", filtroLinha === l.id && "ring-1 ring-conteudo")}>
-                      {l.name} <span className="tabular opacity-70">{itens.filter((i) => i.editorial_line_id === l.id).length}</span>
+                      {l.name} <span className="tabular">{itens.filter((i) => i.editorial_line_id === l.id).length}</span>
                     </Etiqueta>
                   </button>
                 </li>

@@ -23,51 +23,9 @@ import {
   type LucideIcon,
 } from "lucide-react"
 import { toast } from "sonner"
-import { useUrlArquivo } from "@/lib/arquivos"
 import { novoId, useCriar } from "@/lib/data"
 import { normalizar } from "@/lib/utils"
-import { useConfiguracoes } from "@/features/configuracoes/dados"
 import { useArvorePaginas } from "@/features/paginas/dados"
-
-export const FRASE_PADRAO = "A vida é agora, agradece e vai!"
-
-/* ------------------------------------------------------------------ */
-/* Capa                                                                */
-/* ------------------------------------------------------------------ */
-
-export function Capa() {
-  const { data: cfg } = useConfiguracoes()
-  const prefs = (cfg?.prefs ?? {}) as { frase?: string; capa?: string }
-  const frase = prefs.frase?.trim() || FRASE_PADRAO
-  const { data: urlCapa } = useUrlArquivo(prefs.capa || null)
-
-  if (urlCapa) {
-    return (
-      <div className="-mx-4 mb-6 overflow-hidden sm:-mx-6 lg:mx-0 lg:rounded-xl">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={urlCapa} alt={`Capa: My life. ${frase}`} className="h-28 w-full object-cover sm:h-40" />
-      </div>
-    )
-  }
-
-  return (
-    <div className="relative -mx-4 mb-6 overflow-hidden bg-petroleo px-6 py-5 text-petroleo-tinta sm:-mx-6 sm:py-7 lg:mx-0 lg:rounded-xl">
-      {/* Textura discreta de papel de parede, como na capa do Notion */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-[0.07]"
-        style={{
-          backgroundImage:
-            "repeating-linear-gradient(90deg, #fff 0 1px, transparent 1px 64px), repeating-linear-gradient(0deg, #fff 0 1px, transparent 1px 64px)",
-        }}
-      />
-      <div className="relative mx-auto flex max-w-xl flex-col items-center text-center">
-        <p className="font-assinatura text-[3.25rem] leading-none sm:text-6xl">My life</p>
-        <p className="mt-2 text-base text-white/85">“{frase}”</p>
-      </div>
-    </div>
-  )
-}
 
 /* ------------------------------------------------------------------ */
 /* Menu                                                                */
@@ -104,15 +62,18 @@ export const MENU: Atalho[] = [
 // Hoje todos os atalhos levam a telas do app; a árvore de páginas só é buscada se algum voltar a abrir uma página pelo título
 const ALGUM_ATALHO_ABRE_PAGINA = MENU.some((a) => a.paginas?.length)
 
+// Cartões de papel: a cor fica para a capa; aqui o petróleo aparece só no ícone
 const estiloAtalho =
-  "group flex h-[4.5rem] items-center justify-center gap-2.5 rounded-lg border border-petroleo-borda bg-petroleo-2 px-3 text-center text-petroleo-tinta transition-colors hover:bg-petroleo hover:border-white/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pen sm:h-20"
+  "group flex h-14 items-center gap-3 rounded-lg border border-line bg-surface px-3 text-left transition-colors hover:border-line-strong hover:bg-surface-2"
 
 function Conteudo({ a }: { a: Atalho }) {
   const Icone = a.icone
   return (
     <>
-      <Icone aria-hidden className="size-6 shrink-0 sm:size-7" strokeWidth={1.75} />
-      <span className="text-[0.95rem] font-semibold leading-tight sm:text-base">{a.rotulo}</span>
+      <span className="grid size-8 shrink-0 place-items-center rounded-md bg-pen-soft text-pen">
+        <Icone aria-hidden className="size-[1.125rem]" strokeWidth={1.75} />
+      </span>
+      <span className="min-w-0 truncate text-sm font-medium">{a.rotulo}</span>
     </>
   )
 }
@@ -147,8 +108,8 @@ export function MenuAtalhos() {
   }
 
   return (
-    <nav aria-label="Menu" className="mb-12">
-      <ul className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
+    <nav aria-label="Atalhos">
+      <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
         {MENU.map((a) => (
           <li key={a.rotulo}>
             {a.href ? (

@@ -12,8 +12,8 @@ export default function manifest(): MetadataRoute.Manifest {
     display: "standalone",
     orientation: "any",
     // As cores do tema escuro, que é o padrão do app
-    background_color: "#191919",
-    theme_color: "#191919",
+    background_color: "#111618",
+    theme_color: "#111618",
     categories: ["productivity", "lifestyle"],
     icons: [
       { src: "/icons/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },

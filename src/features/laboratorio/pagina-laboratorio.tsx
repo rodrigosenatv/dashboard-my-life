@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { BotaoExcluir } from "@/components/ui/botao-excluir"
 import { useAbrirDoEndereco } from "@/lib/abrir-do-endereco"
 import { Lightbulb, Plus } from "lucide-react"
 import { Botao } from "@/components/ui/button"
@@ -82,7 +83,7 @@ function DialogoExperimento({ aberta, aoMudar, exp }: { aberta: boolean; aoMudar
       titulo={exp ? "Experimento" : "Novo experimento"}
       rodape={
         <>
-          {exp ? <Botao variante="fantasma" className="mr-auto text-danger hover:text-danger" onClick={() => { excluir.mutate(exp.id); aoMudar(false) }}>Excluir</Botao> : null}
+          {exp ? <BotaoExcluir aoExcluir={() => { excluir.mutate(exp.id); aoMudar(false) }} /> : null}
           <Botao variante="fantasma" onClick={() => aoMudar(false)}>Cancelar</Botao>
           <Botao variante="primario" type="submit" form="form-exp" disabled={!nome.trim()}>{exp ? "Salvar" : "Criar"}</Botao>
         </>

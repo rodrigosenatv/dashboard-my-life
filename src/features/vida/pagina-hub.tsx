@@ -172,7 +172,7 @@ export function PaginaHub() {
               aria-current={h.slug === hub.slug ? "page" : undefined}
               className={cn(
                 "inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm transition-colors",
-                h.slug === hub.slug ? "border-petroleo-borda bg-petroleo text-petroleo-tinta" : "border-line text-ink-2 hover:border-line-strong hover:text-ink",
+                h.slug === hub.slug ? "border-pen bg-pen text-pen-ink" : "border-line text-ink-2 hover:border-line-strong hover:text-ink",
               )}
             >
               <I className="size-4" /> {h.titulo}

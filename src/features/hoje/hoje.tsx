@@ -12,20 +12,26 @@ import { cn, dataRelativa, isoDia, porcentagem, saudacao, somarDias } from "@/li
 import { agruparPorRitual, indexar, sequencia, useAlternarHabito, useHabitos, useRegistros, useRituais, valeNoDia } from "@/features/habitos/dados"
 import { ItemTarefa } from "@/features/tarefas/item-tarefa"
 import { DialogoTarefa } from "@/features/tarefas/dialogo-tarefa"
-import { useNomeExibicao } from "@/features/configuracoes/dados"
+import { useConfiguracoes, useNomeExibicao } from "@/features/configuracoes/dados"
+import { useUrlArquivo } from "@/lib/arquivos"
 import { COLUNAS_LIVRO_LISTA } from "@/features/leitura/dados"
 import type { Tables } from "@/lib/supabase/database.types"
 import { abrirNovo } from "@/components/shell/novo"
-import { Capa, MenuAtalhos } from "./painel"
+import { FRASE_PADRAO, GRADE_DA_CAPA } from "@/lib/marca"
+import { MenuAtalhos } from "./painel"
 
 /* ------------------------------------------------------------------ */
-/* Cabeçalho do dia                                                    */
+/* Abertura: a capa do caderno, aberta no dia de hoje                  */
 /* ------------------------------------------------------------------ */
 
-function CabecalhoDia() {
+function Abertura() {
   const agora = new Date()
   const nome = useNomeExibicao()
-  const criar = useCriar("captures")
+  const { data: cfg } = useConfiguracoes()
+  const prefs = (cfg?.prefs ?? {}) as { frase?: string; capa?: string }
+  const frase = prefs.frase?.trim() || FRASE_PADRAO
+  const { data: urlCapa } = useUrlArquivo(prefs.capa || null)
+  const criar = useCriar("captures", { aviso: "Guardado na Caixa de Entrada" })
   const [texto, setTexto] = React.useState("")
 
   const capturar = (e: React.FormEvent) => {
@@ -38,35 +44,50 @@ function CabecalhoDia() {
     setTexto("")
   }
 
-  const diaSemana = format(agora, "EEEE", { locale: ptBR })
-
   return (
-    <header className="mb-8 grid gap-6 border-b border-line pb-6 md:grid-cols-[1fr_minmax(0,22rem)] md:items-end">
-      <div className="flex items-end gap-5">
-        <p className="font-display text-5xl font-bold tabular tracking-tighter" aria-hidden>
-          {format(agora, "dd")}
-        </p>
-        <div className="pb-1.5">
-          <h1 className="font-display text-2xl font-semibold first-letter:uppercase">{diaSemana}</h1>
-          <p className="text-ink-2">{format(agora, "MMMM 'de' yyyy", { locale: ptBR })}</p>
-          <p className="mt-2 text-ink">
-            {saudacao(agora)}
-            {nome ? `, ${nome}` : ""}.
+    <header className="relative isolate -mx-4 -mt-5 mb-8 overflow-hidden bg-petroleo px-5 pb-5 pt-6 text-petroleo-tinta sm:-mx-6 sm:px-8 sm:pb-7 sm:pt-8 lg:mx-0 lg:mt-0 lg:rounded-2xl">
+      {urlCapa ? (
+        <>
+          {/* A imagem escolhida em Configurações vira o fundo; o véu petróleo garante a leitura do texto mesmo sobre uma foto clara */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={urlCapa} alt="" className="absolute inset-0 -z-10 size-full object-cover" />
+          <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-r from-petroleo via-petroleo/85 via-70% to-petroleo/60 md:via-50%" />
+        </>
+      ) : (
+        // Textura discreta de papel quadriculado, como na capa do Notion
+        <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 opacity-[0.07]" style={{ backgroundImage: GRADE_DA_CAPA }} />
+      )}
+
+      <div className="grid gap-x-10 gap-y-5 md:grid-cols-[minmax(0,1fr)_minmax(0,24rem)] md:items-start">
+        <div className="flex items-end gap-4 sm:gap-5">
+          <p className="font-display text-5xl font-bold tabular tracking-tighter" aria-hidden>
+            {format(agora, "dd")}
           </p>
+          <div className="min-w-0 pb-1.5">
+            <h1 className="font-display text-2xl font-semibold first-letter:uppercase">{format(agora, "EEEE", { locale: ptBR })}</h1>
+            <p className="text-white/80">{format(agora, "MMMM 'de' yyyy", { locale: ptBR })}</p>
+            <p className="mt-2">
+              {saudacao(agora)}
+              {nome ? `, ${nome}` : ""}.
+            </p>
+          </div>
         </div>
+        {/* A frase da capa, escrita à mão */}
+        <p className="font-assinatura text-balance text-[2.1rem] leading-[1.1] text-white/95 md:pt-2 md:text-right md:text-[2.5rem]">{frase}</p>
       </div>
-      <form onSubmit={capturar} className="relative">
-        <label htmlFor="captura-rapida" className="mb-1.5 block text-sm text-ink-3">
+
+      <form onSubmit={capturar} className="relative mt-6">
+        <label htmlFor="captura-rapida" className="sr-only">
           Captura rápida
         </label>
         <input
           id="captura-rapida"
           value={texto}
           onChange={(e) => setTexto(e.target.value)}
-          placeholder="Uma ideia, um link, um lembrete…"
-          className="h-11 w-full rounded-lg border border-line-strong bg-surface pl-3.5 pr-10 text-base placeholder:text-ink-3 focus-visible:border-pen focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pen/25"
+          placeholder="Capturar ideia, link ou lembrete…"
+          className="h-12 w-full rounded-xl border border-white/15 bg-black/20 pl-4 pr-11 text-base text-white placeholder:text-white/70 focus-visible:border-white/50 focus-visible:bg-black/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20"
         />
-        <CornerDownLeft aria-hidden className="pointer-events-none absolute bottom-3.5 right-3 size-4 text-ink-3" />
+        <CornerDownLeft aria-hidden className="pointer-events-none absolute right-4 top-1/2 size-4 -translate-y-1/2 text-white/70" />
       </form>
     </header>
   )
@@ -147,7 +168,7 @@ function HabitosHoje() {
                               feito ? "border-rotina bg-rotina text-white" : "border-line-strong",
                             )}
                           >
-                            {feito ? <Check className="size-3.5" strokeWidth={3} /> : null}
+                            {feito ? <Check className="size-3.5 animate-marcar" strokeWidth={3} /> : null}
                           </span>
                           <span className={cn("flex-1", feito && "text-ink-3 line-through decoration-ink-3/50")}>{h.name}</span>
                           {seq >= 2 ? (
@@ -434,15 +455,16 @@ function ProjetosAndamento() {
 export function Hoje() {
   return (
     <div>
-      <Capa />
-      <CabecalhoDia />
+      <Abertura />
       <HabitosHoje />
       <div className="mb-12 grid gap-10 md:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
         <TarefasHoje />
         <AgendaProxima />
       </div>
       {/* O dia vem antes: os atalhos repetem o menu e ficam depois do que é para fazer hoje */}
-      <MenuAtalhos />
+      <Secao titulo="Atalhos" className="mb-12">
+        <MenuAtalhos />
+      </Secao>
       <div className="grid gap-10 border-t border-line pt-8 sm:grid-cols-2 lg:grid-cols-3">
         <MetasAno />
         <LendoAgora />

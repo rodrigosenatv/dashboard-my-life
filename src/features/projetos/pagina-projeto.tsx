@@ -26,6 +26,7 @@ function Etapa({ etapa, todos, nivel }: { etapa: Projeto; todos: Projeto[]; nive
   const excluir = useExcluir("projects")
   const criar = useCriar("projects")
   const [sub, setSub] = React.useState(false)
+  const [apagar, setApagar] = React.useState(false)
   const [texto, setTexto] = React.useState("")
   const filhos = todos.filter((p) => p.parent_id === etapa.id).sort((a, b) => a.position - b.position)
 
@@ -61,10 +62,17 @@ function Etapa({ etapa, todos, nivel }: { etapa: Projeto; todos: Projeto[]; nive
             {nivel < 2 ? <MenuItem onSelect={() => setSub(true)}><Plus /> Adicionar subetapa</MenuItem> : null}
             <MenuItem asChild><Link href={`/projetos/${etapa.id}`}><ChevronRight /> Abrir como projeto</Link></MenuItem>
             <MenuSeparador />
-            <MenuItem perigo onSelect={() => excluir.mutate(etapa.id)}><Trash /> Excluir</MenuItem>
+            <MenuItem perigo onSelect={() => setApagar(true)}><Trash /> Excluir</MenuItem>
           </MenuConteudo>
         </Menu>
       </div>
+      <Confirmar
+        aberta={apagar}
+        aoMudar={setApagar}
+        titulo={`Excluir a etapa “${etapa.name}”?`}
+        descricao={filhos.length ? "As subetapas também serão excluídas." : undefined}
+        aoConfirmar={() => excluir.mutate(etapa.id)}
+      />
       {filhos.length || sub ? (
         <ul className="ml-8 border-l border-line pl-3">
           {filhos.map((f) => (

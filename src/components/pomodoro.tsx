@@ -144,7 +144,7 @@ export function Pomodoro({ className, aoConcluirFoco }: { className?: string; ao
             type="button"
             onClick={() => escolher(m)}
             aria-pressed={modo === m}
-            className={cn("rounded-md px-2.5 py-1 text-xs font-medium", modo === m ? "bg-surface-3 text-ink" : "text-ink-3 hover:text-ink")}
+            className={cn("rounded-md px-2.5 py-1 text-xs font-medium transition-colors toque:min-h-9 toque:px-3 toque:text-sm", modo === m ? "bg-surface-3 text-ink" : "text-ink-3 hover:text-ink")}
           >
             {ROTULO[m]}
           </button>

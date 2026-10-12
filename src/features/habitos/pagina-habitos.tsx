@@ -196,6 +196,13 @@ export function PaginaHabitos() {
   const grupos = agruparPorRitual(ativos, ritualDe)
   const inativos = habitos.filter((h) => !h.active)
 
+  // Em telas estreitas a tabela rola para o lado; ela já abre com a coluna de hoje à vista
+  const mostrarHoje = React.useCallback((coluna: HTMLTableCellElement | null) => {
+    const caixa = coluna?.closest<HTMLElement>(".overflow-x-auto")
+    if (!coluna || !caixa || caixa.scrollWidth <= caixa.clientWidth) return
+    caixa.scrollLeft = coluna.offsetLeft + coluna.offsetWidth + 16 - caixa.clientWidth
+  }, [])
+
   const inicioSemana = addDays(startOfWeek(new Date(), { weekStartsOn: 1 }), semana * 7)
   const dias = Array.from({ length: 7 }, (_, i) => isoDia(addDays(inicioSemana, i)))
   const inicio30 = somarDias(hoje, -29)
@@ -240,9 +247,9 @@ export function PaginaHabitos() {
               <table className="w-full min-w-[640px] text-sm">
                 <thead>
                   <tr className="border-b border-line text-ink-3">
-                    <th className="px-4 py-2.5 text-left font-medium">Hábito</th>
+                    <th className="sticky left-0 z-10 bg-surface px-4 py-2.5 text-left font-medium">Hábito</th>
                     {dias.map((d) => (
-                      <th key={d} className={cn("w-12 py-2.5 text-center font-medium", d === hoje && "text-ink")}>
+                      <th key={d} ref={d === hoje ? mostrarHoje : undefined} className={cn("w-12 py-2.5 text-center font-medium", d === hoje && "text-ink")}>
                         <span className="block text-xs first-letter:uppercase">{format(new Date(d + "T12:00"), "EEEEEE", { locale: ptBR })}</span>
                         <span className="tabular">{d.slice(8)}</span>
                       </th>
@@ -256,8 +263,10 @@ export function PaginaHabitos() {
                     {grupos.length > 1 ? (
                       <tr className="border-b border-line bg-surface-2/60">
                         <th colSpan={10} scope="colgroup" className="px-4 py-1.5 text-left text-xs font-semibold text-ink-2">
-                          {g.emoji ? <span aria-hidden className="mr-1.5">{g.emoji}</span> : null}
-                          {g.titulo}
+                          <span className="sticky left-4 inline-block">
+                            {g.emoji ? <span aria-hidden className="mr-1.5">{g.emoji}</span> : null}
+                            {g.titulo}
+                          </span>
                         </th>
                       </tr>
                     ) : null}
@@ -266,7 +275,7 @@ export function PaginaHabitos() {
                     const seq = sequencia(h, mapa, hoje)
                     return (
                       <tr key={h.id} className="border-b border-line last:border-0">
-                        <td className="px-4 py-2">
+                        <td className="sticky left-0 z-10 bg-surface px-4 py-2 max-lg:max-w-40">
                           <span className="font-medium">{h.name}</span>
                           <span className="block text-xs text-ink-3">{taxa(h, mapa, inicio30, hoje)}% nos últimos 30 dias</span>
                         </td>
@@ -283,7 +292,7 @@ export function PaginaHabitos() {
                                 aria-label={`${h.name} em ${d}`}
                                 onClick={() => alternar.mutate({ habito: h.id, dia: d, registro })}
                                 className={cn(
-                                  "mx-auto grid size-8 place-items-center rounded-full border transition-colors disabled:opacity-30",
+                                  "relative mx-auto grid size-8 place-items-center rounded-full border transition-colors disabled:opacity-30 toque:after:absolute toque:after:-inset-1.5",
                                   registro
                                     ? "border-rotina bg-rotina text-white"
                                     : vale
@@ -291,7 +300,7 @@ export function PaginaHabitos() {
                                       : "border-dashed border-line text-ink-3",
                                 )}
                               >
-                                {registro ? <Check className="size-4" strokeWidth={2.5} /> : null}
+                                {registro ? <Check className="size-4 animate-marcar" strokeWidth={2.5} /> : null}
                               </button>
                             </td>
                           )
@@ -325,7 +334,7 @@ export function PaginaHabitos() {
                 ))}
                 <tfoot>
                   <tr className="border-t border-line-strong">
-                    <td className="px-4 py-2.5 text-sm font-medium">Progresso do dia</td>
+                    <td className="sticky left-0 z-10 bg-surface px-4 py-2.5 text-sm font-medium">Progresso do dia</td>
                     {dias.map((d) => {
                       const validos = ativos.filter((h) => valeNoDia(h, d))
                       const feitos = validos.filter((h) => indice.get(h.id)?.has(d)).length
