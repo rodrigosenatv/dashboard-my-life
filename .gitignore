@@ -44,3 +44,6 @@ next-env.d.ts
 
 # capturas e scripts do Playwright
 .playwright-mcp/
+
+# pdf.js copiado de node_modules antes do dev/build (scripts/copiar-pdfjs.mjs)
+/public/pdfjs/

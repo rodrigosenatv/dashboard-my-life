@@ -3,10 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "predev": "node scripts/copiar-pdfjs.mjs",
     "dev": "next dev",
+    "prebuild": "node scripts/copiar-pdfjs.mjs",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "postinstall": "node scripts/copiar-pdfjs.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.131.0",
@@ -24,6 +27,7 @@
     "lucide-react": "^1.52.0",
     "next": "16.4.0",
     "papaparse": "^5.7.0",
+    "pdfjs-dist": "^6.3.289",
     "radix-ui": "^1.7.0",
     "react": "19.3.0",
     "react-dom": "19.3.0",

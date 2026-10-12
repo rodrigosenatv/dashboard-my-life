@@ -1,10 +1,16 @@
 // Service worker do My Life.
-// Não guarda dados nem telas do app: tudo continua vindo da rede, sempre atualizado.
-// A única função é mostrar a página "Você está offline" quando uma navegação falha.
+// As telas e os dados vêm sempre da rede, atualizados. As exceções existem para ler sem internet:
+// - os arquivos estáticos do app (/_next/static, com nome que muda a cada versão) ficam guardados;
+// - a tela do leitor (/ler/...) fica guardada depois de aberta e só é usada quando a rede falha.
+// Os livros ficam no armazenamento do próprio aparelho (IndexedDB), não aqui.
+// Fora isso, a única função é mostrar a página "Você está offline" quando uma navegação falha.
 
 const CACHE = "my-life-offline-v2"
+const ESTATICOS = "my-life-estaticos-v1"
+const LEITOR = "my-life-leitor-v1"
 const OFFLINE = "/offline.html"
 const ICONE = "/icons/icon-192.png"
+const MAX_ESTATICOS = 400
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -16,22 +22,74 @@ self.addEventListener("install", (event) => {
 })
 
 self.addEventListener("activate", (event) => {
+  const manter = [CACHE, ESTATICOS, LEITOR]
   event.waitUntil(
     caches
       .keys()
-      .then((chaves) => Promise.all(chaves.filter((c) => c !== CACHE).map((c) => caches.delete(c))))
+      .then((chaves) => Promise.all(chaves.filter((c) => !manter.includes(c)).map((c) => caches.delete(c))))
       .then(() => self.clients.claim()),
   )
 })
 
+/** Mantém o cache de estáticos com um tamanho limitado (os mais antigos saem primeiro). */
+async function aparar(cache) {
+  const chaves = await cache.keys()
+  for (let i = 0; i < chaves.length - MAX_ESTATICOS; i++) await cache.delete(chaves[i])
+}
+
 self.addEventListener("fetch", (event) => {
   const { request } = event
+  if (request.method !== "GET") return
+  const url = new URL(request.url)
+  if (url.origin !== self.location.origin) return
+
+  // Tela do leitor: o documento e os dados da rota (pedido RSC que o Next faz ao abrir).
+  // Rede primeiro; sem rede, a última versão guardada.
+  const rsc = request.headers.get("RSC") === "1" || url.searchParams.has("_rsc")
+  if (url.pathname.startsWith("/ler/") && (request.mode === "navigate" || rsc)) {
+    const chave = url.pathname + (rsc ? "?rsc" : "")
+    const preCarga = request.headers.get("Next-Router-Prefetch") === "1"
+    event.respondWith(
+      fetch(request)
+        .then((resposta) => {
+          if (resposta.ok && !resposta.redirected && !preCarga) {
+            const copia = resposta.clone()
+            event.waitUntil(caches.open(LEITOR).then((c) => c.put(chave, copia)))
+          }
+          return resposta
+        })
+        .catch(async () => {
+          const guardada = await caches.match(chave, { cacheName: LEITOR, ignoreVary: true })
+          if (guardada) return guardada
+          return request.mode === "navigate" ? caches.match(OFFLINE) : Response.error()
+        }),
+    )
+    return
+  }
+
   if (request.mode === "navigate") {
     event.respondWith(fetch(request).catch(() => caches.match(OFFLINE)))
     return
   }
+
+  // Arquivos com nome único por versão: guardados na primeira vez, nunca mudam
+  if (url.pathname.startsWith("/_next/static/")) {
+    event.respondWith(
+      caches.open(ESTATICOS).then(async (cache) => {
+        const guardado = await cache.match(request)
+        if (guardado) return guardado
+        const resposta = await fetch(request)
+        if (resposta.ok) {
+          event.waitUntil(cache.put(request, resposta.clone()).then(() => aparar(cache)))
+        }
+        return resposta
+      }),
+    )
+    return
+  }
+
   // O ícone da página offline também precisa aparecer sem rede
-  if (new URL(request.url).pathname === ICONE) {
+  if (url.pathname === ICONE) {
     event.respondWith(fetch(request).catch(() => caches.match(ICONE)))
   }
 })

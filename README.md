@@ -29,6 +29,15 @@ Feito com Next.js 16, Supabase (banco, login e arquivos) e hospedado na Vercel.
 2. No app: **Configurações > Importar do Notion**, escolha o .zip, confira o resumo e importe.
 3. A página *Senhas* e os campos de senha dos cursos não são importados. Importar de novo substitui só o que veio do Notion.
 
+## Leitor de livros
+
+Em **Estudos > Leitura**, cada livro pode ter um arquivo (PDF, EPUB, MOBI, AZW3 ou FB2) para ler dentro do app, com o texto se reorganizando na tela: tamanho e tipo de letra, espaço entre linhas, margens, temas (claro, sépia, escuro, preto), páginas ou rolagem, sumário, busca, trechos guardados nos insights e a tela acesa enquanto se lê.
+
+- **PDF vira EPUB no próprio aparelho.** O conversor (`src/features/leitor/conversor`) lê o PDF com o pdf.js, tira cabeçalhos, rodapés, números de página e sumário com pontilhado, remonta os parágrafos, junta palavras partidas no fim da linha, acha os capítulos e as partes (pelos marcadores do PDF ou pela aparência), põe as notas de rodapé depois do parágrafo e guarda tabelas e figuras. Para decidir onde termina um parágrafo, usa o vocabulário do próprio livro (palavras com hífen, nomes como "Mecânica Quântica" partidos entre linhas). Cada parágrafo leva a página de origem, então o leitor mostra "página 12 de 64" do PDF. PDF digitalizado (só imagem) precisa passar por OCR antes.
+- **Onde fica cada coisa.** O livro fica no IndexedDB do aparelho (abre sem internet). A cópia na nuvem é opcional: `arquivos/<usuário>/livros/<livro>/livro.epub`, registrada na tabela `files` com `entity_type = 'livro'`. A posição de leitura vai para `settings.prefs.leitor.posicoes` e a página lida atualiza `books.pages_read`. Não precisa de migração no banco.
+- **Sem internet.** O service worker guarda a tela do leitor depois de aberta e os arquivos estáticos do app.
+- **Motor de leitura.** [foliate-js](https://github.com/johnfactotum/foliate-js) (MIT), copiado em `src/vendor/foliate-js`. Os arquivos do pdf.js que o navegador busca à parte são copiados para `public/pdfjs` por `scripts/copiar-pdfjs.mjs`, que roda sozinho depois do `npm install` e antes do `dev` e do `build`.
+
 ## Desenvolvimento
 
 ```bash
@@ -40,4 +49,5 @@ npm run dev
 Estrutura principal:
 - `src/app/(app)` rotas do app; `src/features/*` cada módulo; `src/components` interface compartilhada.
 - `src/features/importar` leitura do .zip do Notion e gravação no Supabase.
+- `src/features/leitor` leitor de livros e conversor de PDF; a tela de leitura é `src/app/ler/[id]`.
 - `supabase/migrations` esquema do banco.

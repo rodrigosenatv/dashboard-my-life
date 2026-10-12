@@ -12,6 +12,9 @@ import { novoId, useAtualizar, useCriar, useExcluir, useLista, useRegistro } fro
 import { STATUS_LIVRO } from "@/lib/rotulos"
 import { formatar, porcentagem } from "@/lib/utils"
 import { DialogoLivro } from "./dialogo-livro"
+import { SecaoLivroDigital } from "@/features/leitor/secao-livro-digital"
+import { apagarLivroLocal } from "@/features/leitor/armazenamento"
+import { apagarLivroNuvem } from "@/features/leitor/nuvem"
 
 export function PaginaLivro() {
   const { id } = useParams<{ id: string }>()
@@ -64,6 +67,7 @@ export function PaginaLivro() {
       </header>
 
       <div className="grid gap-10">
+        <SecaoLivroDigital livro={livro} />
         <Secao titulo="Insights do livro">
           <form
             onSubmit={(e) => {
@@ -97,7 +101,7 @@ export function PaginaLivro() {
       </div>
 
       <DialogoLivro aberta={editar} aoMudar={setEditar} livro={livro} />
-      <Confirmar aberta={apagar} aoMudar={setApagar} titulo={`Excluir “${livro.title}”?`} descricao="Os insights do livro também serão excluídos." aoConfirmar={() => { excluir.mutate(livro.id); router.push("/estudos/leitura") }} />
+      <Confirmar aberta={apagar} aoMudar={setApagar} titulo={`Excluir “${livro.title}”?`} descricao="Os insights e o arquivo do livro (no aparelho e na nuvem) também serão excluídos." aoConfirmar={() => { excluir.mutate(livro.id); void apagarLivroNuvem(livro.id).catch(() => {}); void apagarLivroLocal(livro.id).catch(() => {}); router.push("/estudos/leitura") }} />
     </div>
   )
 }

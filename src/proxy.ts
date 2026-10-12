@@ -71,7 +71,7 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // Tudo, menos arquivos estáticos, imagens, ícones, o service worker com sua página offline e a rota de IA (que valida a sessão sozinha).
-    "/((?!_next/static|_next/image|api/|favicon.ico|icon|apple-icon|manifest.webmanifest|sw.js|offline.html|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff2?)$).*)",
+    // Tudo, menos arquivos estáticos, imagens, ícones, os arquivos do pdf.js, o service worker com sua página offline e a rota de IA (que valida a sessão sozinha).
+    "/((?!_next/static|_next/image|api/|pdfjs/|favicon.ico|icon|apple-icon|manifest.webmanifest|sw.js|offline.html|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff2?)$).*)",
   ],
 }

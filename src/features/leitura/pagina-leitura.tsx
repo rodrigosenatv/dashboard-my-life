@@ -3,7 +3,7 @@
 import Link from "next/link"
 import * as React from "react"
 import { useSearchParams } from "next/navigation"
-import { BookOpenCheck, Plus, Quote, Star } from "lucide-react"
+import { BookOpen, BookOpenCheck, Plus, Quote, Star } from "lucide-react"
 import { Botao } from "@/components/ui/button"
 import { Cabecalho, Carregando, Progresso, Segmentos, Vazio } from "@/components/ui/basicos"
 import { novoId, useAtualizar, useCriar, useExcluir, useLista } from "@/lib/data"
@@ -13,6 +13,7 @@ import { useDoisToques } from "@/components/ui/botao-excluir"
 import { COLUNAS_LIVRO_LISTA } from "./dados"
 import { DialogoLivro } from "./dialogo-livro"
 import { Pomodoro } from "@/components/pomodoro"
+import { useDisponibilidade } from "@/features/leitor/dados"
 import { isoDia } from "@/lib/utils"
 
 type Livro = Tables<"books">
@@ -131,6 +132,7 @@ export function PaginaLeitura() {
   const { data: livros = [], isLoading } = useLista("books", { colunas: COLUNAS_LIVRO_LISTA, ordem: [{ coluna: "title" }] })
 
   const atualizarLivro = useAtualizar("books")
+  const disponivel = useDisponibilidade()
   const [soFavoritos, setSoFavoritos] = React.useState(false)
   const lendo = livros.filter((l) => l.status === "lendo")
   const pausados = livros.filter((l) => l.status === "pausado")
@@ -239,7 +241,14 @@ export function PaginaLeitura() {
                         <Progresso valor={p} cor="estudos" rotulo={`Leitura de ${l.title}`} />
                         <span className="tabular w-9 shrink-0 text-right text-xs text-ink-3">{l.pages_total ? `${p}%` : ""}</span>
                       </div>
-                      <AtualizarPagina livro={l} />
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <AtualizarPagina livro={l} />
+                        {disponivel(l.id).temArquivo ? (
+                          <Link href={`/ler/${l.id}`} className="inline-flex h-8 items-center gap-1.5 rounded-md bg-pen px-3 text-sm font-medium text-pen-ink hover:bg-pen/90 toque:h-10">
+                            <BookOpen className="size-4" /> Ler
+                          </Link>
+                        ) : null}
+                      </div>
                     </div>
                   </div>
                 </li>

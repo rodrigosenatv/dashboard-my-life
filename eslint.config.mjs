@@ -16,6 +16,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Bibliotecas copiadas como estão (foliate-js) e arquivos gerados do pdf.js
+    "src/vendor/**",
+    "public/pdfjs/**",
   ]),
 ]);
 
