@@ -9,12 +9,36 @@ import { cn } from "@/lib/utils"
  * Vídeo do YouTube que só carrega o player quando a pessoa toca na miniatura (mais leve e
  * sem rastreio até o play). Shorts aparecem em pé; os outros, deitados.
  */
-export function PlayerYoutube({ video, titulo, iniciar = false, className }: { video: VideoYoutube; titulo: string; iniciar?: boolean; className?: string }) {
+export function PlayerYoutube({
+  video,
+  titulo,
+  iniciar = false,
+  compacto = false,
+  className,
+}: {
+  video: VideoYoutube
+  titulo: string
+  iniciar?: boolean
+  /** Prévia menor (por exemplo, dentro de um formulário). */
+  compacto?: boolean
+  className?: string
+}) {
   const [tocando, setTocando] = React.useState(iniciar)
   return (
     <div className={cn("grid gap-1.5", className)}>
       <div className="flex justify-center">
-        <div className={cn("relative overflow-hidden rounded-lg bg-black", video.vertical ? "aspect-[9/16] h-[min(62dvh,520px)]" : "aspect-video w-full")}>
+        <div
+          className={cn(
+            "relative overflow-hidden rounded-lg bg-black",
+            video.vertical
+              ? compacto
+                ? "aspect-[9/16] h-[min(40dvh,320px)]"
+                : "aspect-[9/16] h-[min(62dvh,520px)]"
+              : compacto
+                ? "aspect-video w-full max-w-md"
+                : "aspect-video w-full",
+          )}
+        >
           {tocando ? (
             <iframe
               src={embedYoutube(video, { autoplay: true })}

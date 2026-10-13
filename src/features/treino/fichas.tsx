@@ -488,7 +488,7 @@ function DialogoExercicio({
               </p>
             ) : null}
           </Campo>
-          {videoLido ? <PlayerYoutube key={videoLido.id} video={videoLido} titulo={nome || "exercício"} /> : null}
+          {videoLido ? <PlayerYoutube key={videoLido.id} video={videoLido} titulo={nome || "exercício"} compacto /> : null}
           <Escolhas
             legenda="Fichas"
             opcoes={opcoesFichas}
