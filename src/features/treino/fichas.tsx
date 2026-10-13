@@ -2,14 +2,16 @@
 
 import Link from "next/link"
 import * as React from "react"
-import { ChevronRight, Minus, Plus, Search } from "lucide-react"
+import { ChevronRight, CirclePlay, Minus, Plus, Search } from "lucide-react"
 import { Botao } from "@/components/ui/button"
 import { Esqueleto, Secao, Segmentos, Vazio } from "@/components/ui/basicos"
 import { Campo, Entrada } from "@/components/ui/campos"
 import { Confirmar, Janela } from "@/components/ui/janela"
+import { PlayerYoutube } from "@/components/video-youtube"
 import { novoId, useAtualizar, useCriar, useExcluir } from "@/lib/data"
 import type { Json } from "@/lib/supabase/database.types"
 import { cn, contem, formatar, normalizar, plural } from "@/lib/utils"
+import { lerYoutube, linkYoutube } from "@/lib/youtube"
 import { esquema, type Colecao, type Propriedade } from "@/features/colecoes/visao-colecao"
 import {
   camposExercicio,
@@ -182,7 +184,15 @@ export function FichasTreino({ colecao, grupos, historico }: { colecao: Colecao 
                     >
                       {aba !== TODOS ? <span className="w-5 shrink-0 text-right text-sm text-ink-3 tabular">{i + 1}</span> : null}
                       <span className="min-w-0 flex-1">
-                        <span className="block font-medium leading-snug">{e.nome}</span>
+                        <span className="flex items-center gap-1.5 font-medium leading-snug">
+                          <span className="min-w-0">{e.nome}</span>
+                          {e.video ? (
+                            <>
+                              <CirclePlay className="size-3.5 shrink-0 text-ink-3" aria-hidden />
+                              <span className="sr-only">, tem vídeo</span>
+                            </>
+                          ) : null}
+                        </span>
                         {detalhe ? <span className="mt-0.5 block truncate text-xs text-ink-3">{detalhe}</span> : null}
                       </span>
                       <span className="shrink-0 text-sm font-medium text-ink-2 tabular">{prescricao(e)}</span>
@@ -329,6 +339,7 @@ function DialogoExercicio({
   const [series, setSeries] = React.useState<number | null>(null)
   const [reps, setReps] = React.useState<number | null>(null)
   const [nota, setNota] = React.useState("")
+  const [video, setVideo] = React.useState("")
   const [selFichas, setSelFichas] = React.useState<string[]>([])
   const [selGrupos, setSelGrupos] = React.useState<string[]>([])
   const [novaFicha, setNovaFicha] = React.useState<string | null>(null)
@@ -340,6 +351,7 @@ function DialogoExercicio({
     setSeries(exercicio ? exercicio.series : sugestao.series)
     setReps(exercicio ? exercicio.reps : sugestao.reps)
     setNota(exercicio?.nota ?? "")
+    setVideo(exercicio?.video ?? "")
     setSelFichas(exercicio ? exercicio.fichas : fichaAtual ? [fichaAtual] : [])
     setSelGrupos(exercicio?.grupos ?? [])
     setNovaFicha(fichas.length ? null : "")
@@ -359,6 +371,9 @@ function DialogoExercicio({
     ...selFichas.filter((v) => !fichas.some((f) => f.valor === v)).map((v) => ({ valor: v, rotulo: rotuloFicha(lerFicha(v)) })),
   ]
 
+  const videoLido = lerYoutube(video)
+  const videoInvalido = video.trim() !== "" && !videoLido
+
   /** Garante que as colunas usadas existam na coleção, para aparecerem também na tabela. */
   const garantirColunas = () => {
     const atual = esquema(colecao)
@@ -371,13 +386,14 @@ function DialogoExercicio({
     precisa(campos.fichas, "multi_select", selFichas.length > 0)
     precisa(campos.grupos, "multi_select", selGrupos.length > 0)
     precisa(campos.nota, "text", Boolean(nota.trim()))
+    precisa(campos.video, "url", Boolean(videoLido))
     if (novas.length) atualizarColecao.mutate({ id: colecao.id, schema: [...atual, ...novas] as unknown as Json })
   }
 
   const salvar = (ev: React.FormEvent) => {
     ev.preventDefault()
     const titulo = nome.trim()
-    if (!titulo) return
+    if (!titulo || videoInvalido) return
     const props: Record<string, Json> = exercicio ? { ...valores(exercicio.item) } : {}
     const definir = (chave: string, valor: Json, vazio: boolean) => {
       if (vazio) delete props[chave]
@@ -386,6 +402,7 @@ function DialogoExercicio({
     definir(campos.series, series, series === null)
     definir(campos.reps, reps, reps === null)
     definir(campos.nota, nota.trim(), !nota.trim())
+    definir(campos.video, videoLido ? linkYoutube(videoLido) : "", !videoLido)
     definir(campos.fichas, selFichas, !selFichas.length)
     definir(campos.grupos, selGrupos, !selGrupos.length)
     if (exercicio) atualizar.mutate({ id: exercicio.item.id, title: titulo, props })
@@ -410,7 +427,7 @@ function DialogoExercicio({
             <Botao variante="fantasma" onClick={aoFechar}>
               Cancelar
             </Botao>
-            <Botao variante="primario" type="submit" form="form-exercicio" disabled={!nome.trim()}>
+            <Botao variante="primario" type="submit" form="form-exercicio" disabled={!nome.trim() || videoInvalido}>
               {exercicio ? "Salvar" : "Adicionar"}
             </Botao>
           </>
@@ -443,6 +460,35 @@ function DialogoExercicio({
           <Campo rotulo="Anotação" htmlFor="ex-nota" dica="Tempo (60s, 15min), cadência, ajuste do aparelho…">
             <Entrada id="ex-nota" value={nota} onChange={(e) => setNota(e.target.value)} placeholder="Opcional" />
           </Campo>
+          <Campo
+            rotulo="Vídeo da execução (YouTube)"
+            htmlFor="ex-video"
+            dica={videoInvalido ? undefined : "Cole o link de um vídeo ou Short do YouTube."}
+          >
+            <div className="flex gap-2">
+              <Entrada
+                id="ex-video"
+                inputMode="url"
+                autoComplete="off"
+                value={video}
+                onChange={(e) => setVideo(e.target.value)}
+                placeholder="https://youtu.be/…"
+                aria-invalid={videoInvalido}
+                aria-describedby={videoInvalido ? "ex-video-erro" : undefined}
+              />
+              {video ? (
+                <Botao variante="fantasma" onClick={() => setVideo("")}>
+                  Tirar
+                </Botao>
+              ) : null}
+            </div>
+            {videoInvalido ? (
+              <p id="ex-video-erro" className="text-sm text-danger">
+                Esse link não é de um vídeo do YouTube.
+              </p>
+            ) : null}
+          </Campo>
+          {videoLido ? <PlayerYoutube key={videoLido.id} video={videoLido} titulo={nome || "exercício"} /> : null}
           <Escolhas
             legenda="Fichas"
             opcoes={opcoesFichas}

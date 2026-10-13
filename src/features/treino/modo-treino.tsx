@@ -4,13 +4,15 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import * as React from "react"
 import { useQueryClient } from "@tanstack/react-query"
-import { Check, ChevronLeft, ChevronRight, Dumbbell, Ellipsis, ListOrdered, Minus, Plus, Timer, Trophy, X } from "lucide-react"
+import { Check, ChevronLeft, ChevronRight, CirclePlay, Dumbbell, Ellipsis, ListOrdered, Minus, Plus, Timer, Trophy, X } from "lucide-react"
 import { toast } from "sonner"
 import { Botao } from "@/components/ui/button"
 import { Confirmar, Janela } from "@/components/ui/janela"
 import { Menu, MenuConteudo, MenuGatilho, MenuItem, MenuRotulo, MenuSeparador } from "@/components/ui/menu"
+import { PlayerYoutube } from "@/components/video-youtube"
 import { cn, plural } from "@/lib/utils"
-import { kg, lerNumeroDigitado, notaVisivel, prescricao } from "./dados"
+import { lerYoutube } from "@/lib/youtube"
+import { camposExercicio, kg, lerExercicio, lerNumeroDigitado, notaVisivel, prescricao, useColecoesTreino, useItensDe } from "./dados"
 import {
   DIFICULDADES,
   bateRecorde,
@@ -186,6 +188,7 @@ function Treinando({ sessao, aoSair }: { sessao: SessaoAtiva; aoSair: (aviso: st
   const [terminar, setTerminar] = React.useState(false)
   const [descartar, setDescartar] = React.useState(false)
   const [aviso, setAviso] = React.useState("")
+  const [vendoVideo, setVendoVideo] = React.useState(false)
   const audio = React.useRef<AudioContext | null>(null)
   const avisado = React.useRef<number | undefined>(undefined)
   useTelaAcesa()
@@ -200,6 +203,15 @@ function Treinando({ sessao, aoSair }: { sessao: SessaoAtiva; aoSair: (aviso: st
   const decorrido = agora ? Math.max(0, Math.floor((agora - Date.parse(sessao.inicio)) / 1000)) : 0
   const restante = agora && sessao.descansoAte ? Math.max(0, Math.ceil((sessao.descansoAte - agora) / 1000)) : 0
   const serieEditada = editando !== null ? sessao.series[editando] : undefined
+
+  // O vídeo vem da lista de exercícios (se mudou durante o treino, vale o novo); sem internet, o copiado ao começar
+  const { exercicios: colecaoExercicios } = useColecoesTreino()
+  const { data: itensExercicios = [] } = useItensDe(colecaoExercicios)
+  const videos = React.useMemo(() => {
+    const campos = camposExercicio(colecaoExercicios, itensExercicios)
+    return new Map(itensExercicios.map((i) => [i.id, lerExercicio(i, campos).video]))
+  }, [colecaoExercicios, itensExercicios])
+  const video = lerYoutube(videos.get(ex.id) ?? ex.video)
 
   // Fim do descanso: som, vibração e aviso para leitor de tela (uma vez por descanso)
   React.useEffect(() => {
@@ -225,6 +237,7 @@ function Treinando({ sessao, aoSair }: { sessao: SessaoAtiva; aoSair: (aviso: st
   const irPara = (i: number) => {
     setEditando(null)
     setExtra(false)
+    setVendoVideo(false)
     mudarSessao((s) => ({ ...s, atual: Math.max(0, Math.min(s.exercicios.length - 1, i)) }))
   }
 
@@ -349,6 +362,13 @@ function Treinando({ sessao, aoSair }: { sessao: SessaoAtiva; aoSair: (aviso: st
           {prescricao(ex)}
           {notaVisivel(ex) ? ` · ${notaVisivel(ex)}` : ""}
         </p>
+        {video ? (
+          <div className="mt-3 flex justify-center">
+            <Botao variante="secundario" tamanho="sm" onClick={() => setVendoVideo(true)}>
+              <CirclePlay /> Ver execução
+            </Botao>
+          </div>
+        ) : null}
 
         {ex.ultima || ex.recorde ? (
           <dl className="mt-4 grid gap-1.5 rounded-lg bg-surface px-3.5 py-3 text-sm">
@@ -467,6 +487,10 @@ function Treinando({ sessao, aoSair }: { sessao: SessaoAtiva; aoSair: (aviso: st
           )}
         </div>
       </footer>
+
+      <Janela aberta={vendoVideo && Boolean(video)} aoMudar={setVendoVideo} titulo={ex.nome} descricao="Como fazer" largura="lg">
+        {video ? <PlayerYoutube key={video.id} video={video} titulo={ex.nome} iniciar /> : null}
+      </Janela>
 
       <Janela aberta={lista} aoMudar={setLista} titulo="Exercícios" descricao={ficha}>
         <ol className="-mx-2 grid gap-0.5">

@@ -29,6 +29,8 @@ export type ExercicioPlano = {
   /** Copiados ao começar, para o modo treino funcionar sem internet. */
   ultima?: { data: string; series: Marca[] }
   recorde?: Marca & { data: string }
+  /** Link do vídeo da execução (YouTube). */
+  video?: string
 }
 
 export type SessaoAtiva = {
@@ -253,6 +255,7 @@ export function novaSessao(ficha: Ficha, exercicios: Exercicio[], indice: Map<st
         nota: e.nota,
         ...(h?.ultima ? { ultima: h.ultima } : {}),
         ...(h?.recorde ? { recorde: h.recorde } : {}),
+        ...(e.video ? { video: e.video } : {}),
       }
     }),
   }

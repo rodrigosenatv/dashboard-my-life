@@ -90,7 +90,7 @@ export function lerNumeroDigitado(t: string): number | null {
 /* Exercícios e fichas                                                 */
 /* ------------------------------------------------------------------ */
 
-export type CamposExercicio = { series: string; reps: string; nota: string; fichas: string; grupos: string }
+export type CamposExercicio = { series: string; reps: string; nota: string; fichas: string; grupos: string; video: string }
 
 export function camposExercicio(c: Colecao | undefined, itens: ItemColecao[]): CamposExercicio {
   return {
@@ -99,6 +99,7 @@ export function camposExercicio(c: Colecao | undefined, itens: ItemColecao[]): C
     nota: acharPropriedade(c, itens, (n) => n.startsWith("anota") || n.startsWith("observa")) ?? "Anotação",
     fichas: acharPropriedade(c, itens, (n) => ["treino", "treinos", "ficha", "fichas"].includes(n)) ?? "Treino",
     grupos: acharPropriedade(c, itens, (n) => n.startsWith("grupo")) ?? "Grupos Musculares",
+    video: acharPropriedade(c, itens, (n) => n.startsWith("video") || n.includes("youtube")) ?? "Vídeo",
   }
 }
 
@@ -110,11 +111,14 @@ export type Exercicio = {
   nota: string
   fichas: string[]
   grupos: string[]
+  /** Link do vídeo que mostra a execução (YouTube). */
+  video: string
 }
 
 export function lerExercicio(item: ItemColecao, campos: CamposExercicio): Exercicio {
   const v = valores(item)
   const nota = v[campos.nota]
+  const video = v[campos.video]
   return {
     item,
     nome: item.title || "Sem nome",
@@ -123,6 +127,7 @@ export function lerExercicio(item: ItemColecao, campos: CamposExercicio): Exerci
     nota: typeof nota === "string" ? nota.trim() : nota == null ? "" : String(nota),
     fichas: lista(v[campos.fichas]),
     grupos: lista(v[campos.grupos]),
+    video: typeof video === "string" ? video.trim() : "",
   }
 }
 
