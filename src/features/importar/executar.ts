@@ -74,7 +74,8 @@ async function reaproveitarHabitos(cliente: SupabaseClient<any>, linhas: Record<
   if (troca.size) linhas.habit_logs = (linhas.habit_logs ?? []).map((l) => (troca.has(l.habit_id) ? { ...l, habit_id: troca.get(l.habit_id) } : l))
 }
 
-async function enviarArquivos({ cliente, plano, arquivos, aoProgredir, usuarioId }: Opcoes, avisos: string[]) {
+/** Envia os arquivos do plano e devolve os caminhos que chegaram ao armazenamento. */
+async function enviarArquivos({ cliente, plano, arquivos, aoProgredir, usuarioId }: Opcoes, avisos: string[]): Promise<Set<string>> {
   const total = plano.arquivos.length
   let feito = 0
   const registros: any[] = []
@@ -92,6 +93,7 @@ async function enviarArquivos({ cliente, plano, arquivos, aoProgredir, usuarioId
     const { error } = await cliente.from("files").upsert(lote, { onConflict: "user_id,path", defaultToNull: false })
     if (error) avisos.push(`Registro de arquivos: ${error.message}`)
   }
+  return new Set(registros.map((r) => r.path as string))
 }
 
 async function inserirLinhas({ cliente, plano, aoProgredir }: Opcoes) {
@@ -129,6 +131,79 @@ export async function executarImportacao(opcoes: Opcoes): Promise<{ avisos: stri
   await enviarArquivos(opcoes, avisos)
   await inserirLinhas(opcoes)
   return { avisos }
+}
+
+const PREFIXO = "arquivo://"
+const ehArquivo = (v: unknown): v is string => typeof v === "string" && v.startsWith(PREFIXO)
+const decodificar = (t: string) => {
+  try {
+    return decodeURIComponent(t)
+  } catch {
+    return t
+  }
+}
+
+/**
+ * Traz só as fotos e anexos das coleções que não vieram numa importação anterior
+ * (o caminho do Notion ficou no lugar da foto). Não apaga nada: cada item ganha a foto
+ * na mesma propriedade e, se não tiver capa, a capa; o resto do item fica como está.
+ */
+export async function recuperarArquivos(opcoes: Opcoes): Promise<{ itens: number; arquivos: number; avisos: string[] }> {
+  const { cliente, plano, aoProgredir } = opcoes
+  const avisos: string[] = []
+  const planejados = (plano.linhas.collection_items ?? []).filter((l) => l.notion_id && Object.values(l.props ?? {}).some(ehArquivo))
+  if (!planejados.length) return { itens: 0, arquivos: 0, avisos }
+
+  aoProgredir?.({ etapa: "Procurando o que faltou", feito: 0, total: 1 })
+  const atuais = new Map<string, any>()
+  for (const lote of lotes(planejados.map((l) => l.notion_id as string), 200)) {
+    const { data, error } = await cliente.from("collection_items").select("id, notion_id, props, cover_path").in("notion_id", lote)
+    if (error) throw new Error(`Itens de coleções: ${error.message}`)
+    for (const r of data ?? []) atuais.set(r.notion_id, r)
+  }
+
+  const porDestino = new Map(plano.arquivos.map((a) => [a.destino, a]))
+  type Troca = { id: string; props: Record<string, unknown>; capaAtual: string | null; destinos: Map<string, string>; capa: string | null }
+  const trocas: Troca[] = []
+  for (const l of planejados) {
+    const atual = atuais.get(l.notion_id)
+    if (!atual) continue
+    const props = (atual.props ?? {}) as Record<string, unknown>
+    const destinos = new Map<string, string>() // propriedade -> caminho no armazenamento
+    for (const [chave, valor] of Object.entries(l.props ?? {})) {
+      if (!ehArquivo(valor) || ehArquivo(props[chave])) continue
+      const destino = decodificar(valor.slice(PREFIXO.length))
+      const arquivo = porDestino.get(destino)
+      if (!arquivo) continue
+      // Só troca o que ficou como caminho do Notion (ou vazio); um texto escrito no app fica
+      const hoje = props[chave]
+      if (typeof hoje === "string" && hoje.trim() && !decodificar(hoje.trim()).endsWith(arquivo.nome)) continue
+      destinos.set(chave, destino)
+    }
+    if (destinos.size) trocas.push({ id: atual.id, props, capaAtual: atual.cover_path ?? null, destinos, capa: l.cover_path ?? null })
+  }
+  if (!trocas.length) return { itens: 0, arquivos: 0, avisos }
+
+  const precisa = new Set(trocas.flatMap((t) => [...t.destinos.values()]))
+  const enviados = await enviarArquivos({ ...opcoes, plano: { ...plano, arquivos: plano.arquivos.filter((a) => precisa.has(a.destino)) } }, avisos)
+
+  let itens = 0
+  for (const t of trocas) {
+    const novas = [...t.destinos].filter(([, destino]) => enviados.has(destino))
+    if (!novas.length) continue
+    const props = { ...t.props }
+    for (const [chave, destino] of novas) props[chave] = `${PREFIXO}${encodeURIComponent(destino)}`
+    const capa = !t.capaAtual && t.capa && enviados.has(t.capa) ? t.capa : null
+    aoProgredir?.({ etapa: "Gravando as fotos nos itens", feito: itens, total: trocas.length })
+    const { error } = await cliente
+      .from("collection_items")
+      .update({ props, ...(capa ? { cover_path: capa } : {}) })
+      .eq("id", t.id)
+    if (error) avisos.push(`Item não atualizado: ${error.message}`)
+    else itens++
+  }
+  aoProgredir?.({ etapa: "Concluído", feito: trocas.length, total: trocas.length })
+  return { itens, arquivos: enviados.size, avisos }
 }
 
 /** Cópia de segurança de todas as tabelas em JSON. */

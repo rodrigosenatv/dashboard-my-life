@@ -419,6 +419,46 @@ export function montarPlano(arquivos: Map<string, Uint8Array>, opcoes: OpcoesPla
     return destino
   }
 
+  /**
+   * Acha no zip o arquivo de uma propriedade de arquivo do CSV. O Notion grava o caminho
+   * com %20 no lugar dos espaços e, às vezes, apontando para uma pasta de nome encurtado;
+   * quando o caminho não bate, vale o nome do arquivo, se só existir um com esse nome.
+   */
+  let arquivosPorNome: Map<string, string[]> | null = null
+  const acharArquivo = (dir: string, valor: string): string | null => {
+    // Endereços da web (https://…, mailto:…) nunca são arquivos do zip
+    if (/^[a-z][a-z0-9+.-]*:/i.test(valor.trim())) return null
+    const partes = [valor, ...(valor.includes(", ") ? valor.split(", ") : [])]
+    const tentativas: string[] = []
+    for (const p of partes) {
+      tentativas.push(p)
+      try {
+        const decodificado = decodeURIComponent(p)
+        if (decodificado !== p) tentativas.push(decodificado)
+      } catch {
+        /* um % solto no nome: fica só a forma original */
+      }
+    }
+    for (const t of tentativas) {
+      const caminho = juntar(dir, t)
+      if (arquivos.has(caminho)) return caminho
+    }
+    if (!arquivosPorNome) {
+      arquivosPorNome = new Map()
+      for (const p of arquivos.keys()) {
+        if (/\.(md|csv)$/i.test(p)) continue
+        const nome = basename(p)
+        arquivosPorNome.set(nome, [...(arquivosPorNome.get(nome) ?? []), p])
+      }
+    }
+    for (const t of tentativas) {
+      if (!/\.[a-z0-9]{2,5}$/i.test(t)) continue
+      const achados = arquivosPorNome.get(basename(t))
+      if (achados?.length === 1) return achados[0]
+    }
+    return null
+  }
+
   /** Reescreve links e imagens do markdown para o app. Rodar depois de todos os ids existirem. */
   const reescrever = (md: string, caminho: string): string => {
     const dir = dirname(caminho)
@@ -875,7 +915,7 @@ export function montarPlano(arquivos: Map<string, Uint8Array>, opcoes: OpcoesPla
           else if (lerDataNotion(v) && !/^\d+([.,]\d+)?$/.test(v)) props[c] = lerIntervalo(v).inicio?.data ?? v
           else if (/^-?\d+([.,]\d+)?$/.test(v.trim())) props[c] = lerNumero(v)
           else {
-            const arq = arquivos.has(juntar(dirname(r.banco.caminho), v)) ? juntar(dirname(r.banco.caminho), v) : null
+            const arq = acharArquivo(dirname(r.banco.caminho), v)
             if (arq) {
               const destino = registrarArquivo(arq)
               if (destino && ehImagem(arq) && !capa) capa = destino

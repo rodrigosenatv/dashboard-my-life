@@ -19,7 +19,7 @@ import { ChavesIA } from "./chaves-ia"
 import { FRASE_PADRAO } from "@/lib/marca"
 import { abrirZip } from "@/features/importar/zip"
 import { montarPlano, resumoPlano, type Plano } from "@/features/importar/notion"
-import { executarImportacao, exportarTudo, type Progresso as EstadoProgresso } from "@/features/importar/executar"
+import { executarImportacao, exportarTudo, recuperarArquivos, type Progresso as EstadoProgresso } from "@/features/importar/executar"
 
 const TAMANHO_MAXIMO_CAPA = 8 * 1024 * 1024
 
@@ -181,9 +181,10 @@ function Aparencia() {
 type EstadoImportacao =
   | { fase: "parado" }
   | { fase: "lendo"; nome: string }
-  | { fase: "pronto"; nome: string; plano: Plano; arquivos: Map<string, Uint8Array> }
+  | { fase: "pronto"; nome: string; plano: Plano; arquivos: Map<string, Uint8Array>; jaImportado: boolean }
   | { fase: "gravando"; progresso: EstadoProgresso }
   | { fase: "concluido"; avisos: string[]; total: number }
+  | { fase: "recuperado"; itens: number; arquivos: number; avisos: string[] }
   | { fase: "erro"; mensagem: string }
 
 function ImportarNotion() {
@@ -200,7 +201,9 @@ function ImportarNotion() {
       const bytes = new Uint8Array(await arquivo.arrayBuffer())
       const arquivos = abrirZip(bytes)
       const plano = montarPlano(arquivos, { usuarioId: usuario.id, novoId })
-      setEstado({ fase: "pronto", nome: arquivo.name, plano, arquivos })
+      // Já houve importação? Então o caminho seguro (recuperar fotos) vem primeiro
+      const { count } = await supabase().from("pages").select("id", { count: "exact", head: true }).not("notion_id", "is", null)
+      setEstado({ fase: "pronto", nome: arquivo.name, plano, arquivos, jaImportado: (count ?? 0) > 0 })
     } catch (e) {
       setEstado({ fase: "erro", mensagem: e instanceof Error ? e.message : "Não foi possível ler o arquivo." })
     }
@@ -227,10 +230,31 @@ function ImportarNotion() {
     }
   }
 
+  /** Só as fotos e anexos das coleções que faltaram: não apaga nem reimporta nada. */
+  async function recuperar() {
+    if (estado.fase !== "pronto" || !usuario) return
+    const { plano, arquivos } = estado
+    setEstado({ fase: "gravando", progresso: { etapa: "Preparando", feito: 0, total: 1 } })
+    try {
+      const r = await recuperarArquivos({
+        cliente: supabase(),
+        plano,
+        arquivos,
+        usuarioId: usuario.id,
+        aoProgredir: (progresso) => setEstado({ fase: "gravando", progresso }),
+      })
+      await qc.invalidateQueries()
+      setEstado({ fase: "recuperado", ...r })
+      toast.success(r.itens ? "Fotos recuperadas" : "Nenhuma foto faltando")
+    } catch (e) {
+      setEstado({ fase: "erro", mensagem: e instanceof Error ? e.message : "Não foi possível recuperar as fotos." })
+    }
+  }
+
   return (
     <Secao
       titulo="Importar do Notion"
-      descricao="Envie o .zip da exportação do Notion (Markdown e CSV, com arquivos). A página Senhas fica de fora. Importar de novo substitui a importação anterior sem mexer no que você criou aqui."
+      descricao="Envie o .zip da exportação do Notion (Markdown e CSV, com arquivos). A página Senhas fica de fora. Se faltaram fotos numa importação anterior, use Recuperar fotos com o mesmo .zip: nada é apagado."
     >
       <input
         ref={entrada}
@@ -246,12 +270,22 @@ function ImportarNotion() {
       />
 
       <div className="rounded-lg border border-line bg-surface p-4">
-        {estado.fase === "parado" || estado.fase === "erro" || estado.fase === "concluido" ? (
+        {estado.fase === "parado" || estado.fase === "erro" || estado.fase === "concluido" || estado.fase === "recuperado" ? (
           <div className="grid gap-3">
             {estado.fase === "erro" ? <p className="text-sm text-danger">{estado.mensagem}</p> : null}
             {estado.fase === "concluido" ? (
               <div className="text-sm">
                 <p className="font-medium">{numero(estado.total)} registros importados.</p>
+                {estado.avisos.length ? <Avisos avisos={estado.avisos} /> : null}
+              </div>
+            ) : null}
+            {estado.fase === "recuperado" ? (
+              <div className="text-sm">
+                <p className="font-medium">
+                  {estado.itens
+                    ? `${estado.arquivos === 1 ? "1 arquivo recuperado" : `${numero(estado.arquivos)} arquivos recuperados`} em ${estado.itens === 1 ? "1 item" : `${numero(estado.itens)} itens`}.`
+                    : "Não havia fotos faltando nas coleções."}
+                </p>
                 {estado.avisos.length ? <Avisos avisos={estado.avisos} /> : null}
               </div>
             ) : null}
@@ -289,10 +323,33 @@ function ImportarNotion() {
               </tbody>
             </table>
             {estado.plano.avisos.length ? <Avisos avisos={estado.plano.avisos} /> : null}
-            <div className="flex gap-2">
-              <Botao variante="primario" onClick={() => setConfirmar(true)}>Importar agora</Botao>
-              <Botao variante="fantasma" onClick={() => setEstado({ fase: "parado" })}>Cancelar</Botao>
-            </div>
+            {estado.jaImportado ? (
+              <>
+                <div className="flex flex-wrap gap-2">
+                  <Botao variante="primario" onClick={() => void recuperar()}>
+                    <ImageUp /> Recuperar fotos
+                  </Botao>
+                  <Botao variante="contorno" onClick={() => setConfirmar(true)}>
+                    Importar tudo de novo
+                  </Botao>
+                  <Botao variante="fantasma" onClick={() => setEstado({ fase: "parado" })}>
+                    Cancelar
+                  </Botao>
+                </div>
+                <p className="text-xs text-ink-3">
+                  Recuperar fotos só traz as fotos e anexos que faltaram nas coleções, sem apagar nada. Importar tudo de novo substitui o que veio do Notion.
+                </p>
+              </>
+            ) : (
+              <div className="flex gap-2">
+                <Botao variante="primario" onClick={() => setConfirmar(true)}>
+                  Importar agora
+                </Botao>
+                <Botao variante="fantasma" onClick={() => setEstado({ fase: "parado" })}>
+                  Cancelar
+                </Botao>
+              </div>
+            )}
           </div>
         ) : null}
 
@@ -310,8 +367,12 @@ function ImportarNotion() {
       <Confirmar
         aberta={confirmar}
         aoMudar={setConfirmar}
-        titulo="Importar do Notion?"
-        descricao="Os dados de uma importação anterior serão substituídos por estes. O que você criou direto no app continua como está."
+        titulo={estado.fase === "pronto" && estado.jaImportado ? "Importar tudo de novo?" : "Importar do Notion?"}
+        descricao={
+          estado.fase === "pronto" && estado.jaImportado
+            ? "Tudo o que veio do Notion é apagado e gravado de novo, inclusive o que você mudou aqui nesses itens: hábitos marcados no app, avaliações e exercícios novos em coleções importadas, edições. Baixe uma cópia de segurança antes. Para só trazer fotos que faltaram, use Recuperar fotos."
+            : "O conteúdo do .zip será gravado no app. O que você já criou aqui continua como está."
+        }
         acao="Importar"
         aoConfirmar={() => {
           setConfirmar(false)

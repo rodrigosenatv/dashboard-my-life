@@ -20,7 +20,8 @@ export type Bloco =
   | { tipo: "pomodoro" }
   | { tipo: "hoje" }
   | { tipo: "ferramentas" }
-  | { tipo: "subpaginas" }
+  /** Subpáginas da página do Notion; com `titulos`, só as que têm esses títulos. */
+  | { tipo: "subpaginas"; titulos?: string[] }
   | { tipo: "texto" }
 
 export type Hub = {
@@ -51,15 +52,9 @@ export const HUBS: Hub[] = [
     titulo: "Treino",
     icone: Dumbbell,
     paginas: ["Treinos", "Treino"],
-    descricao: "Calendário de treinos, fichas, exercícios e avaliação corporal.",
-    blocos: [
-      { tipo: "colecao", nomes: ["Calendário de Treinos", "Calendario de Treinos"], titulo: "Calendário", visao: "calendario", largo: true },
-      { tipo: "colecao", nomes: ["Treino", "Treinos"], titulo: "Treinos", visao: "tabela" },
-      { tipo: "colecao", nomes: ["Exercícios", "Exercicios", "Lista de Exercícios"], titulo: "Exercícios", visao: "tabela", limite: 15 },
-      { tipo: "colecao", nomes: ["Grupos Musculares"], titulo: "Grupos musculares", visao: "galeria" },
-      { tipo: "colecao", nomes: ["Avaliação Corporal", "Avaliacao Corporal"], titulo: "Avaliação corporal", visao: "tabela" },
-      { tipo: "texto" },
-    ],
+    descricao: "A semana de treinos, as fichas e a evolução do corpo.",
+    // Treino tem tela própria (src/features/treino), servida em /vida/treino
+    blocos: [],
   },
   {
     slug: "alimentacao",
@@ -68,6 +63,7 @@ export const HUBS: Hub[] = [
     paginas: ["Alimentação"],
     descricao: "Plano alimentar, receitas e a tabela de alimentos.",
     blocos: [
+      { tipo: "subpaginas", titulos: ["Plano alimentar diário"] },
       { tipo: "colecao", nomes: ["Refeições", "Refeicoes", "Plano Alimentar"], titulo: "Plano alimentar", largo: true },
       { tipo: "colecao", nomes: ["Receitas"], titulo: "Receitas", visao: "galeria", largo: true },
       { tipo: "colecao", nomes: ["Alimentos"], titulo: "Alimentos", visao: "tabela", limite: 20, largo: true },

@@ -19,7 +19,7 @@ import { HUBS, hubPorSlug, type BlocoBanco, type Hub } from "./hubs"
 const semPrefixo = (nome: string) => normalizar(nome.replace(/^database:?\s*/i, ""))
 
 /** A página importada do Notion com o título do hub (prefere as de primeiro nível). */
-function usePaginaDoHub(hub: Hub | undefined) {
+export function usePaginaDoHub(hub: Hub | undefined) {
   const { data: paginas = [], isLoading } = useArvorePaginas()
   const pagina = React.useMemo(() => {
     if (!hub) return null
@@ -52,9 +52,34 @@ function Ferramentas() {
   )
 }
 
-function Subpaginas({ paiId }: { paiId: string }) {
+/** Atalhos para as outras páginas de Vida pessoal (no celular, o menu de baixo já faz isso). */
+export function NavVida({ atual }: { atual: string }) {
+  return (
+    <nav aria-label="Vida pessoal" className="mb-8 hidden flex-wrap gap-1.5 lg:flex">
+      {HUBS.map((h) => {
+        const I = h.icone
+        return (
+          <Link
+            key={h.slug}
+            href={`/vida/${h.slug}`}
+            aria-current={h.slug === atual ? "page" : undefined}
+            className={cn(
+              "inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm transition-colors",
+              h.slug === atual ? "border-pen bg-pen text-pen-ink" : "border-line text-ink-2 hover:border-line-strong hover:text-ink",
+            )}
+          >
+            <I className="size-4" /> {h.titulo}
+          </Link>
+        )
+      })}
+    </nav>
+  )
+}
+
+function Subpaginas({ paiId, titulos }: { paiId: string; titulos?: string[] }) {
   const { data: paginas = [] } = useArvorePaginas()
-  const filhos = filhosDe(paginas, paiId)
+  const alvo = titulos?.map(normalizar)
+  const filhos = filhosDe(paginas, paiId).filter((p) => !alvo || alvo.includes(normalizar(p.title)))
   if (!filhos.length) return null
   return (
     <Secao titulo="Páginas">
@@ -162,24 +187,7 @@ export function PaginaHub() {
           </Botao>
         }
       />
-      <nav aria-label="Vida pessoal" className="mb-8 hidden flex-wrap gap-1.5 lg:flex">
-        {HUBS.map((h) => {
-          const I = h.icone
-          return (
-            <Link
-              key={h.slug}
-              href={`/vida/${h.slug}`}
-              aria-current={h.slug === hub.slug ? "page" : undefined}
-              className={cn(
-                "inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm transition-colors",
-                h.slug === hub.slug ? "border-pen bg-pen text-pen-ink" : "border-line text-ink-2 hover:border-line-strong hover:text-ink",
-              )}
-            >
-              <I className="size-4" /> {h.titulo}
-            </Link>
-          )
-        })}
-      </nav>
+      <NavVida atual={hub.slug} />
 
       <div className="grid gap-x-8 gap-y-12 lg:grid-cols-2">
         {hub.blocos.map((b, i) => {
@@ -205,7 +213,7 @@ export function PaginaHub() {
           if (b.tipo === "subpaginas")
             return pagina ? (
               <div key={i} className="lg:col-span-2">
-                <Subpaginas paiId={pagina.id} />
+                <Subpaginas paiId={pagina.id} titulos={b.titulos} />
               </div>
             ) : null
           if (b.tipo === "texto")
