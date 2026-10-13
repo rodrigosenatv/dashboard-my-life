@@ -566,6 +566,7 @@ function Passo({ id, rotulo, valor, aoMudar, decimal }: { id: string; rotulo: st
         </button>
         <input
           id={id}
+          aria-label={rotulo}
           inputMode={decimal ? "decimal" : "numeric"}
           autoComplete="off"
           value={valor}
