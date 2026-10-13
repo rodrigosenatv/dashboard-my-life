@@ -139,20 +139,21 @@ function UltimasSemanas({ habito, dias }: { habito: Habito; dias: Map<string, Re
     const dsem = Array.from({ length: 7 }, (_, j) => isoDia(addDays(inicio, j)))
     return { inicio, feitos: dsem.filter((d) => dias?.has(d)).length, ehAtual: i === SEMANAS - 1 }
   })
-  const total = semanas.reduce((s, x) => s + x.feitos, 0)
-  if (total === 0) return null
+  // Com menos de 3 semanas marcadas o gráfico seria quase só vazio: a faixa da semana basta
+  if (semanas.filter((s) => s.feitos > 0).length < 3) return null
 
   const meta = habito.weekdays?.length || 7
   const maximo = Math.max(meta, ...semanas.map((s) => s.feitos))
   const altura = (n: number) => Math.round((n / maximo) * ALTURA)
-  // A semana atual ainda não acabou: a média conta só as fechadas
-  const media = semanas.slice(0, -1).reduce((s, x) => s + x.feitos, 0) / (SEMANAS - 1)
+  // A média conta das semanas desde a primeira marcada até a última fechada (a atual ainda não acabou)
+  const fechadas = semanas.slice(semanas.findIndex((s) => s.feitos > 0), -1)
+  const media = fechadas.length >= 2 ? fechadas.reduce((s, x) => s + x.feitos, 0) / fechadas.length : null
 
   return (
     <figure className="mt-6 border-t border-line pt-4">
       <figcaption className="mb-4 flex flex-wrap items-baseline justify-between gap-x-3 text-sm">
         <span className="font-medium">Treinos por semana</span>
-        <span className="text-ink-3">média de {media.toLocaleString("pt-BR", { maximumFractionDigits: 1 })} por semana</span>
+        {media !== null ? <span className="text-ink-3">média de {media.toLocaleString("pt-BR", { maximumFractionDigits: 1 })} por semana</span> : null}
       </figcaption>
       <div className="relative" style={{ height: ALTURA + 16 }}>
         {/* Linha da meta: traço fino e contínuo; o rótulo fica na margem da direita, longe das barras */}
