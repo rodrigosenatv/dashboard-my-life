@@ -1,7 +1,8 @@
 // Service worker do My Life.
 // As telas e os dados vêm sempre da rede, atualizados. As exceções existem para ler sem internet:
 // - os arquivos estáticos do app (/_next/static, com nome que muda a cada versão) ficam guardados;
-// - a tela do leitor (/ler/...) fica guardada depois de aberta e só é usada quando a rede falha.
+// - a tela do leitor (/ler/...) e a do modo treino (/treinar) ficam guardadas depois de abertas
+//   e só são usadas quando a rede falha (o treino em andamento fica no próprio aparelho).
 // Os livros ficam no armazenamento do próprio aparelho (IndexedDB), não aqui.
 // Fora isso, a única função é mostrar a página "Você está offline" quando uma navegação falha.
 
@@ -43,10 +44,11 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(request.url)
   if (url.origin !== self.location.origin) return
 
-  // Tela do leitor: o documento e os dados da rota (pedido RSC que o Next faz ao abrir).
-  // Rede primeiro; sem rede, a última versão guardada.
+  // Telas do leitor e do modo treino: o documento e os dados da rota (pedido RSC que o Next
+  // faz ao abrir). Rede primeiro; sem rede, a última versão guardada.
   const rsc = request.headers.get("RSC") === "1" || url.searchParams.has("_rsc")
-  if (url.pathname.startsWith("/ler/") && (request.mode === "navigate" || rsc)) {
+  const telaSemRede = url.pathname.startsWith("/ler/") || url.pathname === "/treinar"
+  if (telaSemRede && (request.mode === "navigate" || rsc)) {
     const chave = url.pathname + (rsc ? "?rsc" : "")
     const preCarga = request.headers.get("Next-Router-Prefetch") === "1"
     event.respondWith(

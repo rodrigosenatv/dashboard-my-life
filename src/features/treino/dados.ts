@@ -18,7 +18,11 @@ const NOMES = {
   exercicios: ["Exercícios", "Exercicios", "Lista de Exercícios"],
   grupos: ["Grupos Musculares", "Grupos musculares"],
   avaliacao: ["Avaliação Corporal", "Avaliacao Corporal", "Avaliações"],
+  historico: ["Histórico de treinos", "Historico de treinos", "Sessões de treino"],
 }
+
+/** Nomes da coleção onde ficam os treinos registrados (a primeira é a usada ao criar). */
+export const NOMES_HISTORICO = NOMES.historico
 
 /** As coleções da página de Treino: as que vieram do Notion ou as criadas aqui. */
 export function useColecoesTreino() {
@@ -30,7 +34,13 @@ export function useColecoesTreino() {
       // Se houver duas com o mesmo nome, vale a que morava na página de treinos
       return candidatas.find((c) => normalizar(c.description ?? "").includes("treino")) ?? candidatas[0]
     }
-    return { exercicios: achar(NOMES.exercicios), grupos: achar(NOMES.grupos), avaliacao: achar(NOMES.avaliacao), carregando: isLoading }
+    return {
+      exercicios: achar(NOMES.exercicios),
+      grupos: achar(NOMES.grupos),
+      avaliacao: achar(NOMES.avaliacao),
+      historico: achar(NOMES.historico),
+      carregando: isLoading,
+    }
   }, [colecoes, isLoading])
 }
 
@@ -135,7 +145,7 @@ export function listarFichas(exercicios: Exercicio[]): Ficha[] {
 const DURACAO = /^\d+([.,]\d+)?\s*(s|seg|segundos?|m|min|minutos?|h)$/i
 
 /** "4 × 10", "4 × 60s" ou o que houver. */
-export function prescricao(e: Exercicio): string {
+export function prescricao(e: Pick<Exercicio, "series" | "reps" | "nota">): string {
   const duracao = DURACAO.test(e.nota) ? e.nota.replace(/\s+/g, "") : ""
   if (e.series && e.reps) return `${e.series} × ${e.reps}`
   if (e.series && duracao) return `${e.series} × ${duracao}`
@@ -146,7 +156,7 @@ export function prescricao(e: Exercicio): string {
 }
 
 /** A anotação só aparece abaixo do nome quando não virou parte da prescrição. */
-export const notaVisivel = (e: Exercicio) => (DURACAO.test(e.nota) && !(e.series && e.reps) ? "" : e.nota)
+export const notaVisivel = (e: Pick<Exercicio, "series" | "reps" | "nota">) => (DURACAO.test(e.nota) && !(e.series && e.reps) ? "" : e.nota)
 
 /** O valor mais comum (para sugerir séries e repetições de um exercício novo). */
 export function maisComum(nums: (number | null)[]): number | null {
@@ -237,7 +247,10 @@ export const kg = (n: number) => `${n.toLocaleString("pt-BR", { maximumFractionD
 /* Hábito Treino                                                       */
 /* ------------------------------------------------------------------ */
 
-const NOMES_HABITO = ["treino", "treinar", "academia", "musculacao", "malhar", "treino academia"]
+export const NOMES_HABITO = ["treino", "treinar", "academia", "musculacao", "malhar", "treino academia"]
+
+/** O nome do hábito é de treino? (Treino de Dicção, por exemplo, não é.) */
+export const ehHabitoDeTreino = (nome: string) => NOMES_HABITO.includes(normalizar(nome).replace(/\s+/g, " "))
 
 /** O hábito que marca os dias de treino, com os dias já marcados. */
 export function useHabitoTreino() {
@@ -245,7 +258,7 @@ export function useHabitoTreino() {
   // Mesma janela da tela de Hábitos, para as duas dividirem a consulta
   const { data: registros = [], isLoading: carregandoDias } = useRegistros(somarDias(isoDia(), -400))
   const habito = React.useMemo(() => {
-    const doTreino = habitos.filter((h) => NOMES_HABITO.includes(normalizar(h.name).replace(/\s+/g, " ")))
+    const doTreino = habitos.filter((h) => ehHabitoDeTreino(h.name))
     return doTreino.find((h) => h.active) ?? doTreino[0]
   }, [habitos])
   const dias = React.useMemo(() => (habito ? indexar(registros).get(habito.id) : undefined), [registros, habito])

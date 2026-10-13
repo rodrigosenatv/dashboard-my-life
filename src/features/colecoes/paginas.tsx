@@ -102,7 +102,8 @@ export function PaginaItem() {
   const props = esquema(colecao).filter((p) => !["title", "rollup", "formula", "button"].includes(p.type))
   const vals = (item.props ?? {}) as Record<string, Json>
   const nomes = new Set(props.map((p) => p.name))
-  const extras = Object.keys(vals).filter((k) => !nomes.has(k))
+  // Chaves com _ na frente são dados internos de uma tela (ex.: as séries de um treino)
+  const extras = Object.keys(vals).filter((k) => !nomes.has(k) && !k.startsWith("_"))
   const todas: Propriedade[] = [...props, ...extras.map((k) => ({ name: k, type: "text" }))]
 
   const salvarProp = (nome: string, valor: string, tipo: string) => {

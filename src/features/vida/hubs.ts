@@ -52,7 +52,7 @@ export const HUBS: Hub[] = [
     titulo: "Treino",
     icone: Dumbbell,
     paginas: ["Treinos", "Treino"],
-    descricao: "A semana de treinos, as fichas e a evolução do corpo.",
+    descricao: "O treino de hoje, as fichas e a evolução do corpo.",
     // Treino tem tela própria (src/features/treino), servida em /vida/treino
     blocos: [],
   },

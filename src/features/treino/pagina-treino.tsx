@@ -1,7 +1,7 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import { Ellipsis, FileText, Layers, Scale, Shapes, Sun } from "lucide-react"
+import { Ellipsis, FileText, History, Layers, Scale, Shapes, Sun } from "lucide-react"
 import { Botao } from "@/components/ui/button"
 import { Cabecalho, Carregando } from "@/components/ui/basicos"
 import { Menu, MenuConteudo, MenuGatilho, MenuItem, MenuSeparador } from "@/components/ui/menu"
@@ -10,15 +10,16 @@ import { hubPorSlug } from "@/features/vida/hubs"
 import { useColecoesTreino } from "./dados"
 import { EvolucaoCorporal } from "./evolucao"
 import { FichasTreino } from "./fichas"
-import { SemanaTreino } from "./semana"
+import { HistoricoTreinos } from "./historico"
+import { HojeTreino } from "./hoje"
 
 /**
- * Treino: o que a pessoa faz com a página, nesta ordem: ver a semana e marcar o
- * treino do dia, abrir a ficha e acompanhar a evolução do corpo.
+ * Treino: o que a pessoa faz com a página, nesta ordem: começar (ou continuar) o treino
+ * do dia, consultar as fichas e o histórico, e acompanhar a evolução do corpo.
  */
 export function PaginaTreino() {
   const router = useRouter()
-  const { exercicios, grupos, avaliacao, carregando } = useColecoesTreino()
+  const { exercicios, grupos, avaliacao, historico, carregando } = useColecoesTreino()
   const { pagina } = usePaginaDoHub(hubPorSlug("treino"))
 
   return (
@@ -26,7 +27,7 @@ export function PaginaTreino() {
       <Cabecalho
         area="geral"
         titulo="Treino"
-        descricao="A semana de treinos, as fichas e a evolução do corpo."
+        descricao="O treino de hoje, as fichas e a evolução do corpo."
         acoes={
           <Menu>
             <MenuGatilho asChild>
@@ -38,6 +39,11 @@ export function PaginaTreino() {
               {exercicios ? (
                 <MenuItem onSelect={() => router.push(`/colecoes/${exercicios.id}`)}>
                   <Layers /> Exercícios em tabela
+                </MenuItem>
+              ) : null}
+              {historico ? (
+                <MenuItem onSelect={() => router.push(`/colecoes/${historico.id}`)}>
+                  <History /> Histórico em tabela
                 </MenuItem>
               ) : null}
               {avaliacao ? (
@@ -71,9 +77,12 @@ export function PaginaTreino() {
         <Carregando linhas={6} />
       ) : (
         <div className="grid gap-12">
-          <SemanaTreino />
+          <HojeTreino exercicios={exercicios} historico={historico} />
           <div className="grid gap-12 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-10">
-            <FichasTreino colecao={exercicios} grupos={grupos} />
+            <div className="grid content-start gap-12">
+              <FichasTreino colecao={exercicios} grupos={grupos} historico={historico} />
+              <HistoricoTreinos historico={historico} />
+            </div>
             <EvolucaoCorporal colecao={avaliacao} />
           </div>
         </div>

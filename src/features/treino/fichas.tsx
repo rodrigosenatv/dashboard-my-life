@@ -9,7 +9,7 @@ import { Campo, Entrada } from "@/components/ui/campos"
 import { Confirmar, Janela } from "@/components/ui/janela"
 import { novoId, useAtualizar, useCriar, useExcluir } from "@/lib/data"
 import type { Json } from "@/lib/supabase/database.types"
-import { cn, contem, normalizar, plural } from "@/lib/utils"
+import { cn, contem, formatar, normalizar, plural } from "@/lib/utils"
 import { esquema, type Colecao, type Propriedade } from "@/features/colecoes/visao-colecao"
 import {
   camposExercicio,
@@ -25,6 +25,7 @@ import {
   type Exercicio,
   type Ficha,
 } from "./dados"
+import { historicoDe, marcaTexto, maisPesada, useHistoricoTreino, type HistoricoExercicio } from "./sessao"
 
 const TODOS = "__todos"
 const CHAVE_ABA = "treino:ficha"
@@ -32,9 +33,10 @@ const CHAVE_ABA = "treino:ficha"
 const rotuloFicha = (f: Ficha) => (f.foco ? `${f.letra} · ${f.foco}` : f.letra)
 
 /** Fichas A/B/C/D: os exercícios de cada treino, na ordem, com séries × repetições. */
-export function FichasTreino({ colecao, grupos }: { colecao: Colecao | undefined; grupos: Colecao | undefined }) {
+export function FichasTreino({ colecao, grupos, historico }: { colecao: Colecao | undefined; grupos: Colecao | undefined; historico: Colecao | undefined }) {
   const { data: itens = [], isLoading } = useItensDe(colecao)
   const { data: itensGrupos = [] } = useItensDe(grupos)
+  const { indice } = useHistoricoTreino(historico)
   const criarColecao = useCriar("collections", { aviso: "Lista de exercícios criada" })
 
   const campos = React.useMemo(() => camposExercicio(colecao, itens), [colecao, itens])
@@ -166,10 +168,11 @@ export function FichasTreino({ colecao, grupos }: { colecao: Colecao | undefined
             <ol className="divide-y divide-line overflow-hidden rounded-xl border border-line bg-surface">
               {visiveis.map((e, i) => {
                 const nota = notaVisivel(e)
+                const ultima = maisPesada(historicoDe(indice, e.item.id, e.nome)?.ultima?.series ?? [])
                 const detalhe =
                   aba === TODOS
                     ? [e.fichas.map((f) => fichas.find((x) => x.valor === f)?.letra ?? f).join(" · ") || "Sem ficha", ...e.grupos].join(" · ")
-                    : [...e.grupos, nota].filter(Boolean).join(" · ")
+                    : [ultima ? `Última: ${marcaTexto(ultima)}` : "", ...e.grupos, nota].filter(Boolean).join(" · ")
                 return (
                   <li key={e.item.id}>
                     <button
@@ -210,6 +213,7 @@ export function FichasTreino({ colecao, grupos }: { colecao: Colecao | undefined
         colecao={colecao}
         campos={campos}
         exercicio={aberto === "novo" ? null : aberto}
+        historico={aberto && aberto !== "novo" ? historicoDe(indice, aberto.item.id, aberto.nome) : undefined}
         fichas={fichas}
         fichaAtual={ficha?.valor}
         nomesGrupos={nomesGrupos}
@@ -298,6 +302,7 @@ function DialogoExercicio({
   colecao,
   campos,
   exercicio,
+  historico,
   fichas,
   fichaAtual,
   nomesGrupos,
@@ -309,6 +314,7 @@ function DialogoExercicio({
   colecao: Colecao
   campos: CamposExercicio
   exercicio: Exercicio | null
+  historico?: HistoricoExercicio
   fichas: Ficha[]
   fichaAtual?: string
   nomesGrupos: string[]
@@ -418,6 +424,22 @@ function DialogoExercicio({
             <Contador id="ex-series" rotulo="Séries" valor={series} aoMudar={setSeries} />
             <Contador id="ex-reps" rotulo="Repetições" valor={reps} aoMudar={setReps} />
           </div>
+          {historico?.ultima || historico?.recorde ? (
+            <dl className="grid gap-1 rounded-lg bg-surface-2 px-3.5 py-2.5 text-sm">
+              {historico.ultima ? (
+                <div className="flex gap-3">
+                  <dt className="shrink-0 text-ink-3">Última vez ({formatar(historico.ultima.data, "d MMM")})</dt>
+                  <dd className="ml-auto text-right">{historico.ultima.series.map(marcaTexto).join(" · ")}</dd>
+                </div>
+              ) : null}
+              {historico.recorde ? (
+                <div className="flex gap-3">
+                  <dt className="shrink-0 text-ink-3">Recorde ({formatar(historico.recorde.data, "d MMM yyyy")})</dt>
+                  <dd className="ml-auto text-right">{marcaTexto(historico.recorde)}</dd>
+                </div>
+              ) : null}
+            </dl>
+          ) : null}
           <Campo rotulo="Anotação" htmlFor="ex-nota" dica="Tempo (60s, 15min), cadência, ajuste do aparelho…">
             <Entrada id="ex-nota" value={nota} onChange={(e) => setNota(e.target.value)} placeholder="Opcional" />
           </Campo>
