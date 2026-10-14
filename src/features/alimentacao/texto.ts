@@ -118,12 +118,16 @@ export function lerPlanoDoTexto(md: string): PlanoLido {
   return { refeicoes, metas, agua }
 }
 
+/** A lista de compras: para quantos dias, quais refeições ficam de fora e o que já foi pego. */
+export type ConfigCompras = { dias: number; fora: string[]; marcados: string[] }
+
 export type ConfigAlimentacao = {
   aguaMeta: number
   marcos: Marco[]
   metas: Metas
   /** Página com as dicas do plano (o texto original). */
   dicas?: string
+  compras?: ConfigCompras
 }
 
 /** "1 L", "1,5 L", "750 ml". */

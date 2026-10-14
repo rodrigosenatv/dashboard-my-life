@@ -10,7 +10,7 @@ import { formatar, normalizar, numeroFlexivel } from "@/lib/utils"
 import type { Colecao, ItemColecao } from "@/features/colecoes/visao-colecao"
 import { useConfiguracoes, useSalvarConfiguracoes } from "@/features/configuracoes/dados"
 import { semPrefixo, valores } from "@/features/treino/dados"
-import { idDoDia, itensDoTexto, itensParaTexto, type ConfigAlimentacao, type RefeicaoLida } from "./texto"
+import { idDoDia, itensDoTexto, itensParaTexto, type ConfigAlimentacao, type ConfigCompras, type RefeicaoLida } from "./texto"
 
 export * from "./texto"
 
@@ -101,6 +101,13 @@ const PADRAO: ConfigAlimentacao = {
   metas: {},
 }
 
+function lerCompras(v: unknown): ConfigCompras | undefined {
+  if (!v || typeof v !== "object") return undefined
+  const c = v as Partial<ConfigCompras>
+  const textos = (x: unknown) => (Array.isArray(x) ? x.filter((i): i is string => typeof i === "string") : [])
+  return { dias: typeof c.dias === "number" && c.dias > 0 ? c.dias : 4, fora: textos(c.fora), marcados: textos(c.marcados) }
+}
+
 export function useConfigAlimentacao() {
   const { data, isLoading } = useConfiguracoes()
   const salvarPrefs = useSalvarConfiguracoes()
@@ -110,6 +117,7 @@ export function useConfigAlimentacao() {
     marcos: Array.isArray(bruto?.marcos) ? bruto.marcos : PADRAO.marcos,
     metas: bruto?.metas && typeof bruto.metas === "object" ? bruto.metas : PADRAO.metas,
     dicas: typeof bruto?.dicas === "string" ? bruto.dicas : undefined,
+    compras: lerCompras(bruto?.compras),
   }
   const salvar = (mudancas: Partial<ConfigAlimentacao>) => salvarPrefs.mutate({ prefs: { alimentacao: { ...config, ...mudancas } as unknown as Json } })
   return { config, salvar, carregando: isLoading, existe: Boolean(bruto) }
@@ -125,18 +133,23 @@ export type Dia = {
   feitas: string[]
   /** Refeições em que comeu outra coisa: id → anotação. */
   diferente: Record<string, string>
+  /** Refeições trocadas por uma receita neste dia: id da refeição → id da receita. */
+  trocas: Record<string, string>
   agua: number
 }
 
-export const diaVazio = (data: string): Dia => ({ data, feitas: [], diferente: {}, agua: 0 })
+export const diaVazio = (data: string): Dia => ({ data, feitas: [], diferente: {}, trocas: {}, agua: 0 })
+
+const mapaDeTextos = (v: Json | undefined): Record<string, string> =>
+  v && typeof v === "object" && !Array.isArray(v) ? Object.fromEntries(Object.entries(v).map(([k, x]) => [k, typeof x === "string" ? x : ""])) : {}
 
 export function lerDia(item: ItemColecao): Dia {
   const v = valores(item)
-  const diferente = v._diferente && typeof v._diferente === "object" && !Array.isArray(v._diferente) ? (v._diferente as Record<string, Json>) : {}
   return {
     data: typeof v.Data === "string" ? v.Data.slice(0, 10) : item.created_at.slice(0, 10),
     feitas: Array.isArray(v._feitas) ? v._feitas.map(String) : [],
-    diferente: Object.fromEntries(Object.entries(diferente).map(([k, x]) => [k, typeof x === "string" ? x : ""])),
+    diferente: mapaDeTextos(v._diferente),
+    trocas: Object.fromEntries(Object.entries(mapaDeTextos(v._trocas)).filter(([, x]) => x)),
     agua: numeroFlexivel(v["Água (ml)"]) ?? 0,
   }
 }
@@ -150,7 +163,9 @@ export function indexarDias(itens: ItemColecao[]): Map<string, Dia> {
     // Dois registros no mesmo dia (dois aparelhos sem internet, por exemplo): junta os dois
     mapa.set(
       d.data,
-      antes ? { data: d.data, feitas: [...new Set([...antes.feitas, ...d.feitas])], diferente: { ...antes.diferente, ...d.diferente }, agua: Math.max(antes.agua, d.agua) } : d,
+      antes
+        ? { data: d.data, feitas: [...new Set([...antes.feitas, ...d.feitas])], diferente: { ...antes.diferente, ...d.diferente }, trocas: { ...antes.trocas, ...d.trocas }, agua: Math.max(antes.agua, d.agua) }
+        : d,
     )
   }
   return mapa
@@ -228,6 +243,7 @@ export function useMudarDia(diario: Colecao | undefined, refeicoes: string[]) {
         "Água (ml)": novo.agua,
         _feitas: novo.feitas,
         _diferente: novo.diferente,
+        _trocas: novo.trocas,
       }
       const agora = new Date().toISOString()
       const linha = { id, collection_id: colecaoId, title: formatar(data, "d 'de' MMM yyyy"), position: Date.parse(`${data}T12:00`), props }

@@ -3,12 +3,15 @@
 import * as React from "react"
 import { addDays, format, startOfWeek } from "date-fns"
 import { ptBR } from "date-fns/locale"
-import { Check, ChevronDown, PenLine, Undo2 } from "lucide-react"
+import { ArrowLeftRight, Calculator, Check, ChevronDown, PenLine, Undo2 } from "lucide-react"
 import { Botao } from "@/components/ui/button"
 import { Progresso, Secao } from "@/components/ui/basicos"
 import { Entrada } from "@/components/ui/campos"
 import { cn, dataRelativa, isoDia, plural } from "@/lib/utils"
-import { diaVazio, type Dia, type Refeicao } from "./dados"
+import { Medidor, gramas, kcal, textoNutrientes } from "./calculo"
+import { diaVazio, type Dia, type Metas, type Refeicao } from "./dados"
+import { NADA, calcularAnotacao, somar, type Calculo, type Nutrientes } from "./nutricao"
+import type { Receita } from "./receitas"
 
 const LETRAS = ["S", "T", "Q", "Q", "S", "S", "D"]
 const noDia = (iso: string) => new Date(`${iso}T12:00`)
@@ -21,9 +24,31 @@ export function nomeDoDia(dia: string): string {
   return t[0].toUpperCase() + t.slice(1)
 }
 
+/** O que uma refeição soma no dia: o plano, a receita que a substituiu ou o que foi anotado. */
+export type ValorRefeicao =
+  | { origem: "plano"; n: Nutrientes; semCalculo: boolean; calculo?: Calculo }
+  | { origem: "receita"; n: Nutrientes; semCalculo: boolean; receita: Receita }
+  | { origem: "anotacao"; n: Nutrientes; semCalculo: boolean; calculo: Calculo | null; nota: string }
+
+export function valorDaRefeicao(r: Refeicao, registro: Dia, calculos: Map<string, Calculo>, receitas: Map<string, Receita>): ValorRefeicao {
+  const id = r.item.id
+  const nota = registro.diferente[id]
+  if (nota !== undefined) {
+    const calculo = nota.trim() ? calcularAnotacao(nota) : null
+    return { origem: "anotacao", n: calculo?.total ?? NADA, semCalculo: !calculo?.itens.length || calculo.semCalculo > 0, calculo, nota }
+  }
+  const receita = registro.trocas[id] ? receitas.get(registro.trocas[id]) : undefined
+  if (receita) return { origem: "receita", n: receita.calc.porPorcao, semCalculo: receita.calc.semCalculo > 0 || !receita.calc.itens.length, receita }
+  const calculo = calculos.get(id)
+  return { origem: "plano", n: calculo?.total ?? NADA, semCalculo: (calculo?.semCalculo ?? 0) > 0, calculo }
+}
+
+export type AlvoCalculo = { tipo: "dia" } | { tipo: "refeicao"; id: string } | { tipo: "plano" }
+
 /**
  * O dia escolhido: as refeições do plano, em ordem, para marcar com um toque. A próxima
- * fica aberta com o que comer; ao marcar, a seguinte abre sozinha.
+ * fica aberta com o que comer; ao marcar, a seguinte abre sozinha. Em cima, as calorias e a
+ * proteína do que já foi marcado, contra a meta e o previsto para o dia.
  */
 export function HojeAlimentacao({
   refeicoes,
@@ -32,6 +57,11 @@ export function HojeAlimentacao({
   aoEscolherDia,
   aoMudar,
   aoEditarRefeicao,
+  calculos,
+  receitas,
+  metas,
+  aoVerCalculo,
+  aoTrocar,
 }: {
   refeicoes: Refeicao[]
   dias: Map<string, Dia>
@@ -39,11 +69,21 @@ export function HojeAlimentacao({
   aoEscolherDia: (d: string) => void
   aoMudar: (dia: string, mudar: (d: Dia) => Dia) => void
   aoEditarRefeicao: (id: string) => void
+  calculos: Map<string, Calculo>
+  receitas: Map<string, Receita>
+  metas: Metas
+  aoVerCalculo: (alvo: AlvoCalculo) => void
+  aoTrocar: (refeicaoId: string) => void
 }) {
   const hoje = isoDia()
   const registro = dias.get(dia) ?? diaVazio(dia)
   const ids = refeicoes.map((r) => r.item.id)
   const feitas = new Set(registro.feitas.filter((f) => ids.includes(f)))
+  const valores = new Map(refeicoes.map((r) => [r.item.id, valorDaRefeicao(r, registro, calculos, receitas)]))
+  const consumido = somar(...refeicoes.filter((r) => feitas.has(r.item.id)).map((r) => valores.get(r.item.id)!.n))
+  const previsto = somar(...[...valores.values()].map((v) => v.n))
+  const semCalculo = [...valores.values()].filter((v) => v.semCalculo).length
+  const temCalculo = previsto.kcal > 0
   const proxima = refeicoes.find((r) => !feitas.has(r.item.id))?.item.id ?? null
   // undefined = automático (abre a próxima); null = tudo fechado pela pessoa
   const [aberta, setAberta] = React.useState<string | null | undefined>(undefined)
@@ -74,6 +114,13 @@ export function HojeAlimentacao({
     }
   }
 
+  const voltarAoPlano = (r: Refeicao) =>
+    aoMudar(dia, (d) => {
+      const trocas = { ...d.trocas }
+      delete trocas[r.item.id]
+      return { ...d, trocas }
+    })
+
   const total = refeicoes.length
   const completo = total > 0 && feitas.size >= total
 
@@ -101,7 +148,23 @@ export function HojeAlimentacao({
               </p>
             ) : null}
           </div>
-          <Progresso rotulo={`Refeições de ${nomeDoDia(dia).toLowerCase()}`} valor={total ? (feitas.size / total) * 100 : 0} />
+          {temCalculo ? (
+            <>
+              <div className="mt-3 grid grid-cols-2 gap-x-5">
+                <Medidor rotulo="Calorias" unidade="kcal" consumido={consumido.kcal} previsto={previsto.kcal} meta={metas.kcal} />
+                <Medidor rotulo="Proteína" unidade="g" consumido={consumido.p} previsto={previsto.p} meta={metas.proteina} />
+              </div>
+              <p className="mt-2.5 text-xs leading-relaxed text-ink-3">
+                {completo ? "Total do dia" : "Previsto no dia, com o que falta do plano"}: {kcal(previsto.kcal)} kcal e {gramas(previsto.p)} g de proteína
+                {semCalculo ? ` (${plural(semCalculo, "refeição sem cálculo", "refeições sem cálculo")})` : ""}.{" "}
+                <button type="button" onClick={() => aoVerCalculo({ tipo: "dia" })} className="font-medium text-ink-2 underline-offset-2 hover:text-ink hover:underline">
+                  Ver cálculo
+                </button>
+              </p>
+            </>
+          ) : (
+            <Progresso rotulo={`Refeições de ${nomeDoDia(dia).toLowerCase()}`} valor={total ? (feitas.size / total) * 100 : 0} />
+          )}
           <Semana dias={dias} total={ids} dia={dia} aoEscolher={aoEscolherDia} />
         </div>
 
@@ -118,6 +181,10 @@ export function HojeAlimentacao({
               aoAlternar={() => alternar(r)}
               aoComerDiferente={(nota) => comiDiferente(r, nota)}
               aoEditar={() => aoEditarRefeicao(r.item.id)}
+              valor={valores.get(r.item.id)!}
+              aoVerCalculo={() => aoVerCalculo({ tipo: "refeicao", id: r.item.id })}
+              aoTrocar={() => aoTrocar(r.item.id)}
+              aoVoltarAoPlano={() => voltarAoPlano(r)}
             />
           ))}
         </ol>
@@ -184,6 +251,10 @@ function LinhaRefeicao({
   aoAlternar,
   aoComerDiferente,
   aoEditar,
+  valor,
+  aoVerCalculo,
+  aoTrocar,
+  aoVoltarAoPlano,
 }: {
   refeicao: Refeicao
   feita: boolean
@@ -194,11 +265,17 @@ function LinhaRefeicao({
   aoAlternar: () => void
   aoComerDiferente: (nota: string) => void
   aoEditar: () => void
+  valor: ValorRefeicao
+  aoVerCalculo: () => void
+  aoTrocar: () => void
+  aoVoltarAoPlano: () => void
 }) {
   const [anotando, setAnotando] = React.useState(false)
   const [nota, setNota] = React.useState("")
   const painel = `refeicao-${r.item.id}`
   const comeuDiferente = diferente !== undefined
+  const receita = valor.origem === "receita" ? valor.receita : null
+  const temValor = valor.n.kcal > 0
 
   const salvarNota = (e: React.FormEvent) => {
     e.preventDefault()
@@ -229,31 +306,74 @@ function LinhaRefeicao({
             </span>
             {comeuDiferente ? (
               <span className="block truncate text-xs text-ink-2">Comi diferente{diferente ? `: ${diferente}` : ""}</span>
+            ) : receita ? (
+              <span className="block truncate text-xs text-ink-2">Receita: {receita.nome}</span>
             ) : r.quando ? (
               <span className="block truncate text-xs text-ink-3">{r.quando}</span>
             ) : null}
           </span>
+          {temValor || valor.semCalculo ? (
+            <span className={cn("shrink-0 text-xs tabular", feita && !aberta ? "text-ink-3" : "text-ink-2")} aria-label={temValor ? `${kcal(valor.n.kcal)} quilocalorias` : "Sem cálculo"}>
+              {temValor ? `${kcal(valor.n.kcal)} kcal` : "–"}
+            </span>
+          ) : null}
           <ChevronDown className={cn("size-4 shrink-0 text-ink-3 transition-transform", aberta && "rotate-180")} aria-hidden />
         </button>
       </div>
 
       {aberta ? (
         <div id={painel} className="grid gap-3 px-4 pb-4 pl-[3.75rem] sm:px-5 sm:pl-16">
-          {r.objetivo ? <p className="text-sm text-ink-2">{r.objetivo}</p> : null}
-          {r.nota ? <p className="text-sm font-medium">{r.nota}</p> : null}
-          {r.itens.length ? (
-            <ul className="grid list-disc gap-1 pl-4 text-sm marker:text-ink-3">
-              {r.itens.map((i, k) => (
-                <li key={k}>{i}</li>
-              ))}
-            </ul>
+          {receita ? (
+            <div className="rounded-lg border border-line px-3 py-2.5 text-sm">
+              <p>
+                <span className="text-ink-2">Trocada por </span>
+                <span className="font-medium">{receita.nome}</span>
+              </p>
+              <p className="mt-0.5 text-xs text-ink-3">
+                Uma porção{receita.calc.rendeConhecido && receita.calc.rende > 1 ? ` (a receita rende ${receita.calc.rende})` : ""}
+                {receita.ingredientes.length ? ` · ${receita.ingredientes.slice(0, 5).join(", ")}` : ""}
+              </p>
+              <button type="button" onClick={aoVoltarAoPlano} className="mt-1.5 text-xs font-medium text-ink-2 underline-offset-2 hover:text-ink hover:underline">
+                Voltar ao plano
+              </button>
+            </div>
           ) : (
-            <p className="text-sm text-ink-3">Sem itens. Toque em Editar para dizer o que comer.</p>
+            <>
+              {r.objetivo ? <p className="text-sm text-ink-2">{r.objetivo}</p> : null}
+              {r.nota ? <p className="text-sm font-medium">{r.nota}</p> : null}
+              {r.itens.length ? (
+                <ul className="grid list-disc gap-1 pl-4 text-sm marker:text-ink-3">
+                  {r.itens.map((i, k) => (
+                    <li key={k}>{i}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-sm text-ink-3">Sem itens. Toque em Editar para dizer o que comer.</p>
+              )}
+            </>
           )}
+
+          {temValor || valor.semCalculo ? (
+            <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-ink-2">
+              {temValor ? (
+                <span>
+                  {valor.origem === "anotacao" ? "Pela anotação: " : ""}
+                  {textoNutrientes(valor.n)}
+                </span>
+              ) : (
+                <span>{valor.origem === "anotacao" ? "Sem estimativa: diga o que comeu, como “2 bananas”." : "Sem cálculo ainda."}</span>
+              )}
+              {valor.origem !== "anotacao" || valor.calculo?.itens.length ? (
+                <button type="button" onClick={aoVerCalculo} className="inline-flex items-center gap-1 text-xs font-medium text-ink-2 underline-offset-2 hover:text-ink hover:underline">
+                  <Calculator className="size-3.5" aria-hidden /> Ver cálculo
+                </button>
+              ) : null}
+            </p>
+          ) : null}
 
           {anotando ? (
             <form onSubmit={salvarNota} className="flex flex-wrap items-center gap-2">
-              <Entrada autoFocus value={nota} onChange={(e) => setNota(e.target.value)} placeholder="O que você comeu? (opcional)" aria-label={`O que você comeu no lugar de ${r.nome}`} className="min-w-48 flex-1" />
+              <Entrada autoFocus value={nota} onChange={(e) => setNota(e.target.value)} placeholder="O que comeu? Ex.: 2 bananas e 1 iogurte" aria-label={`O que você comeu no lugar de ${r.nome}`} className="min-w-48 flex-1" />
               <Botao variante="primario" type="submit">
                 Salvar
               </Botao>
@@ -291,6 +411,11 @@ function LinhaRefeicao({
                   <PenLine /> Comi diferente
                 </Botao>
               )}
+              {!comeuDiferente ? (
+                <Botao variante="contorno" tamanho="sm" onClick={aoTrocar}>
+                  <ArrowLeftRight /> {receita ? "Outra receita" : "Trocar por receita"}
+                </Botao>
+              ) : null}
               {feita ? (
                 <Botao variante="fantasma" tamanho="sm" onClick={aoAlternar}>
                   <Undo2 /> Desmarcar

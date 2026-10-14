@@ -3,7 +3,7 @@
 import Link from "next/link"
 import * as React from "react"
 import { useQueryClient } from "@tanstack/react-query"
-import { ArrowDown, ArrowUp, ChevronRight, Lightbulb, Plus, Target } from "lucide-react"
+import { ArrowDown, ArrowUp, Calculator, ChevronRight, Lightbulb, Plus, ShoppingCart, Target } from "lucide-react"
 import { toast } from "sonner"
 import { Botao } from "@/components/ui/button"
 import { Esqueleto, Secao, Vazio } from "@/components/ui/basicos"
@@ -13,6 +13,8 @@ import { novoId, useAtualizar, useCriar, useExcluir, useRegistro } from "@/lib/d
 import { normalizar, numero, plural } from "@/lib/utils"
 import type { Colecao } from "@/features/colecoes/visao-colecao"
 import { useArvorePaginas } from "@/features/paginas/dados"
+import { valores } from "@/features/treino/dados"
+import { gramas, kcal, textoNutrientes } from "./calculo"
 import {
   itensDoTexto,
   itensParaTexto,
@@ -24,6 +26,7 @@ import {
   type ConfigAlimentacao,
   type Refeicao,
 } from "./dados"
+import { NADA, calcularItens, chaveDoItem, lerPorcoes, somar, type Calculo } from "./nutricao"
 
 /* ------------------------------------------------------------------ */
 /* Montar o plano (primeira vez)                                       */
@@ -125,21 +128,34 @@ export function MontarPlano({
 export function ResumoPlano({
   refeicoes,
   config,
+  calculos,
   aoEditar,
   aoMetas,
+  aoVerCalculo,
+  aoCompras,
 }: {
   refeicoes: Refeicao[]
   config: ConfigAlimentacao
+  calculos: Map<string, Calculo>
   aoEditar: () => void
   aoMetas: () => void
+  aoVerCalculo: () => void
+  aoCompras: () => void
 }) {
+  const plano = somar(...refeicoes.map((r) => calculos.get(r.item.id)?.total ?? NADA))
+  const temPlano = plano.kcal > 0
   const metas = [
-    ["Calorias", config.metas.kcal, "kcal"],
-    ["Proteína", config.metas.proteina, "g"],
-    ["Carboidrato", config.metas.carboidrato, "g"],
-    ["Gordura", config.metas.gordura, "g"],
+    ["Calorias", config.metas.kcal, "kcal", plano.kcal],
+    ["Proteína", config.metas.proteina, "g", plano.p],
+    ["Carboidrato", config.metas.carboidrato, "g", plano.c],
+    ["Gordura", config.metas.gordura, "g", plano.g],
   ] as const
   const temMetas = metas.some(([, v]) => v)
+  /** "+5%" quando o plano passa da meta, "−8%" quando fica abaixo. */
+  const diferenca = (meta: number, soma: number) => {
+    const d = Math.round(((soma - meta) / meta) * 100)
+    return Math.abs(d) < 3 ? "" : ` (${d > 0 ? "+" : "−"}${Math.abs(d)}%)`
+  }
   return (
     <Secao
       titulo="Plano"
@@ -163,13 +179,19 @@ export function ResumoPlano({
           </div>
           {temMetas ? (
             <dl className="grid grid-cols-2 gap-2">
-              {metas.map(([rotulo, valor, unidade]) =>
+              {metas.map(([rotulo, valor, unidade, soma]) =>
                 valor ? (
                   <div key={rotulo} className="rounded-lg bg-surface-2 px-3 py-2">
                     <dt className="text-xs text-ink-3">{rotulo}</dt>
                     <dd className="font-semibold">
                       {numero(valor)} <span className="text-sm font-normal text-ink-2">{unidade}</span>
                     </dd>
+                    {temPlano ? (
+                      <dd className="text-xs text-ink-3 tabular">
+                        no plano: {numero(Math.round(soma))}
+                        {diferenca(valor, soma)}
+                      </dd>
+                    ) : null}
                   </div>
                 ) : null,
               )}
@@ -179,10 +201,21 @@ export function ResumoPlano({
               <Target className="size-4 shrink-0" /> Definir calorias e proteína do dia
             </button>
           )}
+          {temPlano && !temMetas ? <p className="mt-2 text-sm text-ink-2">O plano soma {textoNutrientes(plano)}.</p> : null}
           <p className="mt-2 text-sm text-ink-2">
             Água: {litros(config.aguaMeta)} por dia
             {config.marcos.length ? ` (${config.marcos.map((m) => `${litros(m.ml)} até ${m.hora}h`).join(", ")})` : ""}.
           </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <Botao variante="contorno" tamanho="sm" onClick={aoCompras}>
+            <ShoppingCart /> Lista de compras
+          </Botao>
+          {temPlano ? (
+            <Botao variante="fantasma" tamanho="sm" onClick={aoVerCalculo}>
+              <Calculator /> Cálculo do plano
+            </Botao>
+          ) : null}
         </div>
         {config.dicas ? (
           <Link href={`/paginas/${config.dicas}`} className="flex items-center gap-2 rounded-lg border border-line px-3 py-2.5 text-sm hover:border-line-strong">
@@ -403,6 +436,13 @@ function FormRefeicao({
       .filter(Boolean)
     const props = { ...((refeicao?.item.props ?? {}) as Record<string, unknown>) }
     for (const k of ["Quando", "Objetivo", "Nota"]) delete props[k]
+    // As correções do cálculo são por item: as de itens que saíram da lista vão embora
+    if (props._porcoes) {
+      const ficam = new Set(lista.map(chaveDoItem))
+      const porcoes = Object.fromEntries(Object.entries(lerPorcoes(props._porcoes)).filter(([k]) => ficam.has(k)))
+      if (Object.keys(porcoes).length) props._porcoes = porcoes
+      else delete props._porcoes
+    }
     const novos = { ...props, ...propsDaRefeicao({ quando, objetivo, nota }) }
     // O texto do item guarda a lista; se havia outras anotações além da lista, elas ficam
     const extra = (refeicao?.item.content ?? "")
@@ -415,12 +455,15 @@ function FormRefeicao({
     voltar()
   }
 
-  const contagem = itensDoTexto(
+  const linhas = itensDoTexto(
     itens
       .split("\n")
       .map((l) => (l.trim() ? `- ${l}` : ""))
       .join("\n"),
-  ).length
+  )
+  const contagem = linhas.length
+  // Recalcula a cada tecla: cada item já calculado fica guardado, então é rápido
+  const calculo = calcularItens(linhas, "prato", lerPorcoes(refeicao ? valores(refeicao.item)._porcoes : undefined))
 
   return (
     <>
@@ -454,7 +497,11 @@ function FormRefeicao({
           <Campo rotulo="Objetivo" htmlFor="ref-objetivo">
             <Entrada id="ref-objetivo" value={objetivo} onChange={(e) => setObjetivo(e.target.value)} placeholder="Opcional" />
           </Campo>
-          <Campo rotulo="O que comer" htmlFor="ref-itens" dica={`Um item por linha${contagem ? ` · ${plural(contagem, "item", "itens")}` : ""}.`}>
+          <Campo
+            rotulo="O que comer"
+            htmlFor="ref-itens"
+            dica={`Um item por linha, com a quantidade (“150 g de frango”, “2 ovos”)${contagem ? ` · ${plural(contagem, "item", "itens")}` : ""}${calculo.total.kcal > 0 ? ` · ${kcal(calculo.total.kcal)} kcal e ${gramas(calculo.total.p)} g de proteína` : ""}.`}
+          >
             <AreaTexto id="ref-itens" value={itens} onChange={(e) => setItens(e.target.value)} rows={6} placeholder={"250 g de arroz\n100 g de feijão\n150 g de frango"} />
           </Campo>
           <Campo rotulo="Observação" htmlFor="ref-nota">
