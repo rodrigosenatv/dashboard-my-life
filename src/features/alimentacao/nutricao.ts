@@ -44,8 +44,9 @@ export type Alimento = {
 export const ehBebida = (a: Alimento) => Boolean(a.porMl) || a.grupo === 7 || /\bsuco\b/i.test(a.nome)
 
 /**
- * O que a TACO não traz (o leite líquido está "em reavaliação" na 4ª edição; whey e geleia de
- * frutas não existem nela): médias de rótulos comuns no Brasil, marcadas como valor típico.
+ * O que a TACO não traz (o leite líquido está "em reavaliação" na 4ª edição; whey, geleia de
+ * frutas, cacau em pó e bebidas vegetais não existem nela): médias de rótulos comuns,
+ * marcadas como valor típico.
  */
 const TIPICOS: Alimento[] = [
   { id: "x-leite-integral", nome: "Leite integral (UHT)", fonte: "tipico", por100: { kcal: 60, p: 3, c: 4.6, g: 3.2 }, grupo: 6, porMl: true },
@@ -54,6 +55,8 @@ const TIPICOS: Alimento[] = [
   { id: "x-whey", nome: "Whey protein concentrado", fonte: "tipico", por100: { kcal: 400, p: 78, c: 9, g: 6 }, grupo: -1 },
   { id: "x-albumina", nome: "Albumina (clara de ovo em pó)", fonte: "tipico", por100: { kcal: 350, p: 82, c: 5, g: 0.3 }, grupo: -1 },
   { id: "x-geleia", nome: "Geleia de frutas", fonte: "tipico", por100: { kcal: 260, p: 0.4, c: 65, g: 0.1 }, grupo: 9 },
+  { id: "x-cacau-po", nome: "Cacau em pó 100%", fonte: "tipico", por100: { kcal: 230, p: 20, c: 58, g: 14 }, grupo: 9 },
+  { id: "x-bebida-vegetal", nome: "Bebida vegetal de amêndoas", fonte: "tipico", por100: { kcal: 20, p: 0.5, c: 1.5, g: 1.3 }, grupo: 7, porMl: true },
 ]
 
 let porId: Map<string, Alimento> | null = null
@@ -197,6 +200,8 @@ type Conhecido = {
   /** g por ml (azeite 0,92; mel 1,4). */
   densidade?: number
   medidas?: Partial<Record<Medida, number>>
+  /** Medidas do alimento cru, quando vale o da receita (1 xícara de arroz cru pesa mais que a de cozido). */
+  medidasCru?: Partial<Record<Medida, number>>
   /** Porção típica, quando o texto não diz quanto (g, ou ml se líquido). */
   porcao?: number
   /** Para alimentos que a TACO só tem crus: gramas do alimento cru por grama do item. */
@@ -216,16 +221,16 @@ const CONHECIDOS_BRUTOS: Conhecido[] = [
   { termos: ["salada", "salada verde", "salada crua", "salada simples", "legumes", "legume", "verduras", "folhas", "folhas verdes", "vegetais", "hortalicas", "mix de folhas"], ignorar: "salada" },
 
   // Cereais, pães, massas
-  { termos: ["arroz", "arroz branco", "arroz cozido", "arroz branco cozido", "arroz tipo 1", "arroz soltinho"], id: "3", receita: "4", medidas: { colher_sopa: 25, xicara: 160, concha: 100 }, porcao: 150, compra: "Arroz branco" },
+  { termos: ["arroz", "arroz branco", "arroz cozido", "arroz branco cozido", "arroz tipo 1", "arroz soltinho"], id: "3", receita: "4", medidas: { colher_sopa: 25, xicara: 160, concha: 100 }, medidasCru: { xicara: 185, colher_sopa: 15 }, porcao: 150, compra: "Arroz branco" },
   { termos: ["arroz cru", "arroz branco cru"], id: "4", medidas: { xicara: 185, colher_sopa: 15 }, compra: "Arroz branco" },
-  { termos: ["arroz integral", "arroz integral cozido"], id: "1", receita: "2", medidas: { colher_sopa: 25, xicara: 160, concha: 100 }, porcao: 150, compra: "Arroz integral" },
+  { termos: ["arroz integral", "arroz integral cozido"], id: "1", receita: "2", medidas: { colher_sopa: 25, xicara: 160, concha: 100 }, medidasCru: { xicara: 185, colher_sopa: 15 }, porcao: 150, compra: "Arroz integral" },
   { termos: ["arroz integral cru"], id: "2", medidas: { xicara: 185 }, compra: "Arroz integral" },
   { termos: ["aveia", "aveia em flocos", "flocos de aveia", "aveia flocos", "farelo de aveia", "farinha de aveia"], id: "7", medidas: { colher_sopa: 15, colher_cha: 5, xicara: 80 }, porcao: 30, compra: "Aveia em flocos" },
   { termos: ["pao", "pao frances", "pao de sal", "pao careca", "paozinho"], id: "53", medidas: { unidade: 50, fatia: 25 }, porcao: 50, compra: "Pão francês" },
   { termos: ["pao de forma", "pao de forma integral", "pao integral", "pao de forma tradicional", "pao de forma branco", "pao de sanduiche"], id: "52", medidas: { fatia: 25 }, porcao: 50, compra: "Pão de forma", nota: "A TACO só tem o pão de forma integral; o tradicional tem valores parecidos." },
   { termos: ["torrada", "torradinha"], id: "63", medidas: { unidade: 10, fatia: 10 }, porcao: 30 },
   { termos: ["pao de queijo"], id: "140", medidas: { unidade: 30 }, porcao: 60 },
-  { termos: ["macarrao", "espaguete", "penne", "talharim", "macarrao integral", "macarrao parafuso", "fusilli"], id: "40", equivale: 0.4, receita: "40", medidas: { xicara: 140 }, porcao: 150, compra: "Macarrão", nota: "A TACO só tem o macarrão cru: o cozido conta como 40% do peso." },
+  { termos: ["macarrao", "espaguete", "penne", "talharim", "macarrao integral", "macarrao parafuso", "fusilli"], id: "40", equivale: 0.4, receita: "40", medidas: { xicara: 140 }, medidasCru: { xicara: 100 }, porcao: 150, compra: "Macarrão", nota: "A TACO só tem o macarrão cru: o cozido conta como 40% do peso." },
   { termos: ["macarrao cru", "espaguete cru"], id: "40", medidas: { xicara: 100 }, compra: "Macarrão" },
   { termos: ["cuscuz", "cuscuz de milho", "cuscuz nordestino"], id: "533", medidas: { fatia: 80 }, porcao: 150, compra: "Flocão de milho (cuscuz)" },
   { termos: ["tapioca"], id: "551", medidas: { unidade: 70 }, porcao: 70, compra: "Goma de tapioca", nota: "A TACO só tem a tapioca com manteiga." },
@@ -233,6 +238,7 @@ const CONHECIDOS_BRUTOS: Conhecido[] = [
   { termos: ["farofa"], id: "131", medidas: { colher_sopa: 10 }, porcao: 20 },
   { termos: ["farinha de trigo"], id: "35", medidas: { xicara: 120, colher_sopa: 8 } },
   { termos: ["fuba"], id: "43", medidas: { xicara: 120, colher_sopa: 8 } },
+  { termos: ["flocao", "flocao de milho", "flocos de milho para cuscuz", "farinha de milho", "farinha de milho flocada", "milharina"], id: "33", medidas: { xicara: 120, colher_sopa: 8 }, porcao: 60, compra: "Flocão de milho" },
   { termos: ["amido de milho", "maisena"], id: "42", medidas: { colher_sopa: 8 } },
   { termos: ["milho", "milho verde", "milho em conserva"], id: "45", medidas: { colher_sopa: 20, lata: 200 }, porcao: 50 },
   { termos: ["pipoca"], id: "61", medidas: { xicara: 10 }, porcao: 25 },
@@ -242,13 +248,13 @@ const CONHECIDOS_BRUTOS: Conhecido[] = [
   { termos: ["biscoito maisena", "bolacha maisena"], id: "8", medidas: { unidade: 5 }, porcao: 30 },
 
   // Leguminosas
-  { termos: ["feijao", "feijao carioca", "feijao cozido", "feijao carioca cozido", "caldo de feijao"], id: "561", receita: "562", medidas: { concha: 100, colher_sopa: 20, xicara: 160 }, porcao: 100, compra: "Feijão carioca" },
-  { termos: ["feijao preto", "feijao preto cozido"], id: "567", receita: "568", medidas: { concha: 100, colher_sopa: 20, xicara: 160 }, porcao: 100, compra: "Feijão preto" },
+  { termos: ["feijao", "feijao carioca", "feijao cozido", "feijao carioca cozido", "caldo de feijao"], id: "561", receita: "562", medidas: { concha: 100, colher_sopa: 20, xicara: 160 }, medidasCru: { xicara: 180, colher_sopa: 12 }, porcao: 100, compra: "Feijão carioca" },
+  { termos: ["feijao preto", "feijao preto cozido"], id: "567", receita: "568", medidas: { concha: 100, colher_sopa: 20, xicara: 160 }, medidasCru: { xicara: 180, colher_sopa: 12 }, porcao: 100, compra: "Feijão preto" },
   { termos: ["feijao cru", "feijao carioca cru"], id: "562", medidas: { xicara: 180 }, compra: "Feijão carioca" },
   { termos: ["feijao preto cru"], id: "568", medidas: { xicara: 180 }, compra: "Feijão preto" },
-  { termos: ["lentilha", "lentilha cozida"], id: "577", receita: "578", medidas: { concha: 100, colher_sopa: 20, xicara: 160 }, porcao: 100, compra: "Lentilha" },
+  { termos: ["lentilha", "lentilha cozida"], id: "577", receita: "578", medidas: { concha: 100, colher_sopa: 20, xicara: 160 }, medidasCru: { xicara: 190, colher_sopa: 12 }, porcao: 100, compra: "Lentilha" },
   { termos: ["lentilha crua"], id: "578", medidas: { xicara: 190 }, compra: "Lentilha" },
-  { termos: ["grao de bico", "grao de bico cozido"], id: "575", equivale: 0.46, receita: "575", medidas: { xicara: 160, colher_sopa: 20 }, porcao: 100, compra: "Grão-de-bico", nota: "A TACO só tem o grão-de-bico cru: o cozido conta como 46% do peso." },
+  { termos: ["grao de bico", "grao de bico cozido"], id: "575", equivale: 0.46, receita: "575", medidas: { xicara: 160, colher_sopa: 20 }, medidasCru: { xicara: 200, colher_sopa: 12 }, porcao: 100, compra: "Grão-de-bico", nota: "A TACO só tem o grão-de-bico cru: o cozido conta como 46% do peso." },
   { termos: ["ervilha", "ervilha em lata"], id: "560", medidas: { colher_sopa: 20, lata: 200 }, porcao: 50 },
 
   // Aves, carnes, peixes, ovos
@@ -395,6 +401,7 @@ const CONHECIDOS_BRUTOS: Conhecido[] = [
   { termos: ["acucar", "acucar refinado"], id: "494", medidas: { colher_sopa: 12, colher_cha: 4, xicara: 180 }, porcao: 8, compra: "Açúcar" },
   { termos: ["acucar cristal"], id: "492", medidas: { colher_sopa: 12, colher_cha: 4, xicara: 180 }, porcao: 8, compra: "Açúcar cristal" },
   { termos: ["acucar mascavo"], id: "493", medidas: { colher_sopa: 10, colher_cha: 4, xicara: 150 }, porcao: 8, compra: "Açúcar mascavo" },
+  { termos: ["cacau", "cacau em po", "cacau 100", "cacau em po 100"], id: "x-cacau-po", medidas: { colher_sopa: 6, colher_cha: 2 }, porcao: 6, compra: "Cacau em pó" },
   { termos: ["achocolatado", "achocolatado em po"], id: "491", medidas: { colher_sopa: 10, colher_cha: 4 }, porcao: 20, compra: "Achocolatado em pó" },
   { termos: ["chocolate", "chocolate ao leite"], id: "495", medidas: { pedaco: 10 }, porcao: 25, compra: "Chocolate ao leite" },
   { termos: ["chocolate amargo", "chocolate meio amargo"], id: "498", medidas: { pedaco: 10 }, porcao: 25, compra: "Chocolate meio amargo" },
@@ -409,6 +416,7 @@ const CONHECIDOS_BRUTOS: Conhecido[] = [
   { termos: ["refrigerante", "refrigerante de cola"], id: "480", liquido: true, medidas: { lata: 350, copo: 200 }, porcao: 350, compra: "Refrigerante" },
   { termos: ["cerveja"], id: "474", liquido: true, medidas: { lata: 350, copo: 200 }, porcao: 350, compra: "Cerveja" },
   { termos: ["leite de coco"], id: "523", liquido: true, medidas: { colher_sopa: 15, caixa: 200 }, porcao: 50, compra: "Leite de coco" },
+  { termos: ["leite de amendoas", "leite de amendoa", "bebida de amendoas", "leite vegetal", "bebida vegetal", "leite de castanhas"], id: "x-bebida-vegetal", liquido: true, medidas: { copo: 200, xicara: 240, caixa: 1000 }, porcao: 200, compra: "Bebida vegetal" },
   { termos: ["leite de soja", "bebida de soja", "extrato de soja"], id: "582", liquido: true, medidas: { copo: 200, xicara: 240, caixa: 1000 }, porcao: 200, compra: "Bebida de soja" },
   { termos: ["whey", "whey protein", "whey concentrado", "proteina", "proteina em po", "whey isolado"], id: "x-whey", medidas: { scoop: 30, colher_sopa: 10 }, porcao: 30, compra: "Whey protein" },
   { termos: ["albumina"], id: "x-albumina", medidas: { scoop: 30, colher_sopa: 10 }, porcao: 30, compra: "Albumina" },
@@ -485,14 +493,17 @@ export function buscarAlimentos(busca: string, limite = 30): Alimento[] {
   const todos = [...tabela().values()]
   const achados: { a: Alimento; pts: number }[] = []
   // Nomes do dia a dia ("leite", "tilápia", "whey") primeiro, apontando para o alimento da tabela
-  const sinonimos = new Set<string>()
+  const sinonimos = new Map<string, number>()
   const curta = q.join(" ")
   for (const k of listaConhecidos()) {
+    if (k.ignorar) continue
     const termos = k.termos.map((t) => t.split(" ").filter((w) => !PARADAS.has(w)).join(" "))
-    if (k.ignorar || !termos.some((t) => t.startsWith(curta) || (curta.length >= 4 && t.includes(curta)))) continue
-    for (const id of [k.id, k.receita]) if (id && !sinonimos.has(id) && alimentoPorId(id)) sinonimos.add(id)
+    // O nome exato vem antes do que só começa igual ("leite" antes de "leite em pó")
+    const pts = termos.includes(curta) ? -200 : termos.some((t) => t.startsWith(curta)) ? -100 : null
+    if (pts === null) continue
+    for (const id of [k.id, k.receita]) if (id && alimentoPorId(id) && (sinonimos.get(id) ?? 0) > pts + sinonimos.size / 1000) sinonimos.set(id, pts + sinonimos.size / 1000)
   }
-  ;[...sinonimos].forEach((id, i) => achados.push({ a: alimentoPorId(id)!, pts: -100 + i }))
+  for (const [id, pts] of sinonimos) achados.push({ a: alimentoPorId(id)!, pts })
   for (const a of todos) {
     if (sinonimos.has(a.id)) continue
     const nome = palavras(a.nome).split(" ")
@@ -547,7 +558,7 @@ const UNIDADES: [Medida, string][] = [
 ]
 const TAMANHO = String.raw`(?:bem cheias?|cheias?|rasas?|pequen[oa]s?|medi[oa]s?|grandes?)`
 const CONTAGEM = new RegExp(
-  String.raw`^\s*(${QTD})(?:\s*(?:a|-|–|ou)\s*(${QTD}))?\s*(?:(${UNIDADES.map(([, r]) => `(?:${r})`).join("|")})(?![a-z]))?(?:\s+${TAMANHO})?(\s+e\s+mei[oa])?\s*(?:de |da |do |das |dos )?`,
+  String.raw`^\s*(${QTD})(?:\s*(?:a|-|–|ou)\s*(${QTD}))?\s*(?:(?:de\s+)?(${UNIDADES.map(([, r]) => `(?:${r})`).join("|")})(?![a-z]))?(?:\s+${TAMANHO})?(\s+e\s+mei[oa])?\s*(?:de |da |do |das |dos )?`,
 )
 
 function lerQtd(t: string): number {
@@ -699,12 +710,17 @@ function estimarParte(trecho: string, contexto: Contexto): Parte {
   // "Bolo de cenoura" é bolo, não cenoura: se a frase começa por um alimento da TACO, ele vale
   if (k && achado!.pos > 0 && buscarParecido(frase, contexto, true)) k = null
   if (k?.ignorar) return { tipo: "ignorado", trecho, motivo: k.ignorar }
-  const id = k ? (contexto === "receita" ? (k.receita ?? k.id) : k.id) : buscarParecido(frase, contexto)
+  // Prato: comida pronta, salvo se disser "cru". Receita: ingrediente cru, salvo se disser "cozido"
+  const querCozido = /\b(cozid|grelhad|assad|frit|refogad|desfiad)/.test(frase)
+  const querCru = /\b(cru|crua|crus|cruas)\b/.test(frase)
+  const usaCru = Boolean(k?.receita) && (contexto === "receita" ? !querCozido : querCru)
+  const id = k ? (usaCru ? k.receita! : k.id) : buscarParecido(frase, contexto)
   const alimento = id ? alimentoPorId(id) : undefined
   if (!alimento) return { tipo: "desconhecido", trecho, motivo: "alimento" }
 
   // O macarrão do prato é pesado cozido, mas a TACO só tem o cru; na receita ele já é cru
-  const equivale = !k || (contexto === "receita" && k.receita) ? 1 : (k.equivale ?? 1)
+  const equivale = !k || usaCru ? 1 : (k.equivale ?? 1)
+  const medidas = usaCru ? { ...k?.medidas, ...k?.medidasCru } : k?.medidas
   const densidade = k?.densidade ?? 1
   const tamanho = fatorTamanho(semPar)
   let qtd: number
@@ -718,7 +734,7 @@ function estimarParte(trecho: string, contexto: Contexto): Parte {
     qtd = explicita.qtd
     un = explicita.un
   } else if (contagem && medidaContada) {
-    const peso = k?.medidas?.[medidaContada] ?? (medidaContada === "unidade" ? undefined : MEDIDA_PADRAO[medidaContada])
+    const peso = medidas?.[medidaContada] ?? (medidaContada === "unidade" ? undefined : MEDIDA_PADRAO[medidaContada])
     if (!peso) return { tipo: "desconhecido", trecho, motivo: "quantidade", alimento }
     qtd = contagem.n * peso * tamanho
     un = k?.liquido && VOLUMETRICAS.has(medidaContada) ? "ml" : "g"

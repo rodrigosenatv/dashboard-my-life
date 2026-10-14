@@ -79,7 +79,7 @@ export function TrocarPorReceita({
       aberta={Boolean(refeicao)}
       aoMudar={(v) => !v && aoFechar()}
       titulo={perguntando ? "Quantas porções?" : `Trocar ${nome.toLocaleLowerCase("pt-BR")} por uma receita`}
-      descricao={perguntando ? undefined : "Vale só para este dia e conta no lugar do plano. Marque como feita quando comer."}
+      descricao={perguntando ? "A troca conta uma porção no dia." : "Vale só para este dia e conta no lugar do plano. Marque como feita quando comer."}
       rodape={
         perguntando ? (
           <Botao variante="fantasma" className="mr-auto" onClick={() => setPerguntando(null)}>
@@ -109,7 +109,7 @@ export function TrocarPorReceita({
       {perguntando ? (
         <div className="grid gap-4">
           <p className="text-sm">
-            Quantas porções rende <span className="font-medium">“{perguntando.nome}”</span>? A troca conta uma porção no dia.
+            Quantas porções rende <span className="font-medium">“{perguntando.nome}”</span>?
           </p>
           <div className="grid grid-cols-4 gap-2" role="group" aria-label="Porções que a receita rende">
             {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (

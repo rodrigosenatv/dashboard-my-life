@@ -61,7 +61,7 @@ export function Medidor({ rotulo, unidade, consumido, previsto, meta }: { rotulo
         aria-label={`${rotulo}: ${numero(Math.round(consumido))}${meio} ${unidade}. Previsto no dia: ${numero(Math.round(previsto))} ${unidade}.`}
         className="relative mt-1.5 h-2 rounded-full bg-surface-3"
       >
-        <div className="absolute inset-y-0 left-0 rounded-full bg-pen/25 transition-[width] duration-300" style={{ width: pct(previsto) }} />
+        <div className="absolute inset-y-0 left-0 rounded-full bg-pen/40 transition-[width] duration-300" style={{ width: pct(previsto) }} />
         <div className="absolute inset-y-0 left-0 rounded-full bg-pen transition-[width] duration-300" style={{ width: pct(consumido) }} />
         {meta ? <div className="absolute -inset-y-1 w-0.5 -translate-x-1/2 rounded-full bg-ink-2" style={{ left: pct(meta) }} /> : null}
       </div>
