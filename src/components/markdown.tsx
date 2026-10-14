@@ -5,7 +5,9 @@ import ReactMarkdown, { type Components } from "react-markdown"
 import remarkGfm from "remark-gfm"
 import { Check, Copy, MessageSquareText } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { toast } from "sonner"
 import { PREFIXO_ARQUIVO, useUrlArquivo } from "@/lib/arquivos"
+import { copiarTexto } from "@/lib/copiar"
 import { CHAVE_PROMPT } from "@/lib/ia/info"
 import { cn } from "@/lib/utils"
 import { AreaTexto } from "@/components/ui/campos"
@@ -43,7 +45,7 @@ function BlocoCodigo({ children }: { children: React.ReactNode }) {
         <button
           type="button"
           onClick={async () => {
-            await navigator.clipboard.writeText(texto())
+            if (!(await copiarTexto(texto()))) return void toast.error("Não foi possível copiar.")
             setCopiado(true)
             setTimeout(() => setCopiado(false), 1500)
           }}

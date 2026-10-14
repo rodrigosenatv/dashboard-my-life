@@ -1,11 +1,12 @@
 "use client"
 
 import * as React from "react"
-import { Check, Copy } from "lucide-react"
+import { Check, Copy, Share2 } from "lucide-react"
 import { toast } from "sonner"
 import { Botao } from "@/components/ui/button"
 import { Segmentos } from "@/components/ui/basicos"
 import { Janela } from "@/components/ui/janela"
+import { copiarTexto } from "@/lib/copiar"
 import { cn, normalizar } from "@/lib/utils"
 import type { ConfigAlimentacao, ConfigCompras, Refeicao } from "./dados"
 import { SECOES_COMPRA, listaDeCompras, quantidadeDeCompra, textoContagem, type Calculo, type ItemAvulso, type LinhaCompra } from "./nutricao"
@@ -28,6 +29,10 @@ function quantidade(l: LinhaCompra): string {
 }
 
 const chaveAvulso = (a: ItemAvulso) => `avulso:${normalizar(a.texto)}`
+
+const semAssinatura = () => () => {}
+/** No celular, a lista vai pela janela de compartilhar do sistema (WhatsApp, notas...). */
+const podeCompartilhar = () => typeof navigator.share === "function" && matchMedia("(pointer: coarse)").matches
 
 /**
  * A lista do mercado, montada do plano: escolhe para quantos dias (a marmita é de 3 ou 4) e
@@ -88,7 +93,10 @@ export function ListaCompras({
   const chaves = [...linhas.map((l) => l.chave), ...avulsos.map(chaveAvulso)]
   const feitos = chaves.filter((c) => marcados.has(c)).length
 
-  const copiar = async () => {
+  const compartilha = React.useSyncExternalStore(semAssinatura, podeCompartilhar, () => false)
+
+  /** O que ainda falta comprar (ou tudo, se já está tudo no carrinho), em texto. */
+  const textoDaLista = () => {
     const faltam = (c: string) => !marcados.has(c) || feitos === chaves.length
     const partes = [`Lista de compras (${estado.dias} dias)`]
     for (const s of SECOES_COMPRA) {
@@ -97,12 +105,22 @@ export function ListaCompras({
     }
     const av = avulsos.filter((a) => faltam(chaveAvulso(a)))
     if (av.length) partes.push(`Também no plano\n${av.map((a) => `- ${a.texto} (${MOTIVO_AVULSO[a.motivo]})`).join("\n")}`)
-    try {
-      await navigator.clipboard.writeText(partes.join("\n\n"))
-      toast.success("Lista copiada", { description: "Cole numa conversa ou nas notas do celular." })
-    } catch {
-      toast.error("Não foi possível copiar a lista.")
+    return partes.join("\n\n")
+  }
+
+  const enviar = async () => {
+    const texto = textoDaLista()
+    if (compartilha) {
+      try {
+        await navigator.share({ title: "Lista de compras", text: texto })
+        return
+      } catch (e) {
+        // Fechou a janela de compartilhar: nada a fazer. Outro erro: copia
+        if (e instanceof DOMException && e.name === "AbortError") return
+      }
     }
+    if (await copiarTexto(texto)) toast.success("Lista copiada", { description: "Cole numa conversa ou nas notas do celular." })
+    else toast.error("Não foi possível copiar a lista.")
   }
 
   return (
@@ -121,8 +139,16 @@ export function ListaCompras({
               Desmarcar tudo
             </Botao>
           ) : null}
-          <Botao variante="contorno" onClick={copiar} disabled={!chaves.length}>
-            <Copy /> Copiar
+          <Botao variante="contorno" onClick={enviar} disabled={!chaves.length}>
+            {compartilha ? (
+              <>
+                <Share2 /> Enviar
+              </>
+            ) : (
+              <>
+                <Copy /> Copiar
+              </>
+            )}
           </Botao>
           <Botao
             variante="primario"

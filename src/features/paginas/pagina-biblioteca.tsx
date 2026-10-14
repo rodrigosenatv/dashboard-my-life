@@ -4,7 +4,9 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import * as React from "react"
 import { Check, Copy, MessageSquareText, Search } from "lucide-react"
+import { toast } from "sonner"
 import { Segmentos, Carregando, Vazio } from "@/components/ui/basicos"
+import { copiarTexto } from "@/lib/copiar"
 import { CHAVE_PROMPT } from "@/lib/ia/info"
 import { cn, contem } from "@/lib/utils"
 import { ListaPaginas } from "./lista-paginas"
@@ -34,7 +36,7 @@ function CartaoPrompt({ p }: { p: Prompt }) {
         <button
           type="button"
           onClick={async () => {
-            await navigator.clipboard.writeText(p.texto)
+            if (!(await copiarTexto(p.texto))) return void toast.error("Não foi possível copiar.")
             setCopiado(true)
             setTimeout(() => setCopiado(false), 1500)
           }}

@@ -10,6 +10,7 @@ import { Cabecalho, Vazio } from "@/components/ui/basicos"
 import { Janela } from "@/components/ui/janela"
 import { Markdown } from "@/components/markdown"
 import { CHAVE_PROMPT } from "@/lib/ia/info"
+import { copiarTexto } from "@/lib/copiar"
 import { novoId, useAtualizar, useCriar, useExcluir } from "@/lib/data"
 import { supabase } from "@/lib/supabase/client"
 import { cn, contem, dataRelativa } from "@/lib/utils"
@@ -157,7 +158,7 @@ function AcoesResposta({ texto, pergunta }: { texto: string; pergunta: string })
         type="button"
         className={estilo}
         onClick={async () => {
-          await navigator.clipboard.writeText(texto)
+          if (!(await copiarTexto(texto))) return void toast.error("Não foi possível copiar.")
           setCopiado(true)
           setTimeout(() => setCopiado(false), 1500)
         }}

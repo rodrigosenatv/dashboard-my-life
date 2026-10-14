@@ -112,23 +112,28 @@ export function TrocarPorReceita({
             Quantas porções rende <span className="font-medium">“{perguntando.nome}”</span>?
           </p>
           <div className="grid grid-cols-4 gap-2" role="group" aria-label="Porções que a receita rende">
-            {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
-              <Botao
-                key={n}
-                variante="contorno"
-                tamanho="lg"
-                onClick={() => {
-                  aoDefinirRende(perguntando, n)
-                  aoEscolher(perguntando.item.id)
-                  aoFechar()
-                }}
-              >
-                {n}
-              </Botao>
-            ))}
+            {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => {
+              const porcao = kcal(perguntando.calc.total.kcal / n)
+              return (
+                <Botao
+                  key={n}
+                  variante="contorno"
+                  className="h-auto flex-col gap-0 px-1 py-2"
+                  aria-label={`${n === 1 ? "1 porção" : `${n} porções`}, ${porcao} quilocalorias cada`}
+                  onClick={() => {
+                    aoDefinirRende(perguntando, n)
+                    aoEscolher(perguntando.item.id)
+                    aoFechar()
+                  }}
+                >
+                  <span className="text-base font-semibold tabular">{n}</span>
+                  <span className="text-[11px] font-normal text-ink-3 tabular">{porcao} kcal</span>
+                </Botao>
+              )
+            })}
           </div>
           <p className="text-xs text-ink-3">
-            A receita toda tem {kcal(perguntando.calc.total.kcal)} kcal e {gramas(perguntando.calc.total.p)} g de proteína. A resposta fica guardada na receita.
+            A receita toda tem {kcal(perguntando.calc.total.kcal)} kcal e {gramas(perguntando.calc.total.p)} g de proteína; embaixo de cada número, quanto fica uma porção. A resposta fica guardada na receita.
           </p>
         </div>
       ) : receitas.length === 0 ? (
