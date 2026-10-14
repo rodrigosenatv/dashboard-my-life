@@ -10,7 +10,7 @@ import { Etiqueta, Segmentos } from "@/components/ui/basicos"
 import { useUrlArquivo } from "@/lib/arquivos"
 import { novoId, useAtualizar, useCriar, useLista } from "@/lib/data"
 import type { Json, Tables } from "@/lib/supabase/database.types"
-import { cn, contem, formatar, isoDia, normalizar, numero, urlValida } from "@/lib/utils"
+import { cn, contem, formatar, isoDia, normalizar, numero, numeroFlexivel, urlValida } from "@/lib/utils"
 
 export type Colecao = Tables<"collections">
 export type ItemColecao = Tables<"collection_items">
@@ -49,8 +49,8 @@ export function Valor({ prop, valor }: { prop: Propriedade; valor: Json | undefi
       </span>
     )
   if (prop.type === "select") return <Etiqueta>{String(valor)}</Etiqueta>
-  if (prop.type === "number" && typeof valor === "number")
-    return <span className="tabular">{ehDinheiro(prop.name) ? dinheiro(valor) : numero(valor, Number.isInteger(valor) ? 0 : 2)}</span>
+  const n = prop.type === "number" ? numeroFlexivel(valor) : null
+  if (n !== null) return <span className="tabular">{ehDinheiro(prop.name) ? dinheiro(n) : numero(n, Number.isInteger(n) ? 0 : 2)}</span>
   if (prop.type === "url") {
     const u = urlValida(String(valor))
     return u ? (
@@ -78,13 +78,19 @@ export function Capa({ caminho, className }: { caminho: string; className?: stri
 /** Valores possíveis de uma propriedade de seleção, na ordem do esquema ou de aparição. */
 export function opcoesDe(prop: Propriedade | undefined, itens: ItemColecao[]): string[] {
   if (!prop) return []
-  const vistos = new Set<string>(prop.options ?? [])
+  // Valores vindos do Notion às vezes têm espaço ou quebra de linha no fim ("janta\n"): contam como o mesmo
+  const vistos = new Set<string>((prop.options ?? []).map((o) => o.trim()).filter(Boolean))
   for (const i of itens) {
     const v = ((i.props ?? {}) as Record<string, Json>)[prop.name]
-    if (Array.isArray(v)) v.forEach((x) => vistos.add(String(x)))
-    else if (!vazio(v) && typeof v !== "boolean") vistos.add(String(v))
+    if (Array.isArray(v)) v.forEach((x) => String(x).trim() && vistos.add(String(x).trim()))
+    else if (!vazio(v) && typeof v !== "boolean" && String(v).trim()) vistos.add(String(v).trim())
   }
   return [...vistos]
+}
+
+/** O item tem esse valor na propriedade (comparando sem espaços nas pontas)? */
+export function temValor(v: Json | undefined, valor: string): boolean {
+  return Array.isArray(v) ? v.some((x) => String(x).trim() === valor) : String(v ?? "").trim() === valor
 }
 
 /** Propriedade usada como abas quando nada é informado: Status, Tipo… ou a primeira seleção curta. */
@@ -187,7 +193,14 @@ export function BlocoColecao({
   const { data: itens = [], isLoading } = useItens(colecao.id)
   const criar = useCriar("collection_items")
   const atualizar = useAtualizar("collection_items")
-  const props = esquema(colecao).filter((p) => !OCULTAS.includes(p.type))
+  // Coluna marcada como texto, mas só com números (um valor como 3,39" estragou a leitura na importação): vale como número
+  const props = esquema(colecao)
+    .filter((p) => !OCULTAS.includes(p.type))
+    .map((p) => {
+      if (p.type !== "text") return p
+      const preenchidos = itens.map((i) => ((i.props ?? {}) as Record<string, Json>)[p.name]).filter((v) => !vazio(v))
+      return preenchidos.length && preenchidos.every((v) => numeroFlexivel(v) !== null) ? { ...p, type: "number" } : p
+    })
   const propData = props.find((p) => p.type === "date")?.name
   const propAbas = abas === false ? undefined : (abas && props.some((p) => p.name === abas) ? abas : abasPadrao(props, itens))
   const opcoesAbas = opcoesDe(props.find((p) => p.name === propAbas), itens)
@@ -206,7 +219,7 @@ export function BlocoColecao({
   const daAba = (i: ItemColecao) => {
     if (!propAbas || !aba) return true
     const v = valores(i)[propAbas]
-    return Array.isArray(v) ? v.map(String).includes(aba) : String(v ?? "") === aba
+    return temValor(v, aba)
   }
   const filtrados = itens.filter((i) => daAba(i) && (!busca || contem(`${i.title} ${JSON.stringify(i.props)}`, busca)))
   const visiveis = limite && !todos ? filtrados.slice(0, limite) : filtrados
@@ -280,7 +293,7 @@ export function BlocoColecao({
       {propAbas && opcoesAbas.length > 1 ? (
         <div role="tablist" aria-label={propAbas} className="mb-3 flex flex-wrap gap-1.5">
           {["", ...opcoesAbas].map((o) => {
-            const n = o ? itens.filter((i) => { const v = valores(i)[propAbas]; return Array.isArray(v) ? v.map(String).includes(o) : String(v ?? "") === o }).length : itens.length
+            const n = o ? itens.filter((i) => temValor(valores(i)[propAbas], o)).length : itens.length
             return (
               <button
                 key={o || "todos"}
@@ -343,7 +356,7 @@ export function BlocoColecao({
       ) : visaoAtual === "quadro" && selecaoQuadro ? (
         <div className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-3 scrollbar-thin sm:mx-0 sm:px-0">
           {[...opcoesDe(props.find((p) => p.name === selecaoQuadro), filtrados), ""].map((o) => {
-            const daColuna = filtrados.filter((i) => String(valores(i)[selecaoQuadro] ?? "") === o)
+            const daColuna = filtrados.filter((i) => temValor(valores(i)[selecaoQuadro], o))
             if (!o && !daColuna.length) return null
             return (
               <div key={o || "sem"} className="w-60 shrink-0 rounded-xl bg-surface-2/60 p-2">
@@ -411,7 +424,7 @@ export function BlocoColecao({
                     <td key={p.name} className="tabular px-3 py-2 text-right">
                       {p.type === "number" && somavel(p.name)
                         ? (() => {
-                            const total = filtrados.reduce((s, i) => s + (Number(valores(i)[p.name]) || 0), 0)
+                            const total = filtrados.reduce((s, i) => s + (numeroFlexivel(valores(i)[p.name]) ?? 0), 0)
                             return ehDinheiro(p.name) ? dinheiro(total) : numero(total, 2)
                           })()
                         : null}

@@ -11,6 +11,7 @@ import { Confirmar, Janela } from "@/components/ui/janela"
 import { Menu, MenuConteudo, MenuGatilho, MenuItem, MenuRotulo, MenuSeparador } from "@/components/ui/menu"
 import { PlayerYoutube } from "@/components/video-youtube"
 import { cn, plural } from "@/lib/utils"
+import { useTelaAcesa } from "@/lib/tela-acesa"
 import { lerYoutube } from "@/lib/youtube"
 import { camposExercicio, kg, lerExercicio, lerNumeroDigitado, notaVisivel, prescricao, useColecoesTreino, useItensDe } from "./dados"
 import {
@@ -65,35 +66,6 @@ function useAgora() {
     }
   }, [])
   return agora
-}
-
-/** Tela acesa durante o treino; o sistema solta ao ir para segundo plano e ela volta ao abrir. */
-function useTelaAcesa() {
-  React.useEffect(() => {
-    if (!("wakeLock" in navigator)) return
-    let trava: WakeLockSentinel | null = null
-    let ativo = true
-    const pedir = async () => {
-      if (trava || document.visibilityState !== "visible") return
-      try {
-        trava = await navigator.wakeLock.request("screen")
-        trava.addEventListener("release", () => {
-          trava = null
-        })
-        if (!ativo) void trava.release().catch(() => {})
-      } catch {
-        // sem permissão ou sem suporte: a tela apaga como de costume
-      }
-    }
-    void pedir()
-    const aoVoltar = () => void pedir()
-    document.addEventListener("visibilitychange", aoVoltar)
-    return () => {
-      ativo = false
-      document.removeEventListener("visibilitychange", aoVoltar)
-      void trava?.release().catch(() => {})
-    }
-  }, [])
 }
 
 /** Tempo de descanso escolhido (fica neste aparelho). */

@@ -76,10 +76,9 @@ export function NavVida({ atual }: { atual: string }) {
   )
 }
 
-function Subpaginas({ paiId, titulos }: { paiId: string; titulos?: string[] }) {
+function Subpaginas({ paiId }: { paiId: string }) {
   const { data: paginas = [] } = useArvorePaginas()
-  const alvo = titulos?.map(normalizar)
-  const filhos = filhosDe(paginas, paiId).filter((p) => !alvo || alvo.includes(normalizar(p.title)))
+  const filhos = filhosDe(paginas, paiId)
   if (!filhos.length) return null
   return (
     <Secao titulo="Páginas">
@@ -213,7 +212,7 @@ export function PaginaHub() {
           if (b.tipo === "subpaginas")
             return pagina ? (
               <div key={i} className="lg:col-span-2">
-                <Subpaginas paiId={pagina.id} titulos={b.titulos} />
+                <Subpaginas paiId={pagina.id} />
               </div>
             ) : null
           if (b.tipo === "texto")

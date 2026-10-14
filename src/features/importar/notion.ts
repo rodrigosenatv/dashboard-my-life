@@ -109,6 +109,10 @@ function juntar(dir: string, relativo: string): string {
   return saida.join("/")
 }
 
+/** Aspas sobrando nas pontas de uma célula ("3,39\"" vira "3,39"). */
+const semAspas = (v: string) => v.trim().replace(/^["“”]+|["“”]+$/g, "").trim()
+const ehNumeroCelula = (v: string) => /^-?\d+([.,]\d+)?$/.test(semAspas(v))
+
 function semExtensao(p: string) {
   return p.replace(/(_all)?\.(md|csv)$/i, "")
 }
@@ -908,12 +912,13 @@ export function montarPlano(arquivos: Map<string, Uint8Array>, opcoes: OpcoesPla
         let capa: string | null = null
         for (const c of r.banco.colunas) {
           if (c === tituloCol(r.banco)) continue
-          const v = r.valores[c] ?? ""
+          // Células do CSV podem vir com quebra de linha no fim ("janta\n") ou aspas sobrando (3,39")
+          const v = (r.valores[c] ?? "").trim()
           if (!v) continue
           if (ehBool(v)) props[c] = lerBool(v)
           else if (/\.md\)/.test(v)) props[c] = lerRelacao(v).map((x) => x.titulo)
           else if (lerDataNotion(v) && !/^\d+([.,]\d+)?$/.test(v)) props[c] = lerIntervalo(v).inicio?.data ?? v
-          else if (/^-?\d+([.,]\d+)?$/.test(v.trim())) props[c] = lerNumero(v)
+          else if (ehNumeroCelula(v)) props[c] = lerNumero(semAspas(v))
           else {
             const arq = acharArquivo(dirname(r.banco.caminho), v)
             if (arq) {
@@ -1002,11 +1007,11 @@ export function montarPlano(arquivos: Map<string, Uint8Array>, opcoes: OpcoesPla
     if (colecoesFeitas.has(id)) continue
     colecoesFeitas.add(id)
     const schema = b.colunas.slice(1).map((c) => {
-      const valores = b.linhas.map((l) => l[c]).filter(Boolean)
+      const valores = b.linhas.map((l) => (l[c] ?? "").trim()).filter(Boolean)
       let type = "text"
       if (valores.length && valores.every(ehBool)) type = "checkbox"
       else if (valores.some((v) => /\.md\)/.test(v))) type = "multi_select"
-      else if (valores.length && valores.every((v) => /^-?\d+([.,]\d+)?$/.test(v.trim()))) type = "number"
+      else if (valores.length && valores.every(ehNumeroCelula)) type = "number"
       else if (valores.length && valores.every((v) => lerDataNotion(v))) type = "date"
       else if (valores.length && valores.every((v) => /^https?:\/\//.test(v))) type = "url"
       else if (valores.length && new Set(valores).size <= Math.max(3, valores.length / 3) && valores.every((v) => v.length < 40)) type = "select"

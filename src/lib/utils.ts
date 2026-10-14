@@ -95,6 +95,19 @@ export function numero(n: number | null | undefined, casas = 0): string {
   return n.toLocaleString("pt-BR", { maximumFractionDigits: casas })
 }
 
+/**
+ * Número guardado como texto, do jeito que vem de planilhas e do Notion: "4.76", "3,39",
+ * "3,39\"" (aspas sobrando), "2.700" (milhar). Devolve null quando não é só um número.
+ */
+export function numeroFlexivel(v: unknown): number | null {
+  if (typeof v === "number") return Number.isFinite(v) ? v : null
+  if (typeof v !== "string") return null
+  const t = v.trim().replace(/^["'“”‘’]+|["'“”‘’]+$/g, "").trim()
+  if (/^-?\d{1,3}(\.\d{3})+$/.test(t)) return Number(t.replace(/\./g, ""))
+  if (!/^-?\d+([.,]\d+)?$/.test(t)) return null
+  return Number(t.replace(",", "."))
+}
+
 export function plural(n: number, singular: string, pluralForma?: string): string {
   return `${n} ${n === 1 ? singular : (pluralForma ?? `${singular}s`)}`
 }

@@ -20,8 +20,7 @@ export type Bloco =
   | { tipo: "pomodoro" }
   | { tipo: "hoje" }
   | { tipo: "ferramentas" }
-  /** Subpáginas da página do Notion; com `titulos`, só as que têm esses títulos. */
-  | { tipo: "subpaginas"; titulos?: string[] }
+  | { tipo: "subpaginas" }
   | { tipo: "texto" }
 
 export type Hub = {
@@ -61,14 +60,9 @@ export const HUBS: Hub[] = [
     titulo: "Alimentação",
     icone: UtensilsCrossed,
     paginas: ["Alimentação"],
-    descricao: "Plano alimentar, receitas e a tabela de alimentos.",
-    blocos: [
-      { tipo: "subpaginas", titulos: ["Plano alimentar diário"] },
-      { tipo: "colecao", nomes: ["Refeições", "Refeicoes", "Plano Alimentar"], titulo: "Plano alimentar", largo: true },
-      { tipo: "colecao", nomes: ["Receitas"], titulo: "Receitas", visao: "galeria", largo: true },
-      { tipo: "colecao", nomes: ["Alimentos"], titulo: "Alimentos", visao: "tabela", limite: 20, largo: true },
-      { tipo: "texto" },
-    ],
+    descricao: "O plano do dia, a água e as receitas.",
+    // Alimentação tem tela própria (src/features/alimentacao), servida em /vida/alimentacao
+    blocos: [],
   },
   {
     slug: "viagens",

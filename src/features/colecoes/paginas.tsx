@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { useParams, useRouter } from "next/navigation"
+import { useParams, useRouter, useSearchParams } from "next/navigation"
 import * as React from "react"
 import { ArrowLeft, Plus, Trash } from "lucide-react"
 import { Botao } from "@/components/ui/button"
@@ -84,6 +84,7 @@ export function PaginaColecao() {
 
 export function PaginaItem() {
   const { id } = useParams<{ id: string }>()
+  const params = useSearchParams()
   const router = useRouter()
   const { data: item, isLoading } = useRegistro("collection_items", id)
   const { data: colecao } = useRegistro("collections", item?.collection_id)
@@ -133,7 +134,7 @@ export function PaginaItem() {
                     <option>Sim</option><option>Não</option>
                   </select>
                 ) : p.type === "select" ? (
-                  <select value={valorTexto(vals[p.name])} onChange={(e) => salvarProp(p.name, e.target.value, p.type)} aria-label={p.name} className="h-8 max-w-full rounded-md border border-line-strong bg-surface px-2 text-sm">
+                  <select value={valorTexto(vals[p.name]).trim()} onChange={(e) => salvarProp(p.name, e.target.value, p.type)} aria-label={p.name} className="h-8 max-w-full rounded-md border border-line-strong bg-surface px-2 text-sm">
                     <option value="">Vazio</option>
                     {opcoesDe(p, irmaos).map((o) => <option key={o}>{o}</option>)}
                   </select>
@@ -147,7 +148,7 @@ export function PaginaItem() {
           ))}
         </dl>
       ) : null}
-      <EditorMarkdown rotulo="conteúdo do item" valor={item.content ?? ""} aoSalvar={(v) => atualizar.mutate({ id: item.id, content: v || null })} />
+      <EditorMarkdown key={item.id} rotulo="conteúdo do item" valor={item.content ?? ""} inicioEditando={params.get("editar") === "1"} aoSalvar={(v) => atualizar.mutate({ id: item.id, content: v || null })} />
       <Confirmar aberta={apagar} aoMudar={setApagar} titulo={`Excluir “${item.title}”?`} aoConfirmar={() => { excluir.mutate(item.id); router.push(`/colecoes/${item.collection_id}`) }} />
     </div>
   )
