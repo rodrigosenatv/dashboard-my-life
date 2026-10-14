@@ -69,13 +69,9 @@ export const HUBS: Hub[] = [
     titulo: "Viagens",
     icone: Plane,
     paginas: ["Viagens", "Viagem"],
-    descricao: "Planejadas, lista de desejos e realizadas, com roteiro e custos.",
-    blocos: [
-      { tipo: "colecao", nomes: ["Viagens"], titulo: "Viagens", abas: "Status", visao: "galeria", largo: true },
-      { tipo: "colecao", nomes: ["Itinerários Viagens", "Itinerarios Viagens", "Itinerários"], titulo: "Itinerários", visao: "tabela" },
-      { tipo: "colecao", nomes: ["Custos Viagens", "Custos"], titulo: "Custos", visao: "tabela" },
-      { tipo: "texto" },
-    ],
+    descricao: "Próximas viagens, lista de desejos e as que você já fez.",
+    // Viagens tem tela própria (src/features/viagens), servida em /vida/viagens
+    blocos: [],
   },
   {
     slug: "hobbies",
