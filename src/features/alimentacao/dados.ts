@@ -217,6 +217,8 @@ export function useMudarDia(diario: Colecao | undefined, refeicoes: string[]) {
         return
       }
       const id = idDoDia(colecaoId, data)
+      // Uma recarga da lista em andamento traria o estado de antes deste toque: é cancelada
+      await qc.cancelQueries({ queryKey: ["collection_items", "de", colecaoId] })
       const antes = lerDoCache(qc, colecaoId, id)
       const novo = mudar(antes ? lerDia(antes) : diaVazio(data))
       const props: Record<string, Json> = {

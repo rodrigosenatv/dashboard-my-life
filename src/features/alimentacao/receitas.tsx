@@ -100,7 +100,7 @@ export function ReceitasAlimentacao({ colecao }: { colecao: Colecao | undefined 
                 >
                   <span className="min-w-0 flex-1">
                     <span className="block font-medium leading-snug">{r.nome}</span>
-                    <span className="mt-0.5 line-clamp-1 block text-xs text-ink-3">
+                    <span className="mt-0.5 line-clamp-1 text-xs text-ink-3">
                       {[filtro === TODAS ? r.refeicoes.join(", ") : "", r.ingredientes.slice(0, 4).join(" · ")].filter(Boolean).join(" — ")}
                     </span>
                   </span>
