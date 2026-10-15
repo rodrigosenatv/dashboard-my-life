@@ -78,8 +78,9 @@ export const HUBS: Hub[] = [
     titulo: "Hobbies",
     icone: Crown,
     paginas: ["Hobbies"],
-    descricao: "Boxe, musculação, comunicação, piano e o que mais você estiver aprendendo.",
-    blocos: [{ tipo: "subpaginas" }, { tipo: "texto" }],
+    descricao: "O que você está aprendendo: a prática da semana e o material de estudo.",
+    // Hobbies tem tela própria (src/features/hobbies), servida em /vida/hobbies
+    blocos: [],
   },
   {
     slug: "pessoal",
