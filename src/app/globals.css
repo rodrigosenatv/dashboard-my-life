@@ -410,6 +410,46 @@
   font-weight: 600;
 }
 
+/* Vídeos no texto: os seguidos ficam numa grade; os em pé lado a lado, os deitados na largura toda */
+.prosa .videos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
+  gap: 1.5rem 1rem;
+  align-items: start;
+}
+.prosa .videos > [data-formato="deitado"] {
+  grid-column: 1 / -1;
+}
+.prosa li.li-midia {
+  list-style: none;
+}
+.prosa .midia img {
+  height: 100%;
+  border-radius: 0;
+}
+.prosa a.midia-fonte {
+  color: var(--ink-3);
+  text-decoration: none;
+}
+.prosa a.midia-fonte:hover {
+  color: var(--ink);
+}
+.midia-em-pe {
+  aspect-ratio: 9 / 16;
+  width: min(100%, 22.5rem, calc(var(--video-altura, 80dvh) * 9 / 16));
+}
+.midia-instagram {
+  max-width: 22.5rem;
+  aspect-ratio: 9 / 21;
+}
+.midia-instagram[data-tipo="p"] {
+  aspect-ratio: 5 / 9;
+}
+.midia-arquivo {
+  max-width: 100%;
+  max-height: var(--video-altura, 80dvh);
+}
+
 /* Conteúdo de uma tela ao abrir */
 @keyframes entrar {
   from {

@@ -3,17 +3,26 @@
 import * as React from "react"
 import ReactMarkdown, { type Components } from "react-markdown"
 import remarkGfm from "remark-gfm"
-import { Check, Copy, MessageSquareText } from "lucide-react"
+import { Check, Copy, MessageSquareText, Play } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { PREFIXO_ARQUIVO, useUrlArquivo } from "@/lib/arquivos"
 import { copiarTexto } from "@/lib/copiar"
 import { CHAVE_PROMPT } from "@/lib/ia/info"
+import { marcarMidias } from "@/lib/markdown-midias"
 import { cn } from "@/lib/utils"
+import { contarVideos, lerMidia, lerVideoDeSite } from "@/lib/videos"
+import { LinkDeVideo, MidiaIncorporada } from "@/components/midia"
 import { AreaTexto } from "@/components/ui/campos"
 import { Segmentos } from "@/components/ui/basicos"
 
 function Imagem({ src, alt }: { src?: string; alt?: string }) {
+  // Vídeo que o Notion exportou como imagem (![…](video.mp4)) toca como vídeo
+  if (src && lerMidia(src)?.fonte === "arquivo") return <MidiaIncorporada endereco={src} />
+  return <ImagemComum src={src} alt={alt} />
+}
+
+function ImagemComum({ src, alt }: { src?: string; alt?: string }) {
   const caminho = src?.startsWith(PREFIXO_ARQUIVO) ? decodeURIComponent(src.slice(PREFIXO_ARQUIVO.length)) : null
   const { data } = useUrlArquivo(caminho)
   const url = caminho ? data : src
@@ -72,19 +81,37 @@ function BlocoCodigo({ children }: { children: React.ReactNode }) {
   )
 }
 
+function LinkComum({ href, children }: { href?: string; children: React.ReactNode }) {
+  if (href?.startsWith(PREFIXO_ARQUIVO)) return <LinkArquivo href={href}>{children}</LinkArquivo>
+  const interno = href?.startsWith("/")
+  return (
+    <a href={href} target={interno ? undefined : "_blank"} rel={interno ? undefined : "noreferrer"}>
+      {children}
+    </a>
+  )
+}
+
 const componentes: Components = {
-  img: ({ src, alt }) => <Imagem src={typeof src === "string" ? src : undefined} alt={alt} />,
-  a: ({ href, children }) => {
-    if (href?.startsWith(PREFIXO_ARQUIVO)) return <LinkArquivo href={href}>{children}</LinkArquivo>
-    const interno = href?.startsWith("/")
-    return (
-      <a href={href} target={interno ? undefined : "_blank"} rel={interno ? undefined : "noreferrer"}>
-        {children}
-      </a>
-    )
-  },
+  img: ({ src, alt }) => <ImagemComum src={typeof src === "string" ? src : undefined} alt={alt} />,
+  a: ({ href, children }) => <LinkComum href={href}>{children}</LinkComum>,
   pre: ({ children }) => <BlocoCodigo>{children}</BlocoCodigo>,
 }
+
+/** Com os vídeos tocando no próprio texto (ver `marcarMidias`). */
+const componentesComVideos: Components = {
+  ...componentes,
+  img: ({ src, alt }) => <Imagem src={typeof src === "string" ? src : undefined} alt={alt} />,
+  a: ({ href, children }) =>
+    href && lerVideoDeSite(href) ? <LinkDeVideo href={href}>{children}</LinkDeVideo> : <LinkComum href={href}>{children}</LinkComum>,
+  figure: ({ node, children, ...resto }) => {
+    const endereco = node?.properties?.dataMidia
+    const legenda = node?.properties?.dataLegenda
+    if (typeof endereco === "string") return <MidiaIncorporada endereco={endereco} legenda={typeof legenda === "string" ? legenda : null} />
+    return <figure {...resto}>{children}</figure>
+  },
+}
+
+const PLUGINS_VIDEOS = [marcarMidias]
 
 function permitirUrl(url: string) {
   if (url.startsWith(PREFIXO_ARQUIVO)) return url
@@ -105,16 +132,20 @@ export function Markdown({
   texto,
   className,
   aoMudar,
+  videos = true,
 }: {
   texto: string | null | undefined
   className?: string
   /** Quando informado, as caixas de seleção ficam clicáveis e devolvem o texto atualizado. */
   aoMudar?: (texto: string) => void
+  /** Links de vídeo (YouTube, Instagram, TikTok, arquivos) tocam no próprio texto. Desligar em prévias curtas. */
+  videos?: boolean
 }) {
   const comps = React.useMemo<Components>(() => {
-    if (!aoMudar || !texto) return componentes
+    const base = videos ? componentesComVideos : componentes
+    if (!aoMudar || !texto) return base
     return {
-      ...componentes,
+      ...base,
       li: ({ node, className: cls, children, ...resto }) => {
         const inicio = node?.position?.start.offset
         if (!String(cls ?? "").includes("task-list-item") || inicio === undefined) return <li className={cls} {...resto}>{children}</li>
@@ -133,11 +164,11 @@ export function Markdown({
       },
       input: ({ node, ...props }) => (void node, props.type === "checkbox" ? <input {...props} disabled={false} readOnly className="cursor-pointer" /> : <input {...props} />),
     }
-  }, [aoMudar, texto])
+  }, [aoMudar, texto, videos])
   if (!texto?.trim()) return null
   return (
     <div className={cn("prosa", className)}>
-      <ReactMarkdown remarkPlugins={[remarkGfm]} components={comps} urlTransform={permitirUrl}>
+      <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={videos ? PLUGINS_VIDEOS : undefined} components={comps} urlTransform={permitirUrl}>
         {texto}
       </ReactMarkdown>
     </div>
@@ -183,14 +214,22 @@ export function EditorMarkdown({
         />
       </div>
       {modo === "editar" ? (
-        <AreaTexto
-          aria-label={rotulo}
-          value={texto}
-          onChange={(e) => setTexto(e.target.value)}
-          onBlur={salvar}
-          placeholder={placeholder}
-          className="min-h-72 font-mono text-[13px]"
-        />
+        <>
+          <AreaTexto
+            aria-label={rotulo}
+            value={texto}
+            onChange={(e) => setTexto(e.target.value)}
+            onBlur={salvar}
+            placeholder={placeholder}
+            className="min-h-72 font-mono text-[13px]"
+          />
+          {contarVideos(texto) ? (
+            <p className="mt-1.5 flex items-start gap-1.5 text-xs text-ink-3">
+              <Play aria-hidden className="mt-[3px] size-3 shrink-0" />
+              Vídeos do YouTube, Instagram e TikTok tocam aqui no modo Ler. O link sozinho na linha vira player.
+            </p>
+          ) : null}
+        </>
       ) : texto.trim() ? (
         <Markdown
           texto={texto}

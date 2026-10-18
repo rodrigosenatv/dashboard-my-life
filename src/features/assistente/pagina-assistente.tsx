@@ -383,7 +383,7 @@ export function PaginaAssistente() {
                     <p className="whitespace-pre-wrap text-[15px]">{m.content}</p>
                   ) : m.content ? (
                     <>
-                      <Markdown texto={m.content} />
+                      <Markdown texto={m.content} videos={false} />
                       {!(respondendo && i === mensagens.length - 1) && !m.content.trimStart().startsWith(MARCA_ERRO) && !m.content.startsWith("Não foi possível") ? <AcoesResposta texto={m.content} pergunta={mensagens[i - 1]?.content ?? ""} /> : null}
                     </>
                   ) : (

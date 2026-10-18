@@ -167,7 +167,7 @@ export function PaginaLaboratorio() {
                           </p>
                         ) : null}
                         {e.hypothesis ? <p className="mt-2 text-sm text-ink-2">{e.hypothesis}</p> : null}
-                        {e.notes ? <Markdown texto={e.notes.slice(0, 400)} className="mt-2 text-sm text-ink-2" /> : null}
+                        {e.notes ? <Markdown texto={e.notes.slice(0, 400)} className="mt-2 text-sm text-ink-2" videos={false} /> : null}
                       </button>
                     </li>
                   ))}
