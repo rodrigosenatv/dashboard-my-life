@@ -13,7 +13,7 @@ import { novoId, useCriar, useLista, useRegistro } from "@/lib/data"
 import { cn, normalizar, urlValida } from "@/lib/utils"
 import { BlocoColecao, type Colecao } from "@/features/colecoes/visao-colecao"
 import { AgendaProxima, TarefasHoje } from "@/features/hoje/hoje"
-import { contarDescendentes, filhosDe, useArvorePaginas } from "@/features/paginas/dados"
+import { contarDescendentes, filhosDe, type PaginaResumo, useArvorePaginas } from "@/features/paginas/dados"
 import { HUBS, hubPorSlug, type BlocoBanco, type Hub } from "./hubs"
 
 const semPrefixo = (nome: string) => normalizar(nome.replace(/^database:?\s*/i, ""))
@@ -76,13 +76,13 @@ export function NavVida({ atual }: { atual: string }) {
   )
 }
 
-function Subpaginas({ paiId }: { paiId: string }) {
+export function Subpaginas({ paiId, titulo = "Páginas", ocultar }: { paiId: string; titulo?: string; ocultar?: (p: PaginaResumo) => boolean }) {
   const { data: paginas = [] } = useArvorePaginas()
-  const filhos = filhosDe(paginas, paiId)
+  const filhos = filhosDe(paginas, paiId).filter((p) => !ocultar?.(p))
   if (!filhos.length) return null
   return (
-    <Secao titulo="Páginas">
-      <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+    <Secao titulo={titulo}>
+      <ul className="grid gap-2">
         {filhos.map((p) => {
           const n = contarDescendentes(paginas, p.id)
           return (
@@ -101,9 +101,13 @@ function Subpaginas({ paiId }: { paiId: string }) {
 }
 
 /** Texto da página do Notion, sem as linhas que só apontavam para os bancos. */
-function TextoDaPagina({ id }: { id: string }) {
+export function TextoDaPagina({ id }: { id: string }) {
   const { data: pagina } = useRegistro("pages", id)
   const texto = (pagina?.content ?? "")
+    // Os ícones do Notion (<img>) que sobraram no texto não são texto
+    .replace(/<img[^>]*>/gi, "")
+    // Negrito com espaço antes do fechamento (**Insights **) não vira negrito no markdown
+    .replace(/\*\*(\S[^*\n]*?)\s+\*\*/g, "**$1**")
     .split("\n")
     .filter((l) => !/^\s*\[?[^\]]*\]\([^)]*\.(csv|md)\)\s*$/i.test(l) && !/^\s*(database:|banco de dados)/i.test(l.replace(/[*#_]/g, "").trim()))
     .join("\n")

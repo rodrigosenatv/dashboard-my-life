@@ -87,8 +87,9 @@ export const HUBS: Hub[] = [
     titulo: "Pessoal",
     icone: FolderOpen,
     paginas: ["Pessoal"],
-    descricao: "Sua wiki pessoal e anotações sobre você.",
-    blocos: [{ tipo: "colecao", nomes: ["Wiki Pessoal"], titulo: "Wiki pessoal", largo: true }, { tipo: "subpaginas" }, { tipo: "texto" }],
+    descricao: "Seu diário, os aniversários, os contatos e a sua wiki pessoal.",
+    // Pessoal tem tela própria (src/features/pessoal), servida em /vida/pessoal
+    blocos: [],
   },
   {
     slug: "filmes-series",

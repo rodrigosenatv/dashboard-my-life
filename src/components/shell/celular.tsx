@@ -140,9 +140,21 @@ export function BarraInferior() {
 export function AbasArea() {
   const pathname = usePathname()
   const grupo = grupoDaRota(pathname)
+  const faixa = React.useRef<HTMLDivElement>(null)
+  // A aba da tela atual pode ficar fora da vista (ex.: "Pessoal", a 6ª de 8): a faixa rola até ela.
+  // Só a faixa rola (nunca a página), e só quando a aba não está inteira à vista.
+  React.useLayoutEffect(() => {
+    const caixa = faixa.current
+    const aba = caixa?.querySelector<HTMLElement>('[aria-current="page"]')
+    if (!caixa || !aba) return
+    const c = caixa.getBoundingClientRect()
+    const a = aba.getBoundingClientRect()
+    if (a.left >= c.left && a.right <= c.right) return
+    caixa.scrollLeft += a.left + a.width / 2 - (c.left + c.width / 2)
+  }, [pathname])
   if (!grupo) return null
   return (
-    <div className="-mx-4 mb-5 overflow-x-auto border-b border-line px-4 scrollbar-thin lg:hidden">
+    <div ref={faixa} className="-mx-4 mb-5 overflow-x-auto border-b border-line px-4 scrollbar-thin lg:hidden">
       <div className="flex gap-1">
         {grupo.itens.map((i) => {
           const sel = ativo(pathname, i.href)
