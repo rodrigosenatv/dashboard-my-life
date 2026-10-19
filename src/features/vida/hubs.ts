@@ -106,11 +106,8 @@ export const HUBS: Hub[] = [
     icone: Shirt,
     paginas: ["Guarda Roupa", "Guarda-Roupa"],
     descricao: "Peças, outfits e a lista de desejos.",
-    blocos: [
-      { tipo: "colecao", nomes: ["Guarda Roupa", "Guarda-Roupa"], titulo: "Roupas", visao: "galeria", largo: true },
-      { tipo: "colecao", nomes: ["Outfit", "Outfits"], titulo: "Outfits", visao: "galeria", largo: true },
-      { tipo: "texto" },
-    ],
+    // Guarda Roupa tem tela própria (src/features/guarda-roupa), servida em /vida/guarda-roupa
+    blocos: [],
   },
 ]
 
