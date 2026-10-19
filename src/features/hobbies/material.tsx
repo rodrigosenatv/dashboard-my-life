@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import * as React from "react"
-import { Ellipsis, FileText, FolderInput, Plus, Trash2, Unlink } from "lucide-react"
+import { Ellipsis, FileText, FolderInput, Play, Plus, Trash2, Unlink, Video } from "lucide-react"
 import { toast } from "sonner"
 import { Botao } from "@/components/ui/button"
 import { Etiqueta, Vazio } from "@/components/ui/basicos"
@@ -13,6 +13,10 @@ import { Menu, MenuConteudo, MenuGatilho, MenuItem, MenuRotulo, MenuSeparador } 
 import { novoId, useCriar, useExcluir } from "@/lib/data"
 import { cn, plural } from "@/lib/utils"
 import { contarDescendentes, type PaginaResumo } from "@/features/paginas/dados"
+import { AdicionarVideo } from "@/features/videos/adicionar-video"
+import { contarPorGrupo, type Destino } from "@/features/videos/dados"
+import { enderecoDoFeed, marcarVoltaDoFeed } from "@/features/videos/endereco"
+import type { ItemFeed } from "@/features/videos/logica"
 import { lerIds, useGravarHobbies, type Hobby } from "./dados"
 
 const tituloDe = (p: PaginaResumo) => p.title.trim() || "Sem título"
@@ -76,6 +80,7 @@ export function ListaDePaginas({
   hobbies,
   atual,
   emBranco,
+  videos,
 }: {
   paginas: PaginaResumo[]
   /** Todas as páginas do app (para contar as subpáginas). */
@@ -84,6 +89,8 @@ export function ListaDePaginas({
   /** O hobby em que estas páginas estão; null quando não estão em nenhum. */
   atual: string | null
   emBranco: ReadonlySet<string>
+  /** Quantos vídeos cada página tem (com as subpáginas), para assistir só os dela. */
+  videos?: ReadonlyMap<string, number>
 }) {
   const router = useRouter()
   const { mover, excluir } = useAcoesPaginas(hobbies)
@@ -97,14 +104,24 @@ export function ListaDePaginas({
       <ul className="divide-y divide-line overflow-hidden rounded-xl border border-line bg-surface">
         {paginas.map((p) => {
           const filhas = subpaginas.get(p.id) ?? 0
+          const nVideos = videos?.get(p.id) ?? 0
           return (
             <li key={p.id} className="flex items-center pr-1.5">
               <Link href={`/paginas/${p.id}`} className="flex min-w-0 flex-1 items-center gap-2.5 px-4 py-3 transition-colors hover:bg-surface-2 toque:min-h-12">
                 <IconeDaPagina pagina={p} />
                 <span className="min-w-0 truncate font-medium">{tituloDe(p)}</span>
                 {emBranco.has(p.id) ? <Etiqueta className="shrink-0">Em branco</Etiqueta> : null}
-                {filhas ? <span className="ml-auto shrink-0 pl-2 text-xs text-ink-3">{plural(filhas, "subpágina")}</span> : null}
+                {filhas || nVideos ? (
+                  <span className="ml-auto shrink-0 pl-2 text-xs text-ink-3">{[nVideos ? plural(nVideos, "vídeo") : "", filhas ? plural(filhas, "subpágina") : ""].filter(Boolean).join(" · ")}</span>
+                ) : null}
               </Link>
+              {nVideos && atual ? (
+                <Botao asChild variante="fantasma" tamanho="icone-sm">
+                  <Link href={enderecoDoFeed({ hobby: atual, grupo: p.id })} onClick={marcarVoltaDoFeed} aria-label={`Assistir os vídeos de ${tituloDe(p)}`} title="Assistir os vídeos">
+                    <Play />
+                  </Link>
+                </Botao>
+              ) : null}
               <Menu>
                 <MenuGatilho asChild>
                   <Botao variante="fantasma" tamanho="icone-sm" aria-label={`Mais opções de ${tituloDe(p)}`}>
@@ -161,6 +178,8 @@ export function MaterialHobby({
   soltas,
   emBranco,
   paginaHobbies,
+  videos,
+  destinos,
 }: {
   hobby: Hobby
   hobbies: Hobby[]
@@ -171,14 +190,22 @@ export function MaterialHobby({
   emBranco: ReadonlySet<string>
   /** A página "Hobbies" do Notion, onde as páginas novas ficam. */
   paginaHobbies: PaginaResumo | null
+  /** Os vídeos das páginas do hobby e onde dá para guardar um novo. */
+  videos: ItemFeed[]
+  destinos: Destino[]
 }) {
   const [nova, setNova] = React.useState(false)
   const [existentes, setExistentes] = React.useState(false)
+  const [adicionarVideo, setAdicionarVideo] = React.useState(false)
+  const porPagina = React.useMemo(() => contarPorGrupo(videos), [videos])
 
   const botoes = (
     <div className="flex flex-wrap gap-2">
       <Botao variante="contorno" onClick={() => setNova(true)}>
         <Plus /> Nova página
+      </Botao>
+      <Botao variante="contorno" onClick={() => setAdicionarVideo(true)}>
+        <Video /> Adicionar vídeo
       </Botao>
       {soltas.length ? (
         <Botao variante="fantasma" onClick={() => setExistentes(true)}>
@@ -193,7 +220,7 @@ export function MaterialHobby({
       {paginasDoHobby.length ? (
         <>
           <p className="text-sm text-ink-2">Anotações, exercícios e tudo que você estuda sobre {hobby.nome}.</p>
-          <ListaDePaginas paginas={paginasDoHobby} todas={todas} hobbies={hobbies} atual={hobby.id} emBranco={emBranco} />
+          <ListaDePaginas paginas={paginasDoHobby} todas={todas} hobbies={hobbies} atual={hobby.id} emBranco={emBranco} videos={porPagina} />
           {botoes}
         </>
       ) : (
@@ -206,6 +233,15 @@ export function MaterialHobby({
       )}
       <NovaPagina aberta={nova} aoMudar={setNova} hobby={hobby} paginaHobbies={paginaHobbies} todas={todas} />
       <AdicionarPaginas aberta={existentes} aoMudar={setExistentes} hobby={hobby} soltas={soltas} emBranco={emBranco} />
+      <AdicionarVideo
+        aberta={adicionarVideo}
+        aoMudar={setAdicionarVideo}
+        destinos={destinos}
+        hobbyPadrao={hobby}
+        paginaHobbies={paginaHobbies}
+        arvore={todas}
+        existentes={videos}
+      />
     </div>
   )
 }

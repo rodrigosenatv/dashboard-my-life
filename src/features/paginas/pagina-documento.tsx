@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { useParams, useRouter, useSearchParams } from "next/navigation"
 import * as React from "react"
-import { ChevronRight, Ellipsis, FileText, Plus, Star, Trash } from "lucide-react"
+import { ChevronRight, Ellipsis, FileText, Play, Plus, Star, Trash, Video } from "lucide-react"
 import { Botao } from "@/components/ui/button"
 import { Carregando, Secao, Vazio } from "@/components/ui/basicos"
 import { EdicaoEmLinha, Seletor } from "@/components/ui/campos"
@@ -12,7 +12,10 @@ import { Menu, MenuConteudo, MenuGatilho, MenuItem, MenuSeparador } from "@/comp
 import { EditorMarkdown } from "@/components/markdown"
 import { useUrlArquivo } from "@/lib/arquivos"
 import { novoId, useAtualizar, useCriar, useExcluir, useRegistro } from "@/lib/data"
-import { haQuanto } from "@/lib/utils"
+import { haQuanto, plural } from "@/lib/utils"
+import { AdicionarVideo } from "@/features/videos/adicionar-video"
+import { enderecoDoFeed, marcarVoltaDoFeed } from "@/features/videos/endereco"
+import { extrairVideos, type ItemFeed } from "@/features/videos/logica"
 import { ancestrais, filhosDe, SECOES, useArvorePaginas } from "./dados"
 
 function Capa({ caminho }: { caminho: string }) {
@@ -32,6 +35,13 @@ export function PaginaDocumento() {
   const criar = useCriar("pages")
   const excluir = useExcluir("pages")
   const [apagar, setApagar] = React.useState(false)
+  const [adicionarVideo, setAdicionarVideo] = React.useState(false)
+  // Os vídeos desta página, para assistir em sequência e para avisar de vídeo repetido
+  const videos = React.useMemo<ItemFeed[]>(() => {
+    if (!pagina) return []
+    const titulo = pagina.title.trim() || "Sem título"
+    return extrairVideos(pagina.content).map((v) => ({ ...v, paginaId: pagina.id, paginaTitulo: titulo, grupo: pagina.id, grupoTitulo: titulo }))
+  }, [pagina])
 
   if (isLoading) return <Carregando linhas={6} />
   if (!pagina) return <Vazio titulo="Página não encontrada." acao={<Link href="/conteudo/biblioteca" className="text-sm font-medium text-pen">Ir para a biblioteca</Link>} />
@@ -63,7 +73,18 @@ export function PaginaDocumento() {
       <header className="mb-6 flex items-start gap-3">
         <div className="min-w-0 flex-1">
           <EdicaoEmLinha rotulo="Título da página" valor={pagina.title} aoSalvar={(v) => atualizar.mutate({ id: pagina.id, title: v || "Sem título" })} className="font-display text-3xl font-semibold" />
-          <p className="mt-1 text-xs text-ink-3">Editada {haQuanto(pagina.updated_at)}</p>
+          <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-ink-3">
+            Editada {haQuanto(pagina.updated_at)}
+            {videos.length > 1 ? (
+              <Link
+                href={enderecoDoFeed({ pagina: pagina.id })}
+                onClick={marcarVoltaDoFeed}
+                className="inline-flex items-center gap-1 rounded-sm font-medium text-pen hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pen/40 toque:py-2 toque:text-sm"
+              >
+                <Play className="size-3.5 fill-current" aria-hidden /> Assistir {plural(videos.length, "vídeo")} em sequência
+              </Link>
+            ) : null}
+          </p>
         </div>
         <Botao
           variante="fantasma"
@@ -80,6 +101,7 @@ export function PaginaDocumento() {
           </MenuGatilho>
           <MenuConteudo className="w-60">
             <MenuItem onSelect={subpagina}><Plus /> Nova subpágina</MenuItem>
+            <MenuItem onSelect={() => setAdicionarVideo(true)}><Video /> Adicionar vídeo</MenuItem>
             <div className="px-2.5 py-1.5">
               <label className="mb-1 block text-xs text-ink-3" htmlFor="secao-pagina">Mostrar em</label>
               <Seletor id="secao-pagina" className="h-8" value={pagina.section} onChange={(e) => atualizar.mutate({ id: pagina.id, section: e.target.value })}>
@@ -114,6 +136,15 @@ export function PaginaDocumento() {
           </ul>
         </Secao>
       ) : null}
+
+      <AdicionarVideo
+        aberta={adicionarVideo}
+        aoMudar={setAdicionarVideo}
+        destinos={[{ id: pagina.id, titulo: pagina.title.trim() || "Sem título", nivel: 0, hobby: null }]}
+        paginaHobbies={null}
+        arvore={arvore}
+        existentes={videos}
+      />
 
       <Confirmar
         aberta={apagar}

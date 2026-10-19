@@ -48,12 +48,41 @@ function lerInstagram(u: URL): VideoDeSite | null {
   return null
 }
 
-/** tiktok.com/@conta/video/123…, /embed/v2/123…, /player/v1/123…, m.tiktok.com/v/123….html. Links curtos (vm.tiktok.com) não dá para abrir aqui. */
+/**
+ * tiktok.com/@conta/video/123…, /embed/v2/123…, /player/v1/123…, m.tiktok.com/v/123….html.
+ * Links curtos (vm.tiktok.com) precisam ser abertos antes (ver `lib/link-curto`).
+ */
 function lerTiktok(u: URL): VideoDeSite | null {
   const host = u.hostname.toLowerCase().replace(/^(www|m)\./, "")
   if (host !== "tiktok.com") return null
   const m = u.pathname.match(/^\/(?:@[^/]+\/(?:video|photo)|embed(?:\/v2)?|player\/v1|v)\/(\d{10,25})(?:\.html)?(?:\/|$)/)
-  return m ? { fonte: "tiktok", id: m[1], link: u.href } : null
+  if (!m) return null
+  // Com a conta no endereço dá para guardar o link limpo (sem o ?_r= / ?_t= do compartilhar)
+  const link = u.pathname.startsWith("/@") ? `https://www.tiktok.com${u.pathname.replace(/\/+$/, "")}` : u.href
+  return { fonte: "tiktok", id: m[1], link }
+}
+
+/** O mesmo vídeo escrito de jeitos diferentes (com ou sem ?igsh=, youtu.be ou youtube.com) tem a mesma chave. */
+export function chaveDoVideo(m: Midia): string {
+  switch (m.fonte) {
+    case "youtube":
+      return `youtube:${m.youtube.id}`
+    case "instagram":
+      return `instagram:${m.codigo}`
+    case "tiktok":
+      return `tiktok:${m.id}`
+    case "arquivo":
+      return `arquivo:${m.endereco}`
+  }
+}
+
+/** O texto de um link vale como legenda quando não é só o endereço ou o nome do arquivo. */
+export function legendaDoLink(rotulo: string, endereco: string): string | null {
+  const r = rotulo.replace(/\s+/g, " ").trim()
+  if (!r || r === endereco) return null
+  if (/^(https?:\/\/|www\.)/i.test(r)) return null
+  if (/\.(mp4|m4v|mov|webm|ogv|mp3|m4a|aac|wav|ogg|oga|opus)$/i.test(r)) return null
+  return r
 }
 
 /** Entende um endereço de vídeo ou áudio que dá para tocar dentro do app. Qualquer outro link volta `null`. */
@@ -97,16 +126,19 @@ export function emPe(m: Midia): boolean {
   return m.fonte === "instagram" || m.fonte === "tiktok"
 }
 
-/** Endereço do player embutido, montado só com o código do vídeo (nada do link original vai para o iframe). */
-export function enderecoDoPlayer(v: VideoDeSite): string {
+/**
+ * Endereço do player embutido, montado só com o código do vídeo (nada do link original vai para o iframe).
+ * No feed, o vídeo começa sozinho e repete (o Instagram não deixa: lá a pessoa toca para começar).
+ */
+export function enderecoDoPlayer(v: VideoDeSite, opcoes: { feed?: boolean } = {}): string {
   switch (v.fonte) {
     case "youtube":
-      return embedYoutube(v.youtube, { autoplay: true })
+      return embedYoutube(v.youtube, { autoplay: true, repetir: opcoes.feed })
     case "instagram":
       // Os mesmos parâmetros do embed oficial; o "ci" no fim faz o Instagram avisar a altura do post
       return `https://www.instagram.com/${v.tipo}/${v.codigo}/embed/?cr=1&v=14#${encodeURIComponent(JSON.stringify({ ci: 0, os: 0 }))}`
     case "tiktok":
-      return `https://www.tiktok.com/player/v1/${v.id}?rel=0`
+      return `https://www.tiktok.com/player/v1/${v.id}?rel=0${opcoes.feed ? "&autoplay=1&loop=1" : ""}`
   }
 }
 

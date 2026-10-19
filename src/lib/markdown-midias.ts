@@ -1,4 +1,4 @@
-import { emPe, lerMidia, type Midia } from "@/lib/videos"
+import { emPe, legendaDoLink, lerMidia, type Midia } from "@/lib/videos"
 
 /**
  * Plugin do leitor de markdown (rehype): um link de vídeo sozinho no parágrafo (ou no item
@@ -24,15 +24,6 @@ const ehElemento = (n: No, tag: string) => n.type === "element" && n.tagName ===
 function textoDe(n: No): string {
   if (n.type === "text") return String(n.value ?? "")
   return (n.children ?? []).map(textoDe).join("")
-}
-
-/** O texto do link vale como legenda quando não é só o endereço ou o nome do arquivo. */
-function legendaDoLink(rotulo: string, endereco: string): string | null {
-  const r = rotulo.trim()
-  if (!r || r === endereco) return null
-  if (/^(https?:\/\/|www\.)/i.test(r)) return null
-  if (/\.(mp4|m4v|mov|webm|ogv|mp3|m4a|aac|wav|ogg|oga|opus)$/i.test(r)) return null
-  return r
 }
 
 function midiaDoLink(n: No): Achado | null {

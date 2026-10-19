@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { ExternalLink, Play } from "lucide-react"
+import { useNaTela } from "@/lib/na-tela"
 import { embedYoutube, linkYoutube, miniaturaYoutube, type VideoYoutube } from "@/lib/youtube"
 import { cn } from "@/lib/utils"
 
@@ -11,27 +12,32 @@ import { cn } from "@/lib/utils"
  */
 export function TelaYoutube({ video, titulo, iniciar = false }: { video: VideoYoutube; titulo: string; iniciar?: boolean }) {
   const [tocando, setTocando] = React.useState(iniciar)
-  if (tocando)
-    return (
-      <iframe
-        src={embedYoutube(video, { autoplay: true })}
-        title={`Vídeo: ${titulo}`}
-        className="absolute inset-0 size-full"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-        allowFullScreen
-        referrerPolicy="strict-origin-when-cross-origin"
-      />
-    )
+  // Saiu da tela (o Next só esconde): o player sai e o vídeo para; ao voltar, fica como quando a tela abriu
+  const naTela = useNaTela()
+  if (!naTela && tocando !== iniciar) setTocando(iniciar)
   return (
-    <button type="button" onClick={() => setTocando(true)} className="group absolute inset-0" aria-label={`Tocar o vídeo de ${titulo}`}>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={miniaturaYoutube(video.id)} alt="" loading="lazy" className="size-full object-cover opacity-85 transition-opacity group-hover:opacity-100" />
-      <span className="absolute inset-0 grid place-items-center">
-        <span className="grid size-14 place-items-center rounded-full bg-black/65 text-white shadow-overlay transition-transform group-hover:scale-105">
-          <Play className="size-6 translate-x-0.5" fill="currentColor" />
-        </span>
-      </span>
-    </button>
+    <div className="absolute inset-0">
+      {tocando && naTela ? (
+        <iframe
+          src={embedYoutube(video, { autoplay: true })}
+          title={`Vídeo: ${titulo}`}
+          className="absolute inset-0 size-full"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowFullScreen
+          referrerPolicy="strict-origin-when-cross-origin"
+        />
+      ) : (
+        <button type="button" onClick={() => setTocando(true)} className="group absolute inset-0" aria-label={`Tocar o vídeo de ${titulo}`}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={miniaturaYoutube(video.id)} alt="" loading="lazy" className="size-full object-cover opacity-85 transition-opacity group-hover:opacity-100" />
+          <span className="absolute inset-0 grid place-items-center">
+            <span className="grid size-14 place-items-center rounded-full bg-black/65 text-white shadow-overlay transition-transform group-hover:scale-105">
+              <Play className="size-6 translate-x-0.5" fill="currentColor" />
+            </span>
+          </span>
+        </button>
+      )}
+    </div>
   )
 }
 

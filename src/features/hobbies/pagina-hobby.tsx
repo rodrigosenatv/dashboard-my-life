@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { useParams, useRouter, useSearchParams } from "next/navigation"
 import * as React from "react"
-import { ArrowLeft, Ellipsis, Layers, Pencil, Plus, Trash2 } from "lucide-react"
+import { ArrowLeft, Ellipsis, Layers, Pencil, Play, Plus, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 import { Botao } from "@/components/ui/button"
 import { Carregando, ErroCarregar, Segmentos, Vazio } from "@/components/ui/basicos"
@@ -12,6 +12,8 @@ import { Menu, MenuConteudo, MenuGatilho, MenuItem, MenuSeparador } from "@/comp
 import type { Json } from "@/lib/supabase/database.types"
 import { isoDia, plural } from "@/lib/utils"
 import { filhosDe } from "@/features/paginas/dados"
+import { useVideosDoHobby } from "@/features/videos/dados"
+import { enderecoDoFeed, marcarVoltaDoFeed } from "@/features/videos/endereco"
 import { diasDaSemana, resumirHobby, textoMinutos, textoSemana, useDadosHobbies, useGravarHobbies, usePaginasDosHobbies, usePaginasEmBranco, type Sessao } from "./dados"
 import { FormHobby } from "./form-hobby"
 import { FormPratica } from "./form-pratica"
@@ -44,6 +46,7 @@ export function PaginaHobby() {
     return filhosDe(paginas, pagina.id).filter((p) => !ligadas.has(p.id))
   }, [pagina, paginas, hobbies])
   const emBranco = usePaginasEmBranco(React.useMemo(() => [...paginasDoHobby, ...soltas], [paginasDoHobby, soltas]))
+  const { videos, destinos } = useVideosDoHobby(hobby, paginas, porId)
 
   const pedida = params.get("aba")
   const aba: Aba = (ABAS as readonly string[]).includes(pedida ?? "") ? (pedida as Aba) : "pratica"
@@ -98,8 +101,15 @@ export function PaginaHobby() {
           <CapaHobby hobby={hobby} />
           <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-black/10" />
           <div className="absolute right-3 top-3 flex gap-1.5">
-            <Botao tamanho="sm" className="border-0 bg-black/45 text-white backdrop-blur-sm hover:bg-black/60" onClick={() => setEditar(true)}>
-              <Pencil /> Editar
+            {videos.length ? (
+              <Botao asChild tamanho="sm" className="border-0 bg-white text-black hover:bg-white/90">
+                <Link href={enderecoDoFeed({ hobby: hobby.id })} onClick={marcarVoltaDoFeed}>
+                  <Play className="fill-current" /> Vídeos <span className="tabular-nums text-black/60">{videos.length}</span>
+                </Link>
+              </Botao>
+            ) : null}
+            <Botao tamanho="sm" className="border-0 bg-black/45 text-white backdrop-blur-sm hover:bg-black/60" onClick={() => setEditar(true)} aria-label="Editar o hobby">
+              <Pencil /> <span className="max-sm:hidden">Editar</span>
             </Botao>
             <Menu>
               <MenuGatilho asChild>
@@ -162,7 +172,7 @@ export function PaginaHobby() {
         {aba === "pratica" ? (
           <PraticaHobby sessoes={minhasSessoes} resumo={resumo} aoRegistrar={() => setRegistrar(true)} aoEditar={setEditandoSessao} />
         ) : (
-          <MaterialHobby hobby={hobby} hobbies={hobbies} todas={paginas} paginasDoHobby={paginasDoHobby} soltas={soltas} emBranco={emBranco} paginaHobbies={pagina} />
+          <MaterialHobby hobby={hobby} hobbies={hobbies} todas={paginas} paginasDoHobby={paginasDoHobby} soltas={soltas} emBranco={emBranco} paginaHobbies={pagina} videos={videos} destinos={destinos} />
         )}
       </div>
 

@@ -46,11 +46,16 @@ export function linkYoutube(v: VideoYoutube): string {
   return `https://www.youtube.com/watch?v=${v.id}${v.inicio ? `&t=${v.inicio}s` : ""}`
 }
 
-/** Endereço do player embutido (sem cookies até dar play). */
-export function embedYoutube(v: VideoYoutube, opcoes: { autoplay?: boolean } = {}): string {
+/** Endereço do player embutido (sem cookies até dar play). `repetir` volta ao começo no fim (como no feed). */
+export function embedYoutube(v: VideoYoutube, opcoes: { autoplay?: boolean; repetir?: boolean } = {}): string {
   const p = new URLSearchParams({ playsinline: "1", rel: "0" })
   if (v.inicio) p.set("start", String(v.inicio))
   if (opcoes.autoplay) p.set("autoplay", "1")
+  if (opcoes.repetir) {
+    // O YouTube só repete um vídeo sozinho quando ele é a própria "playlist"
+    p.set("loop", "1")
+    p.set("playlist", v.id)
+  }
   return `https://www.youtube-nocookie.com/embed/${v.id}?${p}`
 }
 

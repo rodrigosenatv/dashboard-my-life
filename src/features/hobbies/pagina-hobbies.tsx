@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import * as React from "react"
-import { Check, Crown, Ellipsis, FileText, Layers, Plus } from "lucide-react"
+import { Check, Crown, Ellipsis, FileText, Layers, Play, Plus } from "lucide-react"
 import { toast } from "sonner"
 import { Botao } from "@/components/ui/button"
 import { Cabecalho, Carregando, ErroCarregar, Secao, Vazio } from "@/components/ui/basicos"
@@ -11,6 +11,7 @@ import { Menu, MenuConteudo, MenuGatilho, MenuItem, MenuSeparador } from "@/comp
 import { isoDia, plural } from "@/lib/utils"
 import { NavVida } from "@/features/vida/pagina-hub"
 import { filhosDe, type PaginaResumo } from "@/features/paginas/dados"
+import { enderecoDoFeed, marcarVoltaDoFeed } from "@/features/videos/endereco"
 import {
   diasDaSemana,
   resumirHobby,
@@ -104,6 +105,14 @@ export function PaginaHobbies() {
                 <MenuConteudo className="w-60">
                   <MenuItem onSelect={() => setNovo(true)}>
                     <Plus /> Novo hobby
+                  </MenuItem>
+                  <MenuItem
+                    onSelect={() => {
+                      marcarVoltaDoFeed()
+                      router.push(enderecoDoFeed())
+                    }}
+                  >
+                    <Play /> Vídeos de todos os hobbies
                   </MenuItem>
                   {colecoes.pratica || colecoes.hobbies || pagina ? <MenuSeparador /> : null}
                   {colecoes.pratica ? (

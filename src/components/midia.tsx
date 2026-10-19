@@ -5,6 +5,7 @@ import { ExternalLink, Play } from "lucide-react"
 import { Janela } from "@/components/ui/janela"
 import { TelaYoutube } from "@/components/video-youtube"
 import { PREFIXO_ARQUIVO, useUrlArquivo } from "@/lib/arquivos"
+import { useNaTela } from "@/lib/na-tela"
 import { cn } from "@/lib/utils"
 import {
   alturaDoInstagram,
@@ -24,11 +25,29 @@ const semInscricao = () => () => {}
 const verdadeiro = () => true
 const falso = () => false
 
+/** Altura de um post do Instagram antes de ele avisar a dele (cabeçalho, vídeo em pé e rodapé). */
+export const alturaEstimadaInstagram = (largura: number, tipo: "p" | "reel" | "tv") => Math.round(largura * (tipo === "p" ? 9 / 5 : 21 / 9))
+
+/** Largura máxima do post do Instagram (a mesma do embed oficial deles, com folga para o celular). */
+export const LARGURA_INSTAGRAM = 360
+
 /**
  * Post ou reel do Instagram no player oficial deles. O Instagram avisa a altura do post por
- * mensagem; até lá a caixa fica com a proporção de um reel.
+ * mensagem; até lá a caixa fica com a proporção de um reel. Com `caixa` (no feed), o post
+ * inteiro é reduzido para caber nela, sem cortar o nome da conta nem os botões do Instagram.
  */
-function TelaInstagram({ video, titulo }: { video: Extract<VideoDeSite, { fonte: "instagram" }>; titulo: string }) {
+export function TelaInstagram({
+  video,
+  titulo,
+  caixa,
+  imediato = false,
+}: {
+  video: Extract<VideoDeSite, { fonte: "instagram" }>
+  titulo: string
+  caixa?: { largura: number; altura: number } | null
+  /** Carrega já, sem esperar chegar perto na rolagem (o vídeo da vez no feed). */
+  imediato?: boolean
+}) {
   // O iframe só nasce no navegador, já com a escuta ligada: assim o aviso de altura não se perde
   const noNavegador = React.useSyncExternalStore(semInscricao, verdadeiro, falso)
   const [altura, setAltura] = React.useState<number | null>(null)
@@ -45,11 +64,13 @@ function TelaInstagram({ video, titulo }: { video: Extract<VideoDeSite, { fonte:
     return () => window.removeEventListener("message", aoReceber)
   }, [])
 
-  return (
+  const quadro = (estilo?: React.CSSProperties) => (
     <div
-      className="midia-instagram relative w-full overflow-hidden rounded-lg border border-line bg-surface-2"
+      // A moldura é um "ring" (não ocupa espaço): o iframe fica com a altura exata do post. Se sobrasse
+      // 1px de rolagem dentro dele, o dedo rolaria o post em vez de passar para o próximo vídeo.
+      className={cn("relative w-full overflow-hidden rounded-lg bg-surface-2 ring-1 ring-line", !caixa && "midia-instagram")}
       data-tipo={video.tipo}
-      style={altura ? { height: altura } : undefined}
+      style={estilo}
     >
       {carregou ? null : (
         <span aria-hidden className="absolute inset-x-0 top-1/3 text-center text-xs text-ink-3">
@@ -61,13 +82,28 @@ function TelaInstagram({ video, titulo }: { video: Extract<VideoDeSite, { fonte:
           ref={ligar}
           src={enderecoDoPlayer(video)}
           title={titulo}
-          loading="lazy"
+          loading={imediato ? "eager" : "lazy"}
           onLoad={() => setCarregou(true)}
           className="absolute inset-0 size-full"
           allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share; fullscreen"
           allowFullScreen
+          scrolling="no"
         />
       ) : null}
+    </div>
+  )
+
+  if (!caixa) return quadro(altura ? { height: altura } : undefined)
+
+  // No feed: o post na largura dele, reduzido por inteiro até caber na altura da tela
+  const largura = Math.max(1, Math.min(LARGURA_INSTAGRAM, Math.floor(caixa.largura)))
+  const alto = altura ?? alturaEstimadaInstagram(largura, video.tipo)
+  const escala = Math.min(1, caixa.altura / alto)
+  return (
+    <div className="relative" style={{ width: Math.floor(largura * escala), height: Math.floor(alto * escala) }}>
+      <div className="absolute left-0 top-0 origin-top-left" style={{ width: largura, height: alto, transform: escala < 1 ? `scale(${escala})` : undefined }}>
+        {quadro({ height: "100%" })}
+      </div>
     </div>
   )
 }
@@ -82,6 +118,7 @@ function TelaTiktok({ video, titulo }: { video: Extract<VideoDeSite, { fonte: "t
         className="absolute inset-0 size-full"
         allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
         allowFullScreen
+        scrolling="no"
       />
     </div>
   )
@@ -117,17 +154,20 @@ export function MidiaIncorporada({
   className?: string
 }) {
   const midia = React.useMemo(() => lerMidia(endereco), [endereco])
+  // Saiu da tela (o Next só esconde): o player sai e o vídeo para; ao voltar, ele nasce de novo
+  const ref = React.useRef<HTMLElement>(null)
+  const naTela = useNaTela(ref)
   if (!midia) return null
   const nome = midia.fonte === "arquivo" ? null : NOME_DA_FONTE[midia.fonte]
   const titulo = legenda || (midia.fonte !== "arquivo" ? `Vídeo do ${nome}` : midia.tipo === "audio" ? "Áudio" : "Vídeo")
 
   return (
-    <figure className={cn("midia grid min-w-0 content-start justify-items-start gap-1.5", className)} data-formato={emPe(midia) ? "em-pe" : "deitado"}>
+    <figure ref={ref} className={cn("midia grid min-w-0 content-start justify-items-start gap-1.5", className)} data-formato={emPe(midia) ? "em-pe" : "deitado"}>
       {midia.fonte === "youtube" ? (
         <div className={cn("relative overflow-hidden rounded-lg bg-black", midia.youtube.vertical ? "midia-em-pe" : "aspect-video w-full")}>
           <TelaYoutube key={midia.youtube.id} video={midia.youtube} titulo={titulo} iniciar={iniciar} />
         </div>
-      ) : midia.fonte === "instagram" ? (
+      ) : !naTela ? null : midia.fonte === "instagram" ? (
         <TelaInstagram video={midia} titulo={titulo} />
       ) : midia.fonte === "tiktok" ? (
         <TelaTiktok video={midia} titulo={titulo} />
