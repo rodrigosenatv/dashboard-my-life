@@ -97,7 +97,8 @@ export const HUBS: Hub[] = [
     icone: Popcorn,
     paginas: ["Filmes e Séries", "Filmes & Séries"],
     descricao: "O que assistir, o que já viu e a nota que deu.",
-    blocos: [{ tipo: "colecao", nomes: ["Filmes e Séries", "Filmes & Séries"], titulo: "Filmes e séries", abas: "Filme/Série", marcar: "Assistido", largo: true }, { tipo: "texto" }],
+    // Filmes & Séries tem tela própria (src/features/filmes), servida em /vida/filmes-series
+    blocos: [],
   },
   {
     slug: "guarda-roupa",

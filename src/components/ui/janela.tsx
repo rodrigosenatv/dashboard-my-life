@@ -33,7 +33,8 @@ export function Janela({
         <Dialog.Content
           className={cn(
             "fixed z-50 flex max-h-[92dvh] flex-col bg-surface text-ink shadow-overlay outline-none data-[state=open]:animate-subir",
-            "inset-x-0 bottom-0 rounded-t-xl sm:inset-x-auto sm:bottom-auto sm:left-1/2 sm:top-[12vh] sm:-translate-x-1/2 sm:rounded-xl",
+            // No computador começa a 12% do topo: a altura máxima deixa o rodapé inteiro na tela
+            "inset-x-0 bottom-0 rounded-t-xl sm:inset-x-auto sm:bottom-auto sm:left-1/2 sm:top-[12vh] sm:max-h-[84dvh] sm:-translate-x-1/2 sm:rounded-xl",
             "w-full",
             largura === "sm" && "sm:max-w-sm",
             largura === "md" && "sm:max-w-lg",

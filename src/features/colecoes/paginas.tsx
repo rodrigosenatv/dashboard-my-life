@@ -9,6 +9,7 @@ import { Cabecalho, Carregando, Vazio } from "@/components/ui/basicos"
 import { EdicaoEmLinha, Entrada } from "@/components/ui/campos"
 import { Confirmar } from "@/components/ui/janela"
 import { EditorMarkdown } from "@/components/markdown"
+import { HUBS } from "@/features/vida/hubs"
 import { novoId, useAtualizar, useCriar, useExcluir, useLista, useRegistro } from "@/lib/data"
 import { caminhoInterno } from "@/lib/utils"
 import type { Json } from "@/lib/supabase/database.types"
@@ -83,6 +84,9 @@ export function PaginaColecao() {
   )
 }
 
+/** O nome do hub de Vida de onde veio o item (ex.: "Filmes & Séries"); sem hub, "Voltar". */
+const nomeDoHub = (voltar: string) => HUBS.find((h) => voltar.startsWith(`/vida/${h.slug}`))?.titulo ?? "Voltar"
+
 export function PaginaItem() {
   const { id } = useParams<{ id: string }>()
   const params = useSearchParams()
@@ -119,7 +123,7 @@ export function PaginaItem() {
 
   return (
     <div className="max-w-3xl">
-      <Link href={voltar || `/colecoes/${item.collection_id}`} className="mb-4 inline-flex items-center gap-1.5 text-sm text-ink-2 hover:text-ink"><ArrowLeft className="size-4" /> {voltar ? (voltar.startsWith("/vida/pessoal") ? "Pessoal" : "Voltar") : (colecao?.name ?? "Coleção")}</Link>
+      <Link href={voltar || `/colecoes/${item.collection_id}`} className="mb-4 inline-flex items-center gap-1.5 text-sm text-ink-2 hover:text-ink"><ArrowLeft className="size-4" /> {voltar ? nomeDoHub(voltar) : (colecao?.name ?? "Coleção")}</Link>
       {item.cover_path ? <div className="mb-6 overflow-hidden rounded-xl"><Capa caminho={item.cover_path} className="aspect-[3/1] max-h-72" /></div> : null}
       <div className="mb-6 flex items-start gap-3">
         <EdicaoEmLinha rotulo="Título" valor={item.title} aoSalvar={(v) => atualizar.mutate({ id: item.id, title: v })} className="font-display text-3xl font-semibold" />
