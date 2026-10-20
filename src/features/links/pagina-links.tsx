@@ -12,7 +12,7 @@ import type { Tables } from "@/lib/supabase/database.types"
 import { cn, contem, dominio, urlValida } from "@/lib/utils"
 
 type Link_ = Tables<"bookmarks">
-type Grupo = "ferramentas" | "favoritos" | "links"
+export type Grupo = "ferramentas" | "favoritos" | "links"
 
 const GRUPOS: Record<Grupo, { rotulo: string; descricao: string; tipo: string }> = {
   ferramentas: { rotulo: "Ferramentas", descricao: "Apps e serviços que você usa, por categoria.", tipo: "Categoria" },
@@ -21,14 +21,14 @@ const GRUPOS: Record<Grupo, { rotulo: string; descricao: string; tipo: string }>
 }
 
 /** Inicial colorida no lugar do ícone do site (sem chamar serviços de terceiros). */
-function Inicial({ texto }: { texto: string }) {
+export function Inicial({ texto }: { texto: string }) {
   const letra = (texto.trim()[0] ?? "?").toUpperCase()
   const tons = ["bg-rotina-soft text-rotina", "bg-projetos-soft text-projetos", "bg-estudos-soft text-estudos", "bg-conteudo-soft text-conteudo", "bg-pen-soft text-pen"]
   const tom = tons[[...texto].reduce((s, c) => s + c.charCodeAt(0), 0) % tons.length]
   return <span aria-hidden className={cn("grid size-9 shrink-0 place-items-center rounded-lg font-display text-base font-semibold", tom)}>{letra}</span>
 }
 
-function DialogoLink({ aberta, aoMudar, link, grupoInicial }: { aberta: boolean; aoMudar: (v: boolean) => void; link: Link_ | null; grupoInicial: Grupo }) {
+export function DialogoLink({ aberta, aoMudar, link, grupoInicial }: { aberta: boolean; aoMudar: (v: boolean) => void; link: Link_ | null; grupoInicial: Grupo }) {
   const criar = useCriar("bookmarks")
   const atualizar = useAtualizar("bookmarks")
   const excluir = useExcluir("bookmarks")

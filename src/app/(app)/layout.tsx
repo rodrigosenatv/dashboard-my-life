@@ -5,6 +5,7 @@ import { Busca } from "@/components/shell/busca"
 import { NovoGlobal } from "@/components/shell/novo"
 import { SoNoNavegador } from "@/components/shell/so-no-navegador"
 import { Esqueleto } from "@/components/ui/basicos"
+import { IndicadorFoco } from "@/features/flow/indicador"
 
 // O conteúdo é pessoal e montado no navegador; não há casca estática para validar.
 export const instant = false
@@ -48,6 +49,7 @@ export default function LayoutApp({ children }: LayoutProps<"/">) {
       <Suspense fallback={null}>
         <Busca />
         <NovoGlobal />
+        <IndicadorFoco />
       </Suspense>
     </div>
   )

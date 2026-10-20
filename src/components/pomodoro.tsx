@@ -27,7 +27,7 @@ function salvarContagem(n: number) {
 }
 
 /** Toque curto ao terminar um ciclo, sem precisar de arquivo de áudio. */
-function tocar() {
+export function tocar() {
   try {
     const ctx = new AudioContext()
     ;[0, 0.25, 0.5].forEach((t) => {

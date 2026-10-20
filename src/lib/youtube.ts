@@ -60,3 +60,20 @@ export function embedYoutube(v: VideoYoutube, opcoes: { autoplay?: boolean; repe
 }
 
 export const miniaturaYoutube = (id: string) => `https://i.ytimg.com/vi/${id}/hqdefault.jpg`
+
+/**
+ * Título e canal do vídeo, da resposta do oEmbed do YouTube. Espaços juntados e limite de tamanho (o título
+ * vai na playlist, então não pode crescer sem fim). Sem título válido: null.
+ */
+export function lerOembed(dados: unknown): { titulo: string; canal: string | null } | null {
+  if (!dados || typeof dados !== "object") return null
+  const o = dados as { title?: unknown; author_name?: unknown }
+  const limpar = (v: unknown, max: number): string | null => {
+    if (typeof v !== "string") return null
+    const t = v.replace(/\s+/g, " ").trim().slice(0, max).trim()
+    return t || null
+  }
+  const titulo = limpar(o.title, 200)
+  if (!titulo) return null
+  return { titulo, canal: limpar(o.author_name, 100) }
+}

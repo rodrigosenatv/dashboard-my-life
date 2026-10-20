@@ -44,7 +44,8 @@ export const HUBS: Hub[] = [
     icone: Rocket,
     paginas: ["Flow"],
     descricao: "Modo foco: o que fazer agora, o timer e as ferramentas à mão.",
-    blocos: [{ tipo: "hoje" }, { tipo: "pomodoro" }, { tipo: "ferramentas" }, { tipo: "texto" }],
+    // Flow tem tela própria (src/features/flow), servida em /vida/flow
+    blocos: [],
   },
   {
     slug: "treino",

@@ -1,5 +1,6 @@
 "use client"
 
+import type * as React from "react"
 import { Clock, FolderKanban } from "lucide-react"
 import { Marcador } from "@/components/ui/basicos"
 import { useAtualizar } from "@/lib/data"
@@ -30,11 +31,14 @@ export function ItemTarefa({
   projeto,
   aoAbrir,
   compacto,
+  acao,
 }: {
   tarefa: Tarefa
   projeto?: string | null
   aoAbrir?: (t: Tarefa) => void
   compacto?: boolean
+  /** Botão extra no fim da linha (ex.: "Focar"); o clique não abre a tarefa. */
+  acao?: React.ReactNode
 }) {
   const concluir = useConcluir()
   const feito = tarefa.status === "done"
@@ -78,6 +82,7 @@ export function ItemTarefa({
           </p>
         ) : null}
       </div>
+      {acao ? <div className="shrink-0 self-center" onClick={(e) => e.stopPropagation()}>{acao}</div> : null}
     </li>
   )
 }
