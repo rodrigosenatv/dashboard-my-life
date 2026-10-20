@@ -124,6 +124,48 @@ function TelaTiktok({ video, titulo }: { video: Extract<VideoDeSite, { fonte: "t
   )
 }
 
+/**
+ * Reel ou vídeo do Facebook no player oficial deles (o mesmo do "Incorporar"). O player ocupa a
+ * largura do iframe e acompanha quando a caixa muda de tamanho, então basta a caixa ter a forma do
+ * vídeo (em pé ou deitado). Começa com um toque, com som. Só toca o vídeo que é público no Facebook.
+ */
+export function TelaFacebook({
+  video,
+  titulo,
+  className,
+  imediato = false,
+}: {
+  video: Extract<VideoDeSite, { fonte: "facebook" }>
+  titulo: string
+  /** Forma e tamanho da caixa (quem usa decide); o player ocupa a caixa toda. */
+  className?: string
+  /** Carrega já, sem esperar chegar perto na rolagem (o vídeo da vez no feed). */
+  imediato?: boolean
+}) {
+  const [carregou, setCarregou] = React.useState(false)
+  return (
+    <div className={cn("relative overflow-hidden bg-black", className)}>
+      {carregou ? null : (
+        <span aria-hidden className="absolute inset-x-0 top-1/2 -translate-y-1/2 px-3 text-center text-xs text-white/60">
+          Carregando o Facebook…
+        </span>
+      )}
+      <iframe
+        src={enderecoDoPlayer(video)}
+        title={titulo}
+        loading={imediato ? "eager" : "lazy"}
+        onLoad={() => setCarregou(true)}
+        className="absolute inset-0 size-full"
+        // A página do player não diz o tema: no tema escuro do app, o navegador pintaria o fundo do iframe de branco
+        style={{ colorScheme: "light" }}
+        allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share; fullscreen"
+        allowFullScreen
+        scrolling="no"
+      />
+    </div>
+  )
+}
+
 /** Vídeo ou áudio guardado no app (veio do Notion ou foi enviado) ou link direto para o arquivo. */
 function TelaArquivo({ midia, titulo }: { midia: ArquivoDeMidia; titulo: string }) {
   const caminho = midia.guardado ? decodeURIComponent(midia.endereco.slice(PREFIXO_ARQUIVO.length)) : null
@@ -138,7 +180,7 @@ function TelaArquivo({ midia, titulo }: { midia: ArquivoDeMidia; titulo: string 
 }
 
 /**
- * Um vídeo (ou áudio) que toca dentro do app: YouTube, Instagram, TikTok ou arquivo.
+ * Um vídeo (ou áudio) que toca dentro do app: YouTube, Instagram, TikTok, Facebook ou arquivo.
  * Embaixo, a legenda (o texto do link, quando não é só o endereço) e o atalho para o site.
  */
 export function MidiaIncorporada({
@@ -171,6 +213,8 @@ export function MidiaIncorporada({
         <TelaInstagram video={midia} titulo={titulo} />
       ) : midia.fonte === "tiktok" ? (
         <TelaTiktok video={midia} titulo={titulo} />
+      ) : midia.fonte === "facebook" ? (
+        <TelaFacebook video={midia} titulo={titulo} className={cn("rounded-lg", midia.tipo === "reel" ? "midia-em-pe" : "aspect-video w-full")} />
       ) : (
         <TelaArquivo midia={midia} titulo={titulo} />
       )}

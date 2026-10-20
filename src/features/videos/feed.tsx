@@ -6,7 +6,7 @@ import * as React from "react"
 import { ChevronDown, ChevronUp, Ellipsis, ExternalLink, FileText, Loader2, Plus, Trash2, X } from "lucide-react"
 import { toast } from "sonner"
 import { Menu, MenuConteudo, MenuGatilho, MenuItem, MenuSeparador } from "@/components/ui/menu"
-import { LARGURA_INSTAGRAM, TelaInstagram, alturaEstimadaInstagram } from "@/components/midia"
+import { LARGURA_INSTAGRAM, TelaFacebook, TelaInstagram, alturaEstimadaInstagram } from "@/components/midia"
 import { PREFIXO_ARQUIVO, useUrlArquivo } from "@/lib/arquivos"
 import { useNaTela } from "@/lib/na-tela"
 import { cn, plural } from "@/lib/utils"
@@ -73,8 +73,9 @@ function Aviso({ children }: { children: React.ReactNode }) {
 }
 
 /**
- * O player de um vídeo do feed. Só o vídeo da vez toca; o próximo do Instagram já fica carregado
- * (lá a pessoa toca para começar, então não sai som); o que ficou para trás é desmontado e para.
+ * O player de um vídeo do feed. Só o vídeo da vez toca; o próximo do Instagram e o do Facebook já
+ * ficam carregados (lá a pessoa toca para começar, então não sai som); o que ficou para trás é
+ * desmontado e para.
  */
 function TelaDoFeed({ video, distancia, titulo }: { video: ItemFeed; distancia: number; titulo: string }) {
   const [area, caixa] = useTamanho()
@@ -111,6 +112,16 @@ function TelaDoFeed({ video, distancia, titulo }: { video: ItemFeed; distancia: 
         )}
       </div>
     )
+  } else if (m.fonte === "facebook") {
+    const forma = cn("rounded-xl bg-neutral-900", m.tipo === "reel" ? EM_PE : DEITADO)
+    conteudo =
+      distancia === 0 || distancia === 1 ? (
+        <TelaFacebook video={m} titulo={titulo} imediato={ativo} className={forma} />
+      ) : (
+        <div className={cn("relative overflow-hidden", forma)}>
+          <Aviso>Facebook</Aviso>
+        </div>
+      )
   } else if (m.fonte === "instagram") {
     if (caixa && caixa.altura > 0) {
       if (distancia === 0 || distancia === 1) conteudo = <TelaInstagram video={m} titulo={titulo} caixa={caixa} imediato={ativo} />
@@ -506,7 +517,7 @@ function Feed() {
           <div className="grid max-w-sm justify-items-center gap-3">
             <p className="text-lg font-semibold">Nenhum vídeo ainda</p>
             <p className="text-sm text-white/70">
-              {feed.destinos.length || feed.hobby ? "Cole o link de um vídeo do YouTube, do Instagram ou do TikTok e ele aparece aqui." : "Crie um hobby e adicione páginas de estudo para guardar vídeos."}
+              {feed.destinos.length || feed.hobby ? "Cole o link de um vídeo do YouTube, do Instagram, do TikTok ou do Facebook e ele aparece aqui." : "Crie um hobby e adicione páginas de estudo para guardar vídeos."}
             </p>
             {feed.destinos.length || feed.hobby ? (
               <button type="button" onClick={() => setAdicionando(true)} className="mt-1 inline-flex h-11 items-center gap-2 rounded-full bg-white px-5 text-sm font-semibold text-black hover:bg-white/90">

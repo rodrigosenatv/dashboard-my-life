@@ -7,7 +7,7 @@ import * as React from "react"
  * para poder voltar do jeito que estava. Um vídeo tocando continuaria com som em segundo plano.
  *
  * `naTela` fica false enquanto a tela está escondida: quem usa tira os players (o iframe sai da
- * página e o YouTube, o Instagram e o TikTok param). Os vídeos e áudios dentro de `ref` pausam na
+ * página e o YouTube, o Instagram, o TikTok e o Facebook param). Os vídeos e áudios dentro de `ref` pausam na
  * hora. Trocar o endereço do iframe para parar não serve: isso cria uma entrada a mais no
  * "voltar" do navegador, e o primeiro "voltar" não sairia do lugar.
  */

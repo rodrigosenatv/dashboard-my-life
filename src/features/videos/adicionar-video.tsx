@@ -7,9 +7,9 @@ import { Botao } from "@/components/ui/button"
 import { Campo, Entrada, Seletor } from "@/components/ui/campos"
 import { Janela } from "@/components/ui/janela"
 import { useRegistro } from "@/lib/data"
-import { ehLinkCurto } from "@/lib/link-curto"
+import { siteDoLinkCurto } from "@/lib/link-curto"
 import { cn } from "@/lib/utils"
-import { chaveDoVideo, lerVideoDeSite, linkDoVideo, type VideoDeSite } from "@/lib/videos"
+import { chaveDoVideo, lerVideoDeSite, linkDoVideo, NOME_DA_FONTE, type VideoDeSite } from "@/lib/videos"
 import { miniaturaYoutube } from "@/lib/youtube"
 import type { PaginaResumo } from "@/features/paginas/dados"
 import type { Hobby } from "@/features/hobbies/dados"
@@ -25,13 +25,14 @@ function enderecoColado(texto: string): string {
   const url = t.match(/https?:\/\/[^\s<>"']+/i)?.[0]
   if (url) return url.replace(/[.,;:!?)\]]+$/, "")
   // "instagram.com/reel/…" sem o https://
-  if (/^(www\.|m\.)?(instagram\.com|youtube\.com|youtu\.be|tiktok\.com|vm\.tiktok\.com)\//i.test(t)) return `https://${t.split(/\s/)[0]}`
+  if (/^(www\.|m\.|web\.)?(instagram\.com|youtube\.com|youtu\.be|tiktok\.com|vm\.tiktok\.com|facebook\.com|fb\.watch)\//i.test(t)) return `https://${t.split(/\s/)[0]}`
   return t
 }
 
 function descrever(v: VideoDeSite): string {
   if (v.fonte === "youtube") return v.youtube.vertical ? "Short do YouTube" : "Vídeo do YouTube"
   if (v.fonte === "instagram") return v.tipo === "p" ? "Post do Instagram" : "Reel do Instagram"
+  if (v.fonte === "facebook") return v.tipo === "reel" ? "Reel do Facebook" : "Vídeo do Facebook"
   return "Vídeo do TikTok"
 }
 
@@ -120,9 +121,10 @@ export function AdicionarVideo({
 
   const endereco = enderecoColado(texto)
   const video = lerVideoDeSite(curto?.de === endereco && curto.para ? curto.para : endereco)
-  const precisaAbrir = !video && ehLinkCurto(endereco)
+  const siteCurto = video ? null : siteDoLinkCurto(endereco)
+  const precisaAbrir = siteCurto !== null
 
-  // Link curto do TikTok: o servidor do app abre e devolve o endereço do vídeo
+  // Link de compartilhar do TikTok ou do Facebook: o servidor do app abre e devolve o endereço do vídeo
   React.useEffect(() => {
     if (!precisaAbrir) return
     let cancelado = false
@@ -194,7 +196,7 @@ export function AdicionarVideo({
       aberta={aberta}
       aoMudar={(v) => !salvando && aoMudar(v)}
       titulo="Adicionar vídeo"
-      descricao="Vale link do YouTube, do Instagram ou do TikTok."
+      descricao="Vale link do YouTube, do Instagram, do TikTok ou do Facebook."
       rodape={
         <>
           <Botao variante="fantasma" onClick={() => aoMudar(false)} disabled={salvando}>
@@ -246,19 +248,21 @@ export function AdicionarVideo({
                     <p className="flex items-center gap-1.5 text-warning">
                       <TriangleAlert className="size-4 shrink-0" aria-hidden /> Esse vídeo já está em “{repetido.paginaTitulo}”.
                     </p>
+                  ) : video.fonte === "facebook" ? (
+                    <p className="text-ink-3">Toca aqui no app quando o vídeo é público no Facebook.</p>
                   ) : null}
                 </div>
               </div>
-            ) : abrindo ? (
+            ) : abrindo && siteCurto ? (
               <p className="flex items-center gap-1.5 text-ink-2">
-                <Loader2 className="size-4 animate-spin" aria-hidden /> Abrindo o link do TikTok…
+                <Loader2 className="size-4 animate-spin" aria-hidden /> Abrindo o link do {NOME_DA_FONTE[siteCurto]}…
               </p>
             ) : precisaAbrir && curto?.erro ? (
               <p className="text-danger">{curto.erro}</p>
             ) : naoReconhecido || mostrarErroLink ? (
-              <p className="text-danger">{endereco ? "Esse link não é de um vídeo do YouTube, do Instagram ou do TikTok." : "Cole o link do vídeo."}</p>
+              <p className="text-danger">{endereco ? "Esse link não é de um vídeo do YouTube, do Instagram, do TikTok ou do Facebook." : "Cole o link do vídeo."}</p>
             ) : (
-              <p className="text-ink-3">No app do Instagram, do YouTube ou do TikTok: Compartilhar › Copiar link.</p>
+              <p className="text-ink-3">No app do Instagram, do YouTube, do TikTok ou do Facebook: Compartilhar › Copiar link.</p>
             )}
           </div>
         </Campo>

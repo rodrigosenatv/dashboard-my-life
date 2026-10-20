@@ -3,12 +3,13 @@
 import * as React from "react"
 import ReactMarkdown, { type Components } from "react-markdown"
 import remarkGfm from "remark-gfm"
-import { Check, Copy, MessageSquareText, Play } from "lucide-react"
+import { Check, Copy, Info, MessageSquareText, Play } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { PREFIXO_ARQUIVO, useUrlArquivo } from "@/lib/arquivos"
 import { copiarTexto } from "@/lib/copiar"
 import { CHAVE_PROMPT } from "@/lib/ia/info"
+import { temLinkCurto } from "@/lib/link-curto"
 import { marcarMidias } from "@/lib/markdown-midias"
 import { cn } from "@/lib/utils"
 import { contarVideos, lerMidia, lerVideoDeSite } from "@/lib/videos"
@@ -138,7 +139,7 @@ export function Markdown({
   className?: string
   /** Quando informado, as caixas de seleção ficam clicáveis e devolvem o texto atualizado. */
   aoMudar?: (texto: string) => void
-  /** Links de vídeo (YouTube, Instagram, TikTok, arquivos) tocam no próprio texto. Desligar em prévias curtas. */
+  /** Links de vídeo (YouTube, Instagram, TikTok, Facebook, arquivos) tocam no próprio texto. Desligar em prévias curtas. */
   videos?: boolean
 }) {
   const comps = React.useMemo<Components>(() => {
@@ -226,7 +227,13 @@ export function EditorMarkdown({
           {contarVideos(texto) ? (
             <p className="mt-1.5 flex items-start gap-1.5 text-xs text-ink-3">
               <Play aria-hidden className="mt-[3px] size-3 shrink-0" />
-              Vídeos do YouTube, Instagram e TikTok tocam aqui no modo Ler. O link sozinho na linha vira player.
+              Vídeos do YouTube, Instagram, TikTok e Facebook tocam aqui no modo Ler. O link sozinho na linha vira player.
+            </p>
+          ) : null}
+          {temLinkCurto(texto) ? (
+            <p className="mt-1.5 flex items-start gap-1.5 text-xs text-ink-3">
+              <Info aria-hidden className="mt-[3px] size-3 shrink-0" />
+              Links de compartilhar (facebook.com/share/…, fb.watch, vm.tiktok.com) não tocam aqui: abra o link no navegador e cole o endereço do vídeo.
             </p>
           ) : null}
         </>
