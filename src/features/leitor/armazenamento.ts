@@ -44,7 +44,7 @@ async function usuarioAtual(): Promise<string> {
   if (typeof navigator !== "undefined" && !navigator.onLine) {
     try {
       const salvo = localStorage.getItem(IDENTIDADE)
-      if (salvo && /^[a-f\\d-]{36}$/i.test(salvo)) return salvo
+      if (salvo && /^[a-f\d-]{36}$/i.test(salvo)) return salvo
     } catch {}
   }
   throw new Error("Entre na sua conta para acessar os livros deste aparelho.")
