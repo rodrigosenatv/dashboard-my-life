@@ -39,7 +39,8 @@ test('converts smaller WebP and releases resources on success, fallback, and err
       assert.equal(canvas.width,0); assert.equal(canvas.height,0)
     }
     assert.equal(closes,5)
-    for (const file of [new File([png(true)],'animated.png',{type:'image/png'}),new File([png(false,10000,10000)],'huge.png',{type:'image/png'}),new File([png()],'animated.webp',{type:'image/webp'}),new File(['tiny'],'tiny.jpg',{type:'image/jpeg'})]) assert.equal(await otimizarImagem(file),file)
+    for (const file of [new File([png(true)],'animated.png',{type:'image/png'}),new File([png(false,10000,10000)],'huge.png',{type:'image/png'})]) assert.equal(await otimizarImagem(file),file)
+    for (const file of [new File([png()],'spoof.webp',{type:'image/webp'}),new File(['tiny'],'tiny.jpg',{type:'image/jpeg'})]) await assert.rejects(() => otimizarImagem(file), /Formato inválido|vazio/)
     assert.equal(decodes,5)
   } finally { global.createImageBitmap=oldBitmap; global.document=oldDocument }
 })
