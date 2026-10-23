@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server"
 import { supabaseServidor } from "@/lib/supabase/server"
+import { mesmaOrigem } from "@/lib/seguranca/origem"
 import { infoProvedor, type Provedor } from "@/lib/ia/info"
 import { chaveDaVercel, explicarErro, responder, type Chave, type Mensagem } from "@/lib/ia/servidor"
 import { reservarUsoIACompartilhada, liberarUsoIACompartilhada } from "@/lib/ia/limite-compartilhado"
@@ -21,6 +22,13 @@ export async function GET() {
  * usada apenas neste pedido: nada é gravado nem registrado no servidor.
  */
 export async function POST(request: NextRequest) {
+  if (!mesmaOrigem(request.headers.get("origin"), request.url) ||
+      request.headers.get("sec-fetch-site") === "cross-site") {
+    return NextResponse.json({ erro: "Origem não autorizada." }, { status: 403 })
+  }
+  if (!/^application\/json(?:\s*;|$)/i.test(request.headers.get("content-type") ?? "")) {
+    return NextResponse.json({ erro: "Envie JSON." }, { status: 415 })
+  }
   const supabase = await supabaseServidor()
   const { data } = await supabase.auth.getClaims()
   if (!data?.claims) return NextResponse.json({ erro: "Entre no app para usar o assistente." }, { status: 401 })
