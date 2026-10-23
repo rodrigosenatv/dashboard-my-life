@@ -2,8 +2,8 @@ import { NextResponse, type NextRequest } from "next/server"
 import { supabaseServidor } from "@/lib/supabase/server"
 import { mesmaOrigem } from "@/lib/seguranca/origem"
 import { infoProvedor, type Provedor } from "@/lib/ia/info"
-import { chaveDaVercel, explicarErro, responder, type Chave, type Mensagem } from "@/lib/ia/servidor"
-import { reservarUsoIACompartilhada, liberarUsoIACompartilhada } from "@/lib/ia/limite-compartilhado"
+import { explicarErro, responder, type Chave, type Mensagem } from "@/lib/ia/servidor"
+
 
 // Uma conversa longa cabe com folga; acima disso o pedido é um engano ou um abuso
 const MAXIMO_DE_CARACTERES = 400_000
@@ -12,14 +12,9 @@ const SISTEMA =
   "Você é o assistente pessoal do app My Life. Responda em português do Brasil, de forma clara e prática. " +
   "Quando receber um prompt da biblioteca do usuário, execute-o como pedido."
 
-/** Se há uma chave do Claude configurada na Vercel (sem revelar a chave). */
-export async function GET() {
-  return NextResponse.json({ vercel: Boolean(process.env.ANTHROPIC_API_KEY && process.env.SUPABASE_SERVICE_ROLE_KEY) })
-}
-
 /**
  * Conversa com a IA escolhida. A chave vem do navegador (guardada só nele) e é
- * usada apenas neste pedido: nada é gravado nem registrado no servidor.
+ * usada apenas neste pedido. O aplicativo não fornece chaves ou créditos de IA.
  */
 export async function POST(request: NextRequest) {
   if (!mesmaOrigem(request.headers.get("origin"), request.url) ||
@@ -53,33 +48,11 @@ export async function POST(request: NextRequest) {
   } catch {
     return NextResponse.json({ erro: "Pedido inválido." }, { status: 400 })
   }
-  const chaveCompartilhada = !credencial && provedor === "anthropic"
-  if (chaveCompartilhada) credencial = chaveDaVercel()
   const nome = infoProvedor(provedor)!.nome
-  if (!credencial) return NextResponse.json({ erro: `Adicione a chave do ${nome} em Configurações.` }, { status: 400 })
+  if (!credencial) return NextResponse.json({ erro: `Configure sua própria chave de API do ${nome} em Configurações para usar o assistente.` }, { status: 400 })
   if (!mensagens.length || mensagens[mensagens.length - 1].role !== "user") return NextResponse.json({ erro: "Envie uma mensagem." }, { status: 400 })
   if (mensagens.reduce((n, m) => n + m.content.length, 0) > MAXIMO_DE_CARACTERES) {
     return NextResponse.json({ erro: "A conversa ficou longa demais. Comece uma nova conversa." }, { status: 413 })
-  }
-
-  // A chave de terceiros enviada pelo próprio usuário não consome a quota compartilhada.
-  // Esta reserva é atômica no banco, válida entre todas as instâncias da Vercel.
-  let reservaId: string | null = null
-  if (chaveCompartilhada) {
-    const reserva = await reservarUsoIACompartilhada(data.claims.sub)
-    if (reserva.estado === "indisponivel") {
-      return NextResponse.json(
-        { erro: "A IA compartilhada está temporariamente indisponível. Tente novamente mais tarde." },
-        { status: 503, headers: { "Cache-Control": "no-store" } },
-      )
-    }
-    if (reserva.estado === "limitado") {
-      return NextResponse.json(
-        { erro: reserva.mensagem },
-        { status: 429, headers: { "Retry-After": String(reserva.retryAfter), "Cache-Control": "no-store" } },
-      )
-    }
-    reservaId = reserva.id
   }
 
   const hoje = new Date().toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo", weekday: "long", day: "numeric", month: "long", year: "numeric" })
@@ -92,8 +65,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: true, resposta: texto.trim().slice(0, 60) })
     } catch (e) {
       return NextResponse.json({ erro: explicarErro(e, nome) }, { status: 200 })
-    } finally {
-      if (reservaId) await liberarUsoIACompartilhada(data.claims.sub, reservaId)
     }
   }
 
@@ -113,8 +84,6 @@ export async function POST(request: NextRequest) {
         if (parar.signal.aborted) return
         controle.enqueue(codificador.encode(`\n\n[Não foi possível concluir a resposta: ${explicarErro(e, nome)}]`))
       } finally {
-        // O ticket sempre é liberado; se a instância cair, a reserva expira no banco.
-        if (reservaId) await liberarUsoIACompartilhada(data.claims.sub, reservaId)
         // Depois de um cancelamento o fluxo já está fechado
         if (!parar.signal.aborted) controle.close()
       }
