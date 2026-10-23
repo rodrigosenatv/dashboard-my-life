@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { BookOpen, Ellipsis, FolderKanban, ListTodo, Search, Sun } from "lucide-react"
+import { BookOpen, BrainCircuit, Ellipsis, ListTodo, Search, Sun } from "lucide-react"
 import * as React from "react"
 import { cn } from "@/lib/utils"
 import { EXTRAS, GRUPOS, ativo, grupoDaRota } from "@/lib/navegacao"
@@ -53,7 +53,7 @@ const fundoArea: Record<Area, string> = {
 const ABAS = [
   { rotulo: "Hoje", href: "/", icone: Sun, area: "geral" as Area },
   { rotulo: "Rotina", href: "/rotina/tarefas", icone: ListTodo, area: "rotina" as Area },
-  { rotulo: "Projetos", href: "/projetos", icone: FolderKanban, area: "projetos" as Area },
+  { rotulo: "Cérebro", href: "/projetos", icone: BrainCircuit, area: "projetos" as Area },
   { rotulo: "Estudos", href: "/estudos/leitura", icone: BookOpen, area: "estudos" as Area },
 ]
 
@@ -84,7 +84,7 @@ export function BarraInferior() {
               href={a.href}
               aria-current={sel ? "page" : undefined}
               className={cn(
-                "flex flex-col items-center gap-0.5 pb-1.5 pt-2 text-[11px] font-medium",
+                "flex min-h-14 flex-col items-center justify-center gap-0.5 pb-1.5 pt-2 text-[11px] font-medium",
                 sel ? corArea[a.area] : "text-ink-3",
               )}
             >
@@ -96,7 +96,7 @@ export function BarraInferior() {
         <button
           type="button"
           onClick={() => setMais(true)}
-          className={cn("flex flex-col items-center gap-0.5 pb-1.5 pt-2 text-[11px] font-medium", emMais ? "text-ink" : "text-ink-3")}
+          className={cn("flex min-h-14 flex-col items-center justify-center gap-0.5 pb-1.5 pt-2 text-[11px] font-medium", emMais ? "text-ink" : "text-ink-3")}
         >
           <Ellipsis className="size-5" />
           Mais
@@ -154,7 +154,7 @@ export function AbasArea() {
   }, [pathname])
   if (!grupo) return null
   return (
-    <div ref={faixa} className="-mx-4 mb-5 overflow-x-auto border-b border-line px-4 scrollbar-thin lg:hidden">
+    <div ref={faixa} className={cn("-mx-4 mb-5 overflow-x-auto border-b border-line px-4 scrollbar-thin lg:hidden", grupo.area === "projetos" && "bg-projetos-soft/25")}>
       <div className="flex gap-1">
         {grupo.itens.map((i) => {
           const sel = ativo(pathname, i.href)
@@ -164,12 +164,14 @@ export function AbasArea() {
               href={i.href}
               aria-current={sel ? "page" : undefined}
               className={cn(
-                "relative flex h-11 items-center whitespace-nowrap px-3 text-sm font-medium",
-                sel ? "text-ink" : "text-ink-3 hover:text-ink-2",
+                "relative flex h-11 items-center gap-1.5 whitespace-nowrap px-3 text-sm font-medium transition-colors",
+                grupo.area === "projetos" && "my-1 h-10 rounded-lg",
+                sel ? (grupo.area === "projetos" ? "bg-projetos-soft text-projetos" : "text-ink") : "text-ink-3 hover:text-ink-2",
               )}
             >
+              {grupo.area === "projetos" && sel ? <i.icone className="size-3.5 shrink-0" aria-hidden /> : null}
               {i.rotulo}
-              {sel ? <span className={cn("absolute inset-x-2 -bottom-px h-0.5 rounded-full", fundoArea[grupo.area])} /> : null}
+              {sel && grupo.area !== "projetos" ? <span className={cn("absolute inset-x-2 -bottom-px h-0.5 rounded-full", fundoArea[grupo.area])} /> : null}
             </Link>
           )
         })}
