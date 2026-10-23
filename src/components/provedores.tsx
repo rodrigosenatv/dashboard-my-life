@@ -106,7 +106,13 @@ function ProvedorSessao({ children, cliente }: { children: React.ReactNode; clie
       setUsuario(data.session?.user ?? null)
       setCarregando(false)
     })
+    let identidadeAtual = ""
     const { data } = sb.auth.onAuthStateChange((evento, sessao) => {
+      if (sessao?.user.id && identidadeAtual && identidadeAtual !== sessao.user.id) {
+        cliente.clear()
+        limparCredenciaisIA()
+      }
+      identidadeAtual = sessao?.user.id ?? ""
       if (sessao?.user.id) try { localStorage.setItem("dml:usuario-offline", sessao.user.id) } catch {}
       setUsuario(sessao?.user ?? null)
       if (evento === "SIGNED_OUT") {
