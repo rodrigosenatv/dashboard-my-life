@@ -9,6 +9,7 @@ const eslintConfig = defineConfig([
     // Diálogos reiniciam o formulário ao abrir; o padrão é intencional.
     rules: { "react-hooks/set-state-in-effect": "off" },
   },
+  { files: ["tests/**/*.cjs"], rules: { "@typescript-eslint/no-require-imports": "off" } },
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:

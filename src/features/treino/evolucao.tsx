@@ -399,12 +399,14 @@ function DialogoAvaliacao({
       if (arquivo.size > TAMANHO_MAXIMO_FOTO) return toast.error("A foto é grande demais. Use uma de até 15 MB.")
       setEnviando(true)
       try {
-        const ext = (arquivo.name.split(".").pop() ?? "").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg"
+        const { otimizarImagem } = await import("@/lib/otimizar-imagem")
+        const otimizado = await otimizarImagem(arquivo, { dimensaoMaxima: 1600 })
+        const ext = (otimizado.name.split(".").pop() ?? "").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg"
         caminho = `${usuario.id}/colecoes/${colecao.id}/${id}-${Date.now()}.${ext}`
-        const { error } = await supabase().storage.from(BUCKET_ARQUIVOS).upload(caminho, arquivo, { contentType: arquivo.type })
+        const { error } = await supabase().storage.from(BUCKET_ARQUIVOS).upload(caminho, otimizado, { contentType: otimizado.type })
         if (error) throw new Error(error.message)
         // O registro do arquivo é só um índice: se falhar, a foto continua valendo
-        await supabase().from("files").insert({ path: caminho, name: arquivo.name, mime: arquivo.type, size: arquivo.size, entity_type: "colecao_item", entity_id: id })
+        await supabase().from("files").insert({ path: caminho, name: otimizado.name, mime: otimizado.type, size: otimizado.size, entity_type: "colecao_item", entity_id: id })
       } catch (e) {
         setEnviando(false)
         return toast.error("Não foi possível enviar a foto.", { description: e instanceof Error ? e.message : undefined })

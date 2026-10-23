@@ -345,32 +345,12 @@ export function useSincronizarStatus(viagens: Viagem[], mudarProps: ReturnType<t
 
 export const TAMANHO_MAXIMO_FOTO = 20 * 1024 * 1024
 
-/** Foto de celular tem 3 a 8 MB: reduz para 1600 px antes de enviar (carrega rápido na lista). */
-async function reduzirFoto(arquivo: File, lado = 1600): Promise<Blob> {
-  try {
-    const imagem = await createImageBitmap(arquivo, { imageOrientation: "from-image" })
-    const escala = Math.min(1, lado / Math.max(imagem.width, imagem.height))
-    if (escala === 1 && arquivo.size < 1_500_000) {
-      imagem.close()
-      return arquivo
-    }
-    const tela = document.createElement("canvas")
-    tela.width = Math.round(imagem.width * escala)
-    tela.height = Math.round(imagem.height * escala)
-    tela.getContext("2d")!.drawImage(imagem, 0, 0, tela.width, tela.height)
-    imagem.close()
-    const reduzida = await new Promise<Blob | null>((ok) => tela.toBlob(ok, "image/jpeg", 0.85))
-    return reduzida && reduzida.size < arquivo.size ? reduzida : arquivo
-  } catch {
-    return arquivo
-  }
-}
-
 /** Envia a foto da viagem e devolve o caminho no storage. */
 export async function enviarFotoViagem(arquivo: File, usuarioId: string, colecaoId: string, viagemId: string): Promise<string> {
-  const pronta = await reduzirFoto(arquivo)
+  const { otimizarImagem } = await import("@/lib/otimizar-imagem")
+  const pronta = await otimizarImagem(arquivo, { dimensaoMaxima: 1600 })
   const tipo = pronta.type || arquivo.type
-  const ext = tipo === "image/jpeg" ? "jpg" : (arquivo.name.split(".").pop() ?? "").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg"
+  const ext = tipo === "image/jpeg" ? "jpg" : (pronta.name.split(".").pop() ?? "").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg"
   const caminho = `${usuarioId}/colecoes/${colecaoId}/${viagemId}-${Date.now()}.${ext}`
   const { error } = await supabase().storage.from(BUCKET_ARQUIVOS).upload(caminho, pronta, { contentType: tipo })
   if (error) throw new Error(error.message)

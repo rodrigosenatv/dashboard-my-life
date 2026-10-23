@@ -42,9 +42,10 @@ export function useConteudos(ids: string[]) {
     queryKey: ["pages", "conteudo", chave],
     enabled: Boolean(chave),
     placeholderData: keepPreviousData,
-    queryFn: () =>
+    queryFn: ({ signal }) =>
       buscarTodos<{ id: string; content: string }>((de, ate) =>
-        supabase().from("pages").select("id,content").in("id", chave.split(",")).order("id", { ascending: true }).range(de, ate),
+        supabase().from("pages").select("id,content").in("id", chave.split(",")).order("id", { ascending: true }).range(de, ate).abortSignal(signal),
+        signal,
       ),
   })
   const conteudos = React.useMemo(() => new Map((chave ? (data ?? []) : []).map((p) => [p.id, p.content])), [data, chave])

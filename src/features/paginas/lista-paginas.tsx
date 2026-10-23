@@ -9,13 +9,17 @@ import { Cabecalho, Carregando, Vazio } from "@/components/ui/basicos"
 import { novoId, useCriar } from "@/lib/data"
 import type { Area } from "@/lib/areas"
 import { cn, contem } from "@/lib/utils"
-import { contarDescendentes, filhosDe, SECOES, useArvorePaginas, type PaginaResumo } from "./dados"
+import { SECOES, useArvorePaginas, type PaginaResumo } from "./dados"
 
-function NoArvore({ pagina, todas, nivel, busca }: { pagina: PaginaResumo; todas: PaginaResumo[]; nivel: number; busca: string }) {
-  const filhos = filhosDe(todas, pagina.id)
+import { indexarArvore, filtrarArvore, type IndiceArvore } from "./arvore"
+
+const SEM_PAGINAS: PaginaResumo[] = []
+const SEM_FILHOS: PaginaResumo[] = []
+
+const NoArvore = React.memo(function NoArvore({ pagina, indice, nivel, busca, visiveis }: { pagina: PaginaResumo; indice: IndiceArvore; nivel: number; busca: string; visiveis: Set<string> | null }) {
+  const filhos = indice.filhos.get(pagina.id) ?? SEM_FILHOS
   const [aberto, setAberto] = React.useState(false)
-  const casa = (p: PaginaResumo): boolean => contem(p.title, busca) || filhosDe(todas, p.id).some(casa)
-  if (busca && !casa(pagina)) return null
+  if (visiveis && !visiveis.has(pagina.id)) return null
   const expandido = busca ? true : aberto
 
   return (
@@ -41,18 +45,18 @@ function NoArvore({ pagina, todas, nivel, busca }: { pagina: PaginaResumo; todas
           {pagina.title || "Sem título"}
         </Link>
         {pagina.favorite ? <Star className="size-3.5 fill-estudos text-estudos" /> : null}
-        {filhos.length ? <span className="tabular pr-2 text-xs text-ink-3">{contarDescendentes(todas, pagina.id)}</span> : null}
+        {filhos.length ? <span className="tabular pr-2 text-xs text-ink-3">{indice.descendentes.get(pagina.id) ?? 0}</span> : null}
       </div>
       {expandido && filhos.length ? (
         <ul>
           {filhos.map((f) => (
-            <NoArvore key={f.id} pagina={f} todas={todas} nivel={nivel + 1} busca={busca} />
+            <NoArvore key={f.id} pagina={f} indice={indice} nivel={nivel + 1} busca={busca} visiveis={visiveis} />
           ))}
         </ul>
       ) : null}
     </li>
   )
-}
+})
 
 export function ListaPaginas({
   titulo,
@@ -74,15 +78,20 @@ export function ListaPaginas({
   area: Area
 }) {
   const router = useRouter()
-  const { data: paginas = [], isLoading } = useArvorePaginas()
+  const { data: paginas = SEM_PAGINAS, isLoading } = useArvorePaginas()
   const criar = useCriar("pages")
   const [busca, setBusca] = React.useState("")
 
-  const daSecao = paginas.filter((p) => secoes.includes(p.section))
-  const ids = new Set(daSecao.map((p) => p.id))
-  const raizes = daSecao.filter((p) => !p.parent_id || !ids.has(p.parent_id))
-  const favoritas = daSecao.filter((p) => p.favorite)
-  const porSecao = secoes.map((s) => ({ secao: s, itens: raizes.filter((p) => p.section === s).sort((a, b) => a.position - b.position || a.title.localeCompare(b.title)) }))
+  const indice = React.useMemo(() => indexarArvore(paginas), [paginas])
+  const visiveis = React.useMemo(() => busca ? filtrarArvore(indice, (p) => contem(p.title, busca)) : null, [indice, busca])
+  const { daSecao, favoritas, porSecao } = React.useMemo(() => {
+    const daSecao = paginas.filter((p) => secoes.includes(p.section))
+    const ids = new Set(daSecao.map((p) => p.id))
+    const raizes = daSecao.filter((p) => !p.parent_id || !ids.has(p.parent_id))
+    const favoritas = daSecao.filter((p) => p.favorite)
+    const porSecao = secoes.map((s) => ({ secao: s, itens: raizes.filter((p) => p.section === s).sort((a, b) => a.position - b.position || a.title.localeCompare(b.title)) }))
+    return { daSecao, favoritas, porSecao }
+  }, [paginas, secoes])
 
   const nova = async () => {
     const id = novoId()
@@ -129,7 +138,7 @@ export function ListaPaginas({
                 {secoes.length > 1 ? <h2 className="mb-2 font-display text-lg font-semibold">{SECOES[s.secao] ?? s.secao}</h2> : null}
                 <ul className="rounded-lg border border-line bg-surface p-2">
                   {s.itens.map((p) => (
-                    <NoArvore key={p.id} pagina={p} todas={paginas} nivel={0} busca={busca} />
+                    <NoArvore key={p.id} pagina={p} indice={indice} nivel={0} busca={busca} visiveis={visiveis} />
                   ))}
                 </ul>
               </section>

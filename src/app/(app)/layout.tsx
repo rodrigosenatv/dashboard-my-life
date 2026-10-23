@@ -4,24 +4,11 @@ import { AbasArea, BarraInferior, TopoCelular } from "@/components/shell/celular
 import { Busca } from "@/components/shell/busca"
 import { NovoGlobal } from "@/components/shell/novo"
 import { SoNoNavegador } from "@/components/shell/so-no-navegador"
-import { Esqueleto } from "@/components/ui/basicos"
+import CarregandoPagina from "./loading"
 import { IndicadorFoco } from "@/features/flow/indicador"
 
 // O conteúdo é pessoal e montado no navegador; não há casca estática para validar.
 export const instant = false
-
-function CarregandoPagina() {
-  return (
-    <div aria-busy="true" aria-label="Carregando" className="grid gap-6">
-      <Esqueleto className="h-9 w-56" />
-      <Esqueleto className="h-24 w-full" />
-      <div className="grid gap-4 md:grid-cols-2">
-        <Esqueleto className="h-48" />
-        <Esqueleto className="h-48" />
-      </div>
-    </div>
-  )
-}
 
 export default function LayoutApp({ children }: LayoutProps<"/">) {
   return (

@@ -57,8 +57,9 @@ export function PainelBusca({ aberta, aoMudar: setAberta }: { aberta: boolean; a
     queryKey: ["busca", termo],
     enabled: aberta && termo.length >= 2,
     staleTime: 10_000,
-    queryFn: async () => {
-      const { data, error } = await supabase().rpc("search_all", { q: termo, max_results: 40 })
+    gcTime: 60_000,
+    queryFn: async ({ signal }) => {
+      const { data, error } = await supabase().rpc("search_all", { q: termo, max_results: 40 }).abortSignal(signal)
       if (error) throw new Error(error.message)
       return (data ?? []) as Resultado[]
     },

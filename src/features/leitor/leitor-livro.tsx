@@ -90,6 +90,8 @@ export function LeitorLivro({ arquivo, titulo, voltarPara, posicaoInicial, apare
   /* Abre o livro --------------------------------------------------- */
   React.useEffect(() => {
     let cancelado = false
+    const eventos = new AbortController()
+    const esperas = new Set<ReturnType<typeof setTimeout>>()
     let v: VisaoFoliate | null = null
 
     const aoTocar = (e: MouseEvent, doc?: Document) => {
@@ -145,7 +147,7 @@ export function LeitorLivro({ arquivo, titulo, voltarPara, posicaoInicial, apare
         caixa.current.append(v)
         visao.current = v
         await v.open(arquivo)
-        if (cancelado) return
+        if (cancelado) { v.close(); v.remove(); return }
         protegerLivro(v.book)
         aplicarAparencia(v, aparenciaRef.current)
         setSumario(v.book.toc ?? [])
@@ -171,24 +173,29 @@ export function LeitorLivro({ arquivo, titulo, voltarPara, posicaoInicial, apare
           const { doc } = (e as CustomEvent<{ doc: Document; index: number }>).detail
           docAtual.current = doc
           setTrecho(null)
-          doc.addEventListener("click", (ev) => aoTocar(ev, doc))
-          doc.addEventListener("keydown", aoTeclar)
-          doc.addEventListener("wheel", aoRolar, { passive: true })
+          doc.addEventListener("click", (ev) => aoTocar(ev, doc), { signal: eventos.signal })
+          doc.addEventListener("keydown", aoTeclar, { signal: eventos.signal })
+          doc.addEventListener("wheel", aoRolar, { passive: true, signal: eventos.signal })
           // Texto selecionado: oferece guardar o trecho
           let espera: ReturnType<typeof setTimeout> | undefined
           doc.addEventListener("selectionchange", () => {
             clearTimeout(espera)
+            if (espera) esperas.delete(espera)
             espera = setTimeout(() => {
+              if (espera) esperas.delete(espera)
+              if (cancelado) return
               const t = doc.getSelection()?.toString().replace(/\s+/g, " ").trim() ?? ""
               setTrecho(t.length >= 3 ? t : null)
             }, 350)
-          })
+            esperas.add(espera)
+          }, { signal: eventos.signal })
         })
         v.addEventListener("click", (e) => aoTocar(e))
         v.addEventListener("wheel", aoRolar, { passive: true })
 
         await v.init({ lastLocation: posicaoInicial, showTextStart: false })
         if (!cancelado) setPronto(true)
+        else { v.close(); v.remove() }
       } catch (e) {
         console.error(e)
         if (!cancelado)
@@ -200,6 +207,10 @@ export function LeitorLivro({ arquivo, titulo, voltarPara, posicaoInicial, apare
     void abrir()
     return () => {
       cancelado = true
+      eventos.abort()
+      for (const espera of esperas) clearTimeout(espera)
+      esperas.clear()
+      docAtual.current = null
       window.removeEventListener("keydown", aoTeclar)
       try {
         v?.close()

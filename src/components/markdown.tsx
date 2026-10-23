@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import Link from "next/link"
 import ReactMarkdown, { type Components } from "react-markdown"
 import remarkGfm from "remark-gfm"
 import { Check, Copy, Info, MessageSquareText, Play } from "lucide-react"
@@ -29,7 +30,7 @@ function ImagemComum({ src, alt }: { src?: string; alt?: string }) {
   const url = caminho ? data : src
   if (!url) return <span className="block h-40 animate-pulse rounded-md bg-surface-2" />
   // eslint-disable-next-line @next/next/no-img-element
-  return <img src={url} alt={alt ?? ""} loading="lazy" />
+  return <img src={url} alt={alt ?? ""} loading="lazy" decoding="async" />
 }
 
 function LinkArquivo({ href, children }: { href: string; children: React.ReactNode }) {
@@ -84,7 +85,8 @@ function BlocoCodigo({ children }: { children: React.ReactNode }) {
 
 function LinkComum({ href, children }: { href?: string; children: React.ReactNode }) {
   if (href?.startsWith(PREFIXO_ARQUIVO)) return <LinkArquivo href={href}>{children}</LinkArquivo>
-  const interno = href?.startsWith("/")
+  const interno = href?.startsWith("/") && !href.startsWith("//")
+  if (interno) return <Link href={href!}>{children}</Link>
   return (
     <a href={href} target={interno ? undefined : "_blank"} rel={interno ? undefined : "noreferrer"}>
       {children}
@@ -129,7 +131,7 @@ export function alternarTarefa(texto: string, inicio: number): string {
   return texto.slice(0, pos) + (m[1] === " " ? "[x]" : "[ ]") + texto.slice(pos + 3)
 }
 
-export function Markdown({
+export const Markdown = React.memo(function Markdown({
   texto,
   className,
   aoMudar,
@@ -174,7 +176,7 @@ export function Markdown({
       </ReactMarkdown>
     </div>
   )
-}
+})
 
 /** Editor simples: escrever em markdown e ver como fica. Salva ao sair do campo. */
 export function EditorMarkdown({

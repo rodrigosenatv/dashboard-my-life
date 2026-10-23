@@ -27,14 +27,17 @@ export const scriptTema = `(function(){try{var t=localStorage.getItem('${CHAVE_T
 function ProvedorTema({ children }: { children: React.ReactNode }) {
   const [tema, setTema] = React.useState<Tema>("escuro")
   const [escuro, setEscuro] = React.useState(false)
+  const [temaLido, setTemaLido] = React.useState(false)
 
   React.useEffect(() => {
     try {
       setTema((localStorage.getItem(CHAVE_TEMA) as Tema) || "escuro")
     } catch {}
+    setTemaLido(true)
   }, [])
 
   React.useEffect(() => {
+    if (!temaLido) return
     const mq = matchMedia("(prefers-color-scheme: dark)")
     const aplicar = () => {
       const d = tema === "escuro" || (tema === "sistema" && mq.matches)
@@ -44,7 +47,7 @@ function ProvedorTema({ children }: { children: React.ReactNode }) {
     aplicar()
     mq.addEventListener("change", aplicar)
     return () => mq.removeEventListener("change", aplicar)
-  }, [tema])
+  }, [tema, temaLido])
 
   const mudarTema = React.useCallback((t: Tema) => {
     setTema(t)
@@ -53,7 +56,8 @@ function ProvedorTema({ children }: { children: React.ReactNode }) {
     } catch {}
   }, [])
 
-  return <TemaCtx.Provider value={{ tema, mudarTema, escuro }}>{children}</TemaCtx.Provider>
+  const valor = React.useMemo(() => ({ tema, mudarTema, escuro }), [tema, mudarTema, escuro])
+  return <TemaCtx.Provider value={valor}>{children}</TemaCtx.Provider>
 }
 
 /* ------------------------------------------------------------------ */
@@ -98,7 +102,8 @@ function ProvedorSessao({ children, cliente }: { children: React.ReactNode; clie
     if (error) await supabase().auth.signOut({ scope: "local" })
   }, [])
 
-  return <SessaoCtx.Provider value={{ usuario, carregando, sair }}>{children}</SessaoCtx.Provider>
+  const valor = React.useMemo(() => ({ usuario, carregando, sair }), [usuario, carregando, sair])
+  return <SessaoCtx.Provider value={valor}>{children}</SessaoCtx.Provider>
 }
 
 /* ------------------------------------------------------------------ */
