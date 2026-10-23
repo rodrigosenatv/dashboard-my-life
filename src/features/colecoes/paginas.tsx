@@ -21,7 +21,11 @@ export function PaginaColecoes() {
   const criar = useCriar("collections")
   const router = useRouter()
   const [nome, setNome] = React.useState("")
-  const contagem = (id: string) => itens.filter((i) => i.collection_id === id).length
+  const contagens = React.useMemo(() => {
+    const indice = new Map<string, number>()
+    for (const item of itens) indice.set(item.collection_id, (indice.get(item.collection_id) ?? 0) + 1)
+    return indice
+  }, [itens])
 
   return (
     <div>
@@ -36,7 +40,7 @@ export function PaginaColecoes() {
               <li key={c.id}>
                 <Link href={`/colecoes/${c.id}`} className="flex items-center justify-between rounded-lg border border-line bg-surface px-4 py-3.5 hover:border-line-strong">
                   <span className="font-medium">{c.name}</span>
-                  <span className="tabular text-sm text-ink-3">{contagem(c.id)}</span>
+                  <span className="tabular text-sm text-ink-3">{contagens.get(c.id) ?? 0}</span>
                 </Link>
               </li>
             ))}

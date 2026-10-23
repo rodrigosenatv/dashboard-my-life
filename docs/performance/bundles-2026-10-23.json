@@ -1,0 +1,560 @@
+{
+  "metodo": "Scripts JS referenciados no HTML de produção, bytes e soma gzip por arquivo; ambos builds com Next 16.4.2 e mesmas dependências. Não mede sessão real, RSC, worker, imagens ou Web Vitals.",
+  "baseline": "072b067a3c1c9677a3293c5fc61b31695659ba95",
+  "antes": [
+    {
+      "rota": "_global-error.html",
+      "bytes": 571226,
+      "gzip": 175979,
+      "scripts": 7
+    },
+    {
+      "rota": "_not-found.html",
+      "bytes": 977479,
+      "gzip": 291083,
+      "scripts": 14
+    },
+    {
+      "rota": "assistir.html",
+      "bytes": 1379867,
+      "gzip": 426224,
+      "scripts": 23
+    },
+    {
+      "rota": "colecoes.html",
+      "bytes": 1339968,
+      "gzip": 411359,
+      "scripts": 23
+    },
+    {
+      "rota": "colecoes/[id].html",
+      "bytes": 1339968,
+      "gzip": 411359,
+      "scripts": 23
+    },
+    {
+      "rota": "colecoes/item/[id].html",
+      "bytes": 1339968,
+      "gzip": 411359,
+      "scripts": 23
+    },
+    {
+      "rota": "configuracoes.html",
+      "bytes": 1255192,
+      "gzip": 390856,
+      "scripts": 24
+    },
+    {
+      "rota": "configurar.html",
+      "bytes": 977479,
+      "gzip": 291083,
+      "scripts": 14
+    },
+    {
+      "rota": "conteudo/assistente.html",
+      "bytes": 1334417,
+      "gzip": 410510,
+      "scripts": 23
+    },
+    {
+      "rota": "conteudo/biblioteca.html",
+      "bytes": 1166787,
+      "gzip": 358100,
+      "scripts": 21
+    },
+    {
+      "rota": "conteudo/planner.html",
+      "bytes": 1224272,
+      "gzip": 377565,
+      "scripts": 23
+    },
+    {
+      "rota": "estudos/concursos.html",
+      "bytes": 1329146,
+      "gzip": 408225,
+      "scripts": 23
+    },
+    {
+      "rota": "estudos/cursos.html",
+      "bytes": 1327732,
+      "gzip": 407965,
+      "scripts": 23
+    },
+    {
+      "rota": "estudos/laboratorio.html",
+      "bytes": 1164740,
+      "gzip": 357486,
+      "scripts": 22
+    },
+    {
+      "rota": "estudos/leitura.html",
+      "bytes": 1176057,
+      "gzip": 360567,
+      "scripts": 21
+    },
+    {
+      "rota": "estudos/leitura/[id].html",
+      "bytes": 1350132,
+      "gzip": 414789,
+      "scripts": 23
+    },
+    {
+      "rota": "index.html",
+      "bytes": 1187345,
+      "gzip": 365274,
+      "scripts": 22
+    },
+    {
+      "rota": "ler/[id].html",
+      "bytes": 1037637,
+      "gzip": 312199,
+      "scripts": 17
+    },
+    {
+      "rota": "links.html",
+      "bytes": 1163870,
+      "gzip": 356935,
+      "scripts": 21
+    },
+    {
+      "rota": "login.html",
+      "bytes": 982237,
+      "gzip": 293135,
+      "scripts": 15
+    },
+    {
+      "rota": "paginas/[id].html",
+      "bytes": 1405868,
+      "gzip": 435680,
+      "scripts": 25
+    },
+    {
+      "rota": "projetos.html",
+      "bytes": 1163732,
+      "gzip": 356958,
+      "scripts": 21
+    },
+    {
+      "rota": "projetos/[id].html",
+      "bytes": 1340200,
+      "gzip": 411504,
+      "scripts": 23
+    },
+    {
+      "rota": "projetos/areas.html",
+      "bytes": 1185881,
+      "gzip": 363262,
+      "scripts": 22
+    },
+    {
+      "rota": "projetos/areas/[id].html",
+      "bytes": 1185881,
+      "gzip": 363262,
+      "scripts": 22
+    },
+    {
+      "rota": "projetos/arquivo.html",
+      "bytes": 1185881,
+      "gzip": 363262,
+      "scripts": 22
+    },
+    {
+      "rota": "projetos/capturas.html",
+      "bytes": 1185881,
+      "gzip": 363262,
+      "scripts": 22
+    },
+    {
+      "rota": "projetos/entrada.html",
+      "bytes": 1185881,
+      "gzip": 363262,
+      "scripts": 22
+    },
+    {
+      "rota": "projetos/notas.html",
+      "bytes": 1159467,
+      "gzip": 355775,
+      "scripts": 22
+    },
+    {
+      "rota": "projetos/recursos.html",
+      "bytes": 1185881,
+      "gzip": 363262,
+      "scripts": 22
+    },
+    {
+      "rota": "rotina/agenda.html",
+      "bytes": 1171281,
+      "gzip": 359395,
+      "scripts": 22
+    },
+    {
+      "rota": "rotina/habitos.html",
+      "bytes": 1170331,
+      "gzip": 359459,
+      "scripts": 22
+    },
+    {
+      "rota": "rotina/metas.html",
+      "bytes": 1164569,
+      "gzip": 356895,
+      "scripts": 21
+    },
+    {
+      "rota": "rotina/tarefas.html",
+      "bytes": 1206883,
+      "gzip": 371863,
+      "scripts": 23
+    },
+    {
+      "rota": "treinar.html",
+      "bytes": 1143629,
+      "gzip": 349441,
+      "scripts": 19
+    },
+    {
+      "rota": "vida/[slug].html",
+      "bytes": 1372152,
+      "gzip": 422363,
+      "scripts": 23
+    },
+    {
+      "rota": "vida/alimentacao.html",
+      "bytes": 1523419,
+      "gzip": 471325,
+      "scripts": 25
+    },
+    {
+      "rota": "vida/filmes-series.html",
+      "bytes": 1436173,
+      "gzip": 444492,
+      "scripts": 25
+    },
+    {
+      "rota": "vida/flow.html",
+      "bytes": 1440291,
+      "gzip": 445242,
+      "scripts": 25
+    },
+    {
+      "rota": "vida/guarda-roupa.html",
+      "bytes": 1445076,
+      "gzip": 446433,
+      "scripts": 25
+    },
+    {
+      "rota": "vida/hobbies.html",
+      "bytes": 1430970,
+      "gzip": 443044,
+      "scripts": 25
+    },
+    {
+      "rota": "vida/hobbies/[id].html",
+      "bytes": 1431748,
+      "gzip": 443461,
+      "scripts": 25
+    },
+    {
+      "rota": "vida/pessoal.html",
+      "bytes": 1428674,
+      "gzip": 441121,
+      "scripts": 25
+    },
+    {
+      "rota": "vida/treino.html",
+      "bytes": 1425312,
+      "gzip": 439959,
+      "scripts": 25
+    },
+    {
+      "rota": "vida/viagens.html",
+      "bytes": 1433194,
+      "gzip": 443910,
+      "scripts": 25
+    },
+    {
+      "rota": "vida/viagens/[id].html",
+      "bytes": 1407880,
+      "gzip": 434598,
+      "scripts": 24
+    }
+  ],
+  "depois": [
+    {
+      "rota": "_global-error.html",
+      "bytes": 571224,
+      "gzip": 175976,
+      "scripts": 7
+    },
+    {
+      "rota": "_not-found.html",
+      "bytes": 977576,
+      "gzip": 291116,
+      "scripts": 14
+    },
+    {
+      "rota": "assistir.html",
+      "bytes": 1377444,
+      "gzip": 425996,
+      "scripts": 23
+    },
+    {
+      "rota": "colecoes.html",
+      "bytes": 1342168,
+      "gzip": 412031,
+      "scripts": 23
+    },
+    {
+      "rota": "colecoes/[id].html",
+      "bytes": 1342168,
+      "gzip": 412031,
+      "scripts": 23
+    },
+    {
+      "rota": "colecoes/item/[id].html",
+      "bytes": 1342168,
+      "gzip": 412031,
+      "scripts": 23
+    },
+    {
+      "rota": "configuracoes.html",
+      "bytes": 1175287,
+      "gzip": 360524,
+      "scripts": 22
+    },
+    {
+      "rota": "configurar.html",
+      "bytes": 977576,
+      "gzip": 291116,
+      "scripts": 14
+    },
+    {
+      "rota": "conteudo/assistente.html",
+      "bytes": 1336519,
+      "gzip": 411129,
+      "scripts": 23
+    },
+    {
+      "rota": "conteudo/biblioteca.html",
+      "bytes": 1169834,
+      "gzip": 359075,
+      "scripts": 21
+    },
+    {
+      "rota": "conteudo/planner.html",
+      "bytes": 1211869,
+      "gzip": 372617,
+      "scripts": 22
+    },
+    {
+      "rota": "estudos/concursos.html",
+      "bytes": 1331248,
+      "gzip": 408844,
+      "scripts": 23
+    },
+    {
+      "rota": "estudos/cursos.html",
+      "bytes": 1329834,
+      "gzip": 408574,
+      "scripts": 23
+    },
+    {
+      "rota": "estudos/laboratorio.html",
+      "bytes": 1166734,
+      "gzip": 358046,
+      "scripts": 22
+    },
+    {
+      "rota": "estudos/leitura.html",
+      "bytes": 1172239,
+      "gzip": 359549,
+      "scripts": 22
+    },
+    {
+      "rota": "estudos/leitura/[id].html",
+      "bytes": 1349357,
+      "gzip": 414479,
+      "scripts": 23
+    },
+    {
+      "rota": "index.html",
+      "bytes": 1183362,
+      "gzip": 363220,
+      "scripts": 21
+    },
+    {
+      "rota": "ler/[id].html",
+      "bytes": 1038196,
+      "gzip": 312438,
+      "scripts": 17
+    },
+    {
+      "rota": "links.html",
+      "bytes": 1165864,
+      "gzip": 357513,
+      "scripts": 21
+    },
+    {
+      "rota": "login.html",
+      "bytes": 982334,
+      "gzip": 293168,
+      "scripts": 15
+    },
+    {
+      "rota": "paginas/[id].html",
+      "bytes": 1403423,
+      "gzip": 433231,
+      "scripts": 24
+    },
+    {
+      "rota": "projetos.html",
+      "bytes": 1165726,
+      "gzip": 357532,
+      "scripts": 21
+    },
+    {
+      "rota": "projetos/[id].html",
+      "bytes": 1334202,
+      "gzip": 409799,
+      "scripts": 23
+    },
+    {
+      "rota": "projetos/areas.html",
+      "bytes": 1183947,
+      "gzip": 362705,
+      "scripts": 22
+    },
+    {
+      "rota": "projetos/areas/[id].html",
+      "bytes": 1183947,
+      "gzip": 362705,
+      "scripts": 22
+    },
+    {
+      "rota": "projetos/arquivo.html",
+      "bytes": 1183947,
+      "gzip": 362705,
+      "scripts": 22
+    },
+    {
+      "rota": "projetos/capturas.html",
+      "bytes": 1183947,
+      "gzip": 362705,
+      "scripts": 22
+    },
+    {
+      "rota": "projetos/entrada.html",
+      "bytes": 1183947,
+      "gzip": 362705,
+      "scripts": 22
+    },
+    {
+      "rota": "projetos/notas.html",
+      "bytes": 1162514,
+      "gzip": 356781,
+      "scripts": 22
+    },
+    {
+      "rota": "projetos/recursos.html",
+      "bytes": 1183947,
+      "gzip": 362705,
+      "scripts": 22
+    },
+    {
+      "rota": "rotina/agenda.html",
+      "bytes": 1173138,
+      "gzip": 359445,
+      "scripts": 21
+    },
+    {
+      "rota": "rotina/habitos.html",
+      "bytes": 1172325,
+      "gzip": 360001,
+      "scripts": 22
+    },
+    {
+      "rota": "rotina/metas.html",
+      "bytes": 1166563,
+      "gzip": 357467,
+      "scripts": 21
+    },
+    {
+      "rota": "rotina/tarefas.html",
+      "bytes": 1204705,
+      "gzip": 371178,
+      "scripts": 23
+    },
+    {
+      "rota": "treinar.html",
+      "bytes": 1143949,
+      "gzip": 349564,
+      "scripts": 19
+    },
+    {
+      "rota": "vida/[slug].html",
+      "bytes": 1369977,
+      "gzip": 419967,
+      "scripts": 22
+    },
+    {
+      "rota": "vida/alimentacao.html",
+      "bytes": 1521244,
+      "gzip": 468926,
+      "scripts": 24
+    },
+    {
+      "rota": "vida/filmes-series.html",
+      "bytes": 1433688,
+      "gzip": 441995,
+      "scripts": 24
+    },
+    {
+      "rota": "vida/flow.html",
+      "bytes": 1438715,
+      "gzip": 443054,
+      "scripts": 24
+    },
+    {
+      "rota": "vida/guarda-roupa.html",
+      "bytes": 1442726,
+      "gzip": 444078,
+      "scripts": 25
+    },
+    {
+      "rota": "vida/hobbies.html",
+      "bytes": 1428546,
+      "gzip": 440597,
+      "scripts": 24
+    },
+    {
+      "rota": "vida/hobbies/[id].html",
+      "bytes": 1429327,
+      "gzip": 441003,
+      "scripts": 24
+    },
+    {
+      "rota": "vida/pessoal.html",
+      "bytes": 1426189,
+      "gzip": 438624,
+      "scripts": 24
+    },
+    {
+      "rota": "vida/treino.html",
+      "bytes": 1423285,
+      "gzip": 437713,
+      "scripts": 24
+    },
+    {
+      "rota": "vida/viagens.html",
+      "bytes": 1430840,
+      "gzip": 441550,
+      "scripts": 25
+    },
+    {
+      "rota": "vida/viagens/[id].html",
+      "bytes": 1409835,
+      "gzip": 435250,
+      "scripts": 25
+    }
+  ]
+}

@@ -5,24 +5,20 @@ import * as React from "react"
 import { Botao } from "@/components/ui/button"
 import { Menu, MenuConteudo, MenuGatilho, MenuItem } from "@/components/ui/menu"
 import dynamic from "next/dynamic"
+import { DialogoTarefa } from "@/features/tarefas/dialogo-tarefa"
+import { DialogoCaptura } from "@/features/capturas/dialogo-captura"
+import { DialogoConteudo } from "@/features/planner/dialogo-conteudo"
 import { cn } from "@/lib/utils"
 
 // As quatro janelas ficam fora do carregamento inicial de todas as telas: cada uma é baixada
-// quando vai abrir, e o download começa antes, assim que o ponteiro chega ao botão "Novo".
+// quando vai abrir; só a opção sob o ponteiro/foco é antecipada.
 const carregar = {
-  tarefa: () => import("@/features/tarefas/dialogo-tarefa").then((m) => m.DialogoTarefa),
-  captura: () => import("@/features/capturas/dialogo-captura").then((m) => m.DialogoCaptura),
+  tarefa: () => import("@/features/tarefas/formulario-tarefa").then((m) => m.DialogoTarefa),
+  captura: () => import("@/features/capturas/formulario-captura").then((m) => m.DialogoCaptura),
   evento: () => import("@/features/agenda/dialogo-evento").then((m) => m.DialogoEvento),
-  conteudo: () => import("@/features/planner/dialogo-conteudo").then((m) => m.DialogoConteudo),
+  conteudo: () => import("@/features/planner/formulario-conteudo").then((m) => m.DialogoConteudo),
 }
-const DialogoTarefa = dynamic(carregar.tarefa, { ssr: false })
-const DialogoCaptura = dynamic(carregar.captura, { ssr: false })
 const DialogoEvento = dynamic(carregar.evento, { ssr: false })
-const DialogoConteudo = dynamic(carregar.conteudo, { ssr: false })
-
-function adiantarJanelas() {
-  for (const baixar of Object.values(carregar)) void baixar().catch(() => {})
-}
 
 type TipoNovo = "tarefa" | "captura" | "evento" | "conteudo"
 const EVENTO = "dml:novo"
@@ -40,8 +36,8 @@ const OPCOES: { tipo: TipoNovo; rotulo: string; icone: typeof Plus; atalho: stri
 
 export function BotaoNovo({ compacto, className }: { compacto?: boolean; className?: string }) {
   return (
-    <Menu onOpenChange={(aberto) => aberto && adiantarJanelas()}>
-      <MenuGatilho asChild onPointerEnter={adiantarJanelas} onFocus={adiantarJanelas}>
+    <Menu>
+      <MenuGatilho asChild>
         {compacto ? (
           <Botao variante="primario" tamanho="icone" aria-label="Criar" className={cn("rounded-full", className)}>
             <Plus />
@@ -55,7 +51,7 @@ export function BotaoNovo({ compacto, className }: { compacto?: boolean; classNa
       </MenuGatilho>
       <MenuConteudo align={compacto ? "end" : "start"} className="w-56">
         {OPCOES.map((o) => (
-          <MenuItem key={o.tipo} onSelect={() => abrirNovo(o.tipo)}>
+          <MenuItem key={o.tipo} onPointerEnter={() => void carregar[o.tipo]().catch(() => {})} onFocus={() => void carregar[o.tipo]().catch(() => {})} onSelect={() => abrirNovo(o.tipo)}>
             <o.icone />
             <span className="flex-1">{o.rotulo}</span>
           </MenuItem>

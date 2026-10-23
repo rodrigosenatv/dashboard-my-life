@@ -69,7 +69,7 @@ export function Capa({ caminho, className }: { caminho: string; className?: stri
   const { data } = useUrlArquivo(caminho)
   return data ? (
     // eslint-disable-next-line @next/next/no-img-element
-    <img src={data} alt="" className={cn("aspect-[4/3] w-full object-cover", className)} />
+    <img src={data} alt="" loading="lazy" decoding="async" className={cn("aspect-[4/3] w-full object-cover", className)} />
   ) : (
     <div className={cn("aspect-[4/3] animate-pulse bg-surface-2", className)} />
   )

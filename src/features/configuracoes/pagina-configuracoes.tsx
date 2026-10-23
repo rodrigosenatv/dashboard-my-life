@@ -12,14 +12,13 @@ import { useSessao, useTema, type Tema } from "@/components/provedores"
 import { InstalarApp } from "@/components/pwa"
 import { supabase } from "@/lib/supabase/client"
 import { BUCKET_ARQUIVOS } from "@/lib/supabase/env"
-import { novoId } from "@/lib/data"
 import { numero } from "@/lib/utils"
 import { useConfiguracoes, useSalvarConfiguracoes, type Preferencias } from "./dados"
 import { ChavesIA } from "./chaves-ia"
 import { FRASE_PADRAO } from "@/lib/marca"
-import { abrirZip } from "@/features/importar/zip"
-import { montarPlano, resumoPlano, type Plano } from "@/features/importar/notion"
-import { executarImportacao, exportarTudo, recuperarArquivos, type Progresso as EstadoProgresso } from "@/features/importar/executar"
+import type { Plano } from "@/features/importar/notion"
+import type { Preparado } from "@/features/importar/preparar"
+import type { Progresso as EstadoProgresso } from "@/features/importar/executar"
 
 const TAMANHO_MAXIMO_CAPA = 8 * 1024 * 1024
 
@@ -97,9 +96,11 @@ function Aparencia() {
     if (arquivo.size > TAMANHO_MAXIMO_CAPA) return toast.error("A imagem é grande demais. Use uma de até 8 MB.")
     setEnviando(true)
     try {
-      const ext = arquivo.name.split(".").pop()?.toLowerCase() || "png"
+      const { otimizarImagem } = await import("@/lib/otimizar-imagem")
+      const otimizado = await otimizarImagem(arquivo, { dimensaoMaxima: 1920 })
+      const ext = otimizado.name.split(".").pop()?.toLowerCase() || "png"
       const caminho = `${usuario.id}/capa/capa-${Date.now()}.${ext}`
-      const { error } = await arquivos().upload(caminho, arquivo, { contentType: arquivo.type })
+      const { error } = await arquivos().upload(caminho, otimizado, { contentType: otimizado.type })
       if (error) throw new Error(error.message)
       // A imagem antiga só sai depois que a nova estiver gravada nas preferências; se gravar falhar, a nova é que sai
       const antiga = prefs.capa
@@ -181,7 +182,7 @@ function Aparencia() {
 type EstadoImportacao =
   | { fase: "parado" }
   | { fase: "lendo"; nome: string }
-  | { fase: "pronto"; nome: string; plano: Plano; arquivos: Map<string, Uint8Array>; jaImportado: boolean }
+  | { fase: "pronto"; nome: string; plano: Plano; arquivos: Map<string, Uint8Array>; jaImportado: boolean; resumo: Preparado["resumo"] }
   | { fase: "gravando"; progresso: EstadoProgresso }
   | { fase: "concluido"; avisos: string[]; total: number }
   | { fase: "recuperado"; itens: number; arquivos: number; avisos: string[] }
@@ -194,27 +195,34 @@ function ImportarNotion() {
   const [estado, setEstado] = React.useState<EstadoImportacao>({ fase: "parado" })
   const [confirmar, setConfirmar] = React.useState(false)
 
+  const preparacao = React.useRef<AbortController | null>(null)
+  React.useEffect(() => () => preparacao.current?.abort(), [])
+
   async function ler(arquivo: File) {
     if (!usuario) return
+    preparacao.current?.abort()
+    const controle = new AbortController()
+    preparacao.current = controle
     setEstado({ fase: "lendo", nome: arquivo.name })
     try {
-      const bytes = new Uint8Array(await arquivo.arrayBuffer())
-      const arquivos = abrirZip(bytes)
-      const plano = montarPlano(arquivos, { usuarioId: usuario.id, novoId })
+      const { prepararImportacao } = await import("@/features/importar/preparar")
+      const { plano, arquivos, resumo } = await prepararImportacao(arquivo, usuario.id, controle.signal)
       // Já houve importação? Então o caminho seguro (recuperar fotos) vem primeiro
-      const { count } = await supabase().from("pages").select("id", { count: "exact", head: true }).not("notion_id", "is", null)
-      setEstado({ fase: "pronto", nome: arquivo.name, plano, arquivos, jaImportado: (count ?? 0) > 0 })
+      const { count } = await supabase().from("pages").select("id", { count: "exact", head: true }).not("notion_id", "is", null).abortSignal(controle.signal)
+      controle.signal.throwIfAborted()
+      setEstado({ fase: "pronto", nome: arquivo.name, plano, arquivos, resumo, jaImportado: (count ?? 0) > 0 })
     } catch (e) {
-      setEstado({ fase: "erro", mensagem: e instanceof Error ? e.message : "Não foi possível ler o arquivo." })
+      if (!controle.signal.aborted) setEstado({ fase: "erro", mensagem: e instanceof Error ? e.message : "Não foi possível ler o arquivo." })
     }
   }
 
   async function gravar() {
     if (estado.fase !== "pronto" || !usuario) return
     const { plano, arquivos } = estado
-    const total = resumoPlano(plano).reduce((s, r) => s + r.total, 0)
+    const total = estado.resumo.reduce((s, r) => s + r.total, 0)
     setEstado({ fase: "gravando", progresso: { etapa: "Preparando", feito: 0, total: 1 } })
     try {
+      const { executarImportacao } = await import("@/features/importar/executar")
       const { avisos } = await executarImportacao({
         cliente: supabase(),
         plano,
@@ -236,6 +244,7 @@ function ImportarNotion() {
     const { plano, arquivos } = estado
     setEstado({ fase: "gravando", progresso: { etapa: "Preparando", feito: 0, total: 1 } })
     try {
+      const { recuperarArquivos } = await import("@/features/importar/executar")
       const r = await recuperarArquivos({
         cliente: supabase(),
         plano,
@@ -310,7 +319,7 @@ function ImportarNotion() {
             </p>
             <table className="w-full text-sm">
               <tbody>
-                {resumoPlano(estado.plano).map((r) => (
+                {estado.resumo.map((r) => (
                   <tr key={r.tabela} className="border-b border-line last:border-0">
                     <td className="py-1.5 text-ink-2">{r.nome}</td>
                     <td className="py-1.5 text-right tabular-nums">{numero(r.total)}</td>
@@ -399,6 +408,7 @@ function CopiaSeguranca() {
   async function baixar() {
     setBaixando(true)
     try {
+      const { exportarTudo } = await import("@/features/importar/executar")
       const dados = await exportarTudo(supabase())
       const blob = new Blob([JSON.stringify({ exportadoEm: new Date().toISOString(), dados }, null, 2)], { type: "application/json" })
       const url = URL.createObjectURL(blob)

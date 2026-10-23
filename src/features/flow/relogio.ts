@@ -163,9 +163,19 @@ export function useAgora(ativo: boolean, intervalo = 250): number {
   const [agora, setAgora] = React.useState(() => Date.now())
   React.useEffect(() => {
     if (!ativo) return
-    setAgora(Date.now())
-    const id = window.setInterval(() => setAgora(Date.now()), intervalo)
-    return () => window.clearInterval(id)
+    let id: number | undefined
+    const ajustar = () => {
+      window.clearInterval(id)
+      if (document.visibilityState === "hidden") return
+      setAgora(Date.now())
+      id = window.setInterval(() => setAgora(Date.now()), intervalo)
+    }
+    ajustar()
+    document.addEventListener("visibilitychange", ajustar)
+    return () => {
+      window.clearInterval(id)
+      document.removeEventListener("visibilitychange", ajustar)
+    }
   }, [ativo, intervalo])
   return agora
 }

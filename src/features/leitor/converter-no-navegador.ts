@@ -63,8 +63,14 @@ export async function converterPdfNoNavegador(
     wasmUrl: `${BASE}wasm/`,
     iccUrl: `${BASE}iccs/`,
   })
-  const pdf = await tarefa.promise
+  let encerramento: Promise<void> | undefined
+  const encerrar = () => (encerramento ??= tarefa.destroy())
+  const cancelar = () => { void encerrar().catch(() => {}) }
+  opcoes.sinal?.addEventListener("abort", cancelar, { once: true })
   try {
+    opcoes.sinal?.throwIfAborted()
+    const pdf = await tarefa.promise
+    opcoes.sinal?.throwIfAborted()
     const { converterPdf } = await import("./conversor")
     const r = await converterPdf({
       pdf,
@@ -79,6 +85,7 @@ export async function converterPdfNoNavegador(
     })
     return { ...r, versao: VERSAO_CONVERSOR }
   } finally {
-    await tarefa.destroy()
+    opcoes.sinal?.removeEventListener("abort", cancelar)
+    await encerrar()
   }
 }

@@ -18,22 +18,8 @@ import type {
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-const PAGINA = 1000
-
-type Resposta<T> = PromiseLike<{ data: T[] | null; error: { message: string } | null }>
-
-/** Busca todas as linhas, página por página (o Supabase devolve no máximo 1000 por vez). */
-export async function buscarTodos<T>(montar: (de: number, ate: number) => Resposta<T>): Promise<T[]> {
-  const todos: T[] = []
-  for (let de = 0; ; de += PAGINA) {
-    const { data, error } = await montar(de, de + PAGINA - 1)
-    if (error) throw new Error(error.message)
-    const lote = data ?? []
-    todos.push(...lote)
-    if (lote.length < PAGINA) break
-  }
-  return todos
-}
+import { buscarTodos } from "./paginacao"
+export { buscarTodos } from "./paginacao"
 
 export type Ordem = { coluna: string; asc?: boolean }
 
@@ -46,9 +32,9 @@ export type OpcoesLista = {
 }
 
 // Coluna usada para desempatar a ordem (paginação estável).
-const DESEMPATE: Partial<Record<TableName, string>> = {
-  capture_projects: "capture_id",
-  settings: "user_id",
+const DESEMPATE: Partial<Record<TableName, string[]>> = {
+  capture_projects: ["capture_id", "project_id"],
+  settings: ["user_id"],
 }
 
 /**
@@ -62,14 +48,14 @@ export function useLista<T extends TableName>(tabela: T, opcoes: OpcoesLista = {
   return useQuery({
     queryKey: [tabela, ...chave, { colunas, ordem }],
     enabled,
-    queryFn: () =>
+    queryFn: ({ signal }) =>
       buscarTodos<Tables<T>>((de, ate) => {
         let q: any = (supabase().from(tabela) as any).select(colunas)
         if (filtro) q = filtro(q)
         for (const o of ordem) q = q.order(o.coluna, { ascending: o.asc ?? true, nullsFirst: false })
-        q = q.order(DESEMPATE[tabela] ?? "id", { ascending: true })
-        return q.range(de, ate)
-      }),
+        for (const coluna of DESEMPATE[tabela] ?? ["id"]) q = q.order(coluna, { ascending: true })
+        return q.range(de, ate).abortSignal(signal)
+      }, signal),
   })
 }
 
@@ -82,8 +68,8 @@ export function useRegistro<T extends TableName>(
   return useQuery({
     queryKey: [tabela, "um", id],
     enabled: Boolean(id),
-    queryFn: async () => {
-      const { data, error } = await (supabase().from(tabela) as any).select("*").eq("id", id).maybeSingle()
+    queryFn: async ({ signal }) => {
+      const { data, error } = await (supabase().from(tabela) as any).select("*").eq("id", id).abortSignal(signal).maybeSingle()
       if (error) throw new Error(error.message)
       return (data ?? null) as Tables<T> | null
     },
