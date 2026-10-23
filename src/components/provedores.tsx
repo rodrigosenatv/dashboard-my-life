@@ -72,7 +72,9 @@ function limparCredenciaisIA() {
       const nome = localStorage.key(i)
       if (nome === "dml-ia" || nome?.startsWith("dml-ia:")) localStorage.removeItem(nome)
     }
+    localStorage.removeItem("dml:usuario-offline")
     window.dispatchEvent(new Event("dml-ia-mudou"))
+    navigator.serviceWorker?.controller?.postMessage({ type: "LIMPAR_CACHE_PESSOAL" })
   } catch {}
 }
 
@@ -100,10 +102,12 @@ function ProvedorSessao({ children, cliente }: { children: React.ReactNode; clie
     // A sessão guardada no aparelho basta para saber quem é a pessoa; quem valida o acesso
     // é o banco (RLS) e o proxy. Perguntar ao servidor aqui custava uma ida à rede em toda abertura.
     sb.auth.getSession().then(({ data }) => {
+      if (data.session?.user.id) try { localStorage.setItem("dml:usuario-offline", data.session.user.id) } catch {}
       setUsuario(data.session?.user ?? null)
       setCarregando(false)
     })
     const { data } = sb.auth.onAuthStateChange((evento, sessao) => {
+      if (sessao?.user.id) try { localStorage.setItem("dml:usuario-offline", sessao.user.id) } catch {}
       setUsuario(sessao?.user ?? null)
       if (evento === "SIGNED_OUT") {
         limparCredenciaisIA()

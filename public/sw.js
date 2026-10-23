@@ -95,3 +95,10 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(fetch(request).catch(() => caches.match(ICONE)))
   }
 })
+
+/** O cache de telas autenticadas nunca deve sobreviver à troca de conta. */
+self.addEventListener("message", (event) => {
+  if (event.data?.type === "LIMPAR_CACHE_PESSOAL") {
+    event.waitUntil(caches.delete(LEITOR))
+  }
+})
