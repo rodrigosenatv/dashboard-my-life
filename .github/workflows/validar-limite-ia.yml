@@ -1,0 +1,30 @@
+name: Validar limite da IA compartilhada
+
+on:
+  push:
+    branches:
+      - security/limitar-uso-ia-compartilhada
+  pull_request:
+    paths:
+      - "src/app/api/ia/route.ts"
+      - "src/lib/ia/limite-compartilhado.ts"
+      - "src/lib/ia/politica-limite.ts"
+      - "supabase/migrations/*limite_ia_compartilhada.sql"
+      - "tests/limite-ia.test.cjs"
+
+permissions:
+  contents: read
+
+jobs:
+  validar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run check
