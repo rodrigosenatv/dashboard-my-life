@@ -7,7 +7,7 @@ import { useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
-import { Archive, ArchiveRestore, ExternalLink, FolderKanban, Plus, Search } from "lucide-react"
+import { Archive, ArchiveRestore, ExternalLink, FolderKanban, Plus, Search, X, SlidersHorizontal } from "lucide-react"
 import { Botao } from "@/components/ui/button"
 import { Carregando, Etiqueta, Segmentos, Vazio } from "@/components/ui/basicos"
 import { Seletor } from "@/components/ui/campos"
@@ -126,6 +126,8 @@ export function ListaCapturas({ modo, agrupamentos = [] }: { modo: ModoCapturas;
 
   const ROTULO_AGRUPAR: Record<Agrupar, string> = { nenhum: "Lista", tag: "Por tag", tipo: "Por tipo", categoria: "Por categoria", mes: "Por mês" }
   const chaveVazio = typeof modo === "object" ? "area" : modo
+  const haFiltros = Boolean(busca || tipo || categoria)
+  const limparFiltros = () => { setBusca(""); setTipo(""); setCategoria(""); setExtras({}) }
 
   const item = (c: Captura) => {
     const link = urlValida(c.url)
@@ -134,10 +136,10 @@ export function ListaCapturas({ modo, agrupamentos = [] }: { modo: ModoCapturas;
     const corpo = c.content ?? ""
     const previa = previaTexto(corpo)
     return (
-      <li key={c.id} className="px-4 py-3">
-        <div className="flex items-start gap-3">
-          <button type="button" onClick={() => setAberta(c)} className="min-w-0 flex-1 text-left">
-            <p className="break-words font-medium leading-snug">{c.title || "Sem título"}</p>
+      <li key={c.id} className="group rounded-xl border border-line bg-surface px-4 py-4 transition-[border-color,background-color] hover:border-projetos/30 hover:bg-surface-2/40 sm:px-5">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
+          <button type="button" onClick={() => setAberta(c)} className="min-w-0 flex-1 rounded-md text-left focus-visible:outline-offset-4">
+            <p className="break-words text-[15px] font-semibold leading-snug transition-colors group-hover:text-projetos">{c.title || "Sem título"}</p>
             <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-ink-3">
               {c.kind ? <span>{c.kind}</span> : null}
               {c.category ? <span>{c.category}</span> : null}
@@ -152,16 +154,16 @@ export function ListaCapturas({ modo, agrupamentos = [] }: { modo: ModoCapturas;
               {agrupar !== "tag" ? c.tags.slice(0, 4).map((t) => <Etiqueta key={t}>{t}</Etiqueta>) : null}
             </p>
           </button>
-          <div className="flex shrink-0 items-center gap-1">
+          <div className="flex w-full shrink-0 items-center justify-end gap-2 border-t border-line pt-2 sm:w-auto sm:justify-start sm:border-0 sm:pt-0">
             {link ? (
-              <a href={link} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-1 rounded-md px-2 py-1 text-xs text-ink-2 hover:bg-surface-2 toque:min-h-11 toque:min-w-11" title={link}>
+              <a href={link} target="_blank" rel="noreferrer" className="inline-flex min-h-10 items-center justify-center gap-1 rounded-md px-2 py-1 text-xs text-ink-2 hover:bg-surface-2 toque:min-h-11 toque:min-w-11" title={link}>
                 <ExternalLink className="size-3.5" /> <span className="hidden sm:inline">{dominio(link)}</span>
               </a>
             ) : null}
             {!c.archived ? (
               <Menu>
                 <MenuGatilho asChild>
-                  <Botao variante="fantasma" tamanho="sm">Organizar</Botao>
+                  <Botao variante="contorno" tamanho="sm" className="min-w-24">Organizar</Botao>
                 </MenuGatilho>
                 <MenuConteudo className="max-h-80 w-64 overflow-y-auto">
                   <MenuRotulo>Ligar a um projeto</MenuRotulo>
@@ -180,14 +182,14 @@ export function ListaCapturas({ modo, agrupamentos = [] }: { modo: ModoCapturas;
                 </MenuConteudo>
               </Menu>
             ) : (
-              <Botao variante="fantasma" tamanho="sm" onClick={() => atualizar.mutate({ id: c.id, archived: false })}>
+              <Botao variante="contorno" tamanho="sm" disabled={atualizar.isPending} onClick={() => atualizar.mutate({ id: c.id, archived: false })}>
                 <ArchiveRestore /> Restaurar
               </Botao>
             )}
           </div>
         </div>
         {corpo ? (
-          <div className="mt-2">
+          <div className="mt-2 rounded-lg text-ink-2">
             {aberto ? <MarkdownSobDemanda texto={corpo} className="text-sm" /> : previa ? <p className="line-clamp-2 text-sm text-ink-2">{previa}</p> : null}
             {corpo.length > 160 || !previa ? (
               <button type="button" onClick={() => setExpandida(aberto ? null : c.id)} className="mt-1 text-xs font-medium text-pen toque:-mb-2 toque:mt-0 toque:py-3.5 toque:text-sm">
@@ -202,36 +204,49 @@ export function ListaCapturas({ modo, agrupamentos = [] }: { modo: ModoCapturas;
 
   return (
     <div>
-      <div className="mb-6 flex flex-wrap items-center gap-2">
+      <div className="mb-5 rounded-2xl border border-line bg-surface p-3 sm:p-4">
         {agrupamentos.length > 1 ? (
-          <Segmentos rotulo="Agrupar" valor={agrupar} aoMudar={setAgrupar} opcoes={agrupamentos.map((a) => ({ valor: a, rotulo: ROTULO_AGRUPAR[a] }))} />
+          <div className="mb-3 min-w-0">
+            <Segmentos className="w-full sm:w-auto" rotulo="Agrupar" valor={agrupar} aoMudar={(v) => { setAgrupar(v); setExtras({}) }} opcoes={agrupamentos.map((a) => ({ valor: a, rotulo: ROTULO_AGRUPAR[a] }))} />
+          </div>
         ) : null}
-        <div className="relative min-w-48 flex-1 sm:max-w-xs">
-          <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-ink-3" />
-          <input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Filtrar" aria-label="Filtrar capturas" className="h-9 w-full rounded-md border toque:h-11 toque:text-[16px] border-line-strong bg-surface pl-8 pr-3 text-sm placeholder:text-ink-3 focus-visible:border-pen focus-visible:outline-none" />
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="relative min-w-0 flex-1">
+            <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-ink-3" />
+            <input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Buscar nas capturas…" aria-label="Buscar nas capturas" className="h-11 w-full rounded-xl border border-line-strong bg-bg/50 pl-10 pr-10 text-base placeholder:text-ink-3 focus-visible:border-projetos focus-visible:outline-none sm:text-sm" />
+            {busca ? <button type="button" onClick={() => setBusca("")} aria-label="Limpar busca" className="absolute right-1 top-1/2 grid size-10 -translate-y-1/2 place-items-center text-ink-2 hover:text-ink"><X className="size-4" /></button> : null}
+          </div>
+          <Botao variante="primario" className="h-11 w-full sm:w-auto" onClick={() => setNova(true)}>
+            <Plus /> Nova captura
+          </Botao>
         </div>
-        {tipos.length > 1 && agrupar !== "tipo" ? (
-          <Seletor aria-label="Tipo" value={tipo} onChange={(e) => setTipo(e.target.value)} className="w-auto">
-            <option value="">Todos os tipos</option>
-            {tipos.map((t) => <option key={t}>{t}</option>)}
-          </Seletor>
+        {(tipos.length > 1 || categorias.length > 1) ? (
+          <div className="mt-3 grid grid-cols-1 gap-2 sm:flex sm:flex-wrap sm:items-center">
+            <span className="hidden text-ink-3 sm:inline-flex"><SlidersHorizontal className="size-4" aria-hidden /></span>
+            {tipos.length > 1 && agrupar !== "tipo" ? (
+              <Seletor aria-label="Filtrar por tipo" value={tipo} onChange={(e) => setTipo(e.target.value)} className="w-full sm:w-auto sm:max-w-56">
+                <option value="">Todos os tipos</option>
+                {tipos.map((t) => <option key={t}>{t}</option>)}
+              </Seletor>
+            ) : null}
+            {categorias.length > 1 && agrupar !== "categoria" ? (
+              <Seletor aria-label="Filtrar por categoria" value={categoria} onChange={(e) => setCategoria(e.target.value)} className="w-full sm:w-auto sm:max-w-60">
+                <option value="">Todas as categorias</option>
+                {categorias.map((t) => <option key={t}>{t}</option>)}
+              </Seletor>
+            ) : null}
+          </div>
         ) : null}
-        {categorias.length > 1 && agrupar !== "categoria" ? (
-          <Seletor aria-label="Categoria" value={categoria} onChange={(e) => setCategoria(e.target.value)} className="w-auto max-w-60">
-            <option value="">Todas as categorias</option>
-            {categorias.map((t) => <option key={t}>{t}</option>)}
-          </Seletor>
-        ) : null}
-        <span className="tabular ml-auto text-sm text-ink-3">{lista.length === 1 ? "1 captura" : `${lista.length} capturas`}</span>
-        <Botao variante="contorno" tamanho="sm" onClick={() => setNova(true)}>
-          <Plus /> Nova captura
-        </Botao>
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-line pt-3">
+          <p aria-live="polite" className="tabular text-xs font-medium text-ink-2">{lista.length === 1 ? "1 captura" : `${lista.length} capturas`} {haFiltros ? "encontradas" : "no total"}</p>
+          {haFiltros ? <button type="button" onClick={limparFiltros} className="inline-flex min-h-9 items-center gap-1.5 rounded-md px-2 text-xs font-semibold text-projetos hover:bg-projetos-soft"><X className="size-3.5" /> Limpar filtros</button> : null}
+        </div>
       </div>
 
       {isLoading ? (
         <Carregando />
       ) : lista.length === 0 ? (
-        <Vazio titulo={busca ? "Nenhuma captura encontrada." : VAZIOS[chaveVazio].titulo} descricao={busca ? undefined : VAZIOS[chaveVazio].descricao} />
+        <Vazio className="rounded-2xl bg-surface p-7 sm:p-10" titulo={haFiltros ? "Nenhuma captura com esses filtros." : VAZIOS[chaveVazio].titulo} descricao={haFiltros ? "Experimente limpar os filtros ou usar outros termos." : VAZIOS[chaveVazio].descricao} acao={haFiltros ? <Botao variante="contorno" onClick={limparFiltros}>Limpar filtros</Botao> : <Botao variante="primario" onClick={() => setNova(true)}><Plus /> Nova captura</Botao>} />
       ) : (
         <div className="grid gap-8">
           {grupos.map((g) => {
@@ -240,12 +255,12 @@ export function ListaCapturas({ modo, agrupamentos = [] }: { modo: ModoCapturas;
             return (
             <section key={g.titulo || "todas"}>
               {g.titulo ? (
-                <h2 className={cn("mb-2 flex items-baseline gap-2 font-display text-base font-semibold", agrupar === "mes" && "first-letter:uppercase")}>
+                <h2 className={cn("mb-3 flex flex-wrap items-center gap-2 font-display text-base font-semibold", agrupar === "mes" && "first-letter:uppercase")}>
                   {g.titulo}
-                  <span className="tabular text-sm font-normal text-ink-3">{g.itens.length}</span>
+                  <span className="tabular rounded-full bg-projetos-soft px-2 py-0.5 text-xs font-medium text-projetos">{g.itens.length}</span>
                 </h2>
               ) : null}
-              <ul className="divide-y divide-line rounded-lg border border-line bg-surface">{g.itens.slice(0, limite).map(item)}</ul>
+              <ul className="grid gap-2">{g.itens.slice(0, limite).map(item)}</ul>
               {restam > 0 ? (
                 <Botao
                   variante="contorno"
