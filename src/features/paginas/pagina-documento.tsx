@@ -22,7 +22,7 @@ function Capa({ caminho }: { caminho: string }) {
   const { data } = useUrlArquivo(caminho)
   if (!data) return <div className="mb-6 h-36 animate-pulse rounded-xl bg-surface-2" />
   // eslint-disable-next-line @next/next/no-img-element
-  return <img src={data} alt="" className="mb-6 h-36 w-full rounded-xl object-cover sm:h-44" />
+  return <img src={data} alt="" className="mb-6 h-40 w-full rounded-2xl object-cover sm:h-56" />
 }
 
 export function PaginaDocumento() {
@@ -57,22 +57,22 @@ export function PaginaDocumento() {
   }
 
   return (
-    <article className="max-w-3xl">
-      <nav aria-label="Caminho" className="mb-5 flex flex-wrap items-center gap-1 text-sm text-ink-3">
+    <article className="mx-auto min-w-0 max-w-3xl">
+      <nav aria-label="Caminho" className="mb-5 flex min-w-0 items-center gap-1 overflow-x-auto whitespace-nowrap pb-2 text-sm text-ink-3 scrollbar-thin">
         <Link href={voltar} className="hover:text-ink">{SECOES[pagina.section] ?? "Páginas"}</Link>
         {caminho.map((p) => (
           <React.Fragment key={p.id}>
             <ChevronRight className="size-3.5" />
-            <Link href={`/paginas/${p.id}`} className="max-w-48 truncate hover:text-ink">{p.title}</Link>
+            <Link href={`/paginas/${p.id}`} className="max-w-40 shrink-0 truncate hover:text-ink sm:max-w-56">{p.title}</Link>
           </React.Fragment>
         ))}
       </nav>
 
       {pagina.cover_path ? <Capa caminho={pagina.cover_path} /> : null}
 
-      <header className="mb-6 flex items-start gap-3">
-        <div className="min-w-0 flex-1">
-          <EdicaoEmLinha rotulo="Título da página" valor={pagina.title} aoSalvar={(v) => atualizar.mutate({ id: pagina.id, title: v || "Sem título" })} className="font-display text-3xl font-semibold" />
+      <header className="mb-6 flex flex-wrap items-start gap-2 rounded-2xl border border-line bg-surface p-4 sm:gap-3 sm:p-6">
+        <div className="min-w-0 flex-[1_1_100%] sm:flex-1">
+          <EdicaoEmLinha rotulo="Título da página" valor={pagina.title} aoSalvar={(v) => atualizar.mutate({ id: pagina.id, title: v || "Sem título" })} className="break-words font-display text-[1.75rem] font-semibold leading-tight sm:text-3xl" />
           <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-ink-3">
             Editada {haQuanto(pagina.updated_at)}
             {videos.length > 1 ? (
@@ -114,20 +114,22 @@ export function PaginaDocumento() {
         </Menu>
       </header>
 
-      <EditorMarkdown
-        key={pagina.id}
-        rotulo="conteúdo da página"
-        valor={pagina.content}
-        inicioEditando={params.get("editar") === "1"}
-        aoSalvar={(v) => atualizar.mutate({ id: pagina.id, content: v })}
-      />
+      <div className="min-h-52 rounded-2xl border border-line bg-surface px-4 py-5 sm:px-7 sm:py-7">
+        <EditorMarkdown
+          key={pagina.id}
+          rotulo="conteúdo da página"
+          valor={pagina.content}
+          inicioEditando={params.get("editar") === "1"}
+          aoSalvar={(v) => atualizar.mutate({ id: pagina.id, content: v })}
+        />
+      </div>
 
       {filhos.length ? (
-        <Secao titulo="Subpáginas" className="mt-12">
-          <ul className="grid gap-1 sm:grid-cols-2">
+        <Secao titulo="Subpáginas" className="mt-10">
+          <ul className="grid gap-2 sm:grid-cols-2">
             {filhos.map((f) => (
               <li key={f.id}>
-                <Link href={`/paginas/${f.id}`} className="flex items-center gap-2 rounded-md border border-line bg-surface px-3 py-2.5 text-sm hover:border-line-strong">
+                <Link href={`/paginas/${f.id}`} className="flex min-h-12 items-center gap-2 rounded-xl border border-line bg-surface px-4 py-3 text-sm font-medium transition-colors hover:border-projetos/40 hover:text-projetos">
                   <FileText className="size-4 shrink-0 text-ink-3" />
                   <span className="truncate">{f.title}</span>
                 </Link>

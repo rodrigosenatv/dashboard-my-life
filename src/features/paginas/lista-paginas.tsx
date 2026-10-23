@@ -3,9 +3,10 @@
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import * as React from "react"
-import { ChevronRight, FileText, Plus, Search, Star } from "lucide-react"
+import { ChevronRight, FileText, NotebookText, Plus, Search, Star, X } from "lucide-react"
 import { Botao } from "@/components/ui/button"
 import { Cabecalho, Carregando, Vazio } from "@/components/ui/basicos"
+import { CabecalhoCerebro } from "@/features/segundo-cerebro/cabecalho"
 import { novoId, useCriar } from "@/lib/data"
 import type { Area } from "@/lib/areas"
 import { cn, contem } from "@/lib/utils"
@@ -23,32 +24,33 @@ const NoArvore = React.memo(function NoArvore({ pagina, indice, nivel, busca, vi
   const expandido = busca ? true : aberto
 
   return (
-    <li>
-      <div className="flex items-center gap-1" style={{ paddingLeft: nivel * 18 }}>
+    <li className="min-w-0">
+      <div className="flex min-w-0 items-center gap-1 rounded-lg transition-colors hover:bg-surface-2/70">
         {filhos.length ? (
           <button
             type="button"
-            aria-label={expandido ? "Recolher" : "Expandir"}
+            aria-label={expandido ? `Recolher subpáginas de ${pagina.title}` : `Expandir subpáginas de ${pagina.title}`}
             aria-expanded={expandido}
             onClick={() => setAberto((a) => !a)}
-            className="grid size-6 place-items-center rounded text-ink-3 hover:bg-surface-2 toque:size-11"
+            disabled={Boolean(busca)}
+            className="grid size-9 shrink-0 place-items-center rounded-lg text-ink-3 hover:bg-surface-3 disabled:opacity-60 sm:size-8 toque:size-11"
           >
             <ChevronRight className={cn("size-4 transition-transform", expandido && "rotate-90")} />
           </button>
         ) : (
-          <span className="grid size-6 place-items-center text-ink-3 toque:size-11">
+          <span className="grid size-9 shrink-0 place-items-center text-ink-3 sm:size-8 toque:size-11">
             <FileText className="size-3.5" />
           </span>
         )}
-        <Link href={`/paginas/${pagina.id}`} className={cn("min-w-0 flex-1 truncate rounded-md px-1.5 py-1.5 text-sm hover:bg-surface-2 toque:py-3", nivel === 0 && "font-medium")}>
+        <Link href={`/paginas/${pagina.id}`} className={cn("min-w-0 flex-1 truncate rounded-lg px-2 py-2.5 text-sm hover:text-projetos focus-visible:outline-offset-1 toque:py-3", nivel === 0 && "font-semibold")}>
           {pagina.icon && !pagina.icon.startsWith("/") && pagina.icon.length <= 4 ? <span className="mr-1.5">{pagina.icon}</span> : null}
           {pagina.title || "Sem título"}
         </Link>
-        {pagina.favorite ? <Star className="size-3.5 fill-estudos text-estudos" /> : null}
-        {filhos.length ? <span className="tabular pr-2 text-xs text-ink-3">{indice.descendentes.get(pagina.id) ?? 0}</span> : null}
+        {pagina.favorite ? <Star aria-label="Favorita" className="size-3.5 shrink-0 fill-estudos text-estudos" /> : null}
+        {filhos.length ? <span className="tabular shrink-0 pr-2 text-xs text-ink-3">{indice.descendentes.get(pagina.id) ?? 0}</span> : null}
       </div>
       {expandido && filhos.length ? (
-        <ul>
+        <ul className="ml-3 border-l border-line pl-2 sm:ml-4 sm:pl-3">
           {filhos.map((f) => (
             <NoArvore key={f.id} pagina={f} indice={indice} nivel={nivel + 1} busca={busca} visiveis={visiveis} />
           ))}
@@ -101,30 +103,40 @@ export function ListaPaginas({
 
   return (
     <div>
-      <Cabecalho area={area} titulo={titulo} descricao={descricao} acoes={<Botao variante="primario" onClick={nova}><Plus /> Nova página</Botao>} />
+      {area === "projetos" ? (
+        <CabecalhoCerebro icone={NotebookText} titulo={titulo} descricao={descricao} acoes={<Botao variante="primario" onClick={nova} disabled={criar.isPending}><Plus /> Nova página</Botao>} />
+      ) : (
+        <Cabecalho area={area} titulo={titulo} descricao={descricao} acoes={<Botao variante="primario" onClick={nova} disabled={criar.isPending}><Plus /> Nova página</Botao>} />
+      )}
       {topo}
       {substituir ?? (
       <>
-      <div className="relative mb-6 max-w-sm">
-        <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-ink-3" />
-        <input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Filtrar pelo título" aria-label="Filtrar páginas" className="h-9 w-full rounded-md border toque:h-11 toque:text-[16px] border-line-strong bg-surface pl-8 pr-3 text-sm placeholder:text-ink-3 focus-visible:border-pen focus-visible:outline-none" />
+      <div className="mb-5 flex flex-col gap-3 rounded-2xl border border-line bg-surface p-3 sm:flex-row sm:items-center sm:p-4">
+        <div className="relative min-w-0 flex-1">
+          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-ink-3" />
+          <input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Buscar páginas por título…" aria-label="Buscar páginas por título" className="h-11 w-full rounded-xl border border-line-strong bg-bg/50 pl-10 pr-10 text-base focus-visible:border-projetos focus-visible:outline-none sm:text-sm" />
+          {busca ? <button type="button" onClick={() => setBusca("")} aria-label="Limpar busca" className="absolute right-1 top-1/2 grid size-10 -translate-y-1/2 place-items-center text-ink-2"><X className="size-4" /></button> : null}
+        </div>
+        <span className="tabular text-xs font-medium text-ink-3 sm:text-sm" aria-live="polite">{busca ? `${daSecao.filter((p) => contem(p.title, busca)).length} encontradas` : `${daSecao.length} páginas`}</span>
       </div>
 
       {isLoading ? (
         <Carregando />
       ) : daSecao.length === 0 ? (
-        <Vazio titulo="Nenhuma página ainda." descricao="Crie uma página ou importe seu conteúdo do Notion em Configurações." />
+        <Vazio className="rounded-2xl bg-surface p-7 sm:p-10" titulo="Nenhuma página ainda." descricao="Crie sua primeira página ou importe conteúdo do Notion em Configurações." acao={<Botao variante="primario" onClick={nova}><Plus /> Nova página</Botao>} />
+      ) : busca && !daSecao.some((p) => contem(p.title, busca)) ? (
+        <Vazio className="rounded-2xl bg-surface p-7 sm:p-10" titulo="Nenhuma página encontrada." descricao="Experimente outro termo ou limpe a busca." acao={<Botao variante="contorno" onClick={() => setBusca("")}>Limpar busca</Botao>} />
       ) : (
-        <div className="grid gap-8">
+        <div className="grid gap-6 sm:gap-8">
           {favoritas.length && !busca ? (
             <section>
-              <h2 className="mb-2 font-display text-lg font-semibold">Favoritas</h2>
+              <h2 className="mb-3 flex items-center gap-2 font-display text-lg font-semibold"><Star className="size-4 fill-estudos text-estudos" /> Favoritas</h2>
               <ul className="flex flex-wrap gap-2">
                 {favoritas.map((p) => (
                   <li key={p.id}>
-                    <Link href={`/paginas/${p.id}`} className="inline-flex items-center gap-1.5 rounded-full border border-line bg-surface px-3 py-1.5 text-sm hover:border-line-strong">
+                    <Link href={`/paginas/${p.id}`} className="inline-flex min-h-10 max-w-full items-center gap-1.5 rounded-xl border border-line bg-surface px-3 py-2 text-sm font-medium hover:border-projetos/40 hover:text-projetos">
                       <Star className="size-3.5 fill-estudos text-estudos" />
-                      {p.title}
+                      <span className="max-w-[65vw] truncate sm:max-w-64">{p.title}</span>
                     </Link>
                   </li>
                 ))}
@@ -135,8 +147,8 @@ export function ListaPaginas({
             .filter((s) => s.itens.length)
             .map((s) => (
               <section key={s.secao}>
-                {secoes.length > 1 ? <h2 className="mb-2 font-display text-lg font-semibold">{SECOES[s.secao] ?? s.secao}</h2> : null}
-                <ul className="rounded-lg border border-line bg-surface p-2">
+                {secoes.length > 1 ? <h2 className="mb-3 font-display text-lg font-semibold">{SECOES[s.secao] ?? s.secao} <span className="tabular ml-1 text-sm font-normal text-ink-3">{s.itens.length}</span></h2> : null}
+                <ul className="min-w-0 rounded-2xl border border-line bg-surface p-2 sm:p-3">
                   {s.itens.map((p) => (
                     <NoArvore key={p.id} pagina={p} indice={indice} nivel={0} busca={busca} visiveis={visiveis} />
                   ))}

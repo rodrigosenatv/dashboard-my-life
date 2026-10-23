@@ -3,13 +3,14 @@
 import Link from "next/link"
 import { useParams } from "next/navigation"
 import * as React from "react"
-import { ArrowLeft, FolderKanban, Pencil, Plus } from "lucide-react"
+import { Archive, ArrowLeft, Boxes, ChevronRight, FolderKanban, Inbox, NotebookPen, Pencil, Plus, Shapes } from "lucide-react"
 import { Botao } from "@/components/ui/button"
-import { Cabecalho, Carregando, Etiqueta, Progresso, Secao, Segmentos, Vazio } from "@/components/ui/basicos"
+import { Carregando, Etiqueta, Progresso, Secao, Segmentos, Vazio } from "@/components/ui/basicos"
 import { useAtualizar, useLista } from "@/lib/data"
 import { STATUS_AREA } from "@/lib/rotulos"
 import { cn, porcentagem } from "@/lib/utils"
 import { ListaCapturas } from "@/features/capturas/lista-capturas"
+import { CabecalhoCerebro } from "./cabecalho"
 import { DialogoArea } from "@/features/projetos/pagina-projetos"
 import { progresso, useAreas, useProjetos, type AreaPara } from "@/features/projetos/dados"
 
@@ -20,11 +21,7 @@ import { progresso, useAreas, useProjetos, type AreaPara } from "@/features/proj
 export function PaginaEntrada() {
   return (
     <div>
-      <Cabecalho
-        area="projetos"
-        titulo="Caixa de Entrada"
-        descricao="Capturas que ainda não têm área, projeto nem tipo. Preencher qualquer um deles já tira o item da fila."
-      />
+      <CabecalhoCerebro icone={Inbox} titulo="Caixa de entrada" descricao="Suas ideias começam aqui. Revise as capturas e encaminhe cada uma para um projeto, área ou recurso." />
       <ListaCapturas modo="entrada" />
     </div>
   )
@@ -33,7 +30,7 @@ export function PaginaEntrada() {
 export function PaginaAnotacoes() {
   return (
     <div>
-      <Cabecalho area="projetos" titulo="Anotações" descricao="Todas as capturas ativas: ideias, citações, metodologias, vídeos e links." />
+      <CabecalhoCerebro icone={NotebookPen} titulo="Anotações" descricao="Encontre tudo o que você capturou: ideias, reflexões, referências e conteúdos que valem guardar." />
       <ListaCapturas modo="anotacoes" agrupamentos={["nenhum", "tag", "tipo", "categoria"]} />
     </div>
   )
@@ -42,11 +39,7 @@ export function PaginaAnotacoes() {
 export function PaginaRecursos() {
   return (
     <div>
-      <Cabecalho
-        area="projetos"
-        titulo="Recursos"
-        descricao="Anotações que não estão ligadas a projetos nem a áreas e não foram arquivadas: material de consulta."
-      />
+      <CabecalhoCerebro icone={Boxes} titulo="Recursos" descricao="Sua biblioteca de referências avulsas, pronta para consultar e transformar em ação quando precisar." />
       <ListaCapturas modo="recursos" agrupamentos={["tag", "categoria", "nenhum"]} />
     </div>
   )
@@ -70,10 +63,10 @@ export function PaginaArquivo() {
 
   return (
     <div>
-      <Cabecalho area="projetos" titulo="Arquivo" descricao="O que já saiu de cena: capturas, projetos e áreas arquivados. Nada se perde, e tudo pode voltar." />
+      <CabecalhoCerebro icone={Archive} titulo="Arquivo" descricao="Um lugar tranquilo para o que saiu de foco. Revise e restaure conteúdos a qualquer momento." />
       <Segmentos
         rotulo="O que ver no arquivo"
-        className="mb-6"
+        className="mb-6 w-full sm:w-auto"
         valor={aba}
         aoMudar={setAba}
         opcoes={[
@@ -90,12 +83,12 @@ export function PaginaArquivo() {
         ) : (
           <ul className="divide-y divide-line rounded-lg border border-line bg-surface">
             {projetosArq.map((p) => (
-              <li key={p.id} className="flex items-center gap-3 px-4 py-2.5">
-                <Link href={`/projetos/${p.id}`} className="min-w-0 flex-1 truncate font-medium hover:underline">
+              <li key={p.id} className="flex flex-wrap items-center gap-3 px-4 py-3 sm:flex-nowrap">
+                <Link href={`/projetos/${p.id}`} className="min-w-0 basis-full break-words font-medium hover:text-projetos sm:basis-auto">
                   {p.name}
                 </Link>
                 {p.done ? <Etiqueta cor="rotina">Finalizado</Etiqueta> : null}
-                <Botao variante="fantasma" tamanho="sm" onClick={() => atualizarProjeto.mutate({ id: p.id, archived: false })}>
+                <Botao variante="contorno" tamanho="sm" className="ml-auto" disabled={atualizarProjeto.isPending} onClick={() => atualizarProjeto.mutate({ id: p.id, archived: false })}>
                   Restaurar
                 </Botao>
               </li>
@@ -107,11 +100,11 @@ export function PaginaArquivo() {
       ) : (
         <ul className="divide-y divide-line rounded-lg border border-line bg-surface">
           {areasArq.map((a) => (
-            <li key={a.id} className="flex items-center gap-3 px-4 py-2.5">
-              <Link href={`/projetos/areas/${a.id}`} className="min-w-0 flex-1 truncate font-medium hover:underline">
+            <li key={a.id} className="flex flex-wrap items-center gap-3 px-4 py-3 sm:flex-nowrap">
+              <Link href={`/projetos/areas/${a.id}`} className="min-w-0 flex-1 break-words font-medium hover:text-projetos">
                 {a.name}
               </Link>
-              <Botao variante="fantasma" tamanho="sm" onClick={() => atualizarArea.mutate({ id: a.id, status: "ativa" })}>
+              <Botao variante="contorno" tamanho="sm" className="ml-auto" disabled={atualizarArea.isPending} onClick={() => atualizarArea.mutate({ id: a.id, status: "ativa" })}>
                 Restaurar
               </Botao>
             </li>
@@ -155,10 +148,10 @@ export function PaginaAreas() {
 
   return (
     <div>
-      <Cabecalho
-        area="projetos"
+      <CabecalhoCerebro
+        icone={Shapes}
         titulo="Áreas"
-        descricao="Responsabilidades contínuas, sem data para acabar. Cada área reúne as capturas e os projetos ligados a ela."
+        descricao="Organize suas responsabilidades contínuas. Reúna projetos e referências por área da sua vida."
         acoes={
           <Botao variante="primario" onClick={() => setNova(true)}>
             <Plus /> Nova área
@@ -167,7 +160,7 @@ export function PaginaAreas() {
       />
       <Segmentos
         rotulo="Situação das áreas"
-        className="mb-6"
+        className="mb-6 w-full sm:w-auto"
         valor={verArquivadas ? "arq" : "ativas"}
         aoMudar={(v) => setVerArquivadas(v === "arq")}
         opcoes={[
@@ -187,8 +180,9 @@ export function PaginaAreas() {
               const n = contar(a.id)
               return (
                 <li key={a.id} className="group relative">
-                  <Link href={`/projetos/areas/${a.id}`} className="flex h-full flex-col rounded-lg border border-line bg-surface p-4 transition-colors hover:border-line-strong">
-                    <p className="pr-6 font-display text-lg font-semibold leading-tight">{a.name}</p>
+                  <Link href={`/projetos/areas/${a.id}`} className="flex h-full min-h-40 flex-col rounded-2xl border border-line bg-surface p-4 shadow-[0_8px_24px_-24px_rgba(20,36,43,0.5)] transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-projetos/40 hover:shadow-md focus-visible:outline-offset-2 sm:p-5">
+                    <span aria-hidden className="mb-3 grid size-9 place-items-center rounded-xl bg-projetos-soft text-projetos"><Shapes className="size-4.5" /></span>
+                    <p className="pr-9 break-words font-display text-lg font-semibold leading-tight">{a.name}</p>
                     <p className={cn("mt-1 text-xs font-medium", corStatus[a.status])}>{STATUS_AREA[a.status as keyof typeof STATUS_AREA] ?? a.status}</p>
                     <p className="mt-auto pt-5 text-sm text-ink-2">
                       <span className="tabular font-medium text-ink">{n.capturas}</span> {n.capturas === 1 ? "captura" : "capturas"}
@@ -204,7 +198,7 @@ export function PaginaAreas() {
                     type="button"
                     onClick={() => setEditar(a)}
                     aria-label={`Editar ${a.name}`}
-                    className="absolute right-2 top-2 rounded-md p-1.5 text-ink-3 opacity-0 hover:bg-surface-2 hover:text-ink group-hover:opacity-100 focus-visible:opacity-100"
+                    className="absolute right-3 top-3 grid size-10 place-items-center rounded-lg text-ink-2 opacity-100 hover:bg-projetos-soft hover:text-projetos focus-visible:opacity-100 sm:opacity-0 sm:group-hover:opacity-100 toque:opacity-100"
                   >
                     <Pencil className="size-3.5" />
                   </button>
@@ -252,15 +246,15 @@ export function PaginaArea() {
 
   return (
     <div>
-      <Link href="/projetos/areas" className="mb-4 inline-flex items-center gap-1.5 text-sm text-ink-2 hover:text-ink">
+      <Link href="/projetos/areas" className="mb-4 inline-flex min-h-11 items-center gap-1.5 rounded-lg px-1 text-sm text-ink-2 hover:text-ink">
         <ArrowLeft className="size-4" /> Áreas
       </Link>
-      <Cabecalho
-        area="projetos"
+      <CabecalhoCerebro
+        icone={Shapes}
         titulo={area.name}
-        descricao={area.description ?? undefined}
+        descricao={area.description || "Projetos e referências desta área da sua vida."}
         acoes={
-          <div className="flex items-center gap-2">
+          <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
             <Segmentos
               rotulo="Situação da área"
               valor={area.status}
@@ -280,9 +274,9 @@ export function PaginaArea() {
               const pr = progresso(p.id, projetos)
               return (
                 <li key={p.id}>
-                  <Link href={`/projetos/${p.id}`} className="block rounded-lg border border-line bg-surface p-3.5 hover:border-line-strong">
+                  <Link href={`/projetos/${p.id}`} className="group flex h-full flex-col rounded-xl border border-line bg-surface p-4 transition-colors hover:border-projetos/40">
                     <p className="flex items-center gap-2 font-medium">
-                      <FolderKanban className="size-4 text-projetos" /> {p.name}
+                      <FolderKanban className="size-4 shrink-0 text-projetos" /> <span className="min-w-0 flex-1 break-words">{p.name}</span><ChevronRight className="size-4 shrink-0 text-ink-3 group-hover:text-projetos" />
                     </p>
                     <div className="mt-3 flex items-center gap-2">
                       <Progresso valor={p.done ? 100 : porcentagem(pr.feitos, pr.total)} cor="projetos" rotulo={`Progresso de ${p.name}`} />

@@ -107,11 +107,11 @@ export function DialogoCaptura({
         </>
       }
     >
-      <form id="form-captura" onSubmit={salvar} className="grid gap-4">
+      <form id="form-captura" onSubmit={salvar} className="grid gap-4 sm:gap-5">
         <Campo rotulo="Título" htmlFor="c-titulo">
           <Entrada id="c-titulo" autoFocus value={titulo} onChange={(e) => setTitulo(e.target.value)} placeholder="Ex.: Ideia de ebook sobre concursos" />
         </Campo>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <Campo rotulo="Tipo" htmlFor="c-tipo">
             <Seletor id="c-tipo" value={tipo} onChange={(e) => setTipo(e.target.value)}>
               {TIPOS_CAPTURA.map((t) => (
@@ -136,7 +136,7 @@ export function DialogoCaptura({
         <Campo rotulo="Anotação" htmlFor="c-conteudo" dica="Aceita markdown: **negrito**, listas com -, links.">
           <AreaTexto id="c-conteudo" value={conteudo} onChange={(e) => setConteudo(e.target.value)} rows={5} />
         </Campo>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <Campo rotulo="Área" htmlFor="c-area">
             <Seletor id="c-area" value={area} onChange={(e) => setArea(e.target.value)}>
               <option value="">Nenhuma</option>
