@@ -16,7 +16,7 @@ Feito com Next.js 16, Supabase (banco, login e arquivos) e hospedado na Vercel.
 2. Em **Environment Variables**, adicione:
    - `NEXT_PUBLIC_SUPABASE_URL`
    - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
-   - `ANTHROPIC_API_KEY` (opcional: as chaves de IA do Claude, ChatGPT e Gemini também podem ser cadastradas em Configurações, guardadas só no navegador)
+   - Não configure chave de IA compartilhada na Vercel. Cada usuário cadastra a própria chave do Claude, OpenAI ou Gemini em **Configurações → Inteligência artificial** e é responsável pelo consumo dessa API.
 3. Clique em **Deploy**.
 
 ### 3. Login
