@@ -9,9 +9,11 @@ import { Campo, Entrada } from "@/components/ui/campos"
 import { PROVEDORES, type InfoProvedor } from "@/lib/ia/info"
 import { provedoresAtivos, salvarConfigIA, useConfigIA } from "@/lib/ia/chaves-locais"
 import { cn } from "@/lib/utils"
+import { useSessao } from "@/components/provedores"
 
 function LinhaProvedor({ p }: { p: InfoProvedor }) {
   const cfg = useConfigIA()
+  const { usuario } = useSessao()
   const atual = cfg.provedores[p.id]
   const [chave, setChave] = React.useState("")
   const [modelo, setModelo] = React.useState<string | null>(null)
@@ -23,7 +25,7 @@ function LinhaProvedor({ p }: { p: InfoProvedor }) {
     const provedores = { ...cfg.provedores }
     if (novaChave === null) delete provedores[p.id]
     else provedores[p.id] = { chave: novaChave, modelo: valorModelo.trim() || undefined }
-    salvarConfigIA({ padrao: novaChave === null && cfg.padrao === p.id ? undefined : cfg.padrao, provedores })
+    salvarConfigIA({ padrao: novaChave === null && cfg.padrao === p.id ? undefined : cfg.padrao, provedores }, usuario?.id ?? null)
   }
 
   const testar = async (k: string, m: string) => {
@@ -101,7 +103,7 @@ function LinhaProvedor({ p }: { p: InfoProvedor }) {
                   type="radio"
                   name="ia-padrao"
                   checked={padrao}
-                  onChange={() => salvarConfigIA({ ...cfg, padrao: p.id })}
+                  onChange={() => salvarConfigIA({ ...cfg, padrao: p.id }, usuario?.id ?? null)}
                   className="accent-[var(--pen)]"
                 />
                 Usar por padrão
@@ -143,7 +145,7 @@ export function ChavesIA() {
       <p className={cn("mb-4 flex gap-2 rounded-lg border border-line bg-surface-2/60 p-3 text-sm text-ink-2")}>
         <KeyRound className="mt-0.5 size-4 shrink-0 text-ink-3" />
         <span>
-          As chaves ficam guardadas só neste navegador, não no banco de dados. Em outro aparelho ou navegador, cadastre de novo. Limpar os dados do navegador apaga as chaves.
+          As chaves ficam guardadas só neste navegador, não no banco de dados. Em outro aparelho ou navegador, cadastre de novo. Limpar os dados do navegador ou sair da conta apaga as chaves. Por segurança, chaves salvas na versão anterior devem ser cadastradas novamente.
           {vercel ? " Há também uma chave do Claude configurada na Vercel, usada quando este navegador não tem nenhuma." : ""}
         </span>
       </p>
