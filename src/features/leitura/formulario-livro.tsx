@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { toast } from "sonner"
 import { Botao } from "@/components/ui/button"
 import { AreaTexto, Campo, Entrada, Seletor } from "@/components/ui/campos"
 import { Janela } from "@/components/ui/janela"
@@ -38,9 +39,16 @@ export function DialogoLivro({ aberta, aoMudar, livro, statusInicial }: { aberta
     setResumo(livro?.summary ?? "")
   }, [aberta, livro, statusInicial])
 
+  const envioPendente = React.useRef(false)
+
   const salvar = (e: React.FormEvent) => {
     e.preventDefault()
+    if (envioPendente.current) return
     if (!titulo.trim()) return
+    if ([total, lidas].some((v) => v.trim() && (!Number.isSafeInteger(Number(v)) || Number(v) < 0 || Number(v) > 100000))) {
+      toast.error("Informe páginas válidas entre 0 e 100.000.")
+      return
+    }
     const paginas = total ? Number(total) : null
     let lidasN = lidas ? Number(lidas) : 0
     if (status === "finalizado" && paginas) lidasN = paginas
@@ -56,8 +64,10 @@ export function DialogoLivro({ aberta, aoMudar, livro, statusInicial }: { aberta
       finished_at: fim || (status === "finalizado" && !livro?.finished_at ? new Date().toISOString().slice(0, 10) : null),
       summary: resumo.trim() || null,
     }
-    if (livro) atualizar.mutate({ id: livro.id, ...campos })
-    else criar.mutate({ id: novoId(), ...campos })
+    envioPendente.current = true
+    const terminou = () => { envioPendente.current = false }
+    if (livro) atualizar.mutate({ id: livro.id, ...campos }, { onSettled: terminou })
+    else criar.mutate({ id: novoId(), ...campos , { onSettled: terminou })
     aoMudar(false)
   }
 

@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { toast } from "sonner"
 import { BotaoExcluir } from "@/components/ui/botao-excluir"
 import { useAbrirDoEndereco } from "@/lib/abrir-do-endereco"
 import { ExternalLink, NotebookText, Pencil, Plus } from "lucide-react"
@@ -38,9 +39,16 @@ function DialogoCurso({ aberta, aoMudar, curso }: { aberta: boolean; aoMudar: (v
     setProg(curso?.progress?.toString() ?? "")
     setNotas(curso?.notes ?? "")
   }, [aberta, curso])
+  const envioPendente = React.useRef(false)
+
   const salvar = (e: React.FormEvent) => {
     e.preventDefault()
+    if (envioPendente.current) return
     if (!nome.trim()) return
+    if (prog.trim() && (!Number.isFinite(Number(prog)) || Number(prog) < 0 || Number(prog) > 100)) {
+      toast.error("Progresso deve estar entre 0 e 100.")
+      return
+    }
     const campos = {
       name: nome.trim(),
       status,
@@ -50,8 +58,10 @@ function DialogoCurso({ aberta, aoMudar, curso }: { aberta: boolean; aoMudar: (v
       progress: prog ? Math.min(100, Math.max(0, Number(prog))) : status === "concluido" ? 100 : null,
       notes: notas.trim() || null,
     }
-    if (curso) atualizar.mutate({ id: curso.id, ...campos })
-    else criar.mutate({ id: novoId(), ...campos })
+    envioPendente.current = true
+    const terminou = () => { envioPendente.current = false }
+    if (curso) atualizar.mutate({ id: curso.id, ...campos }, { onSettled: terminou })
+    else criar.mutate({ id: novoId(), ...campos , { onSettled: terminou })
     aoMudar(false)
   }
   return (

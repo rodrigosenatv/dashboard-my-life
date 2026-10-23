@@ -65,8 +65,11 @@ export function DialogoEvento({
     setDescricao(evento?.description ?? "")
   }, [aberta, evento, diaInicial])
 
+  const envioPendente = React.useRef(false)
+
   const salvar = (e: React.FormEvent) => {
     e.preventDefault()
+    if (envioPendente.current) return
     if (!titulo.trim() || !dia) return
     const diaInteiro = !hora
     const fimDia = diaFim || dia
@@ -83,8 +86,10 @@ export function DialogoEvento({
       toast.error("O fim do compromisso não pode ser antes do início.")
       return
     }
-    if (evento) atualizar.mutate({ id: evento.id, ...campos })
-    else criar.mutate({ id: novoId(), ...campos })
+    envioPendente.current = true
+    const terminou = () => { envioPendente.current = false }
+    if (evento) atualizar.mutate({ id: evento.id, ...campos }, { onSettled: terminou })
+    else criar.mutate({ id: novoId(), ...campos , { onSettled: terminou })
     aoMudar(false)
   }
 
