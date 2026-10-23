@@ -80,7 +80,7 @@ export function DialogoTarefa({
     envioPendente.current = true
     const terminou = () => { envioPendente.current = false }
     if (tarefa) atualizar.mutate({ id: tarefa.id, ...campos }, { onSettled: terminou })
-    else criar.mutate({ id: novoId(), position: Date.now(), ...campos , { onSettled: terminou })
+    else criar.mutate({ id: novoId(), position: Date.now(), ...campos }, { onSettled: terminou })
     aoMudar(false)
   }
 

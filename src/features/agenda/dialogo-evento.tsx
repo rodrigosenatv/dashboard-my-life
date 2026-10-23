@@ -89,7 +89,7 @@ export function DialogoEvento({
     envioPendente.current = true
     const terminou = () => { envioPendente.current = false }
     if (evento) atualizar.mutate({ id: evento.id, ...campos }, { onSettled: terminou })
-    else criar.mutate({ id: novoId(), ...campos , { onSettled: terminou })
+    else criar.mutate({ id: novoId(), ...campos }, { onSettled: terminou })
     aoMudar(false)
   }
 

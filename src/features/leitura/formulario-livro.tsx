@@ -67,7 +67,7 @@ export function DialogoLivro({ aberta, aoMudar, livro, statusInicial }: { aberta
     envioPendente.current = true
     const terminou = () => { envioPendente.current = false }
     if (livro) atualizar.mutate({ id: livro.id, ...campos }, { onSettled: terminou })
-    else criar.mutate({ id: novoId(), ...campos , { onSettled: terminou })
+    else criar.mutate({ id: novoId(), ...campos }, { onSettled: terminou })
     aoMudar(false)
   }
 

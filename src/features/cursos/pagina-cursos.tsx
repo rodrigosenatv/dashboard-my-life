@@ -61,7 +61,7 @@ function DialogoCurso({ aberta, aoMudar, curso }: { aberta: boolean; aoMudar: (v
     envioPendente.current = true
     const terminou = () => { envioPendente.current = false }
     if (curso) atualizar.mutate({ id: curso.id, ...campos }, { onSettled: terminou })
-    else criar.mutate({ id: novoId(), ...campos , { onSettled: terminou })
+    else criar.mutate({ id: novoId(), ...campos }, { onSettled: terminou })
     aoMudar(false)
   }
   return (
