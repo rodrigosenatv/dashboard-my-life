@@ -15,11 +15,6 @@ export class ErroIA extends Error {
   }
 }
 
-/** Chave do Claude configurada na Vercel, usada quando o navegador não manda nenhuma. */
-export function chaveDaVercel(): Chave | null {
-  return process.env.ANTHROPIC_API_KEY ? { chave: process.env.ANTHROPIC_API_KEY, modelo: process.env.ANTHROPIC_MODEL || "claude-sonnet-5-5" } : null
-}
-
 /** Lê um fluxo SSE e devolve o JSON de cada linha "data:". */
 async function* eventosSSE(resposta: Response): AsyncGenerator<unknown> {
   const leitor = resposta.body!.getReader()
