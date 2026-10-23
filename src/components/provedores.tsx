@@ -60,6 +60,24 @@ function ProvedorTema({ children }: { children: React.ReactNode }) {
   return <TemaCtx.Provider value={valor}>{children}</TemaCtx.Provider>
 }
 
+/** A chave legada não pode ser atribuída com segurança a nenhuma conta. */
+function limparCredenciaisLegadas() {
+  try { localStorage.removeItem("dml-ia") } catch {}
+}
+
+/** Não manter credenciais pessoais em dispositivos compartilhados após o logout. */
+function limparCredenciaisIA() {
+  try {
+    for (let i = localStorage.length - 1; i >= 0; i--) {
+      const nome = localStorage.key(i)
+      if (nome === "dml-ia" || nome?.startsWith("dml-ia:")) localStorage.removeItem(nome)
+    }
+    localStorage.removeItem("dml:usuario-offline")
+    window.dispatchEvent(new Event("dml-ia-mudou"))
+    navigator.serviceWorker?.controller?.postMessage({ type: "LIMPAR_CACHE_PESSOAL" })
+  } catch {}
+}
+
 /* ------------------------------------------------------------------ */
 /* Sessão                                                              */
 /* ------------------------------------------------------------------ */
@@ -79,16 +97,26 @@ function ProvedorSessao({ children, cliente }: { children: React.ReactNode; clie
       setCarregando(false)
       return
     }
+    limparCredenciaisLegadas()
     const sb = supabase()
     // A sessão guardada no aparelho basta para saber quem é a pessoa; quem valida o acesso
     // é o banco (RLS) e o proxy. Perguntar ao servidor aqui custava uma ida à rede em toda abertura.
     sb.auth.getSession().then(({ data }) => {
+      if (data.session?.user.id) try { localStorage.setItem("dml:usuario-offline", data.session.user.id) } catch {}
       setUsuario(data.session?.user ?? null)
       setCarregando(false)
     })
+    let identidadeAtual = ""
     const { data } = sb.auth.onAuthStateChange((evento, sessao) => {
+      if (sessao?.user.id && identidadeAtual && identidadeAtual !== sessao.user.id) {
+        cliente.clear()
+        limparCredenciaisIA()
+      }
+      identidadeAtual = sessao?.user.id ?? ""
+      if (sessao?.user.id) try { localStorage.setItem("dml:usuario-offline", sessao.user.id) } catch {}
       setUsuario(sessao?.user ?? null)
       if (evento === "SIGNED_OUT") {
+        limparCredenciaisIA()
         cliente.clear()
         router.replace("/login")
       }
@@ -97,6 +125,7 @@ function ProvedorSessao({ children, cliente }: { children: React.ReactNode; clie
   }, [cliente, router])
 
   const sair = React.useCallback(async () => {
+    limparCredenciaisIA()
     const { error } = await supabase().auth.signOut()
     // Sem rede o servidor não confirma a saída; a sessão deste aparelho é encerrada mesmo assim
     if (error) await supabase().auth.signOut({ scope: "local" })
@@ -136,7 +165,7 @@ export function Provedores({ children }: { children: React.ReactNode }) {
           if (!navigator.onLine) return
           toast.error(consulta.state.data === undefined ? "Não foi possível carregar os dados." : "Não foi possível atualizar os dados.", {
             id: "erro-carregar",
-            description: erro instanceof Error ? erro.message : undefined,
+            description: "Verifique sua conexão e tente novamente.",
             action: { label: "Tentar de novo", onClick: () => void cliente.refetchQueries({ type: "active" }) },
           })
         },

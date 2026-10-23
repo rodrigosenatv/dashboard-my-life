@@ -60,8 +60,11 @@ export function DialogoTarefa({
 
   const ativos = projetos.filter((p) => !p.archived && !p.done && !p.parent_id)
 
+  const envioPendente = React.useRef(false)
+
   const salvar = (e: React.FormEvent) => {
     e.preventDefault()
+    if (envioPendente.current) return
     if (!titulo.trim()) return
     const campos = {
       title: titulo.trim(),
@@ -74,8 +77,10 @@ export function DialogoTarefa({
       project_id: projeto || null,
       done_at: status === "done" ? (tarefa?.done_at ?? new Date().toISOString()) : null,
     }
-    if (tarefa) atualizar.mutate({ id: tarefa.id, ...campos })
-    else criar.mutate({ id: novoId(), position: Date.now(), ...campos })
+    envioPendente.current = true
+    const terminou = () => { envioPendente.current = false }
+    if (tarefa) atualizar.mutate({ id: tarefa.id, ...campos }, { onSettled: terminou })
+    else criar.mutate({ id: novoId(), position: Date.now(), ...campos }, { onSettled: terminou })
     aoMudar(false)
   }
 

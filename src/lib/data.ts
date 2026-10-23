@@ -104,8 +104,7 @@ function aplicarNosRegistros(qc: QueryClient, tabela: string, id: string, fn: (r
 }
 
 function falha(acao: string, erro: unknown) {
-  const msg = erro instanceof Error ? erro.message : String(erro)
-  toast.error(`Não foi possível ${acao}.`, { description: msg })
+  toast.error(`Não foi possível ${acao}.`, { description: "Verifique os dados e tente novamente." })
 }
 
 /* ------------------------------------------------------------------ */

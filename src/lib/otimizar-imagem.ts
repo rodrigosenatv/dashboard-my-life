@@ -42,9 +42,29 @@ export function identificarImagem(bytes: Uint8Array): Dimensoes | null {
   return null
 }
 
-/** Carregar com import() apenas ao enviar. Retorna o original em qualquer falha. */
+/** Assinaturas aceitas: SVG/HTML e MIME falsificados são rejeitados antes do Storage. */
+export function identificarTipoImagem(bytes: Uint8Array): string | null {
+  if (bytes.length >= 3 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) return "image/jpeg"
+  if (bytes.length >= 8 && [137,80,78,71,13,10,26,10].every((n,i) => bytes[i] === n)) return "image/png"
+  if (bytes.length >= 12 && String.fromCharCode(...bytes.subarray(0,4)) === "RIFF" &&
+      String.fromCharCode(...bytes.subarray(8,12)) === "WEBP") return "image/webp"
+  if (bytes.length >= 16 && String.fromCharCode(...bytes.subarray(4,8)) === "ftyp") {
+    const marca = String.fromCharCode(...bytes.subarray(8,12))
+    if (marca === "avif" || marca === "avis") return "image/avif"
+  }
+  return null
+}
+
+export async function validarImagemParaUpload(arquivo: File): Promise<void> {
+  if (arquivo.size < 16 || arquivo.size > MAX_BYTES) throw new Error("Arquivo de imagem vazio ou grande demais (máximo de 20 MB).")
+  const tipo = identificarTipoImagem(new Uint8Array(await arquivo.slice(0,32).arrayBuffer()))
+  if (!tipo || arquivo.type !== tipo) throw new Error("Formato inválido. Use JPG, PNG, WebP ou AVIF.")
+}
+
+/** Carregar com import() apenas ao enviar. Retorna o original em falhas de otimização. */
 export async function otimizarImagem(arquivo: File, { dimensaoMaxima = 1920 }: { dimensaoMaxima?: number } = {}): Promise<File> {
-  // WebP/AVIF já são eficientes; GIF, SVG e outros formatos ficam intactos.
+  await validarImagemParaUpload(arquivo)
+  // WebP/AVIF já são eficientes; GIF e SVG não são aceitos.
   if (!["image/jpeg", "image/png"].includes(arquivo.type) || arquivo.size < 150 * 1024 || arquivo.size > MAX_BYTES ||
     typeof createImageBitmap !== "function" || typeof document === "undefined") return arquivo
   let bitmap: ImageBitmap | undefined

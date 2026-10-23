@@ -120,5 +120,5 @@ export function explicarErro(e: unknown, nome: string): string {
   if (status === 404) return `o modelo escolhido para o ${nome} não existe ou não está liberado para a sua chave. Ajuste o modelo em Configurações.`
   if (status === 429) return `limite de uso do ${nome} atingido ou muitos pedidos seguidos. Confira o saldo da conta ou tente de novo em instantes.`
   if (status === 529 || status === 503 || status === 500) return `o ${nome} está sobrecarregado agora. Tente de novo em instantes.`
-  return e instanceof Error ? e.message : "erro desconhecido"
+  return `não foi possível concluir a solicitação ao ${nome}. Tente novamente em instantes.`
 }
