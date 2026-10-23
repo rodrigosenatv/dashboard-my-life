@@ -32,7 +32,7 @@ function Etapa({ etapa, todos, nivel }: { etapa: Projeto; todos: Projeto[]; nive
 
   return (
     <li>
-      <div className="group flex items-start gap-3 rounded-md py-1.5">
+      <div className="group flex items-start gap-3 rounded-lg py-2">
         <div className="pt-0.5">
           <Marcador
             marcado={etapa.done}
@@ -55,7 +55,7 @@ function Etapa({ etapa, todos, nivel }: { etapa: Projeto; todos: Projeto[]; nive
           ) : null}
         </div>
         <Menu>
-          <MenuGatilho className="rounded-md p-1 text-ink-3 opacity-60 hover:bg-surface-2 group-hover:opacity-100" aria-label={`Opções de ${etapa.name}`}>
+          <MenuGatilho className="grid size-10 shrink-0 place-items-center rounded-lg text-ink-3 hover:bg-surface-2 hover:text-ink focus-visible:opacity-100 sm:opacity-60 sm:group-hover:opacity-100 toque:opacity-100" aria-label={`Opções de ${etapa.name}`}>
             <Ellipsis className="size-4" />
           </MenuGatilho>
           <MenuConteudo>
@@ -148,12 +148,12 @@ export function PaginaProjeto() {
   }
 
   return (
-    <div className="max-w-4xl">
-      <Link href={pai ? `/projetos/${pai.id}` : "/projetos"} className="mb-4 inline-flex items-center gap-1.5 text-sm text-ink-2 hover:text-ink">
+    <div className="mx-auto min-w-0 max-w-4xl">
+      <Link href={pai ? `/projetos/${pai.id}` : "/projetos"} className="mb-4 inline-flex min-h-11 max-w-full items-center gap-1.5 rounded-lg px-1 text-sm text-ink-2 hover:text-ink">
         <ArrowLeft className="size-4" /> {pai ? pai.name : "Projetos"}
       </Link>
 
-      <header className="mb-8">
+      <header className="mb-6 rounded-2xl border border-projetos/15 bg-gradient-to-br from-projetos-soft via-surface to-surface p-4 sm:p-6">
         <div className="flex items-start gap-3">
           <MarcaArea area="projetos" className="mt-2 h-8" />
           <div className="min-w-0 flex-1">
@@ -161,7 +161,7 @@ export function PaginaProjeto() {
               rotulo="Nome do projeto"
               valor={projeto.name}
               aoSalvar={(v) => v && atualizar.mutate({ id: projeto.id, name: v })}
-              className="font-display text-3xl font-semibold"
+              className="break-words font-display text-[1.75rem] font-semibold leading-tight sm:text-3xl"
             />
             <div className="mt-2 flex flex-wrap items-center gap-2">
               {projeto.done ? <Etiqueta cor="rotina">Concluído</Etiqueta> : null}
@@ -186,9 +186,9 @@ export function PaginaProjeto() {
           </Menu>
         </div>
 
-        <dl className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
-          <div>
-            <dt className="mb-1 text-xs text-ink-3">Área</dt>
+        <dl className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="min-w-0 rounded-xl border border-line bg-surface/80 p-3">
+            <dt className="mb-2 text-xs font-semibold text-ink-3">Área</dt>
             <dd>
               <Seletor aria-label="Área" value={projeto.area_id ?? ""} onChange={(e) => atualizar.mutate({ id: projeto.id, area_id: e.target.value || null })} className="h-8">
                 <option value="">Nenhuma</option>
@@ -196,20 +196,20 @@ export function PaginaProjeto() {
               </Seletor>
             </dd>
           </div>
-          <div>
-            <dt className="mb-1 text-xs text-ink-3">Prazo</dt>
+          <div className="min-w-0 rounded-xl border border-line bg-surface/80 p-3">
+            <dt className="mb-2 text-xs font-semibold text-ink-3">Prazo</dt>
             <dd>
               <Entrada type="date" aria-label="Prazo" value={projeto.deadline ?? ""} onChange={(e) => atualizar.mutate({ id: projeto.id, deadline: e.target.value || null })} className="h-8" />
             </dd>
           </div>
-          <div>
-            <dt className="mb-1 text-xs text-ink-3">Publicação</dt>
+          <div className="min-w-0 rounded-xl border border-line bg-surface/80 p-3">
+            <dt className="mb-2 text-xs font-semibold text-ink-3">Publicação</dt>
             <dd>
               <Entrada type="date" aria-label="Publicação" value={projeto.publish_date ?? ""} onChange={(e) => atualizar.mutate({ id: projeto.id, publish_date: e.target.value || null })} className="h-8" />
             </dd>
           </div>
-          <div>
-            <dt className="mb-1 text-xs text-ink-3">Progresso</dt>
+          <div className="min-w-0 rounded-xl border border-line bg-surface/80 p-3">
+            <dt className="mb-2 text-xs font-semibold text-ink-3">Progresso</dt>
             <dd className="pt-1.5">
               <div className="flex items-center gap-2">
                 <Progresso valor={pct} cor="projetos" rotulo="Progresso do projeto" />
@@ -220,20 +220,20 @@ export function PaginaProjeto() {
         </dl>
       </header>
 
-      <div className="grid gap-10">
-        <Secao titulo="Etapas" acao={<span className="tabular text-sm text-ink-3">{pr.total ? `${pr.feitos} de ${pr.total}` : ""}</span>}>
+      <div className="grid gap-4 sm:gap-5">
+        <Secao className="rounded-2xl border border-line bg-surface p-4 sm:p-6" titulo="Etapas" acao={<span className="tabular text-sm text-ink-3">{pr.total ? `${pr.feitos} de ${pr.total}` : ""}</span>}>
           <ul>
             {etapas.map((e) => (
               <Etapa key={e.id} etapa={e} todos={projetos} nivel={1} />
             ))}
           </ul>
-          <form onSubmit={adicionarEtapa} className="mt-1 flex items-center gap-3">
+          <form onSubmit={adicionarEtapa} className="mt-3 flex min-h-11 items-center gap-3 rounded-xl border border-dashed border-line-strong px-3 focus-within:border-projetos">
             <span aria-hidden className="size-5 shrink-0 rounded-full border-[1.5px] border-dashed border-line-strong" />
-            <input value={nova} onChange={(e) => setNova(e.target.value)} placeholder="Adicionar etapa" aria-label="Adicionar etapa" className="h-9 flex-1 bg-transparent text-sm outline-none placeholder:text-ink-3" />
+            <input value={nova} onChange={(e) => setNova(e.target.value)} placeholder="Adicionar etapa" aria-label="Adicionar etapa" className="h-11 min-w-0 flex-1 bg-transparent text-base outline-none placeholder:text-ink-3 sm:text-sm" />
           </form>
         </Secao>
 
-        <Secao titulo="Tarefas" acao={<button type="button" onClick={() => setNovaTarefa(true)} className="text-sm text-ink-2 hover:text-ink">Nova tarefa</button>}>
+        <Secao className="rounded-2xl border border-line bg-surface p-4 sm:p-6" titulo="Tarefas" acao={<button type="button" onClick={() => setNovaTarefa(true)} className="inline-flex min-h-10 items-center rounded-lg px-2 text-sm font-medium text-projetos hover:bg-projetos-soft">Nova tarefa</button>}>
           {tarefasDoProjeto.length === 0 ? (
             <p className="text-sm text-ink-2">Nenhuma tarefa ligada a este projeto.</p>
           ) : (
@@ -245,7 +245,7 @@ export function PaginaProjeto() {
           )}
         </Secao>
 
-        <Secao titulo="Anotações">
+        <Secao className="rounded-2xl border border-line bg-surface p-4 sm:p-6" titulo="Anotações">
           {anotacoes.data ? (
             <EditorMarkdown rotulo="anotações do projeto" valor={anotacoes.data.description ?? ""} aoSalvar={(v) => atualizar.mutate({ id: projeto.id, description: v || null })} />
           ) : anotacoes.error ? (
@@ -255,13 +255,13 @@ export function PaginaProjeto() {
           )}
         </Secao>
 
-        <Secao titulo="Capturas ligadas" acao={<button type="button" onClick={() => setNovaCaptura(true)} className="text-sm text-ink-2 hover:text-ink">Nova captura</button>}>
+        <Secao className="rounded-2xl border border-line bg-surface p-4 sm:p-6" titulo="Capturas ligadas" acao={<button type="button" onClick={() => setNovaCaptura(true)} className="inline-flex min-h-10 items-center rounded-lg px-2 text-sm font-medium text-projetos hover:bg-projetos-soft">Nova captura</button>}>
           {capturasDoProjeto.length === 0 ? (
             <p className="text-sm text-ink-2">Nenhuma captura ligada. Ligue capturas pela caixa de entrada.</p>
           ) : (
             <ul className="divide-y divide-line rounded-lg border border-line bg-surface">
               {capturasDoProjeto.map((c) => (
-                <li key={c.id} className="flex items-center gap-3 px-4 py-2.5">
+                <li key={c.id} className="flex flex-wrap items-center gap-3 px-3 py-3 sm:flex-nowrap sm:px-4">
                   <button type="button" onClick={() => setCapturaAberta(c)} className="min-w-0 flex-1 text-left">
                     <span className="block truncate text-sm font-medium">{c.title}</span>
                     <span className="flex items-center gap-2 text-xs text-ink-3">
@@ -269,7 +269,7 @@ export function PaginaProjeto() {
                       {c.url ? <span className="inline-flex items-center gap-1"><Link2 className="size-3" />{dominio(c.url)}</span> : null}
                     </span>
                   </button>
-                  <button type="button" onClick={() => desvincular(c.id)} className="text-xs text-ink-3 hover:text-ink">Desligar</button>
+                  <button type="button" onClick={() => desvincular(c.id)} className="ml-auto inline-flex min-h-10 items-center rounded-lg px-2 text-xs font-medium text-ink-2 hover:bg-surface-2 hover:text-danger">Desligar</button>
                 </li>
               ))}
             </ul>
