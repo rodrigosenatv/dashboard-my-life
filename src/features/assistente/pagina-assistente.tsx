@@ -2,7 +2,6 @@
 
 import Link from "next/link"
 import * as React from "react"
-import { useQuery } from "@tanstack/react-query"
 import { ArrowUp, Check, Copy, History, Inbox, Library, Plus, Search, Square, Trash } from "lucide-react"
 import { toast } from "sonner"
 import { Botao } from "@/components/ui/button"
@@ -192,14 +191,9 @@ function AcoesResposta({ texto, pergunta }: { texto: string; pergunta: string })
 /* ------------------------------------------------------------------ */
 
 export function PaginaAssistente() {
-  const { data: status } = useQuery({
-    queryKey: ["ia-status"],
-    queryFn: async () => (await fetch("/api/ia")).json() as Promise<{ vercel: boolean }>,
-    staleTime: Infinity,
-  })
   const cfgIA = useConfigIA()
   const ativos = provedoresAtivos(cfgIA)
-  const opcoesIA: Provedor[] = status?.vercel && !ativos.includes("anthropic") ? [...ativos, "anthropic"] : ativos
+  const opcoesIA: Provedor[] = ativos
   const [escolhida, setEscolhida] = React.useState<Provedor | null>(null)
   const provedor: Provedor | undefined = escolhida && opcoesIA.includes(escolhida) ? escolhida : opcoesIA[0]
   const criarPagina = useCriar("pages")
@@ -280,6 +274,11 @@ export function PaginaAssistente() {
     e?.preventDefault()
     const t = preencherPrompt(texto, campos).trim()
     if (!t || respondendo) return
+    const cred = provedor ? credencial(cfgIA, provedor) : null
+    if (!provedor || !cred) {
+      toast.error("Configure sua própria chave de IA em Configurações antes de enviar.")
+      return
+    }
     const historico: Mensagem[] = [...mensagens, { role: "user", content: t }]
     setMensagens([...historico, { role: "assistant", content: "" }])
     setTexto("")
@@ -288,7 +287,6 @@ export function PaginaAssistente() {
     const ctrl = new AbortController()
     abortar.current = ctrl
     let acumulado = ""
-    const cred = provedor ? credencial(cfgIA, provedor) : null
     try {
       const r = await fetch("/api/ia", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ mensagens: historico, provedor, chave: cred?.chave, modelo: cred?.modelo }), signal: ctrl.signal })
       if (!r.ok || !r.body) {
@@ -319,7 +317,7 @@ export function PaginaAssistente() {
     }
   }
 
-  if (status && !opcoesIA.length) {
+  if (!opcoesIA.length) {
     return (
       <div>
         <Cabecalho area="conteudo" titulo="Assistente" />

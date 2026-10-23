@@ -8,7 +8,6 @@ import { Secao } from "@/components/ui/basicos"
 import { Campo, Entrada } from "@/components/ui/campos"
 import { PROVEDORES, type InfoProvedor } from "@/lib/ia/info"
 import { provedoresAtivos, salvarConfigIA, useConfigIA } from "@/lib/ia/chaves-locais"
-import { cn } from "@/lib/utils"
 import { useSessao } from "@/components/provedores"
 
 function LinhaProvedor({ p }: { p: InfoProvedor }) {
@@ -129,24 +128,15 @@ function LinhaProvedor({ p }: { p: InfoProvedor }) {
 }
 
 export function ChavesIA() {
-  const [vercel, setVercel] = React.useState(false)
-  React.useEffect(() => {
-    fetch("/api/ia")
-      .then((r) => r.json())
-      .then((d) => setVercel(Boolean(d.vercel)))
-      .catch(() => {})
-  }, [])
-
   return (
     <Secao
       titulo="Inteligência artificial"
-      descricao="Chaves de API para o Assistente. Cadastre uma ou mais e escolha qual usar por padrão."
+      descricao="Conecte sua própria conta do Claude, ChatGPT ou Gemini. Cada pessoa é responsável pelo consumo da sua API."
     >
-      <p className={cn("mb-4 flex gap-2 rounded-lg border border-line bg-surface-2/60 p-3 text-sm text-ink-2")}>
+      <p className="mb-4 flex gap-2 rounded-lg border border-line bg-surface-2/60 p-3 text-sm text-ink-2">
         <KeyRound className="mt-0.5 size-4 shrink-0 text-ink-3" />
         <span>
-          As chaves ficam guardadas só neste navegador, não no banco de dados. Em outro aparelho ou navegador, cadastre de novo. Limpar os dados do navegador ou sair da conta apaga as chaves. Por segurança, chaves salvas na versão anterior devem ser cadastradas novamente.
-          {vercel ? " Há também uma chave do Claude configurada na Vercel, usada quando este navegador não tem nenhuma." : ""}
+          Cada usuário cria sua própria chave e responde pelo consumo, custos ou franquia oferecidos pelo provedor. Assinaturas de chat não necessariamente incluem créditos de API. As chaves ficam somente neste navegador, não no banco de dados; ao sair da conta ou limpar os dados do navegador, elas são apagadas.
         </span>
       </p>
       <ul className="grid gap-3">
