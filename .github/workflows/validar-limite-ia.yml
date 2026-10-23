@@ -39,7 +39,7 @@ jobs:
           node-version: "22"
           cache: npm
       - run: npm ci
-      - run: npm audit --omit=dev --audit-level=high
+      - run: npm audit --audit-level=high
       - run: PGPASSWORD=postgres psql -h localhost -U postgres -d seguranca -f tests/seguranca-banco.sql
       - run: npm test
       - run: npx next typegen
