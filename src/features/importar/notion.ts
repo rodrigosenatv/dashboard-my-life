@@ -589,8 +589,8 @@ export function montarPlano(arquivos: Map<string, Uint8Array>, opcoes: OpcoesPla
   const rotaPorDestino: Partial<Record<Destino, string>> = {
     habits: "/rotina/habitos", habit_logs: "/rotina/habitos", goals: "/rotina/metas", goal_months: "/rotina/metas",
     tasks: "/rotina/tarefas", events: "/rotina/agenda", projects: "/projetos", captures: "/projetos/capturas", areas: "/projetos",
-    books: "/estudos/leitura", insights_livro: "/estudos/leitura?aba=insights", courses: "/estudos/cursos", exam_subjects: "/estudos/concursos",
-    exam_topics: "/estudos/concursos", experiments: "/estudos/laboratorio", insights_lab: "/estudos/laboratorio", content: "/conteudo/planner",
+    books: "/estudos/leitura", insights_livro: "/estudos/leitura?aba=insights", courses: "/estudos/cursos",
+    experiments: "/estudos/laboratorio", insights_lab: "/estudos/laboratorio", content: "/conteudo/planner",
     ideias: "/conteudo/planner", editorial_lines: "/conteudo/planner", "bookmarks:ferramentas": "/links", "bookmarks:favoritos": "/links", "bookmarks:links": "/links",
   }
   for (const b of bancos) {
