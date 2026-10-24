@@ -9,7 +9,6 @@ import {
   Crown,
   Dumbbell,
   FolderOpen,
-  GraduationCap,
   Microscope,
   NotebookPen,
   Plane,
@@ -56,7 +55,6 @@ export const MENU: Atalho[] = [
   { rotulo: "Anotações", icone: NotebookPen, href: "/projetos/capturas" },
   { rotulo: "Dominando a IA", icone: Zap, href: "/conteudo/biblioteca" },
   { rotulo: "Laboratório", icone: Microscope, href: "/estudos/laboratorio" },
-  { rotulo: "SCA", icone: GraduationCap, href: "/estudos/concursos" },
 ]
 
 // Hoje todos os atalhos levam a telas do app; a árvore de páginas só é buscada se algum voltar a abrir uma página pelo título
