@@ -6,7 +6,6 @@ import {
   Shapes,
   CalendarDays,
   CircleCheck,
-  ClipboardCheck,
   FlaskConical,
   FolderKanban,
   GraduationCap,
@@ -81,7 +80,6 @@ export const GRUPOS: GrupoNav[] = [
     itens: [
       { rotulo: "Leitura", href: "/estudos/leitura", icone: BookOpen },
       { rotulo: "Cursos", href: "/estudos/cursos", icone: GraduationCap },
-      { rotulo: "Concursos", href: "/estudos/concursos", icone: ClipboardCheck },
       { rotulo: "Laboratório", href: "/estudos/laboratorio", icone: FlaskConical },
     ],
   },
