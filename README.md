@@ -1,6 +1,6 @@
 # My Life
 
-Webapp pessoal que substitui o template **Dashboard My Life** do Notion: rotina (hábitos, tarefas, agenda, metas), projetos (segundo cérebro, capturas, notas), estudos (leitura, cursos, concursos, laboratório) e conteúdo com IA (biblioteca de prompts, planner, assistente).
+Webapp pessoal que substitui o template **Dashboard My Life** do Notion: rotina (hábitos, tarefas, agenda, metas), projetos (segundo cérebro, capturas, notas), estudos (leitura, cursos, laboratório) e conteúdo com IA (biblioteca de prompts, planner, assistente).
 
 Feito com Next.js 16, Supabase (banco, login e arquivos) e hospedado na Vercel.
 
