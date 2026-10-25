@@ -495,3 +495,521 @@
     opacity: 1;
   }
 }
+
+/* =====================================================================
+   Leitura: a biblioteca do futuro
+   Uma sala de leitura à noite: o azul petróleo da capa do caderno no
+   escuro, prateleiras com faixa de luz ciano e o âmbar de Estudos nos
+   destaques. Fica sempre escura, no tema claro ou escuro do app (como o
+   destaque de Filmes & Séries).
+   ===================================================================== */
+
+@layer components {
+/* As cores: valem na tela e nas janelas abertas a partir dela */
+.tema-biblioteca {
+  --b-fundo: #03141a;
+  --b-fundo-2: #072631;
+  --b-tinta: #e8f6fa;
+  --b-tinta-2: rgb(232 246 250 / 0.78);
+  --b-tinta-3: rgb(232 246 250 / 0.6);
+  --b-luz: #63e3ff;
+  --b-luz-2: #9a8cff;
+  --b-ambar: #f5c54a;
+  --b-vidro: rgb(160 230 255 / 0.05);
+  --b-vidro-2: rgb(160 230 255 / 0.09);
+  --b-borda: rgb(150 225 255 / 0.14);
+  --b-borda-2: rgb(150 225 255 / 0.28);
+
+  /* As cores do app, no escuro da biblioteca (botões, campos, menus) */
+  --bg: var(--b-fundo);
+  --surface: #0a2630;
+  --surface-2: #0f303b;
+  --surface-3: #18404d;
+  --ink: var(--b-tinta);
+  --ink-2: var(--b-tinta-2);
+  --ink-3: var(--b-tinta-3);
+  --line: var(--b-borda);
+  --line-strong: var(--b-borda-2);
+  --pen: var(--b-luz);
+  --pen-ink: #03171e;
+  --pen-soft: rgb(99 227 255 / 0.14);
+  --ring: var(--b-luz);
+  --estudos: var(--b-ambar);
+  --estudos-soft: rgb(245 197 74 / 0.15);
+  --danger: #ff7b84;
+  --danger-soft: rgb(255 123 132 / 0.15);
+  --shadow-overlay: 0 24px 60px -16px rgb(0 0 0 / 0.8), 0 0 0 1px rgb(150 225 255 / 0.12);
+  color-scheme: dark;
+  color: var(--ink);
+}
+
+/* O fundo da sala: luz do teto, brilhos laterais e uma grade fina que some para baixo */
+.biblioteca {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background:
+    radial-gradient(110% 50% at 50% -10%, rgb(31 98 120 / 0.8), transparent 62%),
+    radial-gradient(55% 35% at 105% 30%, rgb(99 227 255 / 0.1), transparent 70%),
+    radial-gradient(60% 40% at -5% 70%, rgb(154 140 255 / 0.1), transparent 70%),
+    linear-gradient(180deg, var(--b-fundo-2), var(--b-fundo) 45%);
+}
+.biblioteca::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgb(99 227 255 / 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(99 227 255 / 0.055) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(120% 55% at 50% 0%, #000 20%, transparent 72%);
+}
+
+/* Painel de vidro */
+.vidro {
+  background: var(--b-vidro);
+  border: 1px solid var(--b-borda);
+  border-radius: 1.25rem;
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+}
+
+/* Rótulo de painel (letras pequenas, espaçadas) */
+.rotulo-hud {
+  font-size: 0.6875rem;
+  line-height: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--b-tinta-3);
+}
+
+/* Barra de progresso com luz */
+.barra-luz {
+  position: relative;
+  height: 6px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.09);
+  overflow: hidden;
+}
+.barra-luz > span {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--b-luz-2), var(--b-luz));
+  box-shadow: 0 0 14px rgb(99 227 255 / 0.65);
+  transition: width 600ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Capa gerada (livro sem foto): gradiente do próprio título, linhas finas e o nome */
+.capa-gerada {
+  container-type: inline-size;
+  position: relative;
+  display: flex;
+  height: 100%;
+  width: 100%;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  padding: 11% 9% 10%;
+  color: #f2fbfd;
+  background:
+    radial-gradient(120% 70% at 100% 0%, hsl(var(--h2) 90% 62% / 0.5), transparent 62%),
+    linear-gradient(165deg, hsl(var(--h1) 58% 24%), hsl(var(--h1) 72% 8%));
+}
+.capa-gerada::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(135deg, rgb(255 255 255 / 0.06) 0 1px, transparent 1px 7px);
+  mask-image: linear-gradient(to top, #000, transparent 65%);
+}
+.capa-gerada-titulo {
+  position: relative;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 6;
+  overflow: hidden;
+  font-family: var(--font-display);
+  font-weight: 650;
+  font-size: clamp(9px, 12.5cqw, 30px);
+  line-height: 1.04;
+  letter-spacing: -0.01em;
+  overflow-wrap: anywhere;
+  hyphens: auto;
+}
+.capa-gerada-autor {
+  position: relative;
+  font-size: clamp(7px, 6.5cqw, 13px);
+  line-height: 1.2;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.78;
+}
+
+/* A capa em pé: vinco da lombada, brilho do papel e a borda das páginas à direita */
+.capa-em-pe {
+  position: relative;
+  border-radius: 3px 7px 7px 3px;
+  box-shadow:
+    0 18px 26px -14px rgb(0 0 0 / 0.85),
+    0 2px 6px rgb(0 0 0 / 0.45);
+}
+.capa-em-pe > .capa-imagem {
+  border-radius: inherit;
+  overflow: hidden;
+}
+.capa-em-pe::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgb(0 0 0 / 0.38) 0, rgb(255 255 255 / 0.22) 2.2%, rgb(0 0 0 / 0.12) 4.5%, transparent 9%),
+    linear-gradient(118deg, rgb(255 255 255 / 0.16), transparent 38%);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.08);
+}
+
+/* O livro em 3D do destaque: frente, borda das páginas, lombada e verso */
+.livro3d {
+  /* A espessura acompanha a largura do livro (vem em "pontos" de um livro de 200px) */
+  --esp: calc(var(--esp-rel, 7) * 1cqw);
+  container-type: inline-size;
+  position: relative;
+  aspect-ratio: 2 / 3;
+  perspective: 1400px;
+}
+.livro3d-corpo {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transform: rotateY(-24deg) rotateX(5deg);
+  transition: transform 700ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.livro3d:hover .livro3d-corpo,
+a:focus-visible .livro3d-corpo,
+.livro3d[data-de-frente] .livro3d-corpo {
+  transform: rotateY(-8deg) rotateX(2deg) translateZ(18px);
+}
+.livro3d-frente,
+.livro3d-verso,
+.livro3d-paginas,
+.livro3d-lombada {
+  position: absolute;
+  backface-visibility: hidden;
+}
+.livro3d-frente {
+  inset: 0;
+  transform: translateZ(calc(var(--esp) / 2));
+  border-radius: 3px 8px 8px 3px;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.06);
+}
+.livro3d-frente::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgb(0 0 0 / 0.4) 0, rgb(255 255 255 / 0.24) 2%, rgb(0 0 0 / 0.14) 4%, transparent 8%),
+    linear-gradient(120deg, rgb(255 255 255 / 0.22), transparent 34%),
+    linear-gradient(300deg, rgb(99 227 255 / 0.12), transparent 30%);
+}
+.livro3d-verso {
+  inset: 0;
+  transform: rotateY(180deg) translateZ(calc(var(--esp) / 2));
+  border-radius: 8px 3px 3px 8px;
+  background: linear-gradient(160deg, #10313c, #061a21);
+}
+.livro3d-paginas {
+  top: 1.2%;
+  bottom: 1.2%;
+  left: calc(50% - var(--esp) / 2);
+  width: var(--esp);
+  transform: rotateY(90deg) translateZ(calc(50cqw - 1px));
+  background:
+    linear-gradient(90deg, rgb(0 0 0 / 0.25), transparent 30%, transparent 70%, rgb(0 0 0 / 0.3)),
+    repeating-linear-gradient(90deg, #f4efe4 0 1px, #d8d0bf 1px 2px);
+}
+.livro3d-lombada {
+  top: 0;
+  bottom: 0;
+  left: calc(50% - var(--esp) / 2);
+  width: var(--esp);
+  transform: rotateY(-90deg) translateZ(50cqw);
+  background: linear-gradient(90deg, #04161c, #0d3542 50%, #04161c);
+}
+/* O pedestal de luz do destaque */
+.pedestal {
+  position: absolute;
+  left: 50%;
+  bottom: -18px;
+  width: 125%;
+  height: 34px;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(99 227 255 / 0.42), rgb(99 227 255 / 0.08) 60%, transparent);
+  box-shadow: inset 0 0 0 1px rgb(99 227 255 / 0.22);
+  filter: blur(0.3px);
+  pointer-events: none;
+}
+.pedestal::after {
+  content: "";
+  position: absolute;
+  inset: 30% 18%;
+  border-radius: 50%;
+  background: rgb(99 227 255 / 0.55);
+  filter: blur(12px);
+}
+
+@keyframes flutuar {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-7px);
+  }
+}
+.flutuar {
+  animation: flutuar 6s ease-in-out infinite;
+}
+
+/* A prateleira: os livros apoiados numa faixa de luz */
+.prateleira-tabua {
+  height: 14px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, rgb(150 225 255 / 0.16), rgb(150 225 255 / 0.02) 70%);
+  box-shadow:
+    0 -1px 0 rgb(99 227 255 / 0.9),
+    0 -2px 22px rgb(99 227 255 / 0.5),
+    0 14px 30px -8px rgb(0 0 0 / 0.8);
+}
+.prateleira-tabua::after {
+  content: "";
+  position: absolute;
+  inset: 100% 6% auto;
+  height: 40px;
+  background: radial-gradient(closest-side, rgb(99 227 255 / 0.16), transparent);
+  filter: blur(6px);
+}
+
+/* Anel de progresso (meta do ano) */
+.anel-luz circle {
+  transition: stroke-dashoffset 900ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.anel-luz {
+  overflow: visible;
+  filter: drop-shadow(0 0 5px rgb(245 197 74 / 0.45));
+}
+}
+
+/* =====================================================================
+   Leitor: a folha que vira (src/features/leitor/folha.ts)
+   O navegador fotografa a página atual; o livro vai para a próxima sem
+   animação; aqui a foto gira em 3D pela lombada, com luz e sombra, por
+   cima da página nova (ao voltar, a página de antes vem por cima).
+   O giro para em 92°: de lado a folha some, então o movimento visível
+   ocupa o tempo todo. Com o dedo arrastando, folha.ts pausa estas
+   animações e leva cada uma ao ponto em que o dedo está.
+   ===================================================================== */
+:root[data-virada] {
+  --folha-tempo: 520ms;
+  --folha-curva: cubic-bezier(0.45, 0.05, 0.5, 0.95);
+  --folha-sombra: rgb(0 0 0 / 0.34);
+  --folha-borda: rgb(0 0 0 / 0.08);
+  /* Só a caixa do livro entra na transição: as barras e o resto da tela continuam vivos */
+  view-transition-name: none;
+}
+:root[data-virada][data-virada-tema="escuro"] {
+  --folha-sombra: rgb(0 0 0 / 0.6);
+  --folha-borda: rgb(255 255 255 / 0.12);
+}
+:root[data-virada]::view-transition {
+  pointer-events: none;
+}
+:root[data-virada]::view-transition-group(folha-livro) {
+  animation: none;
+}
+:root[data-virada]::view-transition-image-pair(folha-livro) {
+  isolation: auto;
+  perspective: 2200px;
+}
+:root[data-virada]::view-transition-old(folha-livro),
+:root[data-virada]::view-transition-new(folha-livro) {
+  mix-blend-mode: normal;
+  backface-visibility: hidden;
+  transform-origin: 0% 50%;
+  animation: none;
+}
+
+/* Uma página: avançar levanta a página atual pela borda e vira sobre a lombada (à esquerda) */
+:root[data-virada="proxima"]::view-transition-old(folha-livro) {
+  z-index: 2;
+  outline: 1px solid var(--folha-borda);
+  outline-offset: -1px;
+  animation: folha-vira var(--folha-tempo) var(--folha-curva) both;
+}
+:root[data-virada="proxima"]::view-transition-new(folha-livro) {
+  z-index: 1;
+}
+/* Voltar: a página de antes volta da lombada e pousa por cima */
+:root[data-virada="anterior"]::view-transition-new(folha-livro) {
+  z-index: 2;
+  outline: 1px solid var(--folha-borda);
+  outline-offset: -1px;
+  animation: folha-pousa var(--folha-tempo) cubic-bezier(0.25, 0.6, 0.3, 1) both;
+}
+:root[data-virada="anterior"]::view-transition-old(folha-livro) {
+  z-index: 1;
+  animation: folha-escurece var(--folha-tempo) ease-in both;
+}
+
+/* Duas páginas lado a lado: vira a da direita (ou a da esquerda, ao voltar) pela lombada no meio */
+:root[data-virada-layout="duas"]::view-transition-old(folha-livro),
+:root[data-virada-layout="duas"]::view-transition-new(folha-livro) {
+  transform-origin: 50% 50%;
+}
+:root[data-virada="proxima"][data-virada-layout="duas"]::view-transition-old(folha-livro) {
+  clip-path: inset(0 0 0 50%);
+}
+:root[data-virada="anterior"][data-virada-layout="duas"]::view-transition-old(folha-livro) {
+  z-index: 2;
+  clip-path: inset(0 50% 0 0);
+  outline: 1px solid var(--folha-borda);
+  outline-offset: -1px;
+  animation: folha-vira-para-direita var(--folha-tempo) var(--folha-curva) both;
+}
+:root[data-virada="anterior"][data-virada-layout="duas"]::view-transition-new(folha-livro) {
+  z-index: 1;
+  outline: none;
+  animation: none;
+}
+
+@keyframes folha-vira {
+  0% {
+    transform: rotateY(0deg);
+    filter: brightness(1);
+    box-shadow: 0 0 0 transparent;
+  }
+  35% {
+    filter: brightness(1.03);
+    box-shadow: 18px 0 36px var(--folha-sombra);
+  }
+  100% {
+    transform: rotateY(-92deg);
+    filter: brightness(0.7);
+    box-shadow: 30px 0 50px var(--folha-sombra);
+  }
+}
+@keyframes folha-vira-para-direita {
+  0% {
+    transform: rotateY(0deg);
+    filter: brightness(1);
+    box-shadow: 0 0 0 transparent;
+  }
+  35% {
+    filter: brightness(1.03);
+    box-shadow: -18px 0 36px var(--folha-sombra);
+  }
+  100% {
+    transform: rotateY(92deg);
+    filter: brightness(0.7);
+    box-shadow: -30px 0 50px var(--folha-sombra);
+  }
+}
+@keyframes folha-pousa {
+  0% {
+    transform: rotateY(-92deg);
+    filter: brightness(0.7);
+    box-shadow: 30px 0 50px var(--folha-sombra);
+  }
+  100% {
+    transform: rotateY(0deg);
+    filter: brightness(1);
+    box-shadow: 0 0 0 transparent;
+  }
+}
+@keyframes folha-escurece {
+  to {
+    filter: brightness(0.82);
+  }
+}
+
+/* A sombra da folha na página de baixo (ela faz parte da página nova enquanto a folha vira) */
+.folha-sombra {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  pointer-events: none;
+}
+.folha-sombra::before,
+.folha-sombra::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+}
+:root[data-virada="proxima"][data-virada-layout="uma"] .folha-sombra::after {
+  left: 0;
+  width: 100%;
+  background: linear-gradient(90deg, var(--folha-sombra), transparent 70%);
+  transform-origin: 0 50%;
+  animation: sombra-recua var(--folha-tempo) var(--folha-curva) both;
+}
+:root[data-virada="anterior"][data-virada-layout="uma"] .folha-sombra::after {
+  inset: 0;
+  background: linear-gradient(90deg, transparent, var(--folha-sombra));
+  animation: sombra-clareia var(--folha-tempo) ease-out both;
+}
+:root[data-virada="proxima"][data-virada-layout="duas"] .folha-sombra::before {
+  left: 0;
+  width: 50%;
+  background: linear-gradient(90deg, rgb(0 0 0 / 0.25), rgb(0 0 0 / 0.55));
+  animation: sombra-clareia var(--folha-tempo) cubic-bezier(0.6, 0, 0.4, 1) both;
+}
+:root[data-virada="proxima"][data-virada-layout="duas"] .folha-sombra::after {
+  left: 50%;
+  width: 50%;
+  background: linear-gradient(90deg, var(--folha-sombra), transparent 70%);
+  transform-origin: 0 50%;
+  animation: sombra-recua var(--folha-tempo) var(--folha-curva) both;
+}
+:root[data-virada="anterior"][data-virada-layout="duas"] .folha-sombra::before {
+  left: 0;
+  width: 50%;
+  background: linear-gradient(270deg, var(--folha-sombra), transparent 70%);
+  transform-origin: 100% 50%;
+  animation: sombra-recua var(--folha-tempo) var(--folha-curva) both;
+}
+:root[data-virada="anterior"][data-virada-layout="duas"] .folha-sombra::after {
+  left: 50%;
+  width: 50%;
+  background: linear-gradient(270deg, rgb(0 0 0 / 0.25), rgb(0 0 0 / 0.55));
+  animation: sombra-clareia var(--folha-tempo) cubic-bezier(0.6, 0, 0.4, 1) both;
+}
+@keyframes sombra-recua {
+  0% {
+    transform: scaleX(1);
+    opacity: 0.25;
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    transform: scaleX(0.03);
+    opacity: 0;
+  }
+}
+@keyframes sombra-clareia {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}

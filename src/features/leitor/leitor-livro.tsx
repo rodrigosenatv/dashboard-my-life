@@ -6,6 +6,7 @@ import { ArrowLeft, List, LoaderCircle, Quote, Search, Type } from "lucide-react
 import { cn } from "@/lib/utils"
 import { cssDoLivro, MARGENS, TEMAS, type Aparencia } from "./aparencia"
 import { carregarFoliate, protegerLivro, textoDoMetadado, type ItemSumarioLivro, type Localizacao, type VisaoFoliate } from "./foliate"
+import { arrastarFolha, criarDeslize, folhaDisponivel, movimentoReduzido, pararFolha, virarFolha, type ArrastoFolha, type OpcoesFolha, type Sentido } from "./folha"
 import { PainelAjustes } from "./painel-ajustes"
 import { PainelBusca } from "./painel-busca"
 import { PainelSumario } from "./painel-sumario"
@@ -28,6 +29,9 @@ type Painel = "sumario" | "ajustes" | "busca" | null
 
 const ehCampo = (alvo: EventTarget | null) => alvo instanceof HTMLElement && (alvo.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(alvo.tagName))
 
+/** O efeito de folha vale agora: escolhido, no modo de páginas e com suporte no navegador. */
+const folhaLigada = (a: Aparencia) => a.virada === "folha" && a.modo === "paginas" && folhaDisponivel()
+
 export function minutos(m: number | undefined): string {
   if (m === undefined || !Number.isFinite(m)) return ""
   const n = Math.max(1, Math.round(m))
@@ -39,6 +43,7 @@ export function minutos(m: number | undefined): string {
 
 /** O leitor em si: mostra o livro, vira as páginas e oferece sumário, busca e ajustes. */
 export function LeitorLivro({ arquivo, titulo, voltarPara, posicaoInicial, aparencia, aoMudarAparencia, aoMudarLugar, aoGuardarTrecho }: Props) {
+  const tela = React.useRef<HTMLDivElement>(null)
   const caixa = React.useRef<HTMLDivElement>(null)
   const visao = React.useRef<VisaoFoliate | null>(null)
   const [pronto, setPronto] = React.useState(false)
@@ -80,12 +85,56 @@ export function LeitorLivro({ arquivo, titulo, voltarPara, posicaoInicial, apare
     void visao.current?.goTo(alvo)
   }, [])
 
-  const virar = React.useCallback((lado: "anterior" | "proxima") => {
+  /** Como a folha vira agora para esse lado (null no começo ou no fim do livro). */
+  const montarFolha = React.useCallback((lado: Sentido): OpcoesFolha | null => {
     const v = visao.current
-    if (!v) return
-    setBarras(false)
-    void (lado === "anterior" ? v.goLeft() : v.goRight())
+    const el = caixa.current
+    if (!v || !el) return null
+    const r = v.renderer
+    // Avançar no livro é ir para a direita (para a esquerda nos livros escritos da direita para a esquerda)
+    const avancando = (lado === "proxima") !== (v.book?.dir === "rtl")
+    if (avancando ? r.atEnd : r.atStart) return null
+    const pagina = r.page ?? 0
+    const total = r.pages ?? 0
+    return {
+      caixa: el,
+      sentido: lado,
+      ir: () => (lado === "anterior" ? v.goLeft() : v.goRight()),
+      avisos: r,
+      espalhado: (r.heads?.length ?? 1) > 1,
+      escuro: TEMAS[aparenciaRef.current.tema].escuro,
+      // O paginador tem uma página em branco em cada ponta do capítulo: passar dela abre outro capítulo
+      outroCapitulo: avancando ? pagina >= total - 2 : pagina <= 1,
+      capitulo: v.lastLocation?.section?.current,
+    }
   }, [])
+
+  const virar = React.useCallback(
+    (lado: Sentido) => {
+      const v = visao.current
+      if (!v) return
+      setBarras(false)
+      if (folhaLigada(aparenciaRef.current)) {
+        void virarFolha(() => montarFolha(lado))
+        return
+      }
+      void (lado === "anterior" ? v.goLeft() : v.goRight())
+    },
+    [montarFolha],
+  )
+
+  /** O dedo começou a virar a página: a folha acompanha (null quando ela só vira ao soltar). */
+  const arrastarVirada = React.useCallback(
+    (lado: Sentido, x: number): ArrastoFolha | null => {
+      const v = visao.current
+      const o = montarFolha(lado)
+      if (!v || !o) return null
+      const arrasto = arrastarFolha({ ...o, xInicial: x, voltar: () => (lado === "anterior" ? v.goRight() : v.goLeft()) })
+      if (arrasto) setBarras(false)
+      return arrasto
+    },
+    [montarFolha],
+  )
 
   /* Abre o livro --------------------------------------------------- */
   React.useEffect(() => {
@@ -104,6 +153,24 @@ export function LeitorLivro({ arquivo, titulo, voltarPara, posicaoInicial, apare
       if (x < largura * 0.28) virar("anterior")
       else if (x > largura * 0.72) virar("proxima")
       else setBarras((b) => !b)
+    }
+
+    // Com o efeito de folha, o deslizar do dedo é do app (o paginador não arrasta o texto): a folha acompanha o dedo
+    const deslize = criarDeslize({
+      ativo: () => folhaLigada(aparenciaRef.current) && !painelRef.current,
+      arrastar: arrastarVirada,
+      virar,
+    })
+    const ouvirDeslize = (alvo: Document | HTMLElement, doc?: Document, vale: (e: Event) => boolean = () => true) => {
+      const opcoes = { passive: false, signal: eventos.signal }
+      const selecao = () => {
+        const s = (doc ?? document).getSelection()
+        return Boolean(s && !s.isCollapsed)
+      }
+      alvo.addEventListener("touchstart", (e) => vale(e) && deslize.inicio(e as TouchEvent, selecao), opcoes)
+      alvo.addEventListener("touchmove", (e) => vale(e) && deslize.mover(e as TouchEvent), opcoes)
+      alvo.addEventListener("touchend", (e) => vale(e) && deslize.fim(e as TouchEvent), opcoes)
+      alvo.addEventListener("touchcancel", (e) => vale(e) && deslize.cancelar(), opcoes)
     }
 
     let ultimaRoda = 0
@@ -176,6 +243,7 @@ export function LeitorLivro({ arquivo, titulo, voltarPara, posicaoInicial, apare
           doc.addEventListener("click", (ev) => aoTocar(ev, doc), { signal: eventos.signal })
           doc.addEventListener("keydown", aoTeclar, { signal: eventos.signal })
           doc.addEventListener("wheel", aoRolar, { passive: true, signal: eventos.signal })
+          ouvirDeslize(doc, doc)
           // Texto selecionado: oferece guardar o trecho
           let espera: ReturnType<typeof setTimeout> | undefined
           doc.addEventListener("selectionchange", () => {
@@ -190,8 +258,15 @@ export function LeitorLivro({ arquivo, titulo, voltarPara, posicaoInicial, apare
             esperas.add(espera)
           }, { signal: eventos.signal })
         })
-        v.addEventListener("click", (e) => aoTocar(e))
-        v.addEventListener("wheel", aoRolar, { passive: true })
+        // Nas margens o toque cai na caixa do livro, fora do texto; enquanto a folha vira (a caixa vira uma
+        // imagem), cai na própria tela do leitor. As barras e os painéis ficam de fora
+        const fundo = tela.current
+        if (fundo) {
+          const doLivro = (e: Event) => e.target === fundo || Boolean(caixa.current?.contains(e.target as Node))
+          fundo.addEventListener("click", (e) => doLivro(e) && aoTocar(e), { signal: eventos.signal })
+          fundo.addEventListener("wheel", (e) => doLivro(e) && aoRolar(e), { passive: true, signal: eventos.signal })
+          ouvirDeslize(fundo, undefined, doLivro)
+        }
 
         await v.init({ lastLocation: posicaoInicial, showTextStart: false })
         if (!cancelado) setPronto(true)
@@ -207,6 +282,8 @@ export function LeitorLivro({ arquivo, titulo, voltarPara, posicaoInicial, apare
     void abrir()
     return () => {
       cancelado = true
+      deslize.cancelar()
+      pararFolha()
       eventos.abort()
       for (const espera of esperas) clearTimeout(espera)
       esperas.clear()
@@ -222,7 +299,7 @@ export function LeitorLivro({ arquivo, titulo, voltarPara, posicaoInicial, apare
     }
     // A posição inicial só vale na abertura; mudar depois não reabre o livro
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [arquivo, virar])
+  }, [arquivo, virar, arrastarVirada])
 
   // As barras aparecem ao abrir, para mostrar onde ficam os controles, e somem sozinhas
   React.useEffect(() => {
@@ -296,7 +373,8 @@ export function LeitorLivro({ arquivo, titulo, voltarPara, posicaoInicial, apare
     }
   }, [tema.fundo])
 
-  const fracao = arrastando !== null ? arrastando / 1000 : (lugar?.fraction ?? 0)
+  // Capítulo curtinho em duas páginas: o livro pode contar a fração como NaN
+  const fracao = arrastando !== null ? arrastando / 1000 : Number.isFinite(lugar?.fraction) ? (lugar?.fraction ?? 0) : 0
   const capitulo = lugar?.tocItem?.label?.trim()
   const pagina = lugar?.pageItem?.label
 
@@ -322,6 +400,7 @@ export function LeitorLivro({ arquivo, titulo, voltarPara, posicaoInicial, apare
 
   return (
     <div
+      ref={tela}
       className="fixed inset-0 z-40 overflow-hidden overscroll-none"
       style={variaveis}
       // A tela do leitor nunca rola (só o livro e os painéis); algo que force a rolagem volta ao lugar
@@ -491,8 +570,13 @@ function aplicarAparencia(v: VisaoFoliate, a: Aparencia) {
   r.setAttribute("margin", "44px")
   r.setAttribute("max-inline-size", "680px")
   r.setAttribute("max-column-count", "2")
-  if (a.animacao) r.setAttribute("animated", "")
+  // Folha: o app vira a página (e trata o deslizar). Sem suporte no navegador, a folha vira um deslizar.
+  const folha = folhaLigada(a)
+  const deslizar = !movimentoReduzido() && (a.virada === "deslizar" || (a.virada === "folha" && !folha))
+  if (deslizar) r.setAttribute("animated", "")
   else r.removeAttribute("animated")
+  if (folha) r.setAttribute("sem-arrastar", "")
+  else r.removeAttribute("sem-arrastar")
   r.setStyles?.(cssDoLivro(a))
 }
 

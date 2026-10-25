@@ -3,6 +3,8 @@
 export type TemaLeitura = "claro" | "sepia" | "escuro" | "preto"
 export type FonteLeitura = "livro" | "serifa" | "sem-serifa"
 export type MargemLeitura = "estreita" | "media" | "larga"
+/** Como a página vira: como folha de papel, deslizando para o lado ou sem animação. */
+export type ViradaPagina = "folha" | "deslizar" | "nenhuma"
 
 export type Aparencia = {
   /** Tamanho da letra em porcentagem do padrão (100). */
@@ -15,7 +17,7 @@ export type Aparencia = {
   tema: TemaLeitura
   modo: "paginas" | "rolagem"
   paragrafos: "livro" | "espaco" | "recuo"
-  animacao: boolean
+  virada: ViradaPagina
   /** Não deixa o celular apagar a tela enquanto a pessoa lê. */
   telaAcesa: boolean
 }
@@ -30,7 +32,7 @@ export const APARENCIA_PADRAO: Aparencia = {
   tema: "claro",
   modo: "paginas",
   paragrafos: "livro",
-  animacao: true,
+  virada: "folha",
   telaAcesa: true,
 }
 
@@ -85,8 +87,13 @@ export function guardarAparencia(a: Aparencia) {
   }
 }
 
-export function normalizarAparencia(x: Partial<Aparencia> | null | undefined): Aparencia {
-  const a = { ...APARENCIA_PADRAO, ...(x ?? {}) }
+export const VIRADAS: Record<ViradaPagina, string> = { folha: "Folha", deslizar: "Deslizar", nenhuma: "Nenhum" }
+
+export function normalizarAparencia(x: (Partial<Aparencia> & { animacao?: boolean }) | null | undefined): Aparencia {
+  const { animacao, ...resto } = x ?? {}
+  const a = { ...APARENCIA_PADRAO, ...resto }
+  // Antes era só "animação ligada ou desligada": desligada continua sem animação
+  if (!(a.virada in VIRADAS)) a.virada = animacao === false ? "nenhuma" : "folha"
   a.tamanho = Math.min(TAMANHO_MAX, Math.max(TAMANHO_MIN, Number(a.tamanho) || 100))
   a.entrelinhas = Math.min(2.2, Math.max(1.1, Number(a.entrelinhas) || APARENCIA_PADRAO.entrelinhas))
   if (!(a.tema in TEMAS)) a.tema = APARENCIA_PADRAO.tema

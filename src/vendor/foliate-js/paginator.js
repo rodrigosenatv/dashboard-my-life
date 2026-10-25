@@ -823,6 +823,8 @@ export class Paginator extends HTMLElement {
         })
     }
     #onTouchStart(e) {
+        // My Life: com o atributo `sem-arrastar`, o app cuida dos gestos (efeito de folha)
+        if (this.hasAttribute('sem-arrastar')) return
         const touch = e.changedTouches[0]
         this.#touchState = {
             x: touch?.screenX, y: touch?.screenY,
@@ -831,6 +833,7 @@ export class Paginator extends HTMLElement {
         }
     }
     #onTouchMove(e) {
+        if (this.hasAttribute('sem-arrastar')) return
         const state = this.#touchState
         if (state.pinched) return
         state.pinched = globalThis.visualViewport.scale > 1
@@ -853,6 +856,7 @@ export class Paginator extends HTMLElement {
         this.scrollBy(dx, dy)
     }
     #onTouchEnd() {
+        if (this.hasAttribute('sem-arrastar')) return
         this.#touchScrolled = false
         if (this.scrolled) return
 

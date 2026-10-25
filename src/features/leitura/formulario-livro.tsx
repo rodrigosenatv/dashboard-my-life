@@ -11,7 +11,23 @@ import { STATUS_LIVRO } from "@/lib/rotulos"
 
 type Livro = Tables<"books">
 
-export function DialogoLivro({ aberta, aoMudar, livro, statusInicial }: { aberta: boolean; aoMudar: (v: boolean) => void; livro?: Livro | null; statusInicial?: string }) {
+export function DialogoLivro({
+  aberta,
+  aoMudar,
+  livro,
+  statusInicial,
+  tituloInicial,
+  aoSalvo,
+}: {
+  aberta: boolean
+  aoMudar: (v: boolean) => void
+  livro?: Livro | null
+  statusInicial?: string
+  /** Título já digitado (vindo da busca que não achou o livro). */
+  tituloInicial?: string
+  /** Chamado com o id do livro novo, depois de criar. */
+  aoSalvo?: (id: string) => void
+}) {
   const criar = useCriar("books")
   const atualizar = useAtualizar("books")
   const [titulo, setTitulo] = React.useState("")
@@ -27,7 +43,7 @@ export function DialogoLivro({ aberta, aoMudar, livro, statusInicial }: { aberta
 
   React.useEffect(() => {
     if (!aberta) return
-    setTitulo(livro?.title ?? "")
+    setTitulo(livro?.title ?? tituloInicial ?? "")
     setAutor(livro?.author ?? "")
     setCategoria(livro?.category ?? "")
     setStatus(livro?.status ?? statusInicial ?? "desejo")
@@ -37,7 +53,7 @@ export function DialogoLivro({ aberta, aoMudar, livro, statusInicial }: { aberta
     setInicio(livro?.started_at ?? "")
     setFim(livro?.finished_at ?? "")
     setResumo(livro?.summary ?? "")
-  }, [aberta, livro, statusInicial])
+  }, [aberta, livro, statusInicial, tituloInicial])
 
   const envioPendente = React.useRef(false)
 
@@ -67,7 +83,11 @@ export function DialogoLivro({ aberta, aoMudar, livro, statusInicial }: { aberta
     envioPendente.current = true
     const terminou = () => { envioPendente.current = false }
     if (livro) atualizar.mutate({ id: livro.id, ...campos }, { onSettled: terminou })
-    else criar.mutate({ id: novoId(), ...campos }, { onSettled: terminou })
+    else {
+      const id = novoId()
+      criar.mutate({ id, ...campos }, { onSettled: terminou })
+      aoSalvo?.(id)
+    }
     aoMudar(false)
   }
 
@@ -76,6 +96,7 @@ export function DialogoLivro({ aberta, aoMudar, livro, statusInicial }: { aberta
       aberta={aberta}
       aoMudar={aoMudar}
       titulo={livro ? "Editar livro" : "Adicionar livro"}
+      className="tema-biblioteca"
       rodape={
         <>
           <Botao variante="fantasma" onClick={() => aoMudar(false)}>Cancelar</Botao>

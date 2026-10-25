@@ -162,7 +162,8 @@ export function Provedores({ children }: { children: React.ReactNode }) {
       // Um aviso único, com a opção de tentar de novo, cobre todas elas.
       queryCache: new QueryCache({
         onError: (erro, consulta) => {
-          if (!navigator.onLine) return
+          // Consultas a serviços de fora (busca de livros, sinopse) avisam no próprio lugar
+          if (!navigator.onLine || consulta.meta?.silencioso) return
           toast.error(consulta.state.data === undefined ? "Não foi possível carregar os dados." : "Não foi possível atualizar os dados.", {
             id: "erro-carregar",
             description: "Verifique sua conexão e tente novamente.",

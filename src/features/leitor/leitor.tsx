@@ -11,6 +11,7 @@ import type { Tables, TablesUpdate } from "@/lib/supabase/database.types"
 import { isoDia } from "@/lib/utils"
 import { aparenciaGuardada, guardarAparencia, TEMAS, type Aparencia } from "./aparencia"
 import { comoArquivo, lerLivroLocal, lerPosicaoLocal, salvarLivroLocal, salvarPosicaoLocal, type LivroLocal } from "./armazenamento"
+import { registrarLeitura } from "@/features/leitura/dados"
 import { useAtualizarDisponibilidade } from "./dados"
 import { LeitorLivro, type InfoLugar } from "./leitor-livro"
 import { arquivoNuvemDoLivro, baixarLivroNuvem, lerPrefsLeitor, salvarPosicaoNuvem } from "./nuvem"
@@ -28,7 +29,7 @@ const INTERVALO_NUVEM = 20_000
 
 function paginasLidas(livro: Livro, info: InfoLugar): { lidas: number; total: number } | null {
   const total = livro.pages_total ?? info.paginasTotais
-  if (!total) return null
+  if (!total || !Number.isFinite(info.localizacao.fraction)) return null
   const rotulo = Number(info.localizacao.pageItem?.label)
   // Com o total igual ao do PDF, vale a página do PDF em que a pessoa está
   if (rotulo && info.paginasTotais === total) return { lidas: Math.min(total, rotulo), total }
@@ -101,6 +102,8 @@ export function Leitor() {
   const ultimo = React.useRef<InfoLugar | null>(null)
   const pendente = React.useRef(false)
   const temporizadorLocal = React.useRef<ReturnType<typeof setTimeout> | null>(null)
+  /** Quando o progresso foi para a nuvem pela última vez (para o diário de leitura). */
+  const ultimoEnvio = React.useRef(0)
 
   const enviar = React.useCallback(async () => {
     const info = ultimo.current
@@ -125,7 +128,14 @@ export function Leitor() {
     if (data) {
       livroRef.current = data
       qc.setQueryData(["books", "um", id], data)
+      // As páginas lidas no leitor também contam no diário de leitura (sequência de dias, páginas por dia).
+      // Um salto grande de uma vez (sumário, busca) é navegação, não leitura: não entra no diário
+      const antes = l.pages_read ?? 0
+      const depois = data.pages_read ?? antes
+      const minutos = (Date.now() - ultimoEnvio.current) / 60_000
+      if (depois !== antes && depois - antes <= Math.max(40, minutos * 4)) void registrarLeitura(qc, data, antes, depois)
     }
+    ultimoEnvio.current = Date.now()
   }, [id, qc])
 
   const aoMudarLugar = React.useCallback(
@@ -147,6 +157,7 @@ export function Leitor() {
   )
 
   React.useEffect(() => {
+    ultimoEnvio.current = Date.now()
     const intervalo = setInterval(() => void enviar(), INTERVALO_NUVEM)
     const aoEsconder = () => {
       if (document.visibilityState === "hidden") void enviar()

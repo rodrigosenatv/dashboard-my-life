@@ -9,10 +9,12 @@ import {
   TAMANHO_MAX,
   TAMANHO_MIN,
   TEMAS,
+  VIRADAS,
   type Aparencia,
   type FonteLeitura,
   type MargemLeitura,
   type TemaLeitura,
+  type ViradaPagina,
 } from "./aparencia"
 import { Alternar, Grupo, Opcoes, PainelLeitor } from "./painel-leitor"
 
@@ -147,6 +149,20 @@ export function PainelAjustes({ aparencia, aoMudar, aoFechar }: { aparencia: Apa
         />
       </Grupo>
 
+      {aparencia.modo === "paginas" ? (
+        <Grupo rotulo="Ao virar a página">
+          <Opcoes<ViradaPagina>
+            rotulo="Ao virar a página"
+            valor={aparencia.virada}
+            aoMudar={(virada) => muda({ virada })}
+            opcoes={(Object.keys(VIRADAS) as ViradaPagina[]).map((v) => ({ valor: v, rotulo: VIRADAS[v] }))}
+          />
+          {aparencia.virada === "folha" ? (
+            <p className="mt-2 text-xs text-[var(--l-suave)]">A página vira como uma folha de papel: toque nas bordas, deslize o dedo ou use as setas.</p>
+          ) : null}
+        </Grupo>
+      ) : null}
+
       <div className="grid divide-y py-1" style={{ borderColor: "var(--l-borda)" }}>
         <Alternar
           rotulo="Separar sílabas no fim da linha"
@@ -154,7 +170,6 @@ export function PainelAjustes({ aparencia, aoMudar, aoFechar }: { aparencia: Apa
           valor={aparencia.hifenizar}
           aoMudar={(hifenizar) => muda({ hifenizar })}
         />
-        <Alternar rotulo="Animação ao virar a página" valor={aparencia.animacao} aoMudar={(animacao) => muda({ animacao })} />
         <Alternar
           rotulo="Manter a tela acesa"
           descricao="Enquanto você lê; apaga depois de 10 minutos sem virar a página"

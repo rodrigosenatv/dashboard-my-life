@@ -10,5 +10,6 @@ O projeto não publica pacote no npm e recomenda copiar os arquivos. Só entrara
 Mudanças locais (marcadas com "My Life" no código):
 - `view.js` não abre PDF (o app converte PDF em EPUB antes; o adaptador experimental de PDF e o pdf.js dele ficaram de fora).
 - `paginator.js`: `getVisibleRange` devolve `null` quando a seção ainda está carregando (evita erro ao virar páginas muito rápido).
+- `paginator.js`: com o atributo `sem-arrastar`, o paginador não arrasta o texto com o dedo (o app trata o gesto e vira a página com o efeito de folha).
 
 Para atualizar, copie os mesmos arquivos de uma versão nova do repositório e refaça as mudanças acima.

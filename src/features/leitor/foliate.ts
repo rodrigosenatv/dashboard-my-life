@@ -33,6 +33,12 @@ export type Paginador = HTMLElement & {
   heads?: HTMLElement[]
   feet?: HTMLElement[]
   scrolled?: boolean
+  /** Página de agora no capítulo e quantas ele tem (contando uma em branco em cada ponta). */
+  page?: number
+  pages?: number
+  /** No começo ou no fim do livro. */
+  atStart?: boolean
+  atEnd?: boolean
 }
 
 export interface VisaoFoliate extends HTMLElement {

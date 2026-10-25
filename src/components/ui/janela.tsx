@@ -17,6 +17,7 @@ export function Janela({
   children,
   rodape,
   largura = "md",
+  className,
 }: {
   aberta: boolean
   aoMudar: (v: boolean) => void
@@ -25,6 +26,8 @@ export function Janela({
   children: React.ReactNode
   rodape?: React.ReactNode
   largura?: "sm" | "md" | "lg" | "xl"
+  /** Classes a mais na janela (ex.: o tema da tela que a abriu). */
+  className?: string
 }) {
   return (
     <Dialog.Root open={aberta} onOpenChange={aoMudar}>
@@ -40,6 +43,7 @@ export function Janela({
             largura === "md" && "sm:max-w-lg",
             largura === "lg" && "sm:max-w-2xl",
             largura === "xl" && "sm:max-w-4xl",
+            className,
           )}
         >
           <div className="flex items-start justify-between gap-4 border-b border-line px-5 pb-3 pt-4">

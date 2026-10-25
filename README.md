@@ -29,12 +29,23 @@ Feito com Next.js 16, Supabase (banco, login e arquivos) e hospedado na Vercel.
 2. No app: **Configurações > Importar do Notion**, escolha o .zip, confira o resumo e importe.
 3. A página *Senhas* e os campos de senha dos cursos não são importados. Importar de novo substitui só o que veio do Notion.
 
+## Biblioteca (Estudos > Leitura)
+
+A página de leitura é uma biblioteca do futuro: livros em 3D, prateleiras com luz e um painel com a meta do ano, os dias seguidos de leitura e o acervo em números.
+
+- **Lendo agora.** O livro aberto fica no pedestal de luz, com o progresso, as páginas que faltam e, pelo seu ritmo, quando você termina. "Atualizar página" marca onde parou; com o arquivo do livro, "Continuar lendo" abre o leitor.
+- **Capas e dados automáticos.** Ao adicionar um livro, a busca no Google Books (e no Open Library, se o Google não responder) preenche título, autor, páginas, editora e capa. A capa fica em `books.cover_path`: um link de endereço permitido ou um arquivo enviado ao bucket. Sem capa, o app desenha uma com as cores do título.
+- **Diário de leitura.** Cada mudança de página (na biblioteca, na página do livro ou lendo no app) vira o registro do dia na coleção "Diário de leitura", criada sozinha em Coleções. Dele saem a sequência de dias, a semana e a previsão de término. Um salto grande no leitor (sumário, busca) é navegação e não entra no diário.
+- **Meta do ano.** Guardada em `settings.prefs.leitura.metas`, uma por ano.
+- Não precisa de migração no banco: tudo usa tabelas que já existem.
+
 ## Leitor de livros
 
 Em **Estudos > Leitura**, cada livro pode ter um arquivo (PDF, EPUB, MOBI, AZW3 ou FB2) para ler dentro do app, com o texto se reorganizando na tela: tamanho e tipo de letra, espaço entre linhas, margens, temas (claro, sépia, escuro, preto), páginas ou rolagem, sumário, busca, trechos guardados nos insights e a tela acesa enquanto se lê.
 
 - **PDF vira EPUB no próprio aparelho.** O conversor (`src/features/leitor/conversor`) lê o PDF com o pdf.js, tira cabeçalhos, rodapés, números de página e sumário com pontilhado, remonta os parágrafos, junta palavras partidas no fim da linha, acha os capítulos e as partes (pelos marcadores do PDF ou pela aparência), põe as notas de rodapé depois do parágrafo e guarda tabelas e figuras. Para decidir onde termina um parágrafo, usa o vocabulário do próprio livro (palavras com hífen, nomes como "Mecânica Quântica" partidos entre linhas). Cada parágrafo leva a página de origem, então o leitor mostra "página 12 de 64" do PDF. PDF digitalizado (só imagem) precisa passar por OCR antes.
 - **Onde fica cada coisa.** O livro fica no IndexedDB do aparelho (abre sem internet). A cópia na nuvem é opcional: `arquivos/<usuário>/livros/<livro>/livro.epub`, registrada na tabela `files` com `entity_type = 'livro'`. A posição de leitura vai para `settings.prefs.leitor.posicoes` e a página lida atualiza `books.pages_read`. Não precisa de migração no banco.
+- **Folha que vira.** No modo de páginas, a página vira como uma folha de papel (Ajustes > Ao virar a página: Folha, Deslizar ou Nenhum). Tocar na borda, as setas e a roda do mouse viram a folha inteira; deslizando o dedo, a folha acompanha o dedo e, ao soltar, termina de virar ou volta para o lugar. Com duas páginas lado a lado, vira pela lombada no meio. Usa a transição de telas do navegador (View Transitions), com o 3D no fim do `src/app/globals.css` e o gesto em `src/features/leitor/folha.ts`. Sem suporte no navegador ou com "reduzir movimento" ligado no aparelho, a página desliza ou troca sem animação. Para o app cuidar do gesto, o paginador do foliate-js ganhou o atributo `sem-arrastar` (anotado em `src/vendor/foliate-js/LEIAME.md`).
 - **Sem internet.** O service worker guarda a tela do leitor depois de aberta e os arquivos estáticos do app.
 - **Motor de leitura.** [foliate-js](https://github.com/johnfactotum/foliate-js) (MIT), copiado em `src/vendor/foliate-js`. Os arquivos do pdf.js que o navegador busca à parte são copiados para `public/pdfjs` por `scripts/copiar-pdfjs.mjs`, que roda sozinho depois do `npm install` e antes do `dev` e do `build`.
 
@@ -49,5 +60,6 @@ npm run dev
 Estrutura principal:
 - `src/app/(app)` rotas do app; `src/features/*` cada módulo; `src/components` interface compartilhada.
 - `src/features/importar` leitura do .zip do Notion e gravação no Supabase.
+- `src/features/leitura` biblioteca: prateleiras, capas, busca de livros, diário e meta de leitura.
 - `src/features/leitor` leitor de livros e conversor de PDF; a tela de leitura é `src/app/ler/[id]`.
 - `supabase/migrations` esquema do banco.
