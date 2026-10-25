@@ -149,9 +149,11 @@ export function useCriar<T extends TableName>(tabela: T, opcoes: { invalidar?: s
 export type Patch<T extends TableName> = TablesUpdate<T> & { id: string }
 
 /** Atualiza campos de uma linha pelo id. */
-export function useAtualizar<T extends TableName>(tabela: T, opcoes: { invalidar?: string[]; silencioso?: boolean } = {}) {
+export function useAtualizar<T extends TableName>(tabela: T, opcoes: { invalidar?: string[]; silencioso?: boolean; escopo?: string } = {}) {
   const qc = useQueryClient()
   return useMutation({
+    // Com escopo, as gravações vão ao banco uma de cada vez, na ordem (a tela muda na hora do mesmo jeito)
+    scope: opcoes.escopo ? { id: opcoes.escopo } : undefined,
     mutationFn: async ({ id, ...campos }: Patch<T>) => {
       const { data, error } = await (supabase().from(tabela) as any).update(campos).eq("id", id).select().single()
       if (error) throw new Error(error.message)

@@ -578,7 +578,7 @@ export function montarPlano(arquivos: Map<string, Uint8Array>, opcoes: OpcoesPla
       : r.destino === "captures" ? `/projetos/capturas?abrir=${r.id}`
       : r.destino === "tasks" ? `/rotina/tarefas?abrir=${r.id}`
       : r.destino === "events" ? `/rotina/agenda?abrir=${r.id}`
-      : r.destino === "courses" ? `/estudos/cursos?abrir=${r.id}`
+      : r.destino === "courses" ? `/estudos/cursos/${r.id}`
       : r.destino === "experiments" ? `/estudos/laboratorio?abrir=${r.id}`
       : r.destino === "content" || r.destino === "ideias" ? `/conteudo/planner?abrir=${r.id}`
       : r.destino === "pages_concursos" ? `/paginas/${r.id}`

@@ -39,6 +39,18 @@ A página de leitura é uma biblioteca do futuro: livros em 3D, prateleiras com 
 - **Meta do ano.** Guardada em `settings.prefs.leitura.metas`, uma por ano.
 - Não precisa de migração no banco: tudo usa tabelas que já existem.
 
+## Cursos (Estudos > Cursos)
+
+A plataforma de cursos, com cara futurista da mesma família da biblioteca: o curso em andamento numa tela de luz, fileiras que deslizam como num streaming, a trilha das aulas e o que colocar em prática.
+
+- **Estudando agora.** O curso em andamento com a capa, onde parou (a última aula anotada), as aulas e ações, o progresso e os botões "Continuar no Telegram" (ou na Hotmart, no Google Drive…: a plataforma sai do link), "Anotar aula" e "Trilha". Com mais de um curso em andamento, os cartões deslizam para o lado.
+- **Anotar aula.** O título já vem com o número da próxima aula, seguindo a numeração das anteriores ("#F09 08 - "); escolhe o módulo, escreve o que aprendeu e o que vai praticar. A aula entra nas anotações do curso, no lugar certo da trilha.
+- **Para praticar.** As caixas "- [ ]" das anotações dos cursos em andamento (como a "Modelagem (Passo a Passo)" do Notion), para marcar com um toque, com desfazer.
+- **Fileiras e catálogo.** Pausados, Na fila e Concluídos; "Todos os cursos" filtra por situação e área, e a busca procura também nas anotações. "Suas competências" mostra as áreas dos cursos concluídos e em andamento.
+- **Tela do curso** (`/estudos/cursos/[id]`): a capa (gerada com as iniciais e a cor da área, ou uma foto enviada), a situação, o progresso em passos de 5%, a trilha (módulos, a aula onde parou pulsando; cada aula abre com as anotações e pode ser editada), as ações, o acesso (link e e-mail, com copiar) e o caderno com todas as anotações.
+- **Foco.** O botão de foco usa o timer do Flow: o tempo segue no canto da tela em qualquer página.
+- Dados: tabela `courses`. As aulas e as ações saem do texto das anotações (`notes`): títulos de módulo e de aula (sem títulos, as linhas só em negrito) e caixas "- [ ]"; o app só acrescenta ou troca as linhas daquela aula ou ação. A foto da capa fica no bucket `arquivos`, registrada em `files` com `entity_type = 'curso_capa'`. Não precisa de migração no banco.
+
 ## Leitor de livros
 
 Em **Estudos > Leitura**, cada livro pode ter um arquivo (PDF, EPUB, MOBI, AZW3 ou FB2) para ler dentro do app, com o texto se reorganizando na tela: tamanho e tipo de letra, espaço entre linhas, margens, temas (claro, sépia, escuro, preto), páginas ou rolagem, sumário, busca, trechos guardados nos insights e a tela acesa enquanto se lê.
@@ -61,5 +73,6 @@ Estrutura principal:
 - `src/app/(app)` rotas do app; `src/features/*` cada módulo; `src/components` interface compartilhada.
 - `src/features/importar` leitura do .zip do Notion e gravação no Supabase.
 - `src/features/leitura` biblioteca: prateleiras, capas, busca de livros, diário e meta de leitura.
+- `src/features/cursos` plataforma de cursos: trilha de aulas e ações lidas das anotações (`logica.ts`, testada em `tests/cursos.test.cjs`).
 - `src/features/leitor` leitor de livros e conversor de PDF; a tela de leitura é `src/app/ler/[id]`.
 - `supabase/migrations` esquema do banco.

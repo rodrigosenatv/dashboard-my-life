@@ -79,6 +79,7 @@ export function Confirmar({
   descricao,
   acao = "Excluir",
   aoConfirmar,
+  className,
 }: {
   aberta: boolean
   aoMudar: (v: boolean) => void
@@ -86,6 +87,7 @@ export function Confirmar({
   descricao?: string
   acao?: string
   aoConfirmar: () => void
+  className?: string
 }) {
   return (
     <Janela
@@ -94,6 +96,7 @@ export function Confirmar({
       titulo={titulo}
       descricao={descricao}
       largura="sm"
+      className={className}
       rodape={
         <>
           <button

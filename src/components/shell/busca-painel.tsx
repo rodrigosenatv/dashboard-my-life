@@ -30,7 +30,7 @@ const TIPOS: Record<string, { rotulo: string; icone: typeof Search; href: (id: s
   tarefa: { rotulo: "Tarefas", icone: ListTodo, href: (id) => `/rotina/tarefas?abrir=${id}` },
   captura: { rotulo: "Capturas", icone: Inbox, href: (id) => `/projetos/capturas?abrir=${id}` },
   livro: { rotulo: "Livros", icone: BookOpen, href: (id) => `/estudos/leitura/${id}` },
-  curso: { rotulo: "Cursos", icone: GraduationCap, href: (id) => `/estudos/cursos?abrir=${id}` },
+  curso: { rotulo: "Cursos", icone: GraduationCap, href: (id) => `/estudos/cursos/${id}` },
   conteudo: { rotulo: "Conteúdos", icone: Clapperboard, href: (id) => `/conteudo/planner?abrir=${id}` },
   insight: { rotulo: "Insights", icone: Lightbulb, href: () => `/estudos/leitura?aba=insights` },
   experimento: { rotulo: "Experimentos", icone: FlaskConical, href: (id) => `/estudos/laboratorio?abrir=${id}` },
