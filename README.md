@@ -51,6 +51,19 @@ A plataforma de cursos, com cara futurista da mesma família da biblioteca: o cu
 - **Foco.** O botão de foco usa o timer do Flow: o tempo segue no canto da tela em qualquer página.
 - Dados: tabela `courses`. As aulas e as ações saem do texto das anotações (`notes`): títulos de módulo e de aula (sem títulos, as linhas só em negrito) e caixas "- [ ]"; o app só acrescenta ou troca as linhas daquela aula ou ação. A foto da capa fica no bucket `arquivos`, registrada em `files` com `entity_type = 'curso_capa'`. Não precisa de migração no banco.
 
+## Laboratório (Estudos > Laboratório)
+
+O laboratório do futuro, da mesma família da biblioteca e dos cursos: vidro escuro, luz verde-menta e uma colmeia ao fundo. Serve para testar uma técnica, um hábito ou uma ferramenta por alguns dias e descobrir o que funciona.
+
+- **Bancada.** Cada experimento em teste fica numa bancada de vidro: o dia do teste no anel de luz ("Dia 5 de 7"), a hipótese, quantos dias faltam, a faixa de sensor com um quadrado por dia (aceso nos dias com registro) e o registro do dia ali mesmo. Quando o prazo acaba, a bancada avisa e oferece "Mais 7 dias" ou "Concluir".
+- **Diário.** Cada registro é um insight com `source = 'laboratorio'`, `kind = 'observação'`, o experimento e o dia (`noted_on`). Na tela do experimento dá para registrar um dia que passou, editar e apagar (com desfazer).
+- **Concluir.** Funcionou, parcial ou não funcionou, a nota de 0 a 10, o que aprendeu, a conclusão e o próximo passo (virar rotina, ajustar e testar de novo, deixar de lado). Tudo vai para o protocolo, nas seções Resultado, Aprendizados-chave e Conclusão final do modelo do Notion. "Ajustar e testar de novo" cria a 2ª rodada nas ideias.
+- **Novo experimento.** O que testar (ou uma das sugestões), o tipo, a hipótese, quando começa (hoje, amanhã ou mais tarde) e por quantos dias.
+- **Ideias, pausados e resultados.** As ideias (anotadas num campo só) esperam em "Ideias para testar" até você começar: por 3, 7, 14, 21 ou 30 dias, ou sem prazo. Os pausados voltam com "Retomar". Os concluídos viram fichas com o resultado, a nota e o primeiro aprendizado.
+- **Descobertas.** Descobertas, reflexões e ideias soltas (insights do laboratório), com o experimento de onde vieram.
+- **Tela do experimento** (`/estudos/laboratorio/[id]`): o anel (ou a nota, depois de concluído), a hipótese, as ações da situação, o diário dia a dia, o protocolo em markdown, o resultado e a ficha. Links antigos com `?abrir=` levam para ela.
+- Dados: tabelas `experiments` e `insights`. Não precisa de migração no banco.
+
 ## Leitor de livros
 
 Em **Estudos > Leitura**, cada livro pode ter um arquivo (PDF, EPUB, MOBI, AZW3 ou FB2) para ler dentro do app, com o texto se reorganizando na tela: tamanho e tipo de letra, espaço entre linhas, margens, temas (claro, sépia, escuro, preto), páginas ou rolagem, sumário, busca, trechos guardados nos insights e a tela acesa enquanto se lê.
@@ -74,5 +87,6 @@ Estrutura principal:
 - `src/features/importar` leitura do .zip do Notion e gravação no Supabase.
 - `src/features/leitura` biblioteca: prateleiras, capas, busca de livros, diário e meta de leitura.
 - `src/features/cursos` plataforma de cursos: trilha de aulas e ações lidas das anotações (`logica.ts`, testada em `tests/cursos.test.cjs`).
+- `src/features/laboratorio` laboratório de experimentos: andamento dos testes, diário e protocolo (`logica.ts`, testada em `tests/laboratorio.test.cjs`).
 - `src/features/leitor` leitor de livros e conversor de PDF; a tela de leitura é `src/app/ler/[id]`.
 - `supabase/migrations` esquema do banco.

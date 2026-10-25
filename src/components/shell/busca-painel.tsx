@@ -33,7 +33,7 @@ const TIPOS: Record<string, { rotulo: string; icone: typeof Search; href: (id: s
   curso: { rotulo: "Cursos", icone: GraduationCap, href: (id) => `/estudos/cursos/${id}` },
   conteudo: { rotulo: "Conteúdos", icone: Clapperboard, href: (id) => `/conteudo/planner?abrir=${id}` },
   insight: { rotulo: "Insights", icone: Lightbulb, href: () => `/estudos/leitura?aba=insights` },
-  experimento: { rotulo: "Experimentos", icone: FlaskConical, href: (id) => `/estudos/laboratorio?abrir=${id}` },
+  experimento: { rotulo: "Experimentos", icone: FlaskConical, href: (id) => `/estudos/laboratorio/${id}` },
   item: { rotulo: "Coleções", icone: Layers, href: (id) => `/colecoes/item/${id}` },
   evento: { rotulo: "Agenda", icone: CalendarDays, href: (id) => `/rotina/agenda?abrir=${id}` },
 }

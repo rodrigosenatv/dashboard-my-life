@@ -1088,6 +1088,150 @@ a:focus-visible .livro3d-corpo,
 }
 
 /* =====================================================================
+   Laboratório: o laboratório do futuro
+   Da mesma família da biblioteca e dos cursos, num verde-escuro de
+   bancada à noite, com luz verde-menta, uma colmeia fina ao fundo e
+   anéis e faixas de sensor para os dias do teste. Sempre escuro.
+   ===================================================================== */
+
+@layer components {
+.tema-lab {
+  --b-fundo: #03100f;
+  --b-fundo-2: #06231f;
+  --b-tinta: #e9fff8;
+  --b-tinta-2: rgb(233 255 248 / 0.78);
+  --b-tinta-3: rgb(233 255 248 / 0.6);
+  --b-luz: #5cffc4;
+  --b-luz-2: #6ee7ff;
+  --b-rosa: #ff8fab;
+  --b-ambar: #f5c54a;
+  --b-vidro: rgb(120 255 210 / 0.05);
+  --b-vidro-2: rgb(120 255 210 / 0.09);
+  --b-borda: rgb(140 255 215 / 0.14);
+  --b-borda-2: rgb(140 255 215 / 0.28);
+
+  --bg: var(--b-fundo);
+  --surface: #082520;
+  --surface-2: #0c2f29;
+  --surface-3: #134039;
+  --ink: var(--b-tinta);
+  --ink-2: var(--b-tinta-2);
+  --ink-3: var(--b-tinta-3);
+  --line: var(--b-borda);
+  --line-strong: var(--b-borda-2);
+  --pen: var(--b-luz);
+  --pen-ink: #02201a;
+  --pen-soft: rgb(92 255 196 / 0.14);
+  --ring: var(--b-luz);
+  --estudos: var(--b-ambar);
+  --estudos-soft: rgb(245 197 74 / 0.15);
+  --danger: #ff8fab;
+  --danger-soft: rgb(255 143 171 / 0.15);
+  --shadow-overlay: 0 24px 60px -16px rgb(0 0 0 / 0.8), 0 0 0 1px rgb(140 255 215 / 0.12);
+  color-scheme: dark;
+  color: var(--ink);
+}
+
+/* O fundo: luz verde no alto e uma colmeia fina que some para baixo */
+.laboratorio {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background:
+    radial-gradient(80% 45% at 50% -8%, rgb(40 200 150 / 0.34), transparent 66%),
+    radial-gradient(45% 30% at 102% 22%, rgb(110 231 255 / 0.12), transparent 70%),
+    radial-gradient(50% 36% at -6% 60%, rgb(200 255 92 / 0.06), transparent 70%),
+    linear-gradient(180deg, var(--b-fundo-2), var(--b-fundo) 40%);
+}
+.laboratorio::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='48' viewBox='0 0 28 48'%3E%3Cpath d='M14 0 28 8v16l-14 8-14-8V8zM14 32v16' fill='none' stroke='%235cffc4' stroke-opacity='.16'/%3E%3C/svg%3E");
+  background-size: 35px 60px;
+  mask-image: radial-gradient(120% 50% at 50% 0%, #000 15%, transparent 70%);
+}
+.laboratorio::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 1px;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgb(92 255 196 / 0.7), rgb(110 231 255 / 0.6), transparent);
+  box-shadow: 0 0 24px 2px rgb(92 255 196 / 0.3);
+}
+
+/* O anel dos dias do teste */
+.anel-lab {
+  overflow: visible;
+  filter: drop-shadow(0 0 6px rgb(92 255 196 / 0.55));
+}
+.anel-lab circle {
+  transition: stroke-dashoffset 900ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* A faixa de sensor: um traço por dia do teste */
+.faixa-sensor {
+  display: flex;
+  gap: 3px;
+}
+.faixa-sensor > span {
+  height: 22px;
+  min-width: 4px;
+  flex: 1 1 0;
+  max-width: 18px;
+  border-radius: 3px;
+  background: rgb(255 255 255 / 0.07);
+}
+.faixa-sensor > span[data-registro] {
+  background: linear-gradient(180deg, var(--b-luz), rgb(92 255 196 / 0.55));
+  box-shadow: 0 0 10px rgb(92 255 196 / 0.55);
+}
+.faixa-sensor > span[data-hoje] {
+  outline: 1.5px solid var(--b-luz);
+  outline-offset: 1.5px;
+}
+.faixa-sensor > span[data-futuro] {
+  background: rgb(255 255 255 / 0.035);
+}
+
+/* O frasco de vidro do experimento em teste: brilho que sobe devagar */
+@keyframes bolhas {
+  0% {
+    transform: translateY(0) scale(0.6);
+    opacity: 0;
+  }
+  25% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateY(-46px) scale(1);
+    opacity: 0;
+  }
+}
+.bolha {
+  position: absolute;
+  bottom: 8px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--b-luz);
+  box-shadow: 0 0 8px var(--b-luz);
+  opacity: 0;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .bolha {
+    animation: bolhas 3.2s ease-in infinite;
+  }
+}
+}
+
+/* =====================================================================
    Leitor: a folha que vira (src/features/leitor/folha.ts)
    O navegador fotografa a página atual; o livro vai para a próxima sem
    animação; aqui a foto gira em 3D pela lombada, com luz e sombra, por

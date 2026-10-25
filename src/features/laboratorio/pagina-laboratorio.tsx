@@ -1,211 +1,114 @@
 "use client"
 
+import { useRouter, useSearchParams } from "next/navigation"
 import * as React from "react"
-import { BotaoExcluir } from "@/components/ui/botao-excluir"
-import { useAbrirDoEndereco } from "@/lib/abrir-do-endereco"
-import { Lightbulb, Plus } from "lucide-react"
+import { FlaskConical, Plus } from "lucide-react"
 import { Botao } from "@/components/ui/button"
-import { Cabecalho, Carregando, Etiqueta, Secao, Vazio } from "@/components/ui/basicos"
-import { AreaTexto, Campo, Entrada, Seletor } from "@/components/ui/campos"
-import { Janela } from "@/components/ui/janela"
-import { MarkdownSobDemanda as Markdown } from "@/components/markdown-sob-demanda"
-import { novoId, useAtualizar, useCriar, useExcluir, useLista } from "@/lib/data"
-import type { Tables } from "@/lib/supabase/database.types"
-import { RESULTADO_EXPERIMENTO, STATUS_EXPERIMENTO, type StatusExperimento } from "@/lib/rotulos"
-import { formatar } from "@/lib/utils"
+import { ErroCarregar, Esqueleto } from "@/components/ui/basicos"
+import { cn } from "@/lib/utils"
+import { JanelaConcluir } from "./concluir"
+import { useExperimentos, useInsightsDoLab } from "./dados"
+import { EmTesteAgora } from "./destaque"
+import { JanelaExperimento } from "./formulario"
+import { placar, porStatus, type Experimento } from "./logica"
+import { Descobertas, IdeiasParaTestar, JanelaComecar, Pausados, Resultados } from "./secoes"
 
-type Experimento = Tables<"experiments">
-const TIPOS = ["Técnica", "Hábito", "Ferramenta", "Processo", "Metodologia", "Ideia", "Projeto curto"]
+const MOLDURA = "tema-lab laboratorio -mx-4 -mb-28 -mt-5 min-h-[calc(100dvh-7rem)] px-4 pb-32 pt-6 sm:mx-0 sm:mb-0 sm:mt-0 sm:min-h-0 sm:rounded-[1.75rem] sm:px-6 sm:pb-10 sm:pt-8 lg:px-8"
 
-const corResultado: Record<string, "rotina" | "perigo" | "estudos" | "neutra"> = {
-  funcionou: "rotina",
-  nao_funcionou: "perigo",
-  parcial: "estudos",
-  indefinido: "neutra",
-}
+/**
+ * Laboratório: o laboratório do futuro. O que está em teste numa bancada de vidro (o dia no anel de luz,
+ * a faixa dos dias registrados e o registro do dia ali mesmo), as ideias para testar, os resultados
+ * e as descobertas.
+ */
+export function PaginaLaboratorio() {
+  const router = useRouter()
+  const params = useSearchParams()
+  const { data: experimentos = [], isLoading, error, refetch } = useExperimentos()
+  const { data: insights = [] } = useInsightsDoLab()
+  const [novo, setNovo] = React.useState(false)
+  const [concluir, setConcluir] = React.useState<Experimento | null>(null)
+  const [comecar, setComecar] = React.useState<Experimento | null>(null)
 
-// Mesmo roteiro do modelo "Novo Experimento" do Notion
-const MODELO_EXPERIMENTO = `### Objetivo
--
-
-### Procedimento
-1.
-
-### Evidências
-Prints, links ou observações diárias.
-
-### Resultado
-- Funcionou?
-- Nota:
-
-### Aprendizados-chave
--
-
-### Conclusão final
-`
-
-function DialogoExperimento({ aberta, aoMudar, exp }: { aberta: boolean; aoMudar: (v: boolean) => void; exp?: Experimento | null }) {
-  const criar = useCriar("experiments")
-  const atualizar = useAtualizar("experiments")
-  const excluir = useExcluir("experiments")
-  const [nome, setNome] = React.useState("")
-  const [tipo, setTipo] = React.useState("Técnica")
-  const [status, setStatus] = React.useState("a_iniciar")
-  const [resultado, setResultado] = React.useState("indefinido")
-  const [inicio, setInicio] = React.useState("")
-  const [fim, setFim] = React.useState("")
-  const [hipotese, setHipotese] = React.useState("")
-  const [notas, setNotas] = React.useState("")
+  // Links antigos (?abrir=<id>) levam para a tela do experimento
+  const abrir = params.get("abrir")
   React.useEffect(() => {
-    if (!aberta) return
-    setNome(exp?.name ?? "")
-    setTipo(exp?.kind ?? "Técnica")
-    setStatus(exp?.status ?? "a_iniciar")
-    setResultado(exp?.result ?? "indefinido")
-    setInicio(exp?.starts_on ?? "")
-    setFim(exp?.ends_on ?? "")
-    setHipotese(exp?.hypothesis ?? "")
-    setNotas(exp ? (exp.notes ?? "") : MODELO_EXPERIMENTO)
-  }, [aberta, exp])
-  const salvar = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!nome.trim()) return
-    const campos = { name: nome.trim(), kind: tipo, status, result: resultado, starts_on: inicio || null, ends_on: fim || null, hypothesis: hipotese.trim() || null, notes: notas.trim() || null }
-    if (exp) atualizar.mutate({ id: exp.id, ...campos })
-    else criar.mutate({ id: novoId(), ...campos })
-    aoMudar(false)
-  }
+    if (abrir) router.replace(`/estudos/laboratorio/${abrir}`)
+  }, [abrir, router])
+
+  const g = React.useMemo(() => porStatus(experimentos), [experimentos])
+  const p = React.useMemo(() => placar(experimentos), [experimentos])
+
+  const hud = [
+    { n: g.em_teste.length, rotulo: "em teste", cor: "var(--b-luz)" },
+    { n: g.a_iniciar.length, rotulo: g.a_iniciar.length === 1 ? "ideia" : "ideias" },
+    { n: p.concluidos, rotulo: p.concluidos === 1 ? "concluído" : "concluídos" },
+    ...(p.concluidos ? [{ n: p.funcionou, rotulo: p.funcionou === 1 ? "funcionou" : "funcionaram", cor: "var(--b-ambar)" }] : []),
+  ]
+
   return (
-    <Janela
-      aberta={aberta}
-      aoMudar={aoMudar}
-      largura="lg"
-      titulo={exp ? "Experimento" : "Novo experimento"}
-      rodape={
-        <>
-          {exp ? <BotaoExcluir aoExcluir={() => { excluir.mutate(exp.id); aoMudar(false) }} /> : null}
-          <Botao variante="fantasma" onClick={() => aoMudar(false)}>Cancelar</Botao>
-          <Botao variante="primario" type="submit" form="form-exp" disabled={!nome.trim()}>{exp ? "Salvar" : "Criar"}</Botao>
-        </>
-      }
-    >
-      <form id="form-exp" onSubmit={salvar} className="grid gap-4">
-        <Campo rotulo="O que você vai testar" htmlFor="x-nome"><Entrada id="x-nome" autoFocus value={nome} onChange={(e) => setNome(e.target.value)} /></Campo>
-        <div className="grid grid-cols-3 gap-3">
-          <Campo rotulo="Tipo" htmlFor="x-tipo">
-            <Seletor id="x-tipo" value={tipo} onChange={(e) => setTipo(e.target.value)}>
-              {[...new Set([...TIPOS, tipo])].map((t) => <option key={t}>{t}</option>)}
-            </Seletor>
-          </Campo>
-          <Campo rotulo="Situação" htmlFor="x-status">
-            <Seletor id="x-status" value={status} onChange={(e) => setStatus(e.target.value)}>
-              {Object.entries(STATUS_EXPERIMENTO).map(([v, r]) => <option key={v} value={v}>{r}</option>)}
-            </Seletor>
-          </Campo>
-          <Campo rotulo="Resultado" htmlFor="x-res">
-            <Seletor id="x-res" value={resultado} onChange={(e) => setResultado(e.target.value)}>
-              {Object.entries(RESULTADO_EXPERIMENTO).map(([v, r]) => <option key={v} value={v}>{r}</option>)}
-            </Seletor>
-          </Campo>
+    <div className={MOLDURA}>
+      <header>
+        <p className="rotulo-hud flex items-center gap-2">
+          <FlaskConical className="size-3.5 text-[var(--b-luz)]" aria-hidden /> Estudos · Laboratório de experimentos
+        </p>
+        <div className="mt-1.5 flex items-center justify-between gap-3">
+          <h1 className="font-display text-[2.4rem] font-semibold leading-none tracking-tight sm:text-[3.25rem]">Laboratório</h1>
+          <Botao variante="primario" tamanho="lg" onClick={() => setNovo(true)} className="shrink-0 px-4 shadow-[0_0_24px_-6px_var(--b-luz)]">
+            <Plus /> Experimento
+          </Botao>
         </div>
-        <div className="grid grid-cols-2 gap-3">
-          <Campo rotulo="Início" htmlFor="x-ini"><Entrada id="x-ini" type="date" value={inicio} onChange={(e) => setInicio(e.target.value)} /></Campo>
-          <Campo rotulo="Fim" htmlFor="x-fim"><Entrada id="x-fim" type="date" value={fim} onChange={(e) => setFim(e.target.value)} /></Campo>
-        </div>
-        <Campo rotulo="Hipótese" htmlFor="x-hip"><AreaTexto id="x-hip" value={hipotese} onChange={(e) => setHipotese(e.target.value)} rows={2} placeholder="Se eu fizer X, espero que Y" /></Campo>
-        <Campo rotulo="Roteiro, evidências e aprendizados" htmlFor="x-notas"><AreaTexto id="x-notas" value={notas} onChange={(e) => setNotas(e.target.value)} rows={12} className="font-mono text-[13px]" /></Campo>
-      </form>
-    </Janela>
+        <p className={cn("mt-1.5 max-w-2xl text-ink-2", experimentos.length > 0 && "hidden sm:block")}>
+          Teste uma técnica, um hábito ou uma ferramenta por alguns dias, registre o que acontece e descubra o que funciona para você.
+        </p>
+        {experimentos.length ? (
+          <ul className="mt-4 flex flex-wrap gap-2" aria-label="Seus experimentos">
+            {hud.map((h) => (
+              <li key={h.rotulo} className="inline-flex min-h-9 items-baseline gap-1.5 rounded-full border border-[var(--b-borda)] bg-white/[0.03] px-3 py-1 text-sm text-ink-2 backdrop-blur">
+                <span className="tabular font-display text-base font-semibold" style={h.cor ? { color: h.cor } : undefined}>
+                  {h.n}
+                </span>
+                {h.rotulo}
+              </li>
+            ))}
+          </ul>
+        ) : null}
+      </header>
+
+      <div className="mt-8">
+        {isLoading ? (
+          <Carregando />
+        ) : error ? (
+          <ErroCarregar erro={error} aoTentar={() => void refetch()} />
+        ) : (
+          <div className="grid gap-12">
+            <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_21rem] lg:items-start">
+              <EmTesteAgora experimentos={g.em_teste} insights={insights} aoConcluir={setConcluir} aoNovo={() => setNovo(true)} ideias={g.a_iniciar} aoComecarIdeia={setComecar} />
+              <div className="grid gap-4">
+                <IdeiasParaTestar ideias={g.a_iniciar} aoComecar={setComecar} />
+                <Descobertas insights={insights} experimentos={experimentos} />
+              </div>
+            </div>
+            <Pausados lista={g.pausado} />
+            <Resultados concluidos={g.concluido} abandonados={g.abandonado} />
+          </div>
+        )}
+      </div>
+
+      <JanelaExperimento aberta={novo} aoMudar={setNovo} />
+      <JanelaConcluir experimento={concluir} aberta={Boolean(concluir)} aoMudar={(v) => !v && setConcluir(null)} />
+      <JanelaComecar experimento={comecar} aoMudar={(v) => !v && setComecar(null)} />
+    </div>
   )
 }
 
-export function PaginaLaboratorio() {
-  const { data: exps = [], isLoading } = useLista("experiments", { ordem: [{ coluna: "starts_on", asc: false }] })
-  const { data: insights = [] } = useLista("insights", { ordem: [{ coluna: "created_at", asc: false }] })
-  const criarInsight = useCriar("insights")
-  const [aberto, setAberto] = React.useState<Experimento | null>(null)
-  const [novo, setNovo] = React.useState(false)
-  const [texto, setTexto] = React.useState("")
-
-  useAbrirDoEndereco(exps, setAberto)
-
-  const ordem: StatusExperimento[] = ["em_teste", "a_iniciar", "pausado", "concluido", "abandonado"]
-  const doLab = insights.filter((i) => i.source === "laboratorio")
-  const nomes = new Map(exps.map((e) => [e.id, e.name]))
-
+function Carregando() {
   return (
-    <div>
-      <Cabecalho
-        area="estudos"
-        titulo="Laboratório"
-        descricao="Teste técnicas, hábitos e ferramentas por um período e registre o que funcionou."
-        acoes={<Botao variante="primario" onClick={() => setNovo(true)}><Plus /> Novo experimento</Botao>}
-      />
-      <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_20rem]">
-        <div className="grid gap-8">
-          {isLoading ? <Carregando /> : exps.length === 0 ? <Vazio titulo="Nenhum experimento ainda." /> : null}
-          {ordem.map((s) => {
-            const lista = exps.filter((e) => e.status === s)
-            if (!lista.length) return null
-            return (
-              <Secao key={s} titulo={STATUS_EXPERIMENTO[s]} acao={<span className="tabular text-sm text-ink-3">{lista.length}</span>}>
-                <ul className="grid gap-3">
-                  {lista.map((e) => (
-                    <li key={e.id}>
-                      <button type="button" onClick={() => setAberto(e)} className="w-full rounded-lg border border-line bg-surface p-4 text-left hover:border-line-strong">
-                        <div className="flex flex-wrap items-start justify-between gap-2">
-                          <p className="font-medium">{e.name}</p>
-                          <div className="flex gap-1.5">
-                            {e.kind ? <Etiqueta>{e.kind}</Etiqueta> : null}
-                            {e.result && e.result !== "indefinido" ? <Etiqueta cor={corResultado[e.result]}>{RESULTADO_EXPERIMENTO[e.result as keyof typeof RESULTADO_EXPERIMENTO]}</Etiqueta> : null}
-                          </div>
-                        </div>
-                        {e.starts_on ? (
-                          <p className="mt-1 text-xs text-ink-3">
-                            {formatar(e.starts_on, "d MMM yyyy")}
-                            {e.ends_on ? ` até ${formatar(e.ends_on, "d MMM yyyy")}` : ""}
-                          </p>
-                        ) : null}
-                        {e.hypothesis ? <p className="mt-2 text-sm text-ink-2">{e.hypothesis}</p> : null}
-                        {e.notes ? <Markdown texto={e.notes.slice(0, 400)} className="mt-2 text-sm text-ink-2" videos={false} /> : null}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </Secao>
-            )
-          })}
-        </div>
-        <Secao titulo="Insights">
-          <form
-            onSubmit={(e) => {
-              e.preventDefault()
-              if (!texto.trim()) return
-              criarInsight.mutate({ id: novoId(), text: texto.trim(), source: "laboratorio" })
-              setTexto("")
-            }}
-            className="mb-4"
-          >
-            <input value={texto} onChange={(e) => setTexto(e.target.value)} placeholder="Uma descoberta, uma observação…" aria-label="Novo insight do laboratório" className="h-9 w-full rounded-md border toque:h-11 toque:text-[16px] border-line-strong bg-surface px-3 text-sm focus-visible:border-pen focus-visible:outline-none" />
-          </form>
-          {doLab.length === 0 ? (
-            <p className="text-sm text-ink-2">Nenhum insight registrado.</p>
-          ) : (
-            <ul className="grid gap-4">
-              {doLab.map((i) => (
-                <li key={i.id} className="flex gap-2.5 text-sm">
-                  <Lightbulb className="mt-0.5 size-4 shrink-0 text-estudos" />
-                  <div>
-                    <p>{i.text}</p>
-                    <p className="mt-0.5 text-xs text-ink-3">{[i.kind, i.potential ? `potencial ${i.potential.toLowerCase()}` : null, i.experiment_id ? nomes.get(i.experiment_id) : null].filter(Boolean).join(", ")}</p>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </Secao>
+    <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_21rem]" aria-busy="true" aria-label="Carregando o laboratório">
+      <Esqueleto className="h-80 rounded-[1.25rem] bg-white/[0.05]" />
+      <div className="grid gap-4">
+        <Esqueleto className="h-40 rounded-[1.25rem] bg-white/[0.05]" />
+        <Esqueleto className="h-40 rounded-[1.25rem] bg-white/[0.05]" />
       </div>
-      <DialogoExperimento aberta={novo || Boolean(aberto)} aoMudar={(v) => { if (!v) { setNovo(false); setAberto(null) } }} exp={aberto} />
     </div>
   )
 }
