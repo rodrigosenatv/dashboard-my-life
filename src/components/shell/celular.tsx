@@ -4,7 +4,6 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { BookOpen, BrainCircuit, Ellipsis, ListTodo, Search, Sun } from "lucide-react"
 import * as React from "react"
-import { cn } from "@/lib/utils"
 import { EXTRAS, GRUPOS, ativo, grupoDaRota } from "@/lib/navegacao"
 import type { Area } from "@/lib/areas"
 import { Janela } from "@/components/ui/janela"
@@ -12,18 +11,11 @@ import { BotaoNovo } from "./novo"
 import { abrirBusca } from "./busca"
 import { MenuUsuario } from "./barra-lateral"
 
-const corArea: Record<Area, string> = {
-  rotina: "text-rotina",
-  projetos: "text-projetos",
-  estudos: "text-estudos",
-  conteudo: "text-conteudo",
-  geral: "text-ink",
-}
-
+/** O topo no celular: a cabine de vidro escuro com a assinatura acesa (estilos no bloco "A cabine" do globals.css). */
 export function TopoCelular() {
   return (
-    <header className="sticky top-0 z-30 flex h-14 items-center gap-2 border-b border-line bg-bg/90 px-4 pt-[env(safe-area-inset-top)] backdrop-blur lg:hidden">
-      <Link href="/" aria-label="My Life, ir para Hoje" className="flex h-11 items-center font-assinatura pt-1.5 text-[2rem] leading-none text-pen">
+    <header className="cabine cabine-topo sticky top-0 z-30 flex h-14 items-center gap-2 px-4 pt-[env(safe-area-inset-top)] lg:hidden">
+      <Link href="/" aria-label="My Life, ir para Hoje" className="cabine-assinatura flex h-11 items-center font-assinatura pt-1.5 text-[2rem] leading-none">
         My life
       </Link>
       <div className="ml-auto flex items-center gap-1">
@@ -31,7 +23,7 @@ export function TopoCelular() {
           type="button"
           onClick={abrirBusca}
           aria-label="Buscar"
-          className="grid size-11 place-items-center rounded-md text-ink-2 hover:bg-surface-2"
+          className="grid size-11 place-items-center rounded-full text-ink-2 transition-colors hover:bg-white/[0.06] hover:text-ink"
         >
           <Search className="size-5" />
         </button>
@@ -40,14 +32,6 @@ export function TopoCelular() {
       </div>
     </header>
   )
-}
-
-const fundoArea: Record<Area, string> = {
-  rotina: "bg-rotina",
-  projetos: "bg-projetos",
-  estudos: "bg-estudos",
-  conteudo: "bg-conteudo",
-  geral: "bg-ink",
 }
 
 const ABAS = [
@@ -74,7 +58,7 @@ export function BarraInferior() {
     <>
       <nav
         aria-label="Principal"
-        className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-line bg-surface/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden"
+        className="cabine cabine-base fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 pb-[env(safe-area-inset-bottom)] lg:hidden"
       >
         {ABAS.map((a) => {
           const sel = selecionada(a.area, a.href)
@@ -83,10 +67,8 @@ export function BarraInferior() {
               key={a.href}
               href={a.href}
               aria-current={sel ? "page" : undefined}
-              className={cn(
-                "flex min-h-14 flex-col items-center justify-center gap-0.5 pb-1.5 pt-2 text-[11px] font-medium",
-                sel ? corArea[a.area] : "text-ink-3",
-              )}
+              data-area={a.area}
+              className="cabine-tecla flex min-h-14 flex-col items-center justify-center gap-0.5 pb-1.5 pt-2 text-[11px] font-medium"
             >
               <a.icone className="size-5" />
               {a.rotulo}
@@ -96,37 +78,48 @@ export function BarraInferior() {
         <button
           type="button"
           onClick={() => setMais(true)}
-          className={cn("flex min-h-14 flex-col items-center justify-center gap-0.5 pb-1.5 pt-2 text-[11px] font-medium", emMais ? "text-ink" : "text-ink-3")}
+          data-ativo={emMais || undefined}
+          className="cabine-tecla flex min-h-14 flex-col items-center justify-center gap-0.5 pb-1.5 pt-2 text-[11px] font-medium"
         >
           <Ellipsis className="size-5" />
           Mais
         </button>
       </nav>
 
-      <Janela aberta={mais} aoMudar={setMais} titulo="Mais áreas">
+      <Janela aberta={mais} aoMudar={setMais} titulo="Mais áreas" className="cabine">
         <div className="grid gap-5 pb-2">
           {GRUPOS.map((g) => (
-            <div key={g.area}>
-              <p className="mb-2 text-sm font-medium text-ink-3">{g.rotulo}</p>
+            <div key={g.area} data-area={g.area}>
+              <p className="cabine-grupo mb-2 flex items-center gap-2">
+                <span aria-hidden className="cabine-ponto" />
+                {g.rotulo}
+              </p>
               <div className="grid grid-cols-2 gap-2">
                 {g.itens.map((i) => (
                   <Link
                     key={i.href}
                     href={i.href}
-                    className="flex items-center gap-2 rounded-lg border border-line bg-surface px-3 py-2.5 text-sm font-medium"
+                    aria-current={ativo(pathname, i.href) ? "page" : undefined}
+                    className="cabine-ladrilho flex min-h-11 items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium"
                   >
-                    <i.icone className={cn("size-4", corArea[g.area])} />
-                    {i.rotulo}
+                    <i.icone className="size-4 shrink-0" />
+                    <span className="truncate">{i.rotulo}</span>
                   </Link>
                 ))}
               </div>
             </div>
           ))}
-          <div className="grid grid-cols-2 gap-2 border-t border-line pt-4">
+          <div className="relative grid grid-cols-2 gap-2 pt-4">
+            <span aria-hidden className="cabine-fio absolute inset-x-0 top-0" />
             {EXTRAS.map((i) => (
-              <Link key={i.href} href={i.href} className="flex items-center gap-2 rounded-lg border border-line bg-surface px-3 py-2.5 text-sm font-medium">
-                <i.icone className="size-4 text-ink-3" />
-                {i.rotulo}
+              <Link
+                key={i.href}
+                href={i.href}
+                aria-current={ativo(pathname, i.href) ? "page" : undefined}
+                className="cabine-ladrilho flex min-h-11 items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium"
+              >
+                <i.icone className="size-4 shrink-0" />
+                <span className="truncate">{i.rotulo}</span>
               </Link>
             ))}
           </div>
@@ -153,8 +146,9 @@ export function AbasArea() {
     caixa.scrollLeft += a.left + a.width / 2 - (c.left + c.width / 2)
   }, [pathname])
   if (!grupo) return null
+  // Colada no topo (o -mt-5 desfaz o respiro de cima do <main>), como a segunda linha da cabine
   return (
-    <div ref={faixa} className={cn("-mx-4 mb-5 overflow-x-auto border-b border-line px-4 scrollbar-thin lg:hidden", grupo.area === "projetos" && "bg-projetos-soft/25")}>
+    <div ref={faixa} data-area={grupo.area} className="cabine cabine-abas -mx-4 -mt-5 mb-5 overflow-x-auto px-1 scrollbar-thin sm:-mx-6 lg:hidden">
       <div className="flex gap-1">
         {grupo.itens.map((i) => {
           const sel = ativo(pathname, i.href)
@@ -163,15 +157,11 @@ export function AbasArea() {
               key={i.href}
               href={i.href}
               aria-current={sel ? "page" : undefined}
-              className={cn(
-                "relative flex h-11 items-center gap-1.5 whitespace-nowrap px-3 text-sm font-medium transition-colors",
-                grupo.area === "projetos" && "my-1 h-10 rounded-lg",
-                sel ? (grupo.area === "projetos" ? "bg-projetos-soft text-projetos" : "text-ink") : "text-ink-3 hover:text-ink-2",
-              )}
+              className="cabine-aba flex h-11 items-center gap-1.5 whitespace-nowrap px-3 text-sm font-medium"
             >
-              {grupo.area === "projetos" && sel ? <i.icone className="size-3.5 shrink-0" aria-hidden /> : null}
+              {/* Só a aba aberta leva o ícone, aceso na cor da área */}
+              {sel ? <i.icone className="size-3.5 shrink-0 text-[var(--area)] drop-shadow-[0_0_5px_var(--area)]" aria-hidden /> : null}
               {i.rotulo}
-              {sel && grupo.area !== "projetos" ? <span className={cn("absolute inset-x-2 -bottom-px h-0.5 rounded-full", fundoArea[grupo.area])} /> : null}
             </Link>
           )
         })}

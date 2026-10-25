@@ -12,13 +12,14 @@ export const instant = false
 
 export default function LayoutApp({ children }: LayoutProps<"/">) {
   return (
-    <div className="flex min-h-dvh lg:bg-capa">
+    // A cabine (barra lateral, topo e barra de baixo) envolve a página; o fundo dela fica no bloco "A cabine" do globals.css
+    <div className="cabine-moldura flex min-h-dvh">
       {/* A navegação lê a rota atual; em rotas com id ela só resolve na requisição. */}
-      <Suspense fallback={<aside aria-hidden className="capa sticky top-0 hidden h-dvh w-60 shrink-0 bg-bg recolhido:w-16 lg:block" />}>
+      <Suspense fallback={<aside aria-hidden className="cabine sticky top-0 hidden h-dvh w-60 shrink-0 recolhido:w-16 lg:block" />}>
         <BarraLateral />
       </Suspense>
-      <div className="flex min-w-0 flex-1 flex-col bg-bg lg:rounded-l-[1.25rem]">
-        <Suspense fallback={<div aria-hidden className="h-14 border-b border-line lg:hidden" />}>
+      <div className="cabine-papel flex min-w-0 flex-1 flex-col bg-bg lg:rounded-l-[1.25rem]">
+        <Suspense fallback={<div aria-hidden className="cabine cabine-topo h-14 lg:hidden" />}>
           <TopoCelular />
         </Suspense>
         <main className="conteudo-app mx-auto w-full max-w-[1180px] flex-1 px-4 pb-28 pt-5 sm:px-6 lg:px-10 lg:pb-14 lg:pt-9">

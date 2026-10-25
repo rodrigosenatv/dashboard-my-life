@@ -3,10 +3,11 @@
 /*
   My Life — sistema visual "caderno de capa azul petróleo"
 
-  A capa do caderno (a mesma do painel do Notion, com a assinatura "My life") envolve o app:
-  é a barra lateral e a abertura da tela Hoje. As páginas são o papel: neutros levemente
-  puxados para o petróleo, tinta escura, a caneta petróleo para ações e os marca-textos
-  que identificam cada área da vida.
+  A capa do caderno (a mesma do painel do Notion, com a assinatura "My life") abre a tela
+  Hoje; a moldura do app é a cabine (bloco "A cabine", mais abaixo): o mesmo petróleo no
+  escuro, com luz ciano. As páginas são o papel: neutros levemente puxados para o petróleo,
+  tinta escura, a caneta petróleo para ações e os marca-textos que identificam cada área
+  da vida.
 */
 
 @custom-variant dark (&:where(.dark, .dark *));
@@ -55,15 +56,6 @@
   /* Azul petróleo da capa: a abertura da tela Hoje e a tela de entrada */
   --petroleo: #1f4f61;
   --petroleo-tinta: #ffffff;
-
-  /* A capa como moldura do app (barra lateral) */
-  --capa: #1f4f61;
-  --capa-2: #285a6d;
-  --capa-linha: #2f6578;
-  --capa-linha-forte: #3d788c;
-  --capa-tinta: #ffffff;
-  --capa-tinta-2: #d3e2e7;
-  --capa-tinta-3: #b5ccd5;
   color-scheme: light;
 }
 
@@ -100,42 +92,7 @@
 
   --petroleo: #1f4f61;
   --petroleo-tinta: #ffffff;
-
-  --capa: #12303a;
-  --capa-2: #1b4352;
-  --capa-linha: #24505f;
-  --capa-linha-forte: #2f6578;
-  --capa-tinta: #f1f7f9;
-  --capa-tinta-2: #c3d5db;
-  --capa-tinta-3: #a2bac2;
   color-scheme: dark;
-}
-
-/*
-  Dentro da capa (a barra lateral) as mesmas classes de cor passam a valer sobre o azul petróleo:
-  o que é "superfície" vira um petróleo mais claro, a tinta vira clara e a ação principal se inverte.
-  Menus e janelas abertos a partir dela são desenhados fora e continuam com as cores da página.
-*/
-.capa {
-  --bg: var(--capa);
-  --surface: var(--capa-2);
-  --surface-2: var(--capa-2);
-  --surface-3: var(--capa-linha);
-  --ink: var(--capa-tinta);
-  --ink-2: var(--capa-tinta-2);
-  --ink-3: var(--capa-tinta-3);
-  --line: var(--capa-linha);
-  --line-strong: var(--capa-linha-forte);
-  --pen: var(--capa-tinta);
-  --pen-ink: var(--capa);
-  --pen-soft: var(--capa-2);
-  --ring: var(--capa-tinta);
-  /* Os marca-textos, nos tons que aparecem sobre fundo escuro */
-  --rotina: #3ccb92;
-  --projetos: #a68dff;
-  --estudos: #f2bf3a;
-  --conteudo: #ff7aa6;
-  color: var(--ink);
 }
 
 @theme inline {
@@ -164,7 +121,6 @@
   --color-warning: var(--warning);
   --color-petroleo: var(--petroleo);
   --color-petroleo-tinta: var(--petroleo-tinta);
-  --color-capa: var(--capa);
   --font-assinatura: var(--font-script), cursive;
 
   --font-sans: var(--font-texto), ui-sans-serif, system-ui, sans-serif;
@@ -1228,6 +1184,335 @@ a:focus-visible .livro3d-corpo,
   .bolha {
     animation: bolhas 3.2s ease-in infinite;
   }
+}
+}
+
+/* =====================================================================
+   A cabine: a moldura do app
+   A barra lateral, o topo e as abas do celular e a barra de baixo. É o
+   azul petróleo da capa do caderno no escuro, com a luz ciano da
+   biblioteca: vidro, uma grade fina, rótulos de HUD e, no item aberto,
+   a luz da cor da área (Rotina verde, Segundo Cérebro violeta, Estudos
+   âmbar, Conteúdo rosa; Hoje e o resto, ciano). Sempre escura, no tema
+   claro ou escuro; menus e janelas abertos dela recebem a mesma classe.
+   ===================================================================== */
+
+@layer components {
+.cabine {
+  --b-fundo: #03131a;
+  --b-fundo-2: #072631;
+  --b-tinta: #e8f6fa;
+  --b-tinta-2: rgb(232 246 250 / 0.78);
+  --b-tinta-3: rgb(232 246 250 / 0.6);
+  --b-luz: #63e3ff;
+  --b-luz-2: #9a8cff;
+  --b-ambar: #f5c54a;
+  --b-vidro: rgb(160 230 255 / 0.05);
+  --b-vidro-2: rgb(160 230 255 / 0.09);
+  --b-borda: rgb(150 225 255 / 0.13);
+  --b-borda-2: rgb(150 225 255 / 0.26);
+
+  /* As cores do app dentro da cabine (botões, campos, menus) */
+  --bg: var(--b-fundo);
+  --surface: #0a2630;
+  --surface-2: #0f303b;
+  --surface-3: #18404d;
+  --ink: var(--b-tinta);
+  --ink-2: var(--b-tinta-2);
+  --ink-3: var(--b-tinta-3);
+  --line: var(--b-borda);
+  --line-strong: var(--b-borda-2);
+  --pen: var(--b-luz);
+  --pen-ink: #03171e;
+  --pen-soft: rgb(99 227 255 / 0.14);
+  --ring: var(--b-luz);
+  --rotina: #3ccb92;
+  --rotina-soft: rgb(60 203 146 / 0.15);
+  --projetos: #a68dff;
+  --projetos-soft: rgb(166 141 255 / 0.15);
+  --estudos: #f2bf3a;
+  --estudos-soft: rgb(242 191 58 / 0.15);
+  --conteudo: #ff7aa6;
+  --conteudo-soft: rgb(255 122 166 / 0.15);
+  --danger: #ff7b84;
+  --danger-soft: rgb(255 123 132 / 0.15);
+  --shadow-overlay: 0 24px 60px -16px rgb(0 0 0 / 0.8), 0 0 0 1px rgb(150 225 255 / 0.12);
+  /* A luz da área: ciano, ou a cor da área marcada em data-area */
+  --area: var(--b-luz);
+  color-scheme: dark;
+  color: var(--ink);
+}
+.cabine[data-area="rotina"],
+.cabine [data-area="rotina"] {
+  --area: var(--rotina);
+}
+.cabine[data-area="projetos"],
+.cabine [data-area="projetos"] {
+  --area: var(--projetos);
+}
+.cabine[data-area="estudos"],
+.cabine [data-area="estudos"] {
+  --area: var(--estudos);
+}
+.cabine[data-area="conteudo"],
+.cabine [data-area="conteudo"] {
+  --area: var(--conteudo);
+}
+
+/* O fundo da cabine no computador: atrás da barra lateral e nos cantos da página. Fica preso à
+   tela, então a barra (presa no alto) mostra sempre a mesma luz */
+@media (min-width: 64rem) {
+  .cabine-moldura {
+    background:
+      radial-gradient(420px 320px at 0 0, rgb(31 98 120 / 0.62), transparent 72%),
+      radial-gradient(340px 280px at 0 100%, rgb(154 140 255 / 0.12), transparent 70%),
+      linear-gradient(180deg, #072631, #03131a 62%);
+    background-attachment: fixed;
+  }
+  /* A página é a tela acesa da cabine: um fio de luz na borda */
+  .cabine-papel {
+    box-shadow:
+      -1px 0 0 rgb(99 227 255 / 0.24),
+      -22px 0 46px -30px rgb(99 227 255 / 0.55);
+  }
+}
+
+/* A barra lateral: uma grade fina no alto, que some para baixo */
+.cabine-lateral {
+  isolation: isolate;
+}
+.cabine-lateral::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgb(99 227 255 / 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(99 227 255 / 0.05) 1px, transparent 1px);
+  background-size: 26px 26px;
+  mask-image: linear-gradient(180deg, #000, transparent 34%);
+}
+
+/* A assinatura "My life", com luz */
+.cabine-assinatura {
+  background: linear-gradient(100deg, #ffffff 30%, #a8f1ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 0 10px rgb(99 227 255 / 0.45));
+}
+
+/* O botão de ação principal (Novo), aceso */
+.cabine-acao {
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.45),
+    0 0 22px -6px var(--b-luz);
+}
+.cabine-acao:hover {
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.45),
+    0 0 28px -4px var(--b-luz);
+}
+
+/* Campo e botões de vidro */
+.cabine-vidro {
+  background: var(--b-vidro);
+  border: 1px solid var(--b-borda);
+  color: var(--b-tinta-3);
+  transition: background-color 150ms, border-color 150ms, color 150ms;
+}
+.cabine-vidro:hover {
+  background: var(--b-vidro-2);
+  border-color: var(--b-borda-2);
+  color: var(--b-tinta-2);
+}
+
+/* O título de cada grupo: rótulo de HUD, o ponto aceso da área e um fio que some */
+.cabine-grupo {
+  font-size: 0.65625rem;
+  line-height: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--b-tinta-3);
+}
+.cabine-ponto {
+  width: 6px;
+  height: 6px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--area);
+  box-shadow: 0 0 8px 1px color-mix(in oklab, var(--area) 75%, transparent);
+}
+.cabine-fio {
+  height: 1px;
+  background: linear-gradient(90deg, var(--b-borda-2), transparent);
+}
+
+/* Item do menu: vidro ao passar; o da página aberta acende com a luz da área */
+.cabine-item {
+  position: relative;
+  color: var(--b-tinta-2);
+  transition: color 150ms, background-color 150ms, box-shadow 150ms;
+}
+.cabine-item > svg {
+  color: var(--b-tinta-3);
+  transition: color 150ms, filter 150ms;
+}
+.cabine-item:hover {
+  background: rgb(160 230 255 / 0.06);
+  color: var(--b-tinta);
+}
+.cabine-item:hover > svg {
+  color: var(--b-tinta-2);
+}
+.cabine-item[aria-current="page"] {
+  color: var(--b-tinta);
+  font-weight: 500;
+  background: linear-gradient(90deg, color-mix(in oklab, var(--area) 22%, transparent), color-mix(in oklab, var(--area) 5%, transparent) 75%);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--area) 24%, transparent);
+}
+.cabine-item[aria-current="page"] > svg {
+  color: var(--area);
+  filter: drop-shadow(0 0 6px color-mix(in oklab, var(--area) 70%, transparent));
+}
+.cabine-item[aria-current="page"]::before {
+  content: "";
+  position: absolute;
+  left: -0.75rem;
+  top: 50%;
+  width: 3px;
+  height: 1.125rem;
+  transform: translateY(-50%);
+  border-radius: 0 3px 3px 0;
+  background: var(--area);
+  box-shadow: 0 0 12px 1px var(--area);
+}
+/* Recolhida, a lista tem só 2px de margem (e corta o que passa dela): o traço fica colado no ícone */
+[data-menu="recolhido"] .cabine-item[aria-current="page"]::before {
+  left: -0.125rem;
+}
+
+/* A inicial da conta, num anel de luz */
+.cabine-avatar {
+  background: radial-gradient(circle at 30% 25%, #1d5263, #072631 75%);
+  color: var(--b-luz);
+  box-shadow:
+    0 0 0 1px rgb(99 227 255 / 0.5),
+    0 0 14px -3px rgb(99 227 255 / 0.7);
+}
+
+/* O topo no celular: vidro escuro com um fio de luz embaixo */
+.cabine-topo {
+  position: relative;
+  background: rgb(3 19 26 / 0.94);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  backdrop-filter: blur(16px) saturate(1.4);
+}
+.cabine-topo::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgb(99 227 255 / 0.6) 28%, rgb(154 140 255 / 0.45) 72%, transparent);
+  box-shadow: 0 0 12px rgb(99 227 255 / 0.35);
+}
+
+/* As abas da área, logo abaixo do topo */
+.cabine-abas {
+  background: linear-gradient(180deg, #05202a, #03161d);
+  border-bottom: 1px solid var(--b-borda);
+}
+.cabine-aba {
+  position: relative;
+  color: var(--b-tinta-3);
+  transition: color 150ms;
+}
+.cabine-aba:hover {
+  color: var(--b-tinta-2);
+}
+.cabine-aba[aria-current="page"] {
+  color: var(--b-tinta);
+}
+.cabine-aba[aria-current="page"]::after {
+  content: "";
+  position: absolute;
+  left: 0.5rem;
+  right: 0.5rem;
+  bottom: -1px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--area);
+  box-shadow: 0 0 10px 1px color-mix(in oklab, var(--area) 80%, transparent);
+}
+
+/* A barra de baixo no celular: vidro escuro com um fio de luz em cima; a aba aberta acende */
+.cabine-base {
+  background: rgb(3 19 26 / 0.94);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  backdrop-filter: blur(16px) saturate(1.4);
+}
+.cabine-base::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 1px;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgb(99 227 255 / 0.45) 25%, rgb(154 140 255 / 0.35) 75%, transparent);
+}
+.cabine-tecla {
+  position: relative;
+  color: var(--b-tinta-3);
+  transition: color 150ms;
+}
+.cabine-tecla > svg {
+  transition: filter 150ms;
+}
+.cabine-tecla[aria-current="page"],
+.cabine-tecla[data-ativo] {
+  color: var(--area);
+}
+.cabine-tecla[aria-current="page"] > svg,
+.cabine-tecla[data-ativo] > svg {
+  filter: drop-shadow(0 0 7px color-mix(in oklab, var(--area) 75%, transparent));
+}
+.cabine-tecla[aria-current="page"]::before,
+.cabine-tecla[data-ativo]::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 1.75rem;
+  height: 2px;
+  transform: translateX(-50%);
+  border-radius: 0 0 2px 2px;
+  background: var(--area);
+  box-shadow: 0 0 12px 1px var(--area);
+}
+
+/* Os atalhos da janela "Mais áreas": ladrilhos de vidro com o ícone aceso */
+.cabine-ladrilho {
+  background: var(--b-vidro);
+  border: 1px solid var(--b-borda);
+  transition: background-color 150ms, border-color 150ms;
+}
+.cabine-ladrilho:hover {
+  background: var(--b-vidro-2);
+  border-color: var(--b-borda-2);
+}
+.cabine-ladrilho > svg {
+  color: var(--area);
+  filter: drop-shadow(0 0 5px color-mix(in oklab, var(--area) 60%, transparent));
+}
+.cabine-ladrilho[aria-current="page"] {
+  border-color: color-mix(in oklab, var(--area) 55%, transparent);
+  background: color-mix(in oklab, var(--area) 12%, transparent);
 }
 }
 

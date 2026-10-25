@@ -29,6 +29,15 @@ Feito com Next.js 16, Supabase (banco, login e arquivos) e hospedado na Vercel.
 2. No app: **Configurações > Importar do Notion**, escolha o .zip, confira o resumo e importe.
 3. A página *Senhas* e os campos de senha dos cursos não são importados. Importar de novo substitui só o que veio do Notion.
 
+## A cabine (moldura do app)
+
+A barra lateral (no computador), o topo, as abas da área e a barra de baixo (no celular) formam a cabine: o azul petróleo da capa do caderno no escuro, com a luz ciano da biblioteca. Fica sempre escura, no tema claro ou escuro.
+
+- **Barra lateral.** A assinatura "My life" acesa, o botão Novo em luz ciano, a busca de vidro, os grupos com rótulo de HUD (o ponto aceso na cor da área e um fio que some) e o item da página aberta aceso na cor da área: Rotina verde, Segundo Cérebro violeta, Estudos âmbar, Conteúdo rosa; Hoje, Vida pessoal e o resto, ciano. Recolhida (Ctrl+B), fica só com os ícones. A página aparece como uma tela acesa, com um fio de luz na borda.
+- **Celular.** O topo de vidro escuro com um fio de luz embaixo; colada nele, a faixa de abas da área (a aberta com o ícone e um traço de luz); a barra de baixo com a aba aberta acesa. A janela "Mais áreas", os menus Novo e Conta e a busca (Ctrl+K) abrem com as mesmas cores.
+- A barra do sistema no celular (`theme-color`) tem a cor da cabine, `#03131a`.
+- Código: o bloco "A cabine" do `src/app/globals.css` (a classe `.cabine` com as cores; `data-area` escolhe a luz) e `src/components/shell` (`barra-lateral.tsx`, `celular.tsx`, `novo.tsx` e `busca-painel.tsx`).
+
 ## Biblioteca (Estudos > Leitura)
 
 A página de leitura é uma biblioteca do futuro: livros em 3D, prateleiras com luz e um painel com a meta do ano, os dias seguidos de leitura e o acervo em números.

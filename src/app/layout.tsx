@@ -38,10 +38,8 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f3f5f6" },
-    { media: "(prefers-color-scheme: dark)", color: "#111618" },
-  ],
+  // A barra do sistema (celular) com a cor da cabine, que fica escura nos dois temas
+  themeColor: "#03131a",
 }
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

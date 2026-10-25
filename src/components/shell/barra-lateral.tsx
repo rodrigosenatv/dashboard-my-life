@@ -13,14 +13,7 @@ import { Menu, MenuConteudo, MenuGatilho, MenuItem, MenuRotulo, MenuSeparador } 
 import { BotaoNovo } from "./novo"
 import { abrirBusca } from "./busca"
 
-const corTraco: Record<Area, string> = {
-  rotina: "bg-rotina",
-  projetos: "bg-projetos",
-  estudos: "bg-estudos",
-  conteudo: "bg-conteudo",
-  geral: "bg-ink-3",
-}
-
+/** Item do menu. Na página aberta, acende com a luz da área (as cores ficam no bloco "A cabine" do globals.css). */
 function LinkNav({ item, area }: { item: ItemNav; area?: Area }) {
   const pathname = usePathname()
   const sel = ativo(pathname, item.href)
@@ -30,15 +23,10 @@ function LinkNav({ item, area }: { item: ItemNav; area?: Area }) {
       href={item.href}
       title={item.rotulo}
       aria-current={sel ? "page" : undefined}
-      className={cn(
-        "group relative flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-sm transition-colors recolhido:justify-center recolhido:px-0 recolhido:py-2.5",
-        sel ? "bg-surface text-ink font-medium" : "text-ink-2 hover:bg-surface/60 hover:text-ink",
-      )}
+      data-area={area}
+      className="cabine-item flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-sm recolhido:justify-center recolhido:px-0 recolhido:py-2.5"
     >
-      {sel && area ? (
-        <span aria-hidden className={cn("absolute -left-3 top-1/2 h-4 w-1 -translate-y-1/2 rounded-full recolhido:left-0.5", corTraco[area])} />
-      ) : null}
-      <Icone className={cn("size-4 shrink-0", sel ? "text-ink" : "text-ink-3 group-hover:text-ink-2")} />
+      <Icone className="size-4 shrink-0" />
       <span className="truncate recolhido:hidden">{item.rotulo}</span>
     </Link>
   )
@@ -98,10 +86,10 @@ export function BarraLateral() {
   }
 
   return (
-    <aside className="capa sticky top-0 hidden h-dvh w-60 shrink-0 flex-col bg-bg px-3 pb-3 pt-4 transition-[width] duration-150 recolhido:w-16 recolhido:px-2 lg:flex">
+    <aside className="cabine cabine-lateral sticky top-0 hidden h-dvh w-60 shrink-0 flex-col px-3 pb-3 pt-4 transition-[width] duration-150 recolhido:w-16 recolhido:px-2 lg:flex">
       <div className="mb-4 flex h-11 items-center justify-between pl-2.5 recolhido:justify-center recolhido:pl-0">
-        {/* A mesma assinatura da capa do painel */}
-        <Link href="/" aria-label="My Life, ir para Hoje" className="font-assinatura pt-1.5 text-[2.15rem] leading-none recolhido:hidden">
+        {/* A mesma assinatura da capa do painel, acesa */}
+        <Link href="/" aria-label="My Life, ir para Hoje" className="cabine-assinatura font-assinatura pt-1.5 text-[2.15rem] leading-none recolhido:hidden">
           My life
         </Link>
         <button
@@ -110,47 +98,49 @@ export function BarraLateral() {
           aria-expanded={!recolhida}
           aria-label={recolhida ? "Expandir menu" : "Recolher menu"}
           title={recolhida ? "Expandir menu (Ctrl+B)" : "Recolher menu (Ctrl+B)"}
-          className="grid size-8 shrink-0 place-items-center rounded-md text-ink-3 hover:bg-surface hover:text-ink"
+          className="grid size-8 shrink-0 place-items-center rounded-lg text-ink-3 transition-colors hover:bg-white/[0.06] hover:text-ink"
         >
           <PanelLeftClose className="size-4 recolhido:hidden" />
           <PanelLeftOpen className="hidden size-4 recolhido:block" />
         </button>
       </div>
 
-      <div className="mb-4 grid gap-1.5 px-0.5">
+      <div className="mb-4 grid gap-2 px-0.5">
         <BotaoNovo />
         <button
           type="button"
           onClick={abrirBusca}
           aria-label="Buscar"
           title="Buscar (Ctrl+K)"
-          className="flex h-9 items-center gap-2 rounded-md border border-line bg-surface px-2.5 text-sm text-ink-3 hover:border-line-strong hover:text-ink-2 recolhido:justify-center recolhido:px-0"
+          className="cabine-vidro flex h-9 items-center gap-2 rounded-lg px-2.5 text-sm recolhido:justify-center recolhido:px-0"
         >
           <Search className="size-4" />
           <span className="flex-1 text-left recolhido:hidden">Buscar</span>
-          <kbd className="rounded border border-line px-1.5 text-[11px] font-sans recolhido:hidden">Ctrl K</kbd>
+          <kbd className="rounded-md border border-[var(--b-borda)] bg-black/25 px-1.5 font-sans text-[10px] tracking-wider recolhido:hidden">Ctrl K</kbd>
         </button>
       </div>
 
-      <nav aria-label="Principal" className="-mr-1 flex-1 overflow-y-auto pl-3 pr-1 scrollbar-thin recolhido:mr-0 recolhido:px-0.5 recolhido:[scrollbar-width:none]">
+      {/* A lista some aos poucos embaixo: sinal de que ela rola */}
+      <nav aria-label="Principal" className="-mr-1 flex-1 overflow-y-auto pb-5 pl-3 pr-1 scrollbar-thin [mask-image:linear-gradient(to_bottom,#000_calc(100%-1.5rem),transparent)] recolhido:mr-0 recolhido:px-0.5 recolhido:[scrollbar-width:none]">
         <LinkNav item={HOJE} area="geral" />
         {GRUPOS.map((g) => {
           // O grupo da página atual fica sempre aberto, para o item marcado não sumir
           const aberto = g.area === atual || !fechados.includes(g.area)
           return (
-            <div key={g.area} className="mt-5 recolhido:mt-3 recolhido:border-t recolhido:border-line recolhido:pt-2">
+            <div key={g.area} data-area={g.area} className="mt-5 recolhido:mt-3 recolhido:border-t recolhido:border-line recolhido:pt-2">
               <button
                 type="button"
                 title={g.rotulo}
                 aria-expanded={aberto}
                 disabled={g.area === atual}
                 onClick={() => alternar(g.area)}
-                className="group mb-1 flex w-full items-center gap-2 rounded-md px-2.5 py-1 text-left text-[0.6875rem] font-semibold uppercase tracking-[0.09em] text-ink-3 enabled:hover:text-ink-2 recolhido:justify-center recolhido:px-0 recolhido:py-2"
+                className="cabine-grupo group mb-1 flex w-full items-center gap-2 rounded-md px-2.5 py-1 text-left enabled:hover:text-ink-2 recolhido:justify-center recolhido:px-0 recolhido:py-2"
               >
-                <span aria-hidden className={cn("size-1.5 rounded-full", corTraco[g.area])} />
-                <span className="flex-1 recolhido:hidden">{g.rotulo}</span>
+                <span aria-hidden className="cabine-ponto" />
+                <span className="shrink-0 recolhido:hidden">{g.rotulo}</span>
+                <span aria-hidden className="cabine-fio min-w-3 flex-1 recolhido:hidden" />
                 {g.area === atual ? null : (
-                  <ChevronRight aria-hidden className={cn("size-3.5 transition-transform recolhido:hidden", aberto && "rotate-90")} />
+                  <ChevronRight aria-hidden className={cn("size-3.5 shrink-0 transition-transform recolhido:hidden", aberto && "rotate-90")} />
                 )}
               </button>
               {aberto ? (
@@ -163,13 +153,15 @@ export function BarraLateral() {
             </div>
           )
         })}
-        <div className="mt-5 grid gap-0.5 border-t border-line pt-4">
+        <div className="relative mt-5 grid gap-0.5 pt-4">
+          <span aria-hidden className="cabine-fio absolute inset-x-0 top-0" />
           {EXTRAS.map((i) => (
             <LinkNav key={i.href} item={i} area="geral" />
           ))}
         </div>
       </nav>
 
+      <span aria-hidden className="cabine-fio mx-1 mt-1" />
       <MenuUsuario />
     </aside>
   )
@@ -196,17 +188,17 @@ export function MenuUsuario({ compacto }: { compacto?: boolean }) {
     <Menu>
       <MenuGatilho
         className={cn(
-          "mt-2 flex items-center gap-2.5 rounded-md px-2 py-1.5 text-left text-sm hover:bg-surface recolhido:justify-center recolhido:px-0",
-          compacto && "mt-0 size-11 justify-center p-0",
+          "mt-2 flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-left text-sm transition-colors hover:bg-white/[0.06] recolhido:justify-center recolhido:px-0",
+          compacto && "mt-0 size-11 justify-center rounded-full p-0",
         )}
         aria-label="Conta e tema"
       >
-        <span className="grid size-7 shrink-0 place-items-center rounded-full bg-pen-soft font-display text-sm font-semibold text-pen">
+        <span className="cabine-avatar grid size-7 shrink-0 place-items-center rounded-full font-display text-sm font-semibold">
           {inicial}
         </span>
         {compacto ? null : <span className="min-w-0 flex-1 truncate text-ink-2 recolhido:hidden">{email || "Conta"}</span>}
       </MenuGatilho>
-      <MenuConteudo align={compacto ? "end" : "start"} side={compacto ? "bottom" : "top"}>
+      <MenuConteudo align={compacto ? "end" : "start"} side={compacto ? "bottom" : "top"} className="cabine">
         <MenuRotulo>Tema</MenuRotulo>
         {temas.map((t) => (
           <MenuItem key={t.valor} onSelect={() => mudarTema(t.valor)}>

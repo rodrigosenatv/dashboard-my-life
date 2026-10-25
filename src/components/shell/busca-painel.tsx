@@ -86,7 +86,8 @@ export function PainelBusca({ aberta, aoMudar: setAberta }: { aberta: boolean; a
     <Dialog.Root open={aberta} onOpenChange={setAberta}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-ink/30 backdrop-blur-[2px] data-[state=open]:animate-[fade-in_120ms_ease-out] dark:bg-black/50" />
-        <Dialog.Content className="fixed inset-x-3 top-[10vh] z-50 mx-auto max-w-xl overflow-hidden rounded-xl border border-line bg-surface shadow-overlay outline-none data-[state=open]:animate-subir">
+        {/* A busca sai da cabine (barra lateral, topo ou Ctrl+K) e fica com as cores dela */}
+        <Dialog.Content className="cabine fixed inset-x-3 top-[10vh] z-50 mx-auto max-w-xl overflow-hidden rounded-2xl border border-line bg-surface/95 shadow-overlay outline-none backdrop-blur-xl data-[state=open]:animate-subir">
           <Dialog.Title className="sr-only">Buscar</Dialog.Title>
           <Dialog.Description className="sr-only">Busque páginas, tarefas, projetos e mais.</Dialog.Description>
           <Command shouldFilter={false} label="Buscar" className="flex max-h-[70vh] flex-col">
@@ -119,7 +120,7 @@ export function PainelBusca({ aberta, aoMudar: setAberta }: { aberta: boolean; a
                         key={`${tipo}-${r.id}`}
                         value={`${tipo}-${r.id}`}
                         onSelect={() => ir(info.href(r.id))}
-                        className="flex cursor-pointer items-start gap-2.5 rounded-md px-2.5 py-2 text-sm data-[selected=true]:bg-surface-2"
+                        className="flex cursor-pointer items-start gap-2.5 rounded-md px-2.5 py-2 text-sm data-[selected=true]:bg-[rgb(99_227_255/0.1)] data-[selected=true]:shadow-[inset_0_0_0_1px_rgb(99_227_255/0.22)]"
                       >
                         <Icone className="mt-0.5 size-4 shrink-0 text-ink-3" />
                         <span className="min-w-0">
@@ -144,7 +145,7 @@ export function PainelBusca({ aberta, aoMudar: setAberta }: { aberta: boolean; a
                         key={a.href}
                         value={a.href}
                         onSelect={() => ir(a.href)}
-                        className="flex cursor-pointer items-center gap-2.5 rounded-md px-2.5 py-2 text-sm data-[selected=true]:bg-surface-2"
+                        className="flex cursor-pointer items-center gap-2.5 rounded-md px-2.5 py-2 text-sm data-[selected=true]:bg-[rgb(99_227_255/0.1)] data-[selected=true]:shadow-[inset_0_0_0_1px_rgb(99_227_255/0.22)]"
                       >
                         <a.icone className="size-4 text-ink-3" />
                         {a.rotulo}

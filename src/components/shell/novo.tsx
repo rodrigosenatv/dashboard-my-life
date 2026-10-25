@@ -39,17 +39,18 @@ export function BotaoNovo({ compacto, className }: { compacto?: boolean; classNa
     <Menu>
       <MenuGatilho asChild>
         {compacto ? (
-          <Botao variante="primario" tamanho="icone" aria-label="Criar" className={cn("rounded-full", className)}>
+          <Botao variante="primario" tamanho="icone" aria-label="Criar" className={cn("cabine-acao rounded-full", className)}>
             <Plus />
           </Botao>
         ) : (
-          <Botao variante="primario" aria-label="Novo" title="Novo" className={cn("w-full justify-start recolhido:justify-center recolhido:px-0", className)}>
+          <Botao variante="primario" aria-label="Novo" title="Novo" className={cn("cabine-acao w-full justify-start rounded-lg font-semibold recolhido:justify-center recolhido:px-0", className)}>
             <Plus />
             <span className="recolhido:hidden">Novo</span>
           </Botao>
         )}
       </MenuGatilho>
-      <MenuConteudo align={compacto ? "end" : "start"} className="w-56">
+      {/* O menu sai da cabine (barra lateral ou topo) e fica com as cores dela */}
+      <MenuConteudo align={compacto ? "end" : "start"} className="cabine w-56">
         {OPCOES.map((o) => (
           <MenuItem key={o.tipo} onPointerEnter={() => void carregar[o.tipo]().catch(() => {})} onFocus={() => void carregar[o.tipo]().catch(() => {})} onSelect={() => abrirNovo(o.tipo)}>
             <o.icone />
