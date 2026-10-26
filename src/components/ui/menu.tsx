@@ -3,6 +3,7 @@
 import { DropdownMenu } from "radix-ui"
 import * as React from "react"
 import { cn } from "@/lib/utils"
+import { useTemaDasJanelas } from "./tema-janelas"
 
 export const Menu = DropdownMenu.Root
 export const MenuGatilho = DropdownMenu.Trigger
@@ -12,12 +13,14 @@ export function MenuConteudo({
   align = "end",
   ...props
 }: React.ComponentProps<typeof DropdownMenu.Content>) {
+  const tema = useTemaDasJanelas()
   return (
     <DropdownMenu.Portal>
       <DropdownMenu.Content
         align={align}
         sideOffset={6}
         className={cn(
+          tema,
           "z-50 min-w-48 origin-[var(--radix-dropdown-menu-content-transform-origin)] rounded-lg border border-line bg-surface p-1 text-sm text-ink shadow-overlay data-[state=open]:animate-surgir",
           className,
         )}

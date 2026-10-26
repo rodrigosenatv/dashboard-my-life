@@ -1188,6 +1188,199 @@ a:focus-visible .livro3d-corpo,
 }
 
 /* =====================================================================
+   Segundo Cérebro: a rede neural
+   Da mesma família da biblioteca, dos cursos e do laboratório, num
+   violeta de céu noturno, com uma rede de neurônios ao fundo (pontos
+   ligados por fios, em public/rede-neural.svg) que some para baixo. A
+   luz é violeta (a cor da área), com faíscas ciano e rosa. Sempre escuro.
+   Usa os mesmos nomes de cor (--b-*), então vidro, rotulo-hud e
+   barra-luz servem aqui também.
+   ===================================================================== */
+
+@layer components {
+.tema-cerebro {
+  --b-fundo: #08051a;
+  --b-fundo-2: #170c36;
+  --b-tinta: #f2eeff;
+  --b-tinta-2: rgb(242 238 255 / 0.78);
+  --b-tinta-3: rgb(242 238 255 / 0.6);
+  --b-luz: #b69cff;
+  --b-luz-2: #6ee7ff;
+  --b-rosa: #ff8fd1;
+  --b-ambar: #f5c54a;
+  --b-menta: #7cf5c4;
+  --b-coral: #ff9e7d;
+  --b-vidro: rgb(190 170 255 / 0.05);
+  --b-vidro-2: rgb(190 170 255 / 0.09);
+  --b-borda: rgb(190 170 255 / 0.15);
+  --b-borda-2: rgb(190 170 255 / 0.3);
+
+  /* As cores do app, no escuro da rede (botões, campos, menus, janelas) */
+  --bg: var(--b-fundo);
+  --surface: #120b2b;
+  --surface-2: #1a1139;
+  --surface-3: #261a4c;
+  --ink: var(--b-tinta);
+  --ink-2: var(--b-tinta-2);
+  --ink-3: var(--b-tinta-3);
+  --line: var(--b-borda);
+  --line-strong: var(--b-borda-2);
+  --pen: var(--b-luz);
+  --pen-ink: #170b3d;
+  --pen-soft: rgb(182 156 255 / 0.15);
+  --ring: var(--b-luz);
+  --projetos: var(--b-luz);
+  --projetos-soft: rgb(182 156 255 / 0.15);
+  --rotina: #3ccb92;
+  --rotina-soft: rgb(60 203 146 / 0.15);
+  --estudos: var(--b-ambar);
+  --estudos-soft: rgb(245 197 74 / 0.15);
+  --conteudo: #ff7aa6;
+  --conteudo-soft: rgb(255 122 166 / 0.15);
+  --danger: #ff8fab;
+  --danger-soft: rgb(255 143 171 / 0.15);
+  --warning: var(--b-ambar);
+  --shadow-overlay: 0 24px 60px -16px rgb(0 0 0 / 0.8), 0 0 0 1px rgb(190 170 255 / 0.14);
+  color-scheme: dark;
+  color: var(--ink);
+}
+
+/* O fundo: luz violeta no alto e a rede de neurônios, que some para baixo */
+.cerebro {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background:
+    radial-gradient(80% 45% at 50% -8%, rgb(140 90 255 / 0.4), transparent 66%),
+    radial-gradient(45% 30% at 102% 20%, rgb(255 143 209 / 0.12), transparent 70%),
+    radial-gradient(50% 36% at -6% 58%, rgb(110 231 255 / 0.08), transparent 70%),
+    linear-gradient(180deg, var(--b-fundo-2), var(--b-fundo) 40%);
+}
+.cerebro::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 35rem;
+  pointer-events: none;
+  background: url("/rede-neural.svg") center top / 1200px auto repeat-x;
+  /* Some para baixo e fica mais fraca à esquerda, onde estão o título e o texto */
+  -webkit-mask-image:
+    linear-gradient(to bottom, #000 10%, rgb(0 0 0 / 0.5) 55%, transparent 92%),
+    linear-gradient(90deg, rgb(0 0 0 / 0.3), #000 60%);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(to bottom, #000 10%, rgb(0 0 0 / 0.5) 55%, transparent 92%),
+    linear-gradient(90deg, rgb(0 0 0 / 0.3), #000 60%);
+  mask-composite: intersect;
+}
+.cerebro::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 1px;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgb(182 156 255 / 0.75), rgb(255 143 209 / 0.6), transparent);
+  box-shadow: 0 0 24px 2px rgb(182 156 255 / 0.35);
+}
+
+/* O visto das caixas marcadas (etapas, tarefas) em tinta escura: o branco some sobre a luz */
+.tema-cerebro [role="checkbox"][aria-checked="true"] > svg {
+  color: var(--pen-ink);
+}
+.tema-cerebro [role="checkbox"][aria-checked="true"] {
+  box-shadow: 0 0 10px -3px var(--b-luz);
+}
+
+/* A barra de luz no violeta da área */
+.tema-cerebro .barra-luz > span {
+  background: linear-gradient(90deg, var(--b-luz-2), var(--b-luz) 55%, var(--b-rosa));
+  box-shadow: 0 0 14px rgb(182 156 255 / 0.6);
+}
+
+/* Cartão de vidro que acende ao passar (projetos, áreas, capturas) */
+.vidro-vivo {
+  background: var(--b-vidro);
+  border: 1px solid var(--b-borda);
+  border-radius: 1.25rem;
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  transition: border-color 200ms, background-color 200ms, box-shadow 200ms, transform 200ms;
+}
+.vidro-vivo:hover,
+.vidro-vivo:focus-within {
+  border-color: var(--b-borda-2);
+  background: var(--b-vidro-2);
+  box-shadow: 0 18px 40px -26px rgb(140 90 255 / 0.7);
+}
+
+/* O ícone de um tipo, aceso na própria cor (--cor) */
+.icone-aceso {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  border-radius: 0.8rem;
+  color: var(--cor, var(--b-luz));
+  background: color-mix(in oklab, var(--cor, var(--b-luz)) 14%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--cor, var(--b-luz)) 28%, transparent);
+}
+.icone-aceso > svg {
+  filter: drop-shadow(0 0 6px color-mix(in oklab, var(--cor, var(--b-luz)) 60%, transparent));
+}
+
+/* O núcleo de uma área: um anel de luz com a inicial, girando devagar */
+.nucleo {
+  position: relative;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, rgb(182 156 255 / 0.35), rgb(23 12 54 / 0.9) 70%);
+  box-shadow:
+    0 0 0 1px rgb(182 156 255 / 0.45),
+    0 0 22px -4px rgb(182 156 255 / 0.7);
+}
+.nucleo::before {
+  content: "";
+  position: absolute;
+  inset: -7px;
+  border-radius: 50%;
+  border: 1px dashed rgb(182 156 255 / 0.35);
+}
+.nucleo::after {
+  content: "";
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  margin-left: -3px;
+  border-radius: 50%;
+  background: var(--b-luz-2);
+  box-shadow: 0 0 8px var(--b-luz-2);
+  /* Gira em volta do centro do núcleo (--r é a metade do tamanho dele), sobre o anel tracejado */
+  transform-origin: 3px calc(10px + var(--r, 24px));
+}
+@media (prefers-reduced-motion: no-preference) {
+  .nucleo::after {
+    animation: orbita 9s linear infinite;
+  }
+}
+@keyframes orbita {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.nucleo[data-parado]::after {
+  display: none;
+}
+}
+
+/* =====================================================================
    A cabine: a moldura do app
    A barra lateral, o topo e as abas do celular e a barra de baixo. É o
    azul petróleo da capa do caderno no escuro, com a luz ciano da

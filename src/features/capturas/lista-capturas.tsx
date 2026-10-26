@@ -8,8 +8,9 @@ import { toast } from "sonner"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { Archive, ArchiveRestore, ExternalLink, FolderKanban, Plus, Search, X, SlidersHorizontal } from "lucide-react"
+import type { CSSProperties } from "react"
 import { Botao } from "@/components/ui/button"
-import { Carregando, Etiqueta, Segmentos, Vazio } from "@/components/ui/basicos"
+import { Carregando, Etiqueta, Segmentos } from "@/components/ui/basicos"
 import { Seletor } from "@/components/ui/campos"
 import { Menu, MenuConteudo, MenuGatilho, MenuItem, MenuRotulo } from "@/components/ui/menu"
 import { MarkdownSobDemanda } from "@/components/markdown-sob-demanda"
@@ -19,6 +20,7 @@ import type { Tables } from "@/lib/supabase/database.types"
 import { cn, contem, dominio, haQuanto, urlValida } from "@/lib/utils"
 import { DialogoCaptura } from "./dialogo-captura"
 import { previaTexto } from "./texto"
+import { IconeCaptura, tipoCaptura, VazioCerebro } from "@/features/segundo-cerebro/ui"
 
 export type Captura = Tables<"captures">
 
@@ -58,14 +60,27 @@ const LOTE = 20
 const LOTE_GRUPO = 6
 
 const VAZIOS: Record<string, { titulo: string; descricao?: string }> = {
-  entrada: { titulo: "Caixa de entrada vazia.", descricao: "Tudo organizado. Use a captura rápida da página inicial para anotar ideias." },
+  entrada: { titulo: "Caixa de entrada zerada", descricao: "Tudo organizado. Anote a próxima ideia aqui ou na captura rápida da página Hoje." },
   anotacoes: { titulo: "Nenhuma anotação ainda." },
   recursos: { titulo: "Nenhum recurso solto.", descricao: "Recursos são anotações sem projeto e sem área." },
   arquivo: { titulo: "Nada arquivado." },
   area: { titulo: "Nenhuma captura nesta área." },
 }
 
-export function ListaCapturas({ modo, agrupamentos = [] }: { modo: ModoCapturas; agrupamentos?: Agrupar[] }) {
+/**
+ * As capturas de uma tela do Segundo Cérebro, em cartões de vidro com o ícone do tipo aceso.
+ * `cabecalho` desenha o topo da tela com a ação de nova captura e as capturas do modo (para o
+ * resumo); com ele, o botão "Nova captura" sai da barra de busca e vai para o topo.
+ */
+export function ListaCapturas({
+  modo,
+  agrupamentos = [],
+  cabecalho,
+}: {
+  modo: ModoCapturas
+  agrupamentos?: Agrupar[]
+  cabecalho?: (c: { novaCaptura: () => void; capturas: Captura[]; carregando: boolean }) => React.ReactNode
+}) {
   const qc = useQueryClient()
   const [busca, setBusca] = React.useState("")
   const [tipo, setTipo] = React.useState("")
@@ -74,6 +89,8 @@ export function ListaCapturas({ modo, agrupamentos = [] }: { modo: ModoCapturas;
   const [aberta, setAberta] = React.useState<Captura | null>(null)
   const [nova, setNova] = React.useState(false)
   const [expandida, setExpandida] = React.useState<string | null>(null)
+  // No celular os filtros de tipo e categoria ficam atrás de um botão (no computador, sempre à vista)
+  const [filtrosAbertos, setFiltrosAbertos] = React.useState(false)
   // Quantos cartões cada grupo mostra além do primeiro lote
   const [extras, setExtras] = React.useState<Record<string, number>>({})
 
@@ -127,6 +144,7 @@ export function ListaCapturas({ modo, agrupamentos = [] }: { modo: ModoCapturas;
   const ROTULO_AGRUPAR: Record<Agrupar, string> = { nenhum: "Lista", tag: "Por tag", tipo: "Por tipo", categoria: "Por categoria", mes: "Por mês" }
   const chaveVazio = typeof modo === "object" ? "area" : modo
   const haFiltros = Boolean(busca || tipo || categoria)
+  const temFiltros = (tipos.length > 1 && agrupar !== "tipo") || (categorias.length > 1 && agrupar !== "categoria")
   const limparFiltros = () => { setBusca(""); setTipo(""); setCategoria(""); setExtras({}) }
 
   const item = (c: Captura) => {
@@ -136,92 +154,103 @@ export function ListaCapturas({ modo, agrupamentos = [] }: { modo: ModoCapturas;
     const corpo = c.content ?? ""
     const previa = previaTexto(corpo)
     return (
-      <li key={c.id} className="group rounded-xl border border-line bg-surface px-4 py-4 transition-[border-color,background-color] hover:border-projetos/30 hover:bg-surface-2/40 sm:px-5">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
-          <button type="button" onClick={() => setAberta(c)} className="min-w-0 flex-1 rounded-md text-left focus-visible:outline-offset-4">
-            <p className="break-words text-[15px] font-semibold leading-snug transition-colors group-hover:text-projetos">{c.title || "Sem título"}</p>
-            <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-ink-3">
-              {c.kind ? <span>{c.kind}</span> : null}
-              {c.category ? <span>{c.category}</span> : null}
-              <span>{haQuanto(c.captured_at)}</span>
-              {c.area_id && typeof modo !== "object" ? <Etiqueta cor="projetos">{nomeArea.get(c.area_id)}</Etiqueta> : null}
-              {projetosC.map((p) => (
-                <span key={p} className="inline-flex items-center gap-1">
-                  <FolderKanban className="size-3" />
-                  {nomeProjeto.get(p)}
-                </span>
-              ))}
-              {agrupar !== "tag" ? c.tags.slice(0, 4).map((t) => <Etiqueta key={t}>{t}</Etiqueta>) : null}
-            </p>
-          </button>
-          <div className="flex w-full shrink-0 items-center justify-end gap-2 border-t border-line pt-2 sm:w-auto sm:justify-start sm:border-0 sm:pt-0">
-            {link ? (
-              <a href={link} target="_blank" rel="noreferrer" className="inline-flex min-h-10 items-center justify-center gap-1 rounded-md px-2 py-1 text-xs text-ink-2 hover:bg-surface-2 toque:min-h-11 toque:min-w-11" title={link}>
-                <ExternalLink className="size-3.5" /> <span className="hidden sm:inline">{dominio(link)}</span>
-              </a>
+      <li key={c.id} className="vidro-vivo group px-3.5 py-3.5 sm:px-4 sm:py-4">
+        <div className="flex gap-3 sm:gap-3.5">
+          <IconeCaptura tipo={c.kind} className="mt-0.5" />
+          {/* No celular: título, prévia e, por último, as ações; no computador as ações ficam à direita do título */}
+          <div className="grid min-w-0 flex-1 gap-2 sm:grid-cols-[minmax(0,1fr)_auto] sm:gap-x-3">
+            <button type="button" onClick={() => setAberta(c)} className="min-w-0 rounded-md text-left focus-visible:outline-offset-4">
+              <p className="break-words text-[15px] font-semibold leading-snug transition-colors group-hover:text-[var(--b-luz)]">{c.title || "Sem título"}</p>
+              <p className="mt-1 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-xs text-ink-3">
+                {c.kind ? <span className="font-medium" style={{ color: tipoCaptura(c.kind).cor } as CSSProperties}>{c.kind}</span> : null}
+                {c.category ? <span>{c.category}</span> : null}
+                <span>{haQuanto(c.captured_at)}</span>
+                {c.area_id && typeof modo !== "object" ? <Etiqueta cor="projetos">{nomeArea.get(c.area_id)}</Etiqueta> : null}
+                {projetosC.map((p) => (
+                  <span key={p} className="inline-flex min-w-0 items-center gap-1 text-ink-2">
+                    <FolderKanban className="size-3 shrink-0 text-[var(--b-luz)]" aria-hidden />
+                    <span className="truncate">{nomeProjeto.get(p)}</span>
+                  </span>
+                ))}
+                {agrupar !== "tag" ? c.tags.slice(0, 4).map((t) => <Etiqueta key={t}>#{t}</Etiqueta>) : null}
+              </p>
+            </button>
+            <div className="order-last flex shrink-0 items-center justify-end gap-2 border-t border-[var(--b-borda)] pt-2.5 sm:order-none sm:col-start-2 sm:row-start-1 sm:border-0 sm:pt-0">
+              {link ? (
+                <a href={link} target="_blank" rel="noreferrer" className="inline-flex min-h-10 items-center justify-center gap-1 rounded-full px-2.5 py-1 text-xs text-ink-2 hover:bg-white/[0.06] hover:text-ink toque:min-h-11 toque:min-w-11" title={link}>
+                  <ExternalLink className="size-3.5" /> <span className="hidden sm:inline">{dominio(link)}</span>
+                </a>
+              ) : null}
+              {!c.archived ? (
+                <Menu>
+                  <MenuGatilho asChild>
+                    <Botao variante="contorno" tamanho="sm" className="min-w-24 rounded-full bg-transparent hover:border-[var(--b-luz)]">Organizar</Botao>
+                  </MenuGatilho>
+                  <MenuConteudo className="max-h-80 w-64 overflow-y-auto">
+                    <MenuRotulo>Ligar a um projeto</MenuRotulo>
+                    {ativos.length === 0 ? <MenuItem disabled>Nenhum projeto ativo</MenuItem> : null}
+                    {ativos.map((p) => (
+                      <MenuItem key={p.id} onSelect={() => ligar(c.id, p.id)}>{p.name}</MenuItem>
+                    ))}
+                    <MenuRotulo>Mover para a área</MenuRotulo>
+                    {areasAtivas.map((a) => (
+                      <MenuItem key={a.id} onSelect={() => atualizar.mutate({ id: c.id, area_id: a.id })}>{a.name}</MenuItem>
+                    ))}
+                    <MenuRotulo>Ou</MenuRotulo>
+                    <MenuItem onSelect={() => atualizar.mutate({ id: c.id, archived: true })}>
+                      <Archive /> Arquivar
+                    </MenuItem>
+                  </MenuConteudo>
+                </Menu>
+              ) : (
+                <Botao variante="contorno" tamanho="sm" className="rounded-full bg-transparent" disabled={atualizar.isPending} onClick={() => atualizar.mutate({ id: c.id, archived: false })}>
+                  <ArchiveRestore /> Restaurar
+                </Botao>
+              )}
+            </div>
+            {corpo ? (
+            <div className="text-ink-2 sm:col-span-2">
+              {aberto ? <MarkdownSobDemanda texto={corpo} className="text-sm" /> : previa ? <p className="line-clamp-2 text-sm text-ink-2">{previa}</p> : null}
+              {corpo.length > 160 || !previa ? (
+                <button type="button" onClick={() => setExpandida(aberto ? null : c.id)} className="mt-1 text-xs font-medium text-[var(--b-luz)] toque:-mb-2 toque:mt-0 toque:py-3.5 toque:text-sm">
+                  {aberto ? "Mostrar menos" : "Ler tudo"}
+                </button>
+              ) : null}
+            </div>
             ) : null}
-            {!c.archived ? (
-              <Menu>
-                <MenuGatilho asChild>
-                  <Botao variante="contorno" tamanho="sm" className="min-w-24">Organizar</Botao>
-                </MenuGatilho>
-                <MenuConteudo className="max-h-80 w-64 overflow-y-auto">
-                  <MenuRotulo>Ligar a um projeto</MenuRotulo>
-                  {ativos.length === 0 ? <MenuItem disabled>Nenhum projeto ativo</MenuItem> : null}
-                  {ativos.map((p) => (
-                    <MenuItem key={p.id} onSelect={() => ligar(c.id, p.id)}>{p.name}</MenuItem>
-                  ))}
-                  <MenuRotulo>Mover para a área</MenuRotulo>
-                  {areasAtivas.map((a) => (
-                    <MenuItem key={a.id} onSelect={() => atualizar.mutate({ id: c.id, area_id: a.id })}>{a.name}</MenuItem>
-                  ))}
-                  <MenuRotulo>Ou</MenuRotulo>
-                  <MenuItem onSelect={() => atualizar.mutate({ id: c.id, archived: true })}>
-                    <Archive /> Arquivar
-                  </MenuItem>
-                </MenuConteudo>
-              </Menu>
-            ) : (
-              <Botao variante="contorno" tamanho="sm" disabled={atualizar.isPending} onClick={() => atualizar.mutate({ id: c.id, archived: false })}>
-                <ArchiveRestore /> Restaurar
-              </Botao>
-            )}
           </div>
         </div>
-        {corpo ? (
-          <div className="mt-2 rounded-lg text-ink-2">
-            {aberto ? <MarkdownSobDemanda texto={corpo} className="text-sm" /> : previa ? <p className="line-clamp-2 text-sm text-ink-2">{previa}</p> : null}
-            {corpo.length > 160 || !previa ? (
-              <button type="button" onClick={() => setExpandida(aberto ? null : c.id)} className="mt-1 text-xs font-medium text-pen toque:-mb-2 toque:mt-0 toque:py-3.5 toque:text-sm">
-                {aberto ? "Mostrar menos" : "Ler tudo"}
-              </button>
-            ) : null}
-          </div>
-        ) : null}
       </li>
     )
   }
 
+  // Nas capturas arquivadas não se cria nada; com cabeçalho, o botão fica no topo da tela
+  const botaoNova = modo !== "arquivo" && !cabecalho
+
   return (
     <div>
-      <div className="mb-5 rounded-2xl border border-line bg-surface p-3 sm:p-4">
+      {cabecalho?.({ novaCaptura: () => setNova(true), capturas: base, carregando: isLoading })}
+      <div className="vidro mb-6 p-3 sm:p-4">
         {agrupamentos.length > 1 ? (
-          <div className="mb-3 min-w-0">
-            <Segmentos className="w-full sm:w-auto" rotulo="Agrupar" valor={agrupar} aoMudar={(v) => { setAgrupar(v); setExtras({}) }} opcoes={agrupamentos.map((a) => ({ valor: a, rotulo: ROTULO_AGRUPAR[a] }))} />
+          <div className="mb-3 flex min-w-0 items-center gap-3">
+            <span className="rotulo-hud hidden shrink-0 sm:inline">Ver</span>
+            <Segmentos className="w-full bg-black/25 sm:w-auto" rotulo="Agrupar" valor={agrupar} aoMudar={(v) => { setAgrupar(v); setExtras({}) }} opcoes={agrupamentos.map((a) => ({ valor: a, rotulo: ROTULO_AGRUPAR[a] }))} />
           </div>
         ) : null}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <div className="relative min-w-0 flex-1">
-            <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-ink-3" />
-            <input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Buscar nas capturas…" aria-label="Buscar nas capturas" className="h-11 w-full rounded-xl border border-line-strong bg-bg/50 pl-10 pr-10 text-base placeholder:text-ink-3 focus-visible:border-projetos focus-visible:outline-none sm:text-sm" />
-            {busca ? <button type="button" onClick={() => setBusca("")} aria-label="Limpar busca" className="absolute right-1 top-1/2 grid size-10 -translate-y-1/2 place-items-center text-ink-2 hover:text-ink"><X className="size-4" /></button> : null}
+            <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-ink-3" />
+            <input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Buscar nas capturas…" aria-label="Buscar nas capturas" className="h-11 w-full rounded-full border border-[var(--b-borda)] bg-black/25 pl-10 pr-10 text-base placeholder:text-ink-3 focus-visible:border-[var(--b-luz)] focus-visible:outline-none sm:text-sm" />
+            {busca ? <button type="button" onClick={() => setBusca("")} aria-label="Limpar busca" className="absolute right-1 top-1/2 grid size-10 -translate-y-1/2 place-items-center rounded-full text-ink-2 hover:text-ink"><X className="size-4" /></button> : null}
           </div>
-          <Botao variante="primario" className="h-11 w-full sm:w-auto" onClick={() => setNova(true)}>
-            <Plus /> Nova captura
-          </Botao>
+          {botaoNova ? (
+            <Botao variante="primario" className="h-11 w-full rounded-full shadow-[0_0_20px_-6px_var(--b-luz)] sm:w-auto" onClick={() => setNova(true)}>
+              <Plus /> Nova captura
+            </Botao>
+          ) : null}
         </div>
-        {(tipos.length > 1 || categorias.length > 1) ? (
-          <div className="mt-3 grid grid-cols-1 gap-2 sm:flex sm:flex-wrap sm:items-center">
+        {temFiltros ? (
+          <div className={cn("mt-3 grid-cols-1 gap-2 sm:flex sm:flex-wrap sm:items-center", filtrosAbertos || tipo || categoria ? "grid" : "hidden")}>
             <span className="hidden text-ink-3 sm:inline-flex"><SlidersHorizontal className="size-4" aria-hidden /></span>
             {tipos.length > 1 && agrupar !== "tipo" ? (
               <Seletor aria-label="Filtrar por tipo" value={tipo} onChange={(e) => setTipo(e.target.value)} className="w-full sm:w-auto sm:max-w-56">
@@ -237,16 +266,28 @@ export function ListaCapturas({ modo, agrupamentos = [] }: { modo: ModoCapturas;
             ) : null}
           </div>
         ) : null}
-        <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-line pt-3">
-          <p aria-live="polite" className="tabular text-xs font-medium text-ink-2">{lista.length === 1 ? "1 captura" : `${lista.length} capturas`} {haFiltros ? "encontradas" : "no total"}</p>
-          {haFiltros ? <button type="button" onClick={limparFiltros} className="inline-flex min-h-9 items-center gap-1.5 rounded-md px-2 text-xs font-semibold text-projetos hover:bg-projetos-soft"><X className="size-3.5" /> Limpar filtros</button> : null}
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-[var(--b-borda)] pt-3">
+          <p aria-live="polite" className="tabular text-xs font-medium text-ink-2">{lista.length === 1 ? "1 captura" : `${lista.length} capturas`} {haFiltros ? (lista.length === 1 ? "encontrada" : "encontradas") : "no total"}</p>
+          <div className="flex items-center gap-1">
+            {temFiltros && !tipo && !categoria ? (
+              <button type="button" onClick={() => setFiltrosAbertos((v) => !v)} aria-expanded={filtrosAbertos} className="inline-flex min-h-9 items-center gap-1.5 rounded-full px-2.5 text-xs font-semibold text-ink-2 hover:bg-white/[0.06] hover:text-ink sm:hidden">
+                <SlidersHorizontal className="size-3.5" aria-hidden /> {filtrosAbertos ? "Esconder filtros" : "Filtros"}
+              </button>
+            ) : null}
+            {haFiltros ? <button type="button" onClick={limparFiltros} className="inline-flex min-h-9 items-center gap-1.5 rounded-full px-2.5 text-xs font-semibold text-[var(--b-luz)] hover:bg-white/[0.06]"><X className="size-3.5" /> Limpar filtros</button> : null}
+          </div>
         </div>
       </div>
 
       {isLoading ? (
         <Carregando />
       ) : lista.length === 0 ? (
-        <Vazio className="rounded-2xl bg-surface p-7 sm:p-10" titulo={haFiltros ? "Nenhuma captura com esses filtros." : VAZIOS[chaveVazio].titulo} descricao={haFiltros ? "Experimente limpar os filtros ou usar outros termos." : VAZIOS[chaveVazio].descricao} acao={haFiltros ? <Botao variante="contorno" onClick={limparFiltros}>Limpar filtros</Botao> : <Botao variante="primario" onClick={() => setNova(true)}><Plus /> Nova captura</Botao>} />
+        <VazioCerebro
+          comemorar={!haFiltros && chaveVazio === "entrada"}
+          titulo={haFiltros ? "Nenhuma captura com esses filtros." : VAZIOS[chaveVazio].titulo}
+          descricao={haFiltros ? "Experimente limpar os filtros ou usar outros termos." : VAZIOS[chaveVazio].descricao}
+          acao={haFiltros ? <Botao variante="contorno" className="rounded-full bg-transparent" onClick={limparFiltros}>Limpar filtros</Botao> : modo !== "arquivo" ? <Botao variante="primario" className="rounded-full" onClick={() => setNova(true)}><Plus /> Nova captura</Botao> : null}
+        />
       ) : (
         <div className="grid gap-8">
           {grupos.map((g) => {
@@ -255,16 +296,17 @@ export function ListaCapturas({ modo, agrupamentos = [] }: { modo: ModoCapturas;
             return (
             <section key={g.titulo || "todas"}>
               {g.titulo ? (
-                <h2 className={cn("mb-3 flex flex-wrap items-center gap-2 font-display text-base font-semibold", agrupar === "mes" && "first-letter:uppercase")}>
-                  {g.titulo}
-                  <span className="tabular rounded-full bg-projetos-soft px-2 py-0.5 text-xs font-medium text-projetos">{g.itens.length}</span>
+                <h2 className={cn("mb-3 flex items-center gap-2 font-display text-base font-semibold", agrupar === "mes" && "first-letter:uppercase")}>
+                  <span className="min-w-0 break-words">{agrupar === "tag" && !g.titulo.startsWith("Sem ") ? `#${g.titulo}` : g.titulo}</span>
+                  <span className="tabular shrink-0 rounded-full border border-[var(--b-borda)] bg-white/[0.04] px-2 py-0.5 text-xs font-medium text-[var(--b-luz)]">{g.itens.length}</span>
+                  <span aria-hidden className="h-px min-w-6 flex-1 bg-gradient-to-r from-[var(--b-borda-2)] to-transparent" />
                 </h2>
               ) : null}
               <ul className="grid gap-2">{g.itens.slice(0, limite).map(item)}</ul>
               {restam > 0 ? (
                 <Botao
                   variante="contorno"
-                  className="mt-3 w-full"
+                  className="mt-3 w-full rounded-full bg-transparent"
                   onClick={() => setExtras((e) => ({ ...e, [chaveFiltro + g.titulo]: (e[chaveFiltro + g.titulo] ?? 0) + LOTE }))}
                 >
                   Mostrar mais {Math.min(LOTE, restam)} <span className="font-normal text-ink-3">de {restam} restantes</span>

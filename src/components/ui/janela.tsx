@@ -4,6 +4,7 @@ import { Dialog } from "radix-ui"
 import { X } from "lucide-react"
 import * as React from "react"
 import { cn } from "@/lib/utils"
+import { useTemaDasJanelas } from "./tema-janelas"
 
 /**
  * Janela modal. No celular abre como painel que sobe de baixo;
@@ -29,12 +30,15 @@ export function Janela({
   /** Classes a mais na janela (ex.: o tema da tela que a abriu). */
   className?: string
 }) {
+  // Aberta de uma tela com tema (ex.: o Segundo Cérebro), a janela sai com as cores dela
+  const tema = useTemaDasJanelas()
   return (
     <Dialog.Root open={aberta} onOpenChange={aoMudar}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-ink/30 backdrop-blur-[2px] data-[state=open]:animate-[fade-in_120ms_ease-out] dark:bg-black/50" />
         <Dialog.Content
           className={cn(
+            tema,
             "fixed z-50 flex max-h-[92dvh] flex-col bg-surface text-ink shadow-overlay outline-none data-[state=open]:animate-subir",
             // No computador começa a 12% do topo: a altura máxima deixa o rodapé inteiro na tela
             "inset-x-0 bottom-0 rounded-t-xl sm:inset-x-auto sm:bottom-auto sm:left-1/2 sm:top-[12vh] sm:max-h-[84dvh] sm:-translate-x-1/2 sm:rounded-xl",

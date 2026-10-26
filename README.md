@@ -73,6 +73,18 @@ O laboratório do futuro, da mesma família da biblioteca e dos cursos: vidro es
 - **Tela do experimento** (`/estudos/laboratorio/[id]`): o anel (ou a nota, depois de concluído), a hipótese, as ações da situação, o diário dia a dia, o protocolo em markdown, o resultado e a ficha. Links antigos com `?abrir=` levam para ela.
 - Dados: tabelas `experiments` e `insights`. Não precisa de migração no banco.
 
+## Segundo Cérebro
+
+As telas do Segundo Cérebro (o método PARA: Projetos, Áreas, Recursos e Arquivo, mais a Caixa de Entrada, as Anotações e as Páginas) viram uma rede neural: violeta de céu noturno, pontos de luz ligados por fios ao fundo (`public/rede-neural.svg`), painéis de vidro e rótulos de HUD. Ficam sempre escuras, no tema claro ou escuro.
+
+- **Cabeçalho.** Cada tela diz o seu papel no PARA ("Captura e triagem", "Objetivos com prazo", "Responsabilidades contínuas"…) e mostra um resumo em números. Na Caixa de Entrada: quantas capturas esperam, quantas chegaram hoje e há quantos dias espera a mais antiga. Em Projetos: em andamento, atrasados, que vencem em 7 dias e concluídos.
+- **Capturas** (Caixa de Entrada, Anotações, Recursos, Arquivo e a tela da área): cartões de vidro com o ícone do tipo aceso na cor dele (ideia em âmbar, citação em rosa, link em ciano…), busca, agrupar por tag, tipo, categoria ou mês, e "Organizar" (ligar a um projeto, mover para uma área ou arquivar). No celular, os filtros de tipo e categoria ficam atrás de "Filtros". Uma captura nova começa sem tipo: sem projeto nem área, ela espera na Caixa de Entrada (como a captura rápida da página Hoje).
+- **Projetos.** Cartões com o anel de progresso, a área, o prazo (atrasado em rosa, perto em âmbar) e a próxima etapa. Na tela do projeto: o anel grande, o nome (toque para renomear), as etapas e subetapas, as anotações, a ficha (área, prazo e publicação), as tarefas e as capturas ligadas.
+- **Áreas.** Cada área é um núcleo com a inicial num anel de luz (com um ponto em órbita quando ela está acontecendo), a situação, a descrição e quantos projetos e capturas tem.
+- **Arquivo e Páginas.** O arquivo com "Restaurar"; a árvore de páginas com as favoritas em destaque. As páginas das seções do Segundo Cérebro (notas, recursos, wiki, outras e arquivo) abrem com o mesmo tema; a Biblioteca de Conteúdo continua com o visual de sempre.
+- **Janelas e menus.** `TemaDasJanelas` (`src/components/ui/tema-janelas.tsx`) passa a classe do tema da tela para as janelas e os menus abertos dela.
+- Código: `src/features/segundo-cerebro` (`cabecalho.tsx` com a moldura e o cabeçalho, `ui.tsx`, `paginas.tsx` e `logica.ts`, testada em `tests/segundo-cerebro.test.cjs`), `src/features/projetos`, `src/features/capturas/lista-capturas.tsx` e `src/features/paginas`. O visual fica no bloco "Segundo Cérebro: a rede neural" do `src/app/globals.css`. Não precisa de migração no banco.
+
 ## Leitor de livros
 
 Em **Estudos > Leitura**, cada livro pode ter um arquivo (PDF, EPUB, MOBI, AZW3 ou FB2) para ler dentro do app, com o texto se reorganizando na tela: tamanho e tipo de letra, espaço entre linhas, margens, temas (claro, sépia, escuro, preto), páginas ou rolagem, sumário, busca, trechos guardados nos insights e a tela acesa enquanto se lê.
@@ -97,5 +109,6 @@ Estrutura principal:
 - `src/features/leitura` biblioteca: prateleiras, capas, busca de livros, diário e meta de leitura.
 - `src/features/cursos` plataforma de cursos: trilha de aulas e ações lidas das anotações (`logica.ts`, testada em `tests/cursos.test.cjs`).
 - `src/features/laboratorio` laboratório de experimentos: andamento dos testes, diário e protocolo (`logica.ts`, testada em `tests/laboratorio.test.cjs`).
+- `src/features/segundo-cerebro` telas do Segundo Cérebro: moldura, cabeçalho e as contas de progresso e prazo (`logica.ts`, testada em `tests/segundo-cerebro.test.cjs`).
 - `src/features/leitor` leitor de livros e conversor de PDF; a tela de leitura é `src/app/ler/[id]`.
 - `supabase/migrations` esquema do banco.

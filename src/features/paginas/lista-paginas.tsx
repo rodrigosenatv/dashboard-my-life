@@ -3,10 +3,12 @@
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import * as React from "react"
+import { isThisWeek } from "date-fns"
 import { ChevronRight, FileText, NotebookText, Plus, Search, Star, X } from "lucide-react"
 import { Botao } from "@/components/ui/button"
 import { Cabecalho, Carregando, Vazio } from "@/components/ui/basicos"
-import { CabecalhoCerebro } from "@/features/segundo-cerebro/cabecalho"
+import { ACAO_ACESA, CabecalhoCerebro, MolduraCerebro } from "@/features/segundo-cerebro/cabecalho"
+import { VazioCerebro } from "@/features/segundo-cerebro/ui"
 import { novoId, useCriar } from "@/lib/data"
 import type { Area } from "@/lib/areas"
 import { cn, contem } from "@/lib/utils"
@@ -101,20 +103,44 @@ export function ListaPaginas({
     router.push(`/paginas/${id}?editar=1`)
   }
 
-  return (
+  // No Segundo Cérebro a lista vem com o tema da rede neural; na Biblioteca (Conteúdo), com o visual de sempre
+  const futurista = area === "projetos"
+  const editadas = futurista ? daSecao.filter((p) => isThisWeek(new Date(p.updated_at), { weekStartsOn: 0 })).length : 0
+
+  const conteudo = (
     <div>
-      {area === "projetos" ? (
-        <CabecalhoCerebro icone={NotebookText} titulo={titulo} descricao={descricao} acoes={<Botao variante="primario" onClick={nova} disabled={criar.isPending}><Plus /> Nova página</Botao>} />
+      {futurista ? (
+        <CabecalhoCerebro
+          icone={NotebookText}
+          papel="Wiki e textos longos"
+          titulo={titulo}
+          descricao={descricao}
+          descricaoNoCelular={!daSecao.length}
+          acoes={
+            <Botao variante="primario" tamanho="lg" onClick={nova} disabled={criar.isPending} className={cn("rounded-full px-5", ACAO_ACESA)}>
+              <Plus /> Nova página
+            </Botao>
+          }
+          hud={
+            isLoading || !daSecao.length
+              ? []
+              : [
+                  { n: daSecao.length, rotulo: daSecao.length === 1 ? "página" : "páginas", cor: "var(--b-luz)" },
+                  ...(favoritas.length ? [{ n: favoritas.length, rotulo: favoritas.length === 1 ? "favorita" : "favoritas", cor: "var(--b-ambar)" }] : []),
+                  ...(editadas ? [{ n: editadas, rotulo: editadas === 1 ? "editada nesta semana" : "editadas nesta semana" }] : []),
+                ]
+          }
+        />
       ) : (
         <Cabecalho area={area} titulo={titulo} descricao={descricao} acoes={<Botao variante="primario" onClick={nova} disabled={criar.isPending}><Plus /> Nova página</Botao>} />
       )}
       {topo}
       {substituir ?? (
       <>
-      <div className="mb-5 flex flex-col gap-3 rounded-2xl border border-line bg-surface p-3 sm:flex-row sm:items-center sm:p-4">
+      <div className={cn("flex flex-col gap-3 p-3 sm:flex-row sm:items-center sm:p-4", futurista ? "vidro mb-6" : "mb-5 rounded-2xl border border-line bg-surface")}>
         <div className="relative min-w-0 flex-1">
-          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-ink-3" />
-          <input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Buscar páginas por título…" aria-label="Buscar páginas por título" className="h-11 w-full rounded-xl border border-line-strong bg-bg/50 pl-10 pr-10 text-base focus-visible:border-projetos focus-visible:outline-none sm:text-sm" />
+          <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-ink-3" />
+          <input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Buscar páginas por título…" aria-label="Buscar páginas por título" className={cn("h-11 w-full pl-10 pr-10 text-base focus-visible:outline-none sm:text-sm", futurista ? "rounded-full border border-[var(--b-borda)] bg-black/25 placeholder:text-ink-3 focus-visible:border-[var(--b-luz)]" : "rounded-xl border border-line-strong bg-bg/50 focus-visible:border-projetos")} />
           {busca ? <button type="button" onClick={() => setBusca("")} aria-label="Limpar busca" className="absolute right-1 top-1/2 grid size-10 -translate-y-1/2 place-items-center text-ink-2"><X className="size-4" /></button> : null}
         </div>
         <span className="tabular text-xs font-medium text-ink-3 sm:text-sm" aria-live="polite">{busca ? `${daSecao.filter((p) => contem(p.title, busca)).length} encontradas` : `${daSecao.length} páginas`}</span>
@@ -123,18 +149,34 @@ export function ListaPaginas({
       {isLoading ? (
         <Carregando />
       ) : daSecao.length === 0 ? (
-        <Vazio className="rounded-2xl bg-surface p-7 sm:p-10" titulo="Nenhuma página ainda." descricao="Crie sua primeira página ou importe conteúdo do Notion em Configurações." acao={<Botao variante="primario" onClick={nova}><Plus /> Nova página</Botao>} />
+        futurista ? (
+          <VazioCerebro icone={NotebookText} titulo="Nenhuma página ainda." descricao="Crie sua primeira página ou importe o conteúdo do Notion em Configurações." acao={<Botao variante="primario" className="rounded-full" onClick={nova}><Plus /> Nova página</Botao>} />
+        ) : (
+          <Vazio className="rounded-2xl bg-surface p-7 sm:p-10" titulo="Nenhuma página ainda." descricao="Crie sua primeira página ou importe conteúdo do Notion em Configurações." acao={<Botao variante="primario" onClick={nova}><Plus /> Nova página</Botao>} />
+        )
       ) : busca && !daSecao.some((p) => contem(p.title, busca)) ? (
-        <Vazio className="rounded-2xl bg-surface p-7 sm:p-10" titulo="Nenhuma página encontrada." descricao="Experimente outro termo ou limpe a busca." acao={<Botao variante="contorno" onClick={() => setBusca("")}>Limpar busca</Botao>} />
+        futurista ? (
+          <VazioCerebro icone={Search} titulo="Nenhuma página encontrada." descricao="Experimente outro termo ou limpe a busca." acao={<Botao variante="contorno" className="rounded-full bg-transparent" onClick={() => setBusca("")}>Limpar busca</Botao>} />
+        ) : (
+          <Vazio className="rounded-2xl bg-surface p-7 sm:p-10" titulo="Nenhuma página encontrada." descricao="Experimente outro termo ou limpe a busca." acao={<Botao variante="contorno" onClick={() => setBusca("")}>Limpar busca</Botao>} />
+        )
       ) : (
         <div className="grid gap-6 sm:gap-8">
           {favoritas.length && !busca ? (
             <section>
-              <h2 className="mb-3 flex items-center gap-2 font-display text-lg font-semibold"><Star className="size-4 fill-estudos text-estudos" /> Favoritas</h2>
+              <h2 className={cn("mb-3 flex items-center gap-2", futurista ? "rotulo-hud" : "font-display text-lg font-semibold")}><Star className={cn("fill-estudos text-estudos", futurista ? "size-3.5" : "size-4")} /> Favoritas</h2>
               <ul className="flex flex-wrap gap-2">
                 {favoritas.map((p) => (
                   <li key={p.id}>
-                    <Link href={`/paginas/${p.id}`} className="inline-flex min-h-10 max-w-full items-center gap-1.5 rounded-xl border border-line bg-surface px-3 py-2 text-sm font-medium hover:border-projetos/40 hover:text-projetos">
+                    <Link
+                      href={`/paginas/${p.id}`}
+                      className={cn(
+                        "inline-flex min-h-10 max-w-full items-center gap-1.5 px-3 py-2 text-sm font-medium",
+                        futurista
+                          ? "rounded-full border border-[var(--b-ambar)]/30 bg-[var(--b-ambar)]/[0.08] shadow-[0_0_18px_-10px_var(--b-ambar)] transition-colors hover:border-[var(--b-ambar)]/60 hover:text-ink"
+                          : "rounded-xl border border-line bg-surface hover:border-projetos/40 hover:text-projetos",
+                      )}
+                    >
                       <Star className="size-3.5 fill-estudos text-estudos" />
                       <span className="max-w-[65vw] truncate sm:max-w-64">{p.title}</span>
                     </Link>
@@ -147,8 +189,18 @@ export function ListaPaginas({
             .filter((s) => s.itens.length)
             .map((s) => (
               <section key={s.secao}>
-                {secoes.length > 1 ? <h2 className="mb-3 font-display text-lg font-semibold">{SECOES[s.secao] ?? s.secao} <span className="tabular ml-1 text-sm font-normal text-ink-3">{s.itens.length}</span></h2> : null}
-                <ul className="min-w-0 rounded-2xl border border-line bg-surface p-2 sm:p-3">
+                {secoes.length > 1 ? (
+                  futurista ? (
+                    <h2 className="mb-3 flex items-center gap-2">
+                      <span className="rotulo-hud">{SECOES[s.secao] ?? s.secao}</span>
+                      <span className="tabular rounded-full border border-[var(--b-borda)] bg-white/[0.04] px-2 py-0.5 text-xs font-medium text-[var(--b-luz)]">{s.itens.length}</span>
+                      <span aria-hidden className="h-px min-w-6 flex-1 bg-gradient-to-r from-[var(--b-borda-2)] to-transparent" />
+                    </h2>
+                  ) : (
+                    <h2 className="mb-3 font-display text-lg font-semibold">{SECOES[s.secao] ?? s.secao} <span className="tabular ml-1 text-sm font-normal text-ink-3">{s.itens.length}</span></h2>
+                  )
+                ) : null}
+                <ul className={cn("min-w-0 p-2 sm:p-3", futurista ? "vidro" : "rounded-2xl border border-line bg-surface")}>
                   {s.itens.map((p) => (
                     <NoArvore key={p.id} pagina={p} indice={indice} nivel={0} busca={busca} visiveis={visiveis} />
                   ))}
@@ -161,4 +213,6 @@ export function ListaPaginas({
       )}
     </div>
   )
+
+  return futurista ? <MolduraCerebro>{conteudo}</MolduraCerebro> : conteudo
 }

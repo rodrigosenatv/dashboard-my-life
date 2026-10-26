@@ -34,7 +34,7 @@ export function DialogoCaptura({
   const { data: projetos = [] } = useProjetosPorNome()
 
   const [titulo, setTitulo] = React.useState("")
-  const [tipo, setTipo] = React.useState("Anotação")
+  const [tipo, setTipo] = React.useState("")
   const [categoria, setCategoria] = React.useState("")
   const [link, setLink] = React.useState("")
   const [conteudo, setConteudo] = React.useState("")
@@ -45,7 +45,8 @@ export function DialogoCaptura({
   React.useEffect(() => {
     if (!aberta) return
     setTitulo(captura?.title ?? "")
-    setTipo(captura?.kind ?? "Anotação")
+    // Nova captura começa sem tipo: assim, sem projeto nem área, ela espera na caixa de entrada para ser organizada
+    setTipo(captura ? (captura.kind ?? "") : "")
     setCategoria(captura?.category ?? "")
     setLink(captura?.url ?? "")
     setConteudo(captura?.content ?? "")
@@ -95,7 +96,7 @@ export function DialogoCaptura({
       aberta={aberta}
       aoMudar={aoMudar}
       titulo={captura ? "Editar captura" : "Nova captura"}
-      descricao={captura ? undefined : "Anote agora e organize depois. Sem projeto nem área, ela fica na caixa de entrada."}
+      descricao={captura ? undefined : "Anote agora e organize depois. Sem tipo, projeto nem área, ela espera na caixa de entrada."}
       rodape={
         <>
           <Botao variante="fantasma" onClick={() => aoMudar(false)}>
@@ -114,6 +115,7 @@ export function DialogoCaptura({
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <Campo rotulo="Tipo" htmlFor="c-tipo">
             <Seletor id="c-tipo" value={tipo} onChange={(e) => setTipo(e.target.value)}>
+              <option value="">Sem tipo (a organizar)</option>
               {TIPOS_CAPTURA.map((t) => (
                 <option key={t}>{t}</option>
               ))}
