@@ -1,6 +1,6 @@
 "use client"
 
-import Link from "next/link"
+import { LinkIntencao as Link } from "@/components/ui/link-intencao"
 import { useParams } from "next/navigation"
 import { useQueryClient } from "@tanstack/react-query"
 import * as React from "react"

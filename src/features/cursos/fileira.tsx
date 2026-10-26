@@ -1,6 +1,6 @@
 "use client"
 
-import Link from "next/link"
+import { LinkIntencao as Link } from "@/components/ui/link-intencao"
 import * as React from "react"
 import { ArrowRight, Check, ChevronLeft, ChevronRight } from "lucide-react"
 import { cn } from "@/lib/utils"

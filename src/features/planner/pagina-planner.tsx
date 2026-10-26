@@ -1,6 +1,6 @@
 "use client"
 
-import Link from "next/link"
+import { LinkIntencao as Link } from "@/components/ui/link-intencao"
 import * as React from "react"
 import { useAbrirDoEndereco } from "@/lib/abrir-do-endereco"
 import { addDays, addMonths, endOfMonth, endOfWeek, format, startOfMonth, startOfWeek } from "date-fns"

@@ -1,6 +1,6 @@
 "use client"
 
-import Link from "next/link"
+import { LinkIntencao as Link } from "@/components/ui/link-intencao"
 import { useRouter } from "next/navigation"
 import * as React from "react"
 import { isThisWeek } from "date-fns"
@@ -112,7 +112,8 @@ export function ListaPaginas({
 
   // Os cursos (páginas com módulos) aparecem como mapas; na busca, voltam para a árvore
   const raizesBiblioteca = React.useMemo(() => (cursos ? (porSecao.find((s) => s.secao === "biblioteca")?.itens ?? []) : []), [cursos, porSecao])
-  const listaCursos = useCursosDaBiblioteca(raizesBiblioteca, cursos && !substituir)
+  const { cursos: listaCursos, carregando: carregandoCursos } = useCursosDaBiblioteca(raizesBiblioteca, cursos && !substituir)
+  const carregando = isLoading || carregandoCursos
   const idsCursos = new Set(busca ? [] : listaCursos.map((c) => c.pagina.id))
 
   const nova = async () => {
@@ -140,14 +141,15 @@ export function ListaPaginas({
           </Botao>
         }
         hud={
-          isLoading || !daSecao.length
+          carregando || !daSecao.length
             ? []
             : [
                 { n: daSecao.length, rotulo: daSecao.length === 1 ? "página" : "páginas", cor: "var(--b-luz)" },
                 ...(listaCursos.length ? [{ n: listaCursos.reduce((s, c) => s + c.modulos.length, 0), rotulo: "módulos", cor: "var(--b-luz-2)" }] : []),
-                ...hudExtra,
                 ...(favoritas.length ? [{ n: favoritas.length, rotulo: favoritas.length === 1 ? "favorita" : "favoritas", cor: "var(--b-ambar)" }] : []),
                 ...(editadas ? [{ n: editadas, rotulo: editadas === 1 ? "editada nesta semana" : "editadas nesta semana" }] : []),
+                // Por último: o que chega depois (os prompts) não empurra os números que já estão na tela
+                ...hudExtra,
               ]
         }
       />
@@ -175,7 +177,7 @@ export function ListaPaginas({
             </span>
           </div>
 
-          {isLoading ? (
+          {carregando ? (
             <Carregando />
           ) : daSecao.length === 0 ? (
             <VazioCerebro

@@ -1,6 +1,6 @@
 "use client"
 
-import Link from "next/link"
+import { LinkIntencao as Link } from "@/components/ui/link-intencao"
 import * as React from "react"
 import { useQueryClient } from "@tanstack/react-query"
 import { ArrowDown, ArrowUp, Calculator, ChevronRight, Lightbulb, Plus, ShoppingCart, Target } from "lucide-react"

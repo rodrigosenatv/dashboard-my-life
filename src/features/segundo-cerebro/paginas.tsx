@@ -1,6 +1,6 @@
 "use client"
 
-import Link from "next/link"
+import { LinkIntencao as Link } from "@/components/ui/link-intencao"
 import { useParams } from "next/navigation"
 import * as React from "react"
 import { isThisWeek, isToday } from "date-fns"

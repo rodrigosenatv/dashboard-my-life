@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils"
 import { EXTRAS, GRUPOS, HOJE, ativo, grupoDaRota, type ItemNav } from "@/lib/navegacao"
 import type { Area } from "@/lib/areas"
 import { CHAVE_MENU_RECOLHIDO, useSessao, useTema, type Tema } from "@/components/provedores"
+import { LinkIntencao } from "@/components/ui/link-intencao"
 import { Menu, MenuConteudo, MenuGatilho, MenuItem, MenuRotulo, MenuSeparador } from "@/components/ui/menu"
 import { BotaoNovo } from "./novo"
 import { abrirBusca } from "./busca"
@@ -19,7 +20,7 @@ function LinkNav({ item, area }: { item: ItemNav; area?: Area }) {
   const sel = ativo(pathname, item.href)
   const Icone = item.icone
   return (
-    <Link
+    <LinkIntencao
       href={item.href}
       title={item.rotulo}
       aria-current={sel ? "page" : undefined}
@@ -28,7 +29,7 @@ function LinkNav({ item, area }: { item: ItemNav; area?: Area }) {
     >
       <Icone className="size-4 shrink-0" />
       <span className="truncate recolhido:hidden">{item.rotulo}</span>
-    </Link>
+    </LinkIntencao>
   )
 }
 

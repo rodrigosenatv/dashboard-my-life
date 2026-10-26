@@ -1,6 +1,6 @@
 "use client"
 
-import Link from "next/link"
+import { LinkIntencao as Link } from "@/components/ui/link-intencao"
 import * as React from "react"
 import { ArrowUpRight, GraduationCap, Sparkles, Star } from "lucide-react"
 import { useLista } from "@/lib/data"
@@ -15,13 +15,13 @@ export type Curso = { pagina: PaginaResumo; soltas: string[]; modulos: Modulo[] 
  */
 export function useCursosDaBiblioteca(raizes: PaginaResumo[], ativo = true) {
   const ids = raizes.map((r) => r.id).sort()
-  const { data = [] } = useLista("pages", {
+  const { data = [], isLoading } = useLista("pages", {
     colunas: "id,content",
     filtro: (q) => q.in("id", ids),
     chave: ["cursos-biblioteca", ids.join(",")],
     enabled: ativo && ids.length > 0,
   })
-  return React.useMemo(() => {
+  const cursos = React.useMemo(() => {
     const porId = new Map(raizes.map((r) => [r.id, r]))
     const cursos: Curso[] = []
     for (const linha of data) {
@@ -33,6 +33,9 @@ export function useCursosDaBiblioteca(raizes: PaginaResumo[], ativo = true) {
     }
     return cursos.sort((a, b) => a.pagina.position - b.pagina.position || a.pagina.title.localeCompare(b.pagina.title))
   }, [data, raizes])
+  // `carregando` segura a árvore até saber quais páginas viram mapa de curso: sem isso a árvore aparecia e, um instante
+  // depois, trocava de lugar com o mapa (o pulo de layout da Biblioteca)
+  return { cursos, carregando: isLoading }
 }
 
 const LIMITE_AULAS = 4

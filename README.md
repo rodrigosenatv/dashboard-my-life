@@ -117,6 +117,16 @@ Em **Estudos > Leitura**, cada livro pode ter um arquivo (PDF, EPUB, MOBI, AZW3 
 - **Sem internet.** O service worker guarda a tela do leitor depois de aberta e os arquivos estáticos do app.
 - **Motor de leitura.** [foliate-js](https://github.com/johnfactotum/foliate-js) (MIT), copiado em `src/vendor/foliate-js`. Os arquivos do pdf.js que o navegador busca à parte são copiados para `public/pdfjs` por `scripts/copiar-pdfjs.mjs`, que roda sozinho depois do `npm install` e antes do `dev` e do `build`.
 
+## Desempenho
+
+Depois das telas futuristas o app ficou pesado; a medição (Playwright, CPU 4x mais lenta) apontou três causas, já corrigidas:
+
+- **Pré-carregamento do menu.** O Next pré-carrega todo link visível, e os ~30 destinos do menu (mais os links dos painéis) disparavam dezenas de pedidos e baixavam o código de várias telas em toda abertura. Todos os links do app usam `LinkIntencao` (`src/components/ui/link-intencao.tsx`), que só pré-carrega com mouse em cima, foco ou toque. Resultado: Hoje foi de 66 para 11 pedidos e de 2,7 MB para 1,1 MB de JS; Tarefas, de 31 para 4 pedidos.
+- **Desfoque de vidro.** `.vidro`, `.vidro-vivo`, `.capa-hoje`, `.console-ia` e as pílulas do cabeçalho tinham `backdrop-filter`; o fundo atrás é liso, o efeito não aparecia e cada painel custava uma camada. O desfoque ficou só onde algo rola por baixo (cabeçalho, barra de baixo, janelas e capas de imagem). A imagem fica igual (menos de 0,05% dos pixels mudam).
+- **Pulo de layout na Biblioteca.** A árvore aparecia e era trocada pelo mapa dos cursos quando o texto deles chegava; agora a lista espera os cursos (`useCursosDaBiblioteca` devolve `carregando`) e os números novos entram no fim da fileira.
+
+Para medir de novo: `next build`, `next start`, e rodar o Playwright com `Emulation.setCPUThrottlingRate` e `document.getAnimations()`. Links novos devem usar `LinkIntencao` (importe como `Link`); `backdrop-filter` só em superfícies sobre conteúdo que rola.
+
 ## Desenvolvimento
 
 ```bash

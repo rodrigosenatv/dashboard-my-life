@@ -1,6 +1,6 @@
 "use client"
 
-import Link from "next/link"
+import { LinkIntencao as Link } from "@/components/ui/link-intencao"
 import * as React from "react"
 import { ChevronRight, CirclePlay, Minus, Plus, Search } from "lucide-react"
 import { Botao } from "@/components/ui/button"

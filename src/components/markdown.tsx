@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import Link from "next/link"
+import { LinkIntencao as Link } from "@/components/ui/link-intencao"
 import ReactMarkdown, { type Components } from "react-markdown"
 import remarkGfm from "remark-gfm"
 import { Check, Copy, Info, MessageSquareText, Play } from "lucide-react"

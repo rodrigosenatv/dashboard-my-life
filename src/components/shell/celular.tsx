@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { LinkIntencao } from "@/components/ui/link-intencao"
 import { usePathname } from "next/navigation"
 import { BookOpen, BrainCircuit, Ellipsis, ListTodo, Search, Sun } from "lucide-react"
 import * as React from "react"
@@ -63,7 +64,7 @@ export function BarraInferior() {
         {ABAS.map((a) => {
           const sel = selecionada(a.area, a.href)
           return (
-            <Link
+            <LinkIntencao
               key={a.href}
               href={a.href}
               aria-current={sel ? "page" : undefined}
@@ -72,7 +73,7 @@ export function BarraInferior() {
             >
               <a.icone className="size-5" />
               {a.rotulo}
-            </Link>
+            </LinkIntencao>
           )
         })}
         <button
@@ -96,7 +97,7 @@ export function BarraInferior() {
               </p>
               <div className="grid grid-cols-2 gap-2">
                 {g.itens.map((i) => (
-                  <Link
+                  <LinkIntencao
                     key={i.href}
                     href={i.href}
                     aria-current={ativo(pathname, i.href) ? "page" : undefined}
@@ -104,7 +105,7 @@ export function BarraInferior() {
                   >
                     <i.icone className="size-4 shrink-0" />
                     <span className="truncate">{i.rotulo}</span>
-                  </Link>
+                  </LinkIntencao>
                 ))}
               </div>
             </div>
@@ -112,7 +113,7 @@ export function BarraInferior() {
           <div className="relative grid grid-cols-2 gap-2 pt-4">
             <span aria-hidden className="cabine-fio absolute inset-x-0 top-0" />
             {EXTRAS.map((i) => (
-              <Link
+              <LinkIntencao
                 key={i.href}
                 href={i.href}
                 aria-current={ativo(pathname, i.href) ? "page" : undefined}
@@ -120,7 +121,7 @@ export function BarraInferior() {
               >
                 <i.icone className="size-4 shrink-0" />
                 <span className="truncate">{i.rotulo}</span>
-              </Link>
+              </LinkIntencao>
             ))}
           </div>
         </div>
@@ -153,7 +154,7 @@ export function AbasArea() {
         {grupo.itens.map((i) => {
           const sel = ativo(pathname, i.href)
           return (
-            <Link
+            <LinkIntencao
               key={i.href}
               href={i.href}
               aria-current={sel ? "page" : undefined}
@@ -162,7 +163,7 @@ export function AbasArea() {
               {/* Só a aba aberta leva o ícone, aceso na cor da área */}
               {sel ? <i.icone className="size-3.5 shrink-0 text-[var(--area)] drop-shadow-[0_0_5px_var(--area)]" aria-hidden /> : null}
               {i.rotulo}
-            </Link>
+            </LinkIntencao>
           )
         })}
       </div>

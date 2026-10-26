@@ -63,7 +63,7 @@ export function PaginaLaboratorio() {
         {experimentos.length ? (
           <ul className="mt-4 flex flex-wrap gap-2" aria-label="Seus experimentos">
             {hud.map((h) => (
-              <li key={h.rotulo} className="inline-flex min-h-9 items-baseline gap-1.5 rounded-full border border-[var(--b-borda)] bg-white/[0.03] px-3 py-1 text-sm text-ink-2 backdrop-blur">
+              <li key={h.rotulo} className="inline-flex min-h-9 items-baseline gap-1.5 rounded-full border border-[var(--b-borda)] bg-white/[0.03] px-3 py-1 text-sm text-ink-2">
                 <span className="tabular font-display text-base font-semibold" style={h.cor ? { color: h.cor } : undefined}>
                   {h.n}
                 </span>

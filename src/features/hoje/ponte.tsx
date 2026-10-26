@@ -1,6 +1,6 @@
 "use client"
 
-import Link from "next/link"
+import { LinkIntencao as Link } from "@/components/ui/link-intencao"
 import dynamic from "next/dynamic"
 import * as React from "react"
 import { format } from "date-fns"
@@ -154,7 +154,7 @@ function CapaDoDia({ agora, eventos, chips }: { agora: Date; eventos: Evento[]; 
         <ul aria-label="Resumo do dia" className="-mx-5 mt-4 flex gap-2 overflow-x-auto px-5 pb-1 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0">
           {chips.map((c) => (
             <li key={c.rotulo} className="shrink-0">
-              <Link href={c.href} className="inline-flex min-h-9 items-baseline gap-1.5 rounded-full border border-[var(--b-borda)] bg-white/[0.04] px-3 py-1 text-sm text-ink-2 backdrop-blur transition-colors hover:border-[var(--b-borda-2)] hover:text-ink toque:min-h-10">
+              <Link href={c.href} className="inline-flex min-h-9 items-baseline gap-1.5 rounded-full border border-[var(--b-borda)] bg-white/[0.04] px-3 py-1 text-sm text-ink-2 transition-colors hover:border-[var(--b-borda-2)] hover:text-ink toque:min-h-10">
                 <span className="tabular font-display text-base font-semibold" style={c.cor ? { color: c.cor } : undefined}>
                   {c.n}
                 </span>

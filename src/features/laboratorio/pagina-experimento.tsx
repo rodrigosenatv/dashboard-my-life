@@ -1,6 +1,6 @@
 "use client"
 
-import Link from "next/link"
+import { LinkIntencao as Link } from "@/components/ui/link-intencao"
 import { useParams, useRouter } from "next/navigation"
 import * as React from "react"
 import { ArrowLeft, Ban, BookText, CalendarPlus, Check, Ellipsis, FlaskConical, Lightbulb, NotebookPen, Pause, Pencil, Play, Repeat, Trash, X } from "lucide-react"

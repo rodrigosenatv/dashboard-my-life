@@ -1,6 +1,6 @@
 "use client"
 
-import Link from "next/link"
+import { LinkIntencao as Link } from "@/components/ui/link-intencao"
 import { useRouter } from "next/navigation"
 import { FileText, Pencil } from "lucide-react"
 import { Markdown } from "@/components/markdown"

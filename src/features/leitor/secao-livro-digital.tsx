@@ -1,6 +1,6 @@
 "use client"
 
-import Link from "next/link"
+import { LinkIntencao as Link } from "@/components/ui/link-intencao"
 import * as React from "react"
 import { BookOpen, Cloud, CloudOff, Download, FilePlus2, FileUp, HardDrive, MoreHorizontal, RefreshCw, Trash } from "lucide-react"
 import { toast } from "sonner"

@@ -523,13 +523,12 @@
   mask-image: radial-gradient(120% 55% at 50% 0%, #000 20%, transparent 72%);
 }
 
-/* Painel de vidro */
+/* Painel de vidro. Sem backdrop-filter: o fundo atrás é liso, o desfoque não aparecia e cada painel pagava uma camada
+   de composição (dezenas por tela). O desfoque fica só onde algo rola por baixo: cabeçalho, barra de baixo e janelas. */
 .vidro {
   background: var(--b-vidro);
   border: 1px solid var(--b-borda);
   border-radius: 1.25rem;
-  -webkit-backdrop-filter: blur(14px);
-  backdrop-filter: blur(14px);
 }
 
 /* Rótulo de painel (letras pequenas, espaçadas) */
@@ -1294,8 +1293,6 @@ a:focus-visible .livro3d-corpo,
   box-shadow:
     0 24px 60px -30px rgb(99 227 255 / 0.45),
     inset 0 1px 0 rgb(255 255 255 / 0.06);
-  -webkit-backdrop-filter: blur(14px);
-  backdrop-filter: blur(14px);
 }
 .capa-hoje::before {
   content: "";
@@ -1519,8 +1516,6 @@ a:focus-visible .livro3d-corpo,
   background: var(--b-vidro);
   border: 1px solid var(--b-borda);
   border-radius: 1.25rem;
-  -webkit-backdrop-filter: blur(14px);
-  backdrop-filter: blur(14px);
   transition: border-color 200ms, background-color 200ms, box-shadow 200ms, transform 200ms;
 }
 .vidro-vivo:hover,
@@ -1826,8 +1821,6 @@ a:focus-visible .livro3d-corpo,
   border: 1px solid var(--b-borda-2);
   border-radius: 1.25rem;
   background: rgb(12 5 18 / 0.78);
-  -webkit-backdrop-filter: blur(16px);
-  backdrop-filter: blur(16px);
   box-shadow: 0 18px 50px -24px rgb(0 0 0 / 0.95);
   transition: border-color 200ms, box-shadow 200ms;
 }

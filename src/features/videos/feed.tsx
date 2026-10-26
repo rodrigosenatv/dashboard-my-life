@@ -1,6 +1,6 @@
 "use client"
 
-import Link from "next/link"
+import { LinkIntencao as Link } from "@/components/ui/link-intencao"
 import { useRouter, useSearchParams } from "next/navigation"
 import * as React from "react"
 import { ChevronDown, ChevronUp, Ellipsis, ExternalLink, FileText, Loader2, Plus, Trash2, X } from "lucide-react"

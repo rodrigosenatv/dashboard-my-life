@@ -1,6 +1,6 @@
 "use client"
 
-import Link from "next/link"
+import { LinkIntencao as Link } from "@/components/ui/link-intencao"
 import * as React from "react"
 import { Pencil, Plus, Search } from "lucide-react"
 import { FiltroChips } from "@/features/guarda-roupa/ui"

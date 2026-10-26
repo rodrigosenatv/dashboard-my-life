@@ -1,6 +1,6 @@
 "use client"
 
-import Link from "next/link"
+import { LinkIntencao as Link } from "@/components/ui/link-intencao"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { mmss, ROTA_FLOW, ROTULO_FASE, rodando, type Fase } from "./logica"

@@ -1,6 +1,6 @@
 "use client"
 
-import Link from "next/link"
+import { LinkIntencao as Link } from "@/components/ui/link-intencao"
 import * as React from "react"
 import { ArrowLeft, List, LoaderCircle, Quote, Search, Type } from "lucide-react"
 import { cn } from "@/lib/utils"

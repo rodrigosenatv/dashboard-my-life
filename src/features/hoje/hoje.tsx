@@ -1,6 +1,6 @@
 "use client"
 
-import Link from "next/link"
+import { LinkIntencao as Link } from "@/components/ui/link-intencao"
 import * as React from "react"
 import { useProjetosPorNome } from "@/features/projetos/dados"
 import { format } from "date-fns"

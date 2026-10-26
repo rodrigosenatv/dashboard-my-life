@@ -1,6 +1,6 @@
 "use client"
 
-import Link from "next/link"
+import { LinkIntencao as Link } from "@/components/ui/link-intencao"
 import { ArrowLeft, type LucideIcon } from "lucide-react"
 import type { ReactNode } from "react"
 import { cn } from "@/lib/utils"
@@ -16,7 +16,7 @@ export function ChipsHud({ itens, className }: { itens: ItemHud[]; className?: s
     // No celular as pílulas ficam numa linha que desliza para o lado; a partir do tablet, quebram linha
     <ul className={cn("-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0", className)} aria-label="Resumo">
       {itens.map((h) => (
-        <li key={h.rotulo} className="inline-flex min-h-9 shrink-0 items-baseline gap-1.5 whitespace-nowrap rounded-full border border-[var(--b-borda)] bg-white/[0.03] px-3 py-1 text-sm text-ink-2 backdrop-blur">
+        <li key={h.rotulo} className="inline-flex min-h-9 shrink-0 items-baseline gap-1.5 whitespace-nowrap rounded-full border border-[var(--b-borda)] bg-white/[0.03] px-3 py-1 text-sm text-ink-2">
           <span className="tabular font-display text-base font-semibold" style={h.cor ? { color: h.cor } : undefined}>
             {h.n}
           </span>
