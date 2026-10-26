@@ -1592,6 +1592,264 @@ a:focus-visible .livro3d-corpo,
 }
 
 /* =====================================================================
+   Conteúdo e IA: o estúdio
+   Da mesma família da biblioteca, dos cursos, do laboratório e do
+   Segundo Cérebro: um estúdio de criação à noite, num ameixa quase preto,
+   com a luz rosa-neon da área (Conteúdo), faíscas ciano e violeta, ondas
+   de som ao fundo (public/ondas.svg) e linhas finas de tela, que somem
+   para baixo. Biblioteca, Planner, Assistente e as páginas da Biblioteca,
+   do Planner e das conversas. Sempre escuro. Usa os mesmos nomes de cor
+   (--b-*), então vidro, rotulo-hud, barra-luz, vidro-vivo e icone-aceso
+   servem aqui também.
+   ===================================================================== */
+
+@layer components {
+.tema-estudio {
+  --b-fundo: #0b0612;
+  --b-fundo-2: #2a0a33;
+  --b-tinta: #fdf0fa;
+  --b-tinta-2: rgb(253 240 250 / 0.78);
+  --b-tinta-3: rgb(253 240 250 / 0.6);
+  --b-luz: #ff6fb5;
+  --b-luz-2: #5ee7ff;
+  --b-violeta: #b69cff;
+  --b-rosa: #ff8fd1;
+  --b-ambar: #ffc65a;
+  --b-verde: #4ee0a0;
+  --b-menta: #7cf5c4;
+  --b-coral: #ff8a6b;
+  --b-vidro: rgb(255 180 230 / 0.05);
+  --b-vidro-2: rgb(255 180 230 / 0.09);
+  --b-borda: rgb(255 175 225 / 0.15);
+  --b-borda-2: rgb(255 175 225 / 0.3);
+
+  /* As cores do app no escuro do estúdio (botões, campos, menus, janelas) */
+  --bg: var(--b-fundo);
+  --surface: #1a0c22;
+  --surface-2: #24112f;
+  --surface-3: #331a42;
+  --ink: var(--b-tinta);
+  --ink-2: var(--b-tinta-2);
+  --ink-3: var(--b-tinta-3);
+  --line: var(--b-borda);
+  --line-strong: var(--b-borda-2);
+  --pen: var(--b-luz);
+  --pen-ink: #2b0619;
+  --pen-soft: rgb(255 111 181 / 0.15);
+  --ring: var(--b-luz);
+  --conteudo: var(--b-luz);
+  --conteudo-soft: rgb(255 111 181 / 0.15);
+  --rotina: var(--b-verde);
+  --rotina-soft: rgb(78 224 160 / 0.15);
+  --projetos: var(--b-violeta);
+  --projetos-soft: rgb(182 156 255 / 0.15);
+  --estudos: var(--b-ambar);
+  --estudos-soft: rgb(255 198 90 / 0.15);
+  /* O perigo puxa para o coral, para não se confundir com o rosa da área */
+  --danger: #ff7a66;
+  --danger-soft: rgb(255 122 102 / 0.15);
+  --warning: var(--b-ambar);
+  --shadow-overlay: 0 24px 60px -16px rgb(0 0 0 / 0.85), 0 0 0 1px rgb(255 175 225 / 0.14);
+  color-scheme: dark;
+  color: var(--ink);
+}
+
+/* O fundo: luz rosa no alto, as ondas de som e as linhas de tela, que somem para baixo */
+.estudio {
+  position: relative;
+  isolation: isolate;
+  /* clip, e não hidden: assim o console do assistente e o histórico continuam grudando na tela (sticky) */
+  overflow: clip;
+  background:
+    radial-gradient(85% 45% at 50% -10%, rgb(255 80 170 / 0.3), transparent 65%),
+    radial-gradient(45% 30% at 104% 16%, rgb(94 231 255 / 0.11), transparent 70%),
+    radial-gradient(50% 36% at -6% 62%, rgb(182 156 255 / 0.1), transparent 70%),
+    linear-gradient(180deg, var(--b-fundo-2), var(--b-fundo) 42%);
+}
+.estudio::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 28rem;
+  pointer-events: none;
+  background: url("/ondas.svg") center -36px / 1400px auto repeat-x;
+  /* Mais fraca à esquerda, onde ficam o título e o texto */
+  -webkit-mask-image:
+    linear-gradient(to bottom, #000 15%, rgb(0 0 0 / 0.45) 55%, transparent 92%),
+    linear-gradient(90deg, rgb(0 0 0 / 0.28), rgb(0 0 0 / 0.5) 45%, #000 75%);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(to bottom, #000 15%, rgb(0 0 0 / 0.45) 55%, transparent 92%),
+    linear-gradient(90deg, rgb(0 0 0 / 0.28), rgb(0 0 0 / 0.5) 45%, #000 75%);
+  mask-composite: intersect;
+}
+.estudio::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, transparent, rgb(255 111 181 / 0.85), rgb(94 231 255 / 0.6), transparent) top / 100% 1px no-repeat,
+    repeating-linear-gradient(180deg, rgb(255 255 255 / 0.022) 0 1px, transparent 1px 4px);
+  -webkit-mask-image: linear-gradient(to bottom, #000, rgb(0 0 0 / 0.35) 40%, transparent 80%);
+  mask-image: linear-gradient(to bottom, #000, rgb(0 0 0 / 0.35) 40%, transparent 80%);
+}
+
+/* As abas (Segmentos) e o visto das caixas marcadas, no rosa da área */
+.tema-estudio [role="tablist"] > [role="tab"][aria-selected="true"] {
+  background: rgb(255 111 181 / 0.16);
+  color: var(--ink);
+  box-shadow: inset 0 0 0 1px rgb(255 111 181 / 0.42), 0 0 18px -8px var(--b-luz);
+}
+.tema-estudio [role="checkbox"][aria-checked="true"] > svg {
+  color: var(--pen-ink);
+}
+.tema-estudio .barra-luz > span {
+  background: linear-gradient(90deg, var(--b-violeta), var(--b-luz) 60%, #ffb3d9);
+  box-shadow: 0 0 14px rgb(255 111 181 / 0.6);
+}
+
+/* O texto das páginas e das respostas: blocos de prompt como telas, callouts do Notion em vidro */
+.tema-estudio .prosa pre {
+  background: rgb(0 0 0 / 0.35);
+  border-color: var(--b-borda);
+  border-left: 2px solid var(--b-luz);
+  box-shadow: -8px 0 20px -16px var(--b-luz);
+}
+.tema-estudio .prosa blockquote {
+  border-left-color: var(--b-luz);
+  border-radius: 0 0.75rem 0.75rem 0;
+  background: var(--b-vidro);
+  padding: 0.5em 0.9em;
+}
+
+/* Uma coluna do quadro de produção, acesa na cor da etapa (--cor) */
+.coluna-etapa {
+  position: relative;
+  border: 1px solid var(--b-borda);
+  border-radius: 1.25rem;
+  background: linear-gradient(180deg, color-mix(in oklab, var(--cor) 9%, transparent), var(--b-vidro) 9rem);
+  transition: border-color 160ms, box-shadow 160ms;
+}
+.coluna-etapa::before {
+  content: "";
+  position: absolute;
+  left: 1.25rem;
+  right: 1.25rem;
+  top: -1px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--cor);
+  box-shadow: 0 0 12px var(--cor);
+}
+.coluna-etapa[data-sobre] {
+  border-color: var(--cor);
+  box-shadow: 0 0 0 1px var(--cor), 0 0 34px -12px var(--cor);
+}
+
+/* O ponto vermelho de "gravando" */
+.ponto-rec {
+  width: 0.5rem;
+  height: 0.5rem;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #ff4d6d;
+  box-shadow: 0 0 8px #ff4d6d;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .ponto-rec {
+    animation: gravando 1.4s ease-in-out infinite;
+  }
+}
+@keyframes gravando {
+  50% {
+    opacity: 0.3;
+  }
+}
+
+/* O núcleo da IA: uma esfera de luz rosa e violeta, com um anel girando (mais rápido quando pensa) */
+.orbe-ia {
+  position: relative;
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #ffe0f0 0%, #ff6fb5 24%, #7d3cff 58%, #170a26 80%);
+  box-shadow:
+    0 0 0 1px rgb(255 175 225 / 0.35),
+    0 0 40px -6px rgb(255 111 181 / 0.7),
+    0 0 90px -24px rgb(94 231 255 / 0.55);
+}
+.orbe-ia::before {
+  content: "";
+  position: absolute;
+  inset: -12%;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, transparent, rgb(94 231 255 / 0.75), transparent 30%, rgb(255 111 181 / 0.75), transparent 62%);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1.5px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1.5px));
+}
+.orbe-ia[data-apagado] {
+  filter: grayscale(0.7) brightness(0.7);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .orbe-ia::before {
+    animation: girar-anel 9s linear infinite;
+  }
+  .orbe-ia[data-pensando]::before {
+    animation-duration: 1.4s;
+  }
+  .orbe-ia[data-pensando] {
+    animation: orbe-pulsa 1.6s ease-in-out infinite;
+  }
+}
+@keyframes girar-anel {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes orbe-pulsa {
+  50% {
+    box-shadow:
+      0 0 0 1px rgb(255 175 225 / 0.5),
+      0 0 54px -4px rgb(255 111 181 / 0.95),
+      0 0 110px -20px rgb(94 231 255 / 0.75);
+  }
+}
+
+/* O console de envio do assistente */
+.console-ia {
+  border: 1px solid var(--b-borda-2);
+  border-radius: 1.25rem;
+  background: rgb(12 5 18 / 0.78);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 18px 50px -24px rgb(0 0 0 / 0.95);
+  transition: border-color 200ms, box-shadow 200ms;
+}
+.console-ia:focus-within {
+  border-color: rgb(255 111 181 / 0.6);
+  box-shadow:
+    0 18px 50px -24px rgb(0 0 0 / 0.95),
+    0 0 0 3px rgb(255 111 181 / 0.12),
+    0 0 34px -10px rgb(255 111 181 / 0.6);
+}
+}
+
+/* Os campos a preencher de um prompt ([TÓPICO], {número}), destacados em qualquer bloco de prompt do app */
+.campo-prompt {
+  border-radius: 0.3em;
+  padding: 0 0.15em;
+  color: var(--pen);
+  background: color-mix(in oklab, var(--pen) 13%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--pen) 24%, transparent);
+}
+
+/* =====================================================================
    A cabine: a moldura do app
    A barra lateral, o topo e as abas do celular e a barra de baixo. É o
    azul petróleo da capa do caderno no escuro, com a luz ciano da

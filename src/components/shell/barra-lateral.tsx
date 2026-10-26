@@ -77,6 +77,18 @@ export function BarraLateral() {
     return () => window.removeEventListener("keydown", tecla)
   }, [alternarMenu])
 
+  // O item da página aberta fica à vista: com a lista mais alta que a tela (Conteúdo e IA, Vida pessoal), ela
+  // rola até ele, sem mexer na página
+  const nav = React.useRef<HTMLElement>(null)
+  React.useEffect(() => {
+    const lista = nav.current
+    const item = lista?.querySelector<HTMLElement>('[aria-current="page"]')
+    if (!lista || !item) return
+    const l = lista.getBoundingClientRect()
+    const i = item.getBoundingClientRect()
+    if (i.top < l.top || i.bottom > l.bottom - 24) lista.scrollTop += i.top - l.top - l.height / 2 + i.height / 2
+  }, [pathname])
+
   const alternar = (area: Area) => {
     const novo = fechados.includes(area) ? fechados.filter((a) => a !== area) : [...fechados, area]
     setFechados(novo)
@@ -121,7 +133,7 @@ export function BarraLateral() {
       </div>
 
       {/* A lista some aos poucos embaixo: sinal de que ela rola */}
-      <nav aria-label="Principal" className="-mr-1 flex-1 overflow-y-auto pb-5 pl-3 pr-1 scrollbar-thin [mask-image:linear-gradient(to_bottom,#000_calc(100%-1.5rem),transparent)] recolhido:mr-0 recolhido:px-0.5 recolhido:[scrollbar-width:none]">
+      <nav ref={nav} aria-label="Principal" className="-mr-1 flex-1 overflow-y-auto pb-5 pl-3 pr-1 scrollbar-thin [mask-image:linear-gradient(to_bottom,#000_calc(100%-1.5rem),transparent)] recolhido:mr-0 recolhido:px-0.5 recolhido:[scrollbar-width:none]">
         <LinkNav item={HOJE} area="geral" />
         {GRUPOS.map((g) => {
           // O grupo da página atual fica sempre aberto, para o item marcado não sumir

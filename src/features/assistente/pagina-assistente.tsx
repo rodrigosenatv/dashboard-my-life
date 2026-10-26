@@ -2,10 +2,9 @@
 
 import Link from "next/link"
 import * as React from "react"
-import { ArrowUp, Check, Copy, History, Inbox, Library, Plus, Search, Square, Trash } from "lucide-react"
+import { ArrowUp, CalendarRange, Check, Clapperboard, Copy, GraduationCap, History, Inbox, Library, ListChecks, Plus, Search, Sparkles, Square, Trash, type LucideIcon } from "lucide-react"
 import { toast } from "sonner"
 import { Botao } from "@/components/ui/button"
-import { Cabecalho, Vazio } from "@/components/ui/basicos"
 import { Janela } from "@/components/ui/janela"
 import { Markdown } from "@/components/markdown"
 import { CHAVE_PROMPT } from "@/lib/ia/info"
@@ -17,17 +16,22 @@ import { useDoisToques } from "@/components/ui/botao-excluir"
 import { infoProvedor, type Provedor } from "@/lib/ia/info"
 import { credencial, provedoresAtivos, useConfigIA } from "@/lib/ia/chaves-locais"
 import { camposDoPrompt, preencherPrompt, usePromptsBiblioteca } from "@/features/paginas/prompts"
+import { TextoPrompt } from "@/features/conteudo/texto-prompt"
+import { CabecalhoEstudio, MolduraEstudio } from "@/features/conteudo/moldura"
 import { SECAO_CONVERSAS, conversaParaTexto, textoParaConversa, tituloDaConversa, useConversas, type Mensagem } from "./conversas"
 
 /** Começo da mensagem que o servidor manda quando a resposta falha. */
 const MARCA_ERRO = "[Não foi possível"
 
-const SUGESTOES = [
-  "Me ajude a planejar minha semana a partir das minhas prioridades.",
-  "Crie 10 ideias de Reels sobre produtividade para quem estuda para concursos.",
-  "Resuma em tópicos o que eu preciso saber sobre [TEMA].",
-  "Monte um plano de estudos de 4 semanas para [DISCIPLINA].",
+const SUGESTOES: { titulo: string; texto: string; icone: LucideIcon; cor: string }[] = [
+  { titulo: "Planejar a semana", texto: "Me ajude a planejar minha semana a partir das minhas prioridades.", icone: CalendarRange, cor: "var(--b-violeta)" },
+  { titulo: "Ideias de Reels", texto: "Crie 10 ideias de Reels sobre produtividade para quem estuda para concursos.", icone: Clapperboard, cor: "var(--b-luz)" },
+  { titulo: "Resumir um tema", texto: "Resuma em tópicos o que eu preciso saber sobre [TEMA].", icone: ListChecks, cor: "var(--b-luz-2)" },
+  { titulo: "Plano de estudos", texto: "Monte um plano de estudos de 4 semanas para [DISCIPLINA].", icone: GraduationCap, cor: "var(--b-ambar)" },
 ]
+
+const BOTAO_REDONDO =
+  "grid size-10 shrink-0 place-items-center rounded-full border border-[var(--b-borda)] text-ink-2 transition-colors hover:border-[var(--b-borda-2)] hover:text-ink disabled:opacity-40"
 
 /* ------------------------------------------------------------------ */
 /* Escolher um prompt da biblioteca                                    */
@@ -36,18 +40,18 @@ const SUGESTOES = [
 function EscolherPrompt({ aberta, aoMudar, aoEscolher }: { aberta: boolean; aoMudar: (v: boolean) => void; aoEscolher: (texto: string) => void }) {
   const { prompts, isLoading } = usePromptsBiblioteca(aberta)
   const [busca, setBusca] = React.useState("")
-  const lista = prompts.filter((p) => !busca || contem(`${p.pagina} ${p.titulo} ${p.texto}`, busca)).slice(0, 80)
+  const lista = prompts.filter((p) => !busca || contem(`${p.modulo} ${p.pagina} ${p.titulo} ${p.texto}`, busca)).slice(0, 80)
   return (
     <Janela aberta={aberta} aoMudar={aoMudar} titulo="Prompts da biblioteca" largura="lg">
       <div className="relative mb-3">
-        <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-ink-3" />
+        <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-ink-3" />
         <input
           autoFocus
           value={busca}
           onChange={(e) => setBusca(e.target.value)}
-          placeholder="Buscar por assunto, página ou palavra"
+          placeholder="Buscar por assunto, módulo, página ou palavra"
           aria-label="Buscar prompt"
-          className="h-10 w-full rounded-md border border-line-strong bg-surface pl-8 pr-3 text-sm placeholder:text-ink-3 focus-visible:border-pen focus-visible:outline-none"
+          className="h-11 w-full rounded-full border border-line-strong bg-black/20 pl-10 pr-3 text-base placeholder:text-ink-3 focus-visible:border-pen focus-visible:outline-none sm:text-sm"
         />
       </div>
       {isLoading ? (
@@ -66,11 +70,13 @@ function EscolherPrompt({ aberta, aoMudar, aoEscolher }: { aberta: boolean; aoMu
                   aoEscolher(p.texto)
                   aoMudar(false)
                 }}
-                className="w-full rounded-lg border border-line bg-surface p-3 text-left hover:border-pen"
+                className="w-full rounded-xl border border-line bg-white/[0.03] p-3 text-left transition-colors hover:border-pen hover:bg-white/[0.05]"
               >
-                <span className="block text-xs text-ink-3">{[p.modulo !== p.pagina ? p.modulo : "", p.pagina].filter(Boolean).join(" › ")}</span>
+                <span className="block truncate text-xs text-ink-3">{[p.modulo !== p.pagina ? p.modulo : "", p.pagina].filter(Boolean).join(" › ")}</span>
                 {p.titulo ? <span className="mt-0.5 block text-sm font-medium">{p.titulo}</span> : null}
-                <span className="mt-1 line-clamp-3 block font-mono text-xs leading-relaxed text-ink-2">{p.texto}</span>
+                <span className="mt-1 line-clamp-3 block font-mono text-xs leading-relaxed text-ink-2">
+                  <TextoPrompt texto={p.texto} />
+                </span>
               </button>
             </li>
           ))}
@@ -94,7 +100,7 @@ function ExcluirConversa({ titulo, aoExcluir }: { titulo: string; aoExcluir: () 
       onClick={tocar}
       onBlur={desarmar}
       className={cn(
-        "rounded p-1.5 hover:text-danger focus-visible:opacity-100 toque:opacity-100",
+        "grid size-9 shrink-0 place-items-center rounded-full hover:text-danger focus-visible:opacity-100 toque:opacity-100",
         armado ? "bg-danger-soft text-danger opacity-100" : "text-ink-3 opacity-0 group-hover:opacity-100",
       )}
     >
@@ -108,34 +114,45 @@ function ListaConversas({ atual, aoAbrir, aoNova }: { atual: string | null; aoAb
   const excluir = useExcluir("pages")
   return (
     <div>
-      <Botao variante="contorno" className="mb-3 w-full justify-start" onClick={aoNova}>
-        <Plus /> Nova conversa
-      </Botao>
+      <button
+        type="button"
+        onClick={aoNova}
+        className="mb-3 flex min-h-11 w-full items-center justify-center gap-2 rounded-full border border-[var(--b-luz)]/45 bg-[var(--b-luz)]/[0.1] px-4 text-sm font-semibold shadow-[0_0_20px_-10px_var(--b-luz)] transition-colors hover:border-[var(--b-luz)] hover:bg-[var(--b-luz)]/[0.18]"
+      >
+        <Plus className="size-4 text-[var(--b-luz)]" /> Nova conversa
+      </button>
       {conversas.length === 0 ? (
         <p className="px-1 text-sm text-ink-3">As conversas ficam salvas aqui.</p>
       ) : (
-        <ul className="grid gap-0.5">
-          {conversas.map((c) => (
-            <li key={c.id} className="group flex min-w-0 items-center">
-              <button
-                type="button"
-                onClick={() => aoAbrir(c.id)}
-                aria-current={c.id === atual ? "true" : undefined}
-                className={cn("min-w-0 flex-1 rounded-md px-2 py-1.5 text-left text-sm hover:bg-surface-2", c.id === atual && "bg-surface-2 font-medium")}
-              >
-                <span className="block truncate">{c.title}</span>
-                <span className="block text-xs font-normal text-ink-3 first-letter:uppercase">{dataRelativa(c.updated_at.slice(0, 10))}</span>
-              </button>
-              <ExcluirConversa
-                titulo={c.title}
-                aoExcluir={() => {
-                  excluir.mutate(c.id)
-                  if (c.id === atual) aoNova()
-                }}
-              />
-            </li>
-          ))}
-        </ul>
+        <>
+          <p className="rotulo-hud mb-1.5 px-2">Conversas salvas</p>
+          <ul className="grid gap-0.5">
+            {conversas.map((c) => {
+              const ativa = c.id === atual
+              return (
+                <li key={c.id} className="group relative flex min-w-0 items-center">
+                  {ativa ? <span aria-hidden className="absolute inset-y-2 left-0 w-[3px] rounded-r-full bg-[var(--b-luz)] shadow-[0_0_8px_var(--b-luz)]" /> : null}
+                  <button
+                    type="button"
+                    onClick={() => aoAbrir(c.id)}
+                    aria-current={ativa ? "true" : undefined}
+                    className={cn("min-w-0 flex-1 rounded-lg px-3 py-2 text-left text-sm transition-colors hover:bg-white/[0.05]", ativa && "bg-[var(--b-luz)]/[0.1] font-medium")}
+                  >
+                    <span className="block truncate">{c.title}</span>
+                    <span className="block text-xs font-normal text-ink-3 first-letter:uppercase">{dataRelativa(c.updated_at.slice(0, 10))}</span>
+                  </button>
+                  <ExcluirConversa
+                    titulo={c.title}
+                    aoExcluir={() => {
+                      excluir.mutate(c.id)
+                      if (c.id === atual) aoNova()
+                    }}
+                  />
+                </li>
+              )
+            })}
+          </ul>
+        </>
       )}
     </div>
   )
@@ -150,9 +167,9 @@ function AcoesResposta({ texto, pergunta }: { texto: string; pergunta: string })
   const [salvo, setSalvo] = React.useState(false)
   const criar = useCriar("captures")
   const titulo = (pergunta.split("\n").find((l) => l.trim()) ?? "Resposta do assistente").slice(0, 90)
-  const estilo = "inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-ink-3 hover:bg-surface-2 hover:text-ink"
+  const estilo = "inline-flex min-h-8 items-center gap-1.5 rounded-full border border-[var(--b-borda)] px-3 text-xs font-medium text-ink-2 transition-colors hover:border-[var(--b-borda-2)] hover:text-ink toque:min-h-10"
   return (
-    <div className="mt-2 flex gap-1">
+    <div className="mt-3 flex flex-wrap gap-1.5">
       <button
         type="button"
         className={estilo}
@@ -180,7 +197,7 @@ function AcoesResposta({ texto, pergunta }: { texto: string; pergunta: string })
           )
         }
       >
-        {salvo ? <Check className="size-3.5" /> : <Inbox className="size-3.5" />} {salvo ? "Na Caixa de Entrada" : "Guardar na Caixa de Entrada"}
+        {salvo ? <Check className="size-3.5 text-[var(--b-verde)]" /> : <Inbox className="size-3.5" />} {salvo ? "Na Caixa de Entrada" : "Guardar na Caixa de Entrada"}
       </button>
     </div>
   )
@@ -222,7 +239,7 @@ export function PaginaAssistente() {
   }, [])
 
   React.useEffect(() => {
-    fim.current?.scrollIntoView({ block: "end" })
+    if (mensagens.length) fim.current?.scrollIntoView({ block: "end" })
   }, [mensagens])
 
   // Sair da tela interrompe a resposta em andamento (e a cobrança dela)
@@ -319,155 +336,202 @@ export function PaginaAssistente() {
 
   if (!opcoesIA.length) {
     return (
-      <div>
-        <Cabecalho area="conteudo" titulo="Assistente" />
-        <Vazio
-          titulo="Nenhuma IA ligada neste navegador."
-          descricao="Cadastre a chave de API do Claude, do ChatGPT ou do Gemini em Configurações. A chave fica guardada só neste navegador, e o uso é cobrado pela empresa da IA conforme o consumo."
-          acao={
-            <Link href="/configuracoes#ia" className="text-sm font-medium text-pen hover:underline">
-              Abrir Configurações
-            </Link>
-          }
-        />
-      </div>
+      <MolduraEstudio>
+        <CabecalhoEstudio icone={Sparkles} papel="Converse com a IA" titulo="Assistente" />
+        <div className="vidro mx-auto flex max-w-xl flex-col items-center px-6 py-10 text-center sm:py-12">
+          <span className="orbe-ia size-20" data-apagado="" aria-hidden />
+          <h2 className="mt-7 font-display text-xl font-semibold">Nenhuma IA ligada neste navegador.</h2>
+          <p className="mt-2 text-sm text-ink-2">
+            Cadastre a chave de API do Claude, do ChatGPT ou do Gemini em Configurações. A chave fica guardada só neste navegador, e o uso é cobrado pela empresa da IA conforme o consumo.
+          </p>
+          <Link
+            href="/configuracoes#ia"
+            className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-full bg-pen px-5 text-sm font-semibold text-pen-ink shadow-[0_0_24px_-6px_var(--b-luz)] transition-[filter] hover:brightness-110"
+          >
+            Abrir Configurações
+          </Link>
+        </div>
+      </MolduraEstudio>
     )
   }
 
+  const nomeIA = provedor ? (infoProvedor(provedor)?.nome ?? "IA") : "IA"
+
   return (
-    <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_15rem] lg:gap-8">
-      <div className="flex min-h-[calc(100dvh-12rem)] min-w-0 flex-col">
-        <Cabecalho
-          area="conteudo"
-          titulo="Assistente"
-          descricao={
-            <>
-              Converse com a IA ou use um prompt da <Link href="/conteudo/biblioteca" className="text-pen hover:underline">biblioteca</Link>. As conversas ficam salvas.
-            </>
-          }
-          acoes={
-            <div className="flex gap-2 lg:hidden">
-              <Botao variante="contorno" tamanho="icone" aria-label="Conversas salvas" onClick={() => setVerHistorico(true)}>
-                <History />
-              </Botao>
-              {mensagens.length ? (
-                <Botao variante="contorno" tamanho="icone" aria-label="Nova conversa" onClick={nova}>
-                  <Plus />
-                </Botao>
-              ) : null}
-            </div>
-          }
-        />
+    <MolduraEstudio className="flex flex-col sm:min-h-[calc(100dvh-6rem)]">
+      <div className="flex flex-1 flex-col lg:grid lg:grid-cols-[minmax(0,1fr)_16rem] lg:gap-8">
+        <div className="flex min-w-0 flex-1 flex-col">
+          <CabecalhoEstudio
+            icone={Sparkles}
+            papel="Converse com a IA"
+            titulo="Assistente"
+            className="mb-5 sm:mb-6"
+            descricao={
+              mensagens.length ? undefined : (
+                <>
+                  Converse com a IA ou use um prompt da{" "}
+                  <Link href="/conteudo/biblioteca" className="text-[var(--b-luz)] hover:underline">
+                    biblioteca
+                  </Link>
+                  . As conversas ficam salvas.
+                </>
+              )
+            }
+            acoes={
+              <div className="flex gap-2 lg:hidden">
+                <button type="button" aria-label="Conversas salvas" onClick={() => setVerHistorico(true)} className={BOTAO_REDONDO}>
+                  <History className="size-4" />
+                </button>
+                {mensagens.length ? (
+                  <button type="button" aria-label="Nova conversa" onClick={nova} className={BOTAO_REDONDO}>
+                    <Plus className="size-4" />
+                  </button>
+                ) : null}
+              </div>
+            }
+          />
 
-        <div className="flex-1">
-          {mensagens.length === 0 ? (
-            <div className="max-w-3xl">
-              <p className="mb-3 text-sm text-ink-2">Para começar:</p>
-              <ul className="grid gap-2 sm:grid-cols-2">
-                {SUGESTOES.map((s) => (
-                  <li key={s}>
-                    <button type="button" onClick={() => usarTexto(s)} className="h-full w-full rounded-lg border border-line bg-surface p-3 text-left text-sm text-ink-2 hover:border-line-strong hover:text-ink">
-                      {s}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ) : (
-            <ol className="grid max-w-3xl gap-6">
-              {mensagens.map((m, i) => (
-                <li key={i} className={cn(m.role === "user" ? "ml-auto max-w-[85%] rounded-xl bg-pen-soft px-4 py-3" : "")}>
-                  {m.role === "user" ? (
-                    <p className="whitespace-pre-wrap text-[15px]">{m.content}</p>
-                  ) : m.content ? (
-                    <>
-                      <Markdown texto={m.content} videos={false} />
-                      {!(respondendo && i === mensagens.length - 1) && !m.content.trimStart().startsWith(MARCA_ERRO) && !m.content.startsWith("Não foi possível") ? <AcoesResposta texto={m.content} pergunta={mensagens[i - 1]?.content ?? ""} /> : null}
-                    </>
-                  ) : (
-                    <p className="text-sm text-ink-3">Pensando…</p>
-                  )}
-                </li>
-              ))}
-            </ol>
-          )}
-          <div ref={fim} />
-        </div>
-
-        <form onSubmit={enviar} className="sticky bottom-24 mt-6 max-w-3xl lg:bottom-6">
-          <div className="rounded-xl border border-line-strong bg-surface p-2 shadow-overlay">
-            {listaCampos.length ? (
-              <fieldset className="mb-2 grid gap-2 border-b border-line px-1 pb-3 sm:grid-cols-2">
-                <legend className="mb-1.5 px-1 text-xs font-medium text-ink-3">Preencha o prompt</legend>
-                {listaCampos.map((c) => (
-                  <label key={c} className="grid gap-1 text-xs text-ink-2">
-                    <span className="font-mono">{c}</span>
-                    <input
-                      value={campos[c] ?? ""}
-                      onChange={(e) => setCampos((v) => ({ ...v, [c]: e.target.value }))}
-                      className="h-8 rounded-md border border-line-strong bg-surface px-2 text-sm text-ink focus-visible:border-pen focus-visible:outline-none"
-                    />
-                  </label>
-                ))}
-              </fieldset>
-            ) : null}
-            <div className="flex items-end gap-2">
-              <Botao type="button" variante="fantasma" tamanho="icone" aria-label="Escolher prompt da biblioteca" title="Prompts da biblioteca" onClick={() => setVerPrompts(true)}>
-                <Library />
-              </Botao>
-              {opcoesIA.length > 1 ? (
-                <select
-                  value={provedor}
-                  onChange={(e) => setEscolhida(e.target.value as Provedor)}
-                  aria-label="IA usada"
-                  className="h-9 max-w-28 shrink-0 rounded-md border border-line bg-surface-2 px-1.5 text-xs text-ink-2"
-                >
-                  {opcoesIA.map((id) => (
-                    <option key={id} value={id}>
-                      {infoProvedor(id)?.nome}
-                    </option>
+          <div className="flex-1">
+            {mensagens.length === 0 ? (
+              <div className="mx-auto flex max-w-3xl flex-col items-center pb-4 pt-2 text-center sm:pt-6">
+                <span className="orbe-ia size-20 sm:size-24" aria-hidden />
+                <h2 className="mt-7 font-display text-2xl font-semibold sm:text-3xl">Como posso ajudar hoje?</h2>
+                <p className="mt-2 inline-flex items-center gap-2 rounded-full border border-[var(--b-borda)] bg-white/[0.03] px-3 py-1 text-xs text-ink-2">
+                  <span aria-hidden className="size-2 rounded-full bg-[var(--b-verde)] shadow-[0_0_8px_var(--b-verde)]" />
+                  {nomeIA} conectado
+                </p>
+                <ul className="mt-7 grid w-full gap-2 text-left sm:grid-cols-2">
+                  {SUGESTOES.map((s) => (
+                    <li key={s.titulo}>
+                      <button type="button" onClick={() => usarTexto(s.texto)} className="vidro-vivo flex h-full w-full items-start gap-3 p-3.5 text-left">
+                        <span className="icone-aceso size-9" style={{ "--cor": s.cor } as React.CSSProperties} aria-hidden>
+                          <s.icone className="size-4" />
+                        </span>
+                        <span className="min-w-0">
+                          <span className="block text-sm font-semibold">{s.titulo}</span>
+                          <span className="mt-0.5 block text-sm text-ink-2">{s.texto}</span>
+                        </span>
+                      </button>
+                    </li>
                   ))}
-                </select>
-              ) : null}
-              <textarea
-                ref={entrada}
-                value={texto}
-                onChange={(e) => setTexto(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault()
-                    enviar()
-                  }
-                }}
-                rows={Math.min(8, Math.max(1, texto.split("\n").length))}
-                placeholder="Pergunte qualquer coisa"
-                aria-label="Mensagem para o assistente"
-                className="max-h-60 flex-1 resize-none bg-transparent px-2 py-1.5 text-[15px] outline-none placeholder:text-ink-3"
-              />
-              {respondendo ? (
-                <Botao variante="secundario" tamanho="icone" aria-label="Parar" onClick={() => abortar.current?.abort()}>
-                  <Square />
-                </Botao>
-              ) : (
-                <Botao type="submit" variante="primario" tamanho="icone" aria-label="Enviar" disabled={!texto.trim()}>
-                  <ArrowUp />
-                </Botao>
-              )}
-            </div>
+                </ul>
+                <button
+                  type="button"
+                  onClick={() => setVerPrompts(true)}
+                  className="mt-4 inline-flex min-h-10 items-center gap-2 rounded-full border border-[var(--b-borda)] px-4 text-sm text-ink-2 transition-colors hover:border-[var(--b-luz)] hover:text-ink"
+                >
+                  <Library className="size-4 text-[var(--b-luz)]" /> Escolher um prompt da biblioteca
+                </button>
+              </div>
+            ) : (
+              <ol className="mx-auto grid max-w-3xl gap-6" aria-label="Conversa">
+                {mensagens.map((m, i) => {
+                  const pensando = respondendo && i === mensagens.length - 1
+                  return m.role === "user" ? (
+                    <li key={i} className="ml-auto max-w-[85%] rounded-2xl rounded-br-md border border-[var(--b-luz)]/30 bg-[var(--b-luz)]/[0.1] px-4 py-3 shadow-[0_0_26px_-16px_var(--b-luz)]">
+                      <p className="whitespace-pre-wrap text-[15px]">{m.content}</p>
+                    </li>
+                  ) : (
+                    <li key={i} className="flex min-w-0 gap-3">
+                      <span className="orbe-ia mt-0.5 size-7" data-pensando={pensando ? "" : undefined} aria-hidden />
+                      <div className="min-w-0 flex-1">
+                        <p className="sr-only">{nomeIA}:</p>
+                        {m.content ? (
+                          <>
+                            <Markdown texto={m.content} videos={false} />
+                            {!pensando && !m.content.trimStart().startsWith(MARCA_ERRO) && !m.content.startsWith("Não foi possível") ? <AcoesResposta texto={m.content} pergunta={mensagens[i - 1]?.content ?? ""} /> : null}
+                          </>
+                        ) : (
+                          <p className="pt-1 text-sm text-ink-3" role="status">
+                            Pensando…
+                          </p>
+                        )}
+                      </div>
+                    </li>
+                  )
+                })}
+              </ol>
+            )}
+            <div ref={fim} />
           </div>
-        </form>
-      </div>
 
-      <aside aria-label="Conversas salvas" className="hidden min-w-0 lg:block">
-        <div className="sticky top-6">
-          <ListaConversas atual={conversaId} aoAbrir={abrir} aoNova={nova} />
+          <form onSubmit={enviar} className="sticky bottom-24 z-10 mx-auto mt-6 w-full max-w-3xl lg:bottom-6">
+            <div className="console-ia p-2">
+              {listaCampos.length ? (
+                <fieldset className="mb-2 grid gap-2 border-b border-[var(--b-borda)] px-1 pb-3 sm:grid-cols-2">
+                  <legend className="rotulo-hud mb-1.5 px-1">Preencha o prompt</legend>
+                  {listaCampos.map((c) => (
+                    <label key={c} className="grid gap-1 text-xs text-ink-2">
+                      <span className="font-mono text-[var(--b-luz)]">{c}</span>
+                      <input
+                        value={campos[c] ?? ""}
+                        onChange={(e) => setCampos((v) => ({ ...v, [c]: e.target.value }))}
+                        className="h-10 rounded-xl border border-[var(--b-borda)] bg-black/30 px-3 text-base text-ink focus-visible:border-[var(--b-luz)] focus-visible:outline-none sm:h-9 sm:text-sm"
+                      />
+                    </label>
+                  ))}
+                </fieldset>
+              ) : null}
+              {/* No celular, o campo ocupa a linha de cima e os botões ficam embaixo; no computador, tudo numa linha */}
+              <div className="flex flex-wrap items-end gap-2 sm:flex-nowrap">
+                <button type="button" aria-label="Escolher prompt da biblioteca" title="Prompts da biblioteca" onClick={() => setVerPrompts(true)} className={cn(BOTAO_REDONDO, "border-transparent")}>
+                  <Library className="size-4" />
+                </button>
+                {opcoesIA.length > 1 ? (
+                  <select
+                    value={provedor}
+                    onChange={(e) => setEscolhida(e.target.value as Provedor)}
+                    aria-label="IA usada"
+                    className="h-10 max-w-28 shrink-0 rounded-full border border-[var(--b-borda)] bg-black/30 px-3 text-xs text-ink-2"
+                  >
+                    {opcoesIA.map((id) => (
+                      <option key={id} value={id}>
+                        {infoProvedor(id)?.nome}
+                      </option>
+                    ))}
+                  </select>
+                ) : null}
+                <textarea
+                  ref={entrada}
+                  value={texto}
+                  onChange={(e) => setTexto(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault()
+                      enviar()
+                    }
+                  }}
+                  rows={Math.min(8, Math.max(1, texto.split("\n").length))}
+                  placeholder={`Pergunte qualquer coisa ao ${nomeIA}`}
+                  aria-label="Mensagem para o assistente"
+                  className="order-first max-h-60 min-h-11 w-full flex-1 basis-full resize-none bg-transparent px-2 py-2 text-base outline-none placeholder:text-ink-3 sm:order-none sm:basis-auto sm:text-[15px]"
+                />
+                <span aria-hidden className="flex-1 sm:hidden" />
+                {respondendo ? (
+                  <Botao variante="secundario" tamanho="icone" className="size-10 rounded-full" aria-label="Parar" onClick={() => abortar.current?.abort()}>
+                    <Square />
+                  </Botao>
+                ) : (
+                  <Botao type="submit" variante="primario" tamanho="icone" className="size-10 rounded-full shadow-[0_0_20px_-6px_var(--b-luz)]" aria-label="Enviar" disabled={!texto.trim()}>
+                    <ArrowUp />
+                  </Botao>
+                )}
+              </div>
+            </div>
+          </form>
         </div>
-      </aside>
+
+        <aside aria-label="Conversas salvas" className="hidden min-w-0 lg:block">
+          <div className="vidro sticky top-6 p-3">
+            <ListaConversas atual={conversaId} aoAbrir={abrir} aoNova={nova} />
+          </div>
+        </aside>
+      </div>
 
       <Janela aberta={verHistorico} aoMudar={setVerHistorico} titulo="Conversas">
         <ListaConversas atual={conversaId} aoAbrir={abrir} aoNova={nova} />
       </Janela>
       <EscolherPrompt aberta={verPrompts} aoMudar={setVerPrompts} aoEscolher={usarTexto} />
-    </div>
+    </MolduraEstudio>
   )
 }

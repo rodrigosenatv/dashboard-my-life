@@ -17,6 +17,7 @@ import { contarVideos, lerMidia, lerVideoDeSite } from "@/lib/videos"
 import { LinkDeVideo, MidiaIncorporada } from "@/components/midia"
 import { AreaTexto } from "@/components/ui/campos"
 import { Segmentos } from "@/components/ui/basicos"
+import { partesDoPrompt } from "@/features/conteudo/logica"
 
 function Imagem({ src, alt }: { src?: string; alt?: string }) {
   // Vídeo que o Notion exportou como imagem (![…](video.mp4)) toca como vídeo
@@ -43,15 +44,31 @@ function LinkArquivo({ href, children }: { href: string; children: React.ReactNo
   )
 }
 
+/** Acende os campos a preencher de um prompt ([TÓPICO], {número}) no texto de um bloco de código. */
+function realcarCampos(no: React.ReactNode): React.ReactNode {
+  return React.Children.map(no, (filho) => {
+    if (typeof filho === "string") {
+      const partes = partesDoPrompt(filho)
+      if (!partes.some((p) => p.campo)) return filho
+      return partes.map((p, i) => (p.campo ? <span key={i} className="campo-prompt">{p.texto}</span> : p.texto))
+    }
+    if (React.isValidElement<{ children?: React.ReactNode }>(filho) && filho.props.children !== undefined) {
+      return React.cloneElement(filho, undefined, realcarCampos(filho.props.children))
+    }
+    return filho
+  })
+}
+
 function BlocoCodigo({ children }: { children: React.ReactNode }) {
   const ref = React.useRef<HTMLPreElement>(null)
   const router = useRouter()
   const [copiado, setCopiado] = React.useState(false)
+  // O texto copiado e mandado ao assistente é o do bloco, sem as marcações dos campos
   const texto = () => ref.current?.innerText ?? ""
 
   return (
     <div className="group relative">
-      <pre ref={ref}>{children}</pre>
+      <pre ref={ref}>{realcarCampos(children)}</pre>
       <div className="absolute right-2 top-2 flex gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100">
         <button
           type="button"

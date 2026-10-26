@@ -18,10 +18,13 @@ import { enderecoDoFeed, marcarVoltaDoFeed } from "@/features/videos/endereco"
 import { extrairVideos, type ItemFeed } from "@/features/videos/logica"
 import { ancestrais, filhosDe, SECOES, useArvorePaginas } from "./dados"
 import { MolduraCerebro } from "@/features/segundo-cerebro/cabecalho"
+import { MolduraEstudio } from "@/features/conteudo/moldura"
 import { TituloEditavel } from "@/features/segundo-cerebro/ui"
 
 /** As seções que aparecem em Páginas, no Segundo Cérebro: as páginas delas abrem com o tema da rede neural. */
 const SECOES_CEREBRO = new Set(["notas", "recursos", "wiki", "geral", "arquivo"])
+/** As da Biblioteca, do Planner e as conversas do assistente abrem com o tema do estúdio (Conteúdo e IA). */
+const SECOES_ESTUDIO = new Set(["biblioteca", "planner", "assistente"])
 
 function Capa({ caminho }: { caminho: string }) {
   const { data } = useUrlArquivo(caminho)
@@ -53,8 +56,9 @@ export function PaginaDocumento() {
 
   const caminho = ancestrais(arvore, pagina.id)
   const filhos = filhosDe(arvore, pagina.id)
-  const voltar = pagina.section === "biblioteca" || pagina.section === "planner" ? "/conteudo/biblioteca" : "/projetos/notas"
-  const futurista = SECOES_CEREBRO.has(pagina.section)
+  const voltar = pagina.section === "biblioteca" || pagina.section === "planner" ? "/conteudo/biblioteca" : pagina.section === "assistente" ? "/conteudo/assistente" : "/projetos/notas"
+  const tema = SECOES_CEREBRO.has(pagina.section) ? "cerebro" : SECOES_ESTUDIO.has(pagina.section) ? "estudio" : null
+  const futurista = tema !== null
 
   const subpagina = async () => {
     const nova = novoId()
@@ -141,7 +145,7 @@ export function PaginaDocumento() {
           <ul className="grid gap-2 sm:grid-cols-2">
             {filhos.map((f) => (
               <li key={f.id}>
-                <Link href={`/paginas/${f.id}`} className={cn("flex min-h-12 items-center gap-2 px-4 py-3 text-sm font-medium transition-colors hover:text-projetos", futurista ? "vidro-vivo rounded-xl" : "rounded-xl border border-line bg-surface hover:border-projetos/40")}>
+                <Link href={`/paginas/${f.id}`} className={cn("flex min-h-12 items-center gap-2 px-4 py-3 text-sm font-medium transition-colors", futurista ? "vidro-vivo rounded-xl hover:text-[var(--b-luz)]" : "rounded-xl border border-line bg-surface hover:border-projetos/40 hover:text-projetos")}>
                   <FileText className="size-4 shrink-0 text-ink-3" />
                   <span className="truncate">{f.title}</span>
                 </Link>
@@ -173,5 +177,7 @@ export function PaginaDocumento() {
     </article>
   )
 
-  return futurista ? <MolduraCerebro detalhe>{artigo}</MolduraCerebro> : artigo
+  if (tema === "cerebro") return <MolduraCerebro detalhe>{artigo}</MolduraCerebro>
+  if (tema === "estudio") return <MolduraEstudio detalhe>{artigo}</MolduraEstudio>
+  return artigo
 }
