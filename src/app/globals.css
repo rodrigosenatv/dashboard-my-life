@@ -1188,6 +1188,217 @@ a:focus-visible .livro3d-corpo,
 }
 
 /* =====================================================================
+   Hoje: a ponte de comando do dia
+   O azul petróleo da capa do caderno no escuro, com a luz ciano da
+   cabine e o quadriculado da capa do Notion virado em grade de luz. A
+   capa do dia (data, frase, linha do dia e captura) é um painel aceso;
+   cada painel usa a luz da sua área (rituais e metas em verde, leitura
+   em âmbar, projetos em violeta). Sempre escura.
+   ===================================================================== */
+
+@layer components {
+.tema-hoje {
+  --b-fundo: #03131a;
+  --b-fundo-2: #082a36;
+  --b-tinta: #e8f6fa;
+  --b-tinta-2: rgb(232 246 250 / 0.78);
+  --b-tinta-3: rgb(232 246 250 / 0.6);
+  --b-luz: #63e3ff;
+  --b-luz-2: #9a8cff;
+  --b-ambar: #f5c54a;
+  --b-verde: #3ccb92;
+  --b-menta: #7cf5c4;
+  --b-violeta: #b69cff;
+  --b-rosa: #ff8fd1;
+  --b-vidro: rgb(160 230 255 / 0.05);
+  --b-vidro-2: rgb(160 230 255 / 0.09);
+  --b-borda: rgb(150 225 255 / 0.14);
+  --b-borda-2: rgb(150 225 255 / 0.28);
+
+  /* As cores do app no escuro da ponte (botões, campos, menus, janelas) */
+  --bg: var(--b-fundo);
+  --surface: #0a2630;
+  --surface-2: #0f303b;
+  --surface-3: #18404d;
+  --ink: var(--b-tinta);
+  --ink-2: var(--b-tinta-2);
+  --ink-3: var(--b-tinta-3);
+  --line: var(--b-borda);
+  --line-strong: var(--b-borda-2);
+  --pen: var(--b-luz);
+  --pen-ink: #03171e;
+  --pen-soft: rgb(99 227 255 / 0.14);
+  --ring: var(--b-luz);
+  --rotina: var(--b-verde);
+  --rotina-soft: rgb(60 203 146 / 0.15);
+  --projetos: var(--b-violeta);
+  --projetos-soft: rgb(182 156 255 / 0.15);
+  --estudos: var(--b-ambar);
+  --estudos-soft: rgb(245 197 74 / 0.15);
+  --conteudo: #ff7aa6;
+  --conteudo-soft: rgb(255 122 166 / 0.15);
+  --danger: #ff7b84;
+  --danger-soft: rgb(255 123 132 / 0.15);
+  --warning: var(--b-ambar);
+  --shadow-overlay: 0 24px 60px -16px rgb(0 0 0 / 0.8), 0 0 0 1px rgb(150 225 255 / 0.12);
+  color-scheme: dark;
+  color: var(--ink);
+}
+
+/* O fundo: luz petróleo no alto e a grade da capa, que some para baixo */
+.ponte {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background:
+    radial-gradient(90% 45% at 12% -8%, rgb(31 98 120 / 0.75), transparent 65%),
+    radial-gradient(45% 32% at 102% 14%, rgb(99 227 255 / 0.12), transparent 70%),
+    radial-gradient(50% 36% at -4% 72%, rgb(154 140 255 / 0.08), transparent 70%),
+    linear-gradient(180deg, var(--b-fundo-2), var(--b-fundo) 40%);
+}
+.ponte::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgb(99 227 255 / 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(99 227 255 / 0.055) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(120% 50% at 50% 0%, #000 20%, transparent 70%);
+}
+.ponte::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 1px;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgb(99 227 255 / 0.75), rgb(182 156 255 / 0.55), transparent);
+  box-shadow: 0 0 24px 2px rgb(99 227 255 / 0.35);
+}
+
+/* A capa do dia: um painel aceso, com anéis de radar no canto da frase */
+.capa-hoje {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border: 1px solid rgb(99 227 255 / 0.22);
+  border-radius: 1.5rem;
+  background:
+    radial-gradient(70% 90% at 100% 0%, rgb(99 227 255 / 0.13), transparent 60%),
+    linear-gradient(135deg, rgb(15 60 76 / 0.75), rgb(5 26 34 / 0.85));
+  box-shadow:
+    0 24px 60px -30px rgb(99 227 255 / 0.45),
+    inset 0 1px 0 rgb(255 255 255 / 0.06);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+}
+.capa-hoje::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  right: -9rem;
+  top: -9rem;
+  width: 26rem;
+  height: 26rem;
+  pointer-events: none;
+  border-radius: 50%;
+  background: repeating-radial-gradient(circle, transparent 0 34px, rgb(99 227 255 / 0.12) 34px 35px);
+  mask-image: radial-gradient(circle, #000 30%, transparent 70%);
+}
+
+/* O número do dia: grande, em luz */
+.numero-dia {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.04em;
+  line-height: 0.85;
+  background: linear-gradient(180deg, #ffffff 30%, #9ef0ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 0 18px rgb(99 227 255 / 0.45));
+}
+
+/* A frase da capa, escrita à mão, com um brilho leve */
+.frase-luz {
+  color: #f2fbfd;
+  text-shadow: 0 0 22px rgb(99 227 255 / 0.35);
+}
+
+/* A linha do dia: o que já passou em luz, o agora pulsando e os compromissos marcados */
+.linha-dia-trilho {
+  position: absolute;
+  inset-inline: 0;
+  top: 50%;
+  height: 2px;
+  transform: translateY(-50%);
+  border-radius: 2px;
+  background: rgb(255 255 255 / 0.1);
+}
+.linha-dia-feito {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  height: 2px;
+  transform: translateY(-50%);
+  border-radius: 2px;
+  background: linear-gradient(90deg, rgb(99 227 255 / 0.15), var(--b-luz));
+  box-shadow: 0 0 10px rgb(99 227 255 / 0.6);
+}
+.linha-dia-marco {
+  position: absolute;
+  top: 50%;
+  width: 10px;
+  height: 10px;
+  transform: translate(-50%, -50%) rotate(45deg);
+  border-radius: 2px;
+  background: var(--cor, var(--b-luz));
+  box-shadow: 0 0 10px var(--cor, var(--b-luz));
+}
+.linha-dia-marco[data-passou] {
+  opacity: 0.4;
+  box-shadow: none;
+}
+
+/* As barras de luz de cada área */
+.tema-hoje .barra-luz[data-cor="rotina"] > span {
+  background: linear-gradient(90deg, #1fae7e, var(--b-menta));
+  box-shadow: 0 0 12px rgb(60 203 146 / 0.6);
+}
+.tema-hoje .barra-luz[data-cor="estudos"] > span {
+  background: linear-gradient(90deg, #d99a1e, var(--b-ambar));
+  box-shadow: 0 0 12px rgb(245 197 74 / 0.55);
+}
+
+/* A caixa de um ritual: verde aceso quando feito */
+.caixa-ritual {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 1.375rem;
+  height: 1.375rem;
+  border-radius: 0.45rem;
+  border: 1.5px solid var(--b-borda-2);
+  color: #03201a;
+  transition: background-color 150ms, border-color 150ms, box-shadow 150ms;
+}
+.caixa-ritual[data-feito] {
+  border-color: var(--b-verde);
+  background: linear-gradient(135deg, var(--b-menta), var(--b-verde));
+  box-shadow: 0 0 12px -2px rgb(60 203 146 / 0.8);
+}
+.tema-hoje [role="checkbox"][aria-checked="true"] > svg {
+  color: var(--pen-ink);
+}
+}
+
+/* =====================================================================
    Segundo Cérebro: a rede neural
    Da mesma família da biblioteca, dos cursos e do laboratório, num
    violeta de céu noturno, com uma rede de neurônios ao fundo (pontos

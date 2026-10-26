@@ -24,6 +24,8 @@ import {
 import { toast } from "sonner"
 import { novoId, useCriar } from "@/lib/data"
 import { normalizar } from "@/lib/utils"
+import { grupoDaRota } from "@/lib/navegacao"
+import type { Area } from "@/lib/areas"
 import { useArvorePaginas } from "@/features/paginas/dados"
 
 /* ------------------------------------------------------------------ */
@@ -60,18 +62,28 @@ export const MENU: Atalho[] = [
 // Hoje todos os atalhos levam a telas do app; a árvore de páginas só é buscada se algum voltar a abrir uma página pelo título
 const ALGUM_ATALHO_ABRE_PAGINA = MENU.some((a) => a.paginas?.length)
 
-// Cartões de papel: a cor fica para a capa; aqui o petróleo aparece só no ícone
+// Ladrilhos de vidro (a página Hoje tem o tema da ponte); o ícone acende na cor da área do destino
 const estiloAtalho =
-  "group flex h-14 items-center gap-3 rounded-lg border border-line bg-surface px-3 text-left transition-colors hover:border-line-strong hover:bg-surface-2"
+  "group flex h-14 items-center gap-3 rounded-2xl border border-[var(--b-borda)] bg-[var(--b-vidro)] px-3 text-left transition-[border-color,background-color,box-shadow] hover:border-[var(--b-borda-2)] hover:bg-[var(--b-vidro-2)] hover:shadow-[0_12px_30px_-20px_rgb(99_227_255/0.6)]"
+
+const LUZ_DA_AREA: Record<Area, string> = {
+  rotina: "var(--b-verde)",
+  projetos: "var(--b-violeta)",
+  estudos: "var(--b-ambar)",
+  conteudo: "#ff7aa6",
+  geral: "var(--b-luz)",
+}
 
 function Conteudo({ a }: { a: Atalho }) {
   const Icone = a.icone
+  const area = a.href ? grupoDaRota(a.href)?.area : undefined
   return (
     <>
-      <span className="grid size-8 shrink-0 place-items-center rounded-md bg-pen-soft text-pen">
+      <span className="icone-aceso size-9" style={{ "--cor": LUZ_DA_AREA[area ?? "geral"] } as React.CSSProperties}>
         <Icone aria-hidden className="size-[1.125rem]" strokeWidth={1.75} />
       </span>
-      <span className="min-w-0 truncate text-sm font-medium">{a.rotulo}</span>
+      {/* No celular os nomes longos quebram em duas linhas em vez de cortar ("Hábitos & Rotinas") */}
+      <span className="line-clamp-2 min-w-0 text-sm font-medium leading-tight transition-colors group-hover:text-ink">{a.rotulo}</span>
     </>
   )
 }

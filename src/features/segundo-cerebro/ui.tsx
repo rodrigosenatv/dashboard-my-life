@@ -33,8 +33,23 @@ export function IconeCaptura({ tipo, className }: { tipo: string | null | undefi
 
 export { textoEtapas } from "./logica"
 
-/** O anel de luz com o progresso do projeto (em %). */
-export function AnelProgresso({ pct, tamanho = 112, espessura = 6, legenda }: { pct: number; tamanho?: number; espessura?: number; legenda?: string }) {
+/** As cores do anel: ciano, violeta e rosa (o padrão do Segundo Cérebro). */
+const CORES_ANEL: [string, string, string] = ["#6ee7ff", "#b69cff", "#ff8fd1"]
+
+/** O anel de luz com um progresso (em %), em degradê de três cores. */
+export function AnelProgresso({
+  pct,
+  tamanho = 112,
+  espessura = 6,
+  legenda,
+  cores = CORES_ANEL,
+}: {
+  pct: number
+  tamanho?: number
+  espessura?: number
+  legenda?: string
+  cores?: [string, string, string]
+}) {
   const raio = (tamanho - espessura * 2) / 2
   const volta = 2 * Math.PI * raio
   const fracao = Math.max(0, Math.min(1, pct / 100))
@@ -42,12 +57,12 @@ export function AnelProgresso({ pct, tamanho = 112, espessura = 6, legenda }: { 
   const id = `anel${useId().replace(/[^a-zA-Z0-9]/g, "")}`
   return (
     <span className="relative grid shrink-0 place-items-center" style={{ width: tamanho, height: tamanho }} role="img" aria-label={`Progresso: ${pct}%`}>
-      <svg width={tamanho} height={tamanho} viewBox={`0 0 ${tamanho} ${tamanho}`} className="absolute inset-0 -rotate-90 overflow-visible drop-shadow-[0_0_6px_rgb(182_156_255/0.55)]" aria-hidden>
+      <svg width={tamanho} height={tamanho} viewBox={`0 0 ${tamanho} ${tamanho}`} className="absolute inset-0 -rotate-90 overflow-visible" style={{ filter: `drop-shadow(0 0 6px color-mix(in oklab, ${cores[1]} 55%, transparent))` }} aria-hidden>
         <defs>
           <linearGradient id={id} x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#6ee7ff" />
-            <stop offset="55%" stopColor="#b69cff" />
-            <stop offset="100%" stopColor="#ff8fd1" />
+            <stop offset="0%" stopColor={cores[0]} />
+            <stop offset="55%" stopColor={cores[1]} />
+            <stop offset="100%" stopColor={cores[2]} />
           </linearGradient>
         </defs>
         <circle cx={tamanho / 2} cy={tamanho / 2} r={raio} fill="none" stroke="rgb(255 255 255 / 0.08)" strokeWidth={espessura} />

@@ -2,194 +2,20 @@
 
 import Link from "next/link"
 import * as React from "react"
-import { useProjetos, useProjetosPorNome } from "@/features/projetos/dados"
+import { useProjetosPorNome } from "@/features/projetos/dados"
 import { format } from "date-fns"
-import { ptBR } from "date-fns/locale"
-import { Check, CornerDownLeft, Flame } from "lucide-react"
-import { Etiqueta, Progresso, Secao, Vazio } from "@/components/ui/basicos"
+import { Secao } from "@/components/ui/basicos"
 import { novoId, useCriar, useLista } from "@/lib/data"
-import { cn, dataRelativa, isoDia, porcentagem, saudacao, somarDias } from "@/lib/utils"
-import { agruparPorRitual, indexar, sequencia, useAlternarHabito, useHabitos, useRegistros, useRituais, valeNoDia } from "@/features/habitos/dados"
+import { cn, dataRelativa, isoDia } from "@/lib/utils"
 import { ItemTarefa } from "@/features/tarefas/item-tarefa"
 import { DialogoTarefa } from "@/features/tarefas/dialogo-tarefa"
-import { useConfiguracoes, useNomeExibicao } from "@/features/configuracoes/dados"
-import { useUrlArquivo } from "@/lib/arquivos"
-import { COLUNAS_LIVRO_LISTA } from "@/features/leitura/dados"
 import type { Tables } from "@/lib/supabase/database.types"
 import { abrirNovo } from "@/components/shell/novo"
-import { FRASE_PADRAO, GRADE_DA_CAPA } from "@/lib/marca"
-import { MenuAtalhos } from "./painel"
+import { agendaPorDia, posicaoNoFim, tarefasDoDia } from "./logica"
+import { PonteDoDia } from "./ponte"
 
-/* ------------------------------------------------------------------ */
-/* Abertura: a capa do caderno, aberta no dia de hoje                  */
-/* ------------------------------------------------------------------ */
-
-function Abertura() {
-  const agora = new Date()
-  const nome = useNomeExibicao()
-  const { data: cfg } = useConfiguracoes()
-  const prefs = (cfg?.prefs ?? {}) as { frase?: string; capa?: string }
-  const frase = prefs.frase?.trim() || FRASE_PADRAO
-  const { data: urlCapa } = useUrlArquivo(prefs.capa || null)
-  const criar = useCriar("captures", { aviso: "Guardado na Caixa de Entrada" })
-  const [texto, setTexto] = React.useState("")
-
-  const capturar = (e: React.FormEvent) => {
-    e.preventDefault()
-    const t = texto.trim()
-    if (!t) return
-    const ehLink = /^https?:\/\//i.test(t)
-    // Sem tipo: a captura cai na Caixa de Entrada do Segundo Cérebro para ser organizada depois
-    criar.mutate({ id: novoId(), title: t, url: ehLink ? t : null, kind: null })
-    setTexto("")
-  }
-
-  return (
-    <header className="relative isolate -mx-4 -mt-5 mb-8 overflow-hidden bg-petroleo px-5 pb-5 pt-6 text-petroleo-tinta sm:-mx-6 sm:px-8 sm:pb-7 sm:pt-8 lg:mx-0 lg:mt-0 lg:rounded-2xl">
-      {urlCapa ? (
-        <>
-          {/* A imagem escolhida em Configurações vira o fundo; o véu petróleo garante a leitura do texto mesmo sobre uma foto clara */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={urlCapa} alt="" className="absolute inset-0 -z-10 size-full object-cover" />
-          <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-r from-petroleo via-petroleo/85 via-70% to-petroleo/60 md:via-50%" />
-        </>
-      ) : (
-        // Textura discreta de papel quadriculado, como na capa do Notion
-        <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 opacity-[0.07]" style={{ backgroundImage: GRADE_DA_CAPA }} />
-      )}
-
-      <div className="grid gap-x-10 gap-y-5 md:grid-cols-[minmax(0,1fr)_minmax(0,24rem)] md:items-start">
-        <div className="flex items-end gap-4 sm:gap-5">
-          <p className="font-display text-5xl font-bold tabular tracking-tighter" aria-hidden>
-            {format(agora, "dd")}
-          </p>
-          <div className="min-w-0 pb-1.5">
-            <h1 className="font-display text-2xl font-semibold first-letter:uppercase">{format(agora, "EEEE", { locale: ptBR })}</h1>
-            <p className="text-white/80">{format(agora, "MMMM 'de' yyyy", { locale: ptBR })}</p>
-            <p className="mt-2">
-              {saudacao(agora)}
-              {nome ? `, ${nome}` : ""}.
-            </p>
-          </div>
-        </div>
-        {/* A frase da capa, escrita à mão */}
-        <p className="font-assinatura text-balance text-[2.1rem] leading-[1.1] text-white/95 md:pt-2 md:text-right md:text-[2.5rem]">{frase}</p>
-      </div>
-
-      <form onSubmit={capturar} className="relative mt-6">
-        <label htmlFor="captura-rapida" className="sr-only">
-          Captura rápida
-        </label>
-        <input
-          id="captura-rapida"
-          value={texto}
-          onChange={(e) => setTexto(e.target.value)}
-          placeholder="Capturar ideia, link ou lembrete…"
-          className="h-12 w-full rounded-xl border border-white/15 bg-black/20 pl-4 pr-11 text-base text-white placeholder:text-white/70 focus-visible:border-white/50 focus-visible:bg-black/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20"
-        />
-        <CornerDownLeft aria-hidden className="pointer-events-none absolute right-4 top-1/2 size-4 -translate-y-1/2 text-white/70" />
-      </form>
-    </header>
-  )
-}
-
-/* ------------------------------------------------------------------ */
-/* Hábitos do dia                                                      */
-/* ------------------------------------------------------------------ */
-
-function HabitosHoje() {
-  const hoje = isoDia()
-  const { data: habitos = [], isLoading } = useHabitos()
-  const { data: registros = [] } = useRegistros(somarDias(hoje, -400))
-  const alternar = useAlternarHabito()
-  const { ritualDe } = useRituais()
-
-  const indice = React.useMemo(() => indexar(registros), [registros])
-  const doDia = habitos.filter((h) => h.active && valeNoDia(h, hoje))
-  const feitos = doDia.filter((h) => indice.get(h.id)?.has(hoje)).length
-  const grupos = agruparPorRitual(doDia, ritualDe)
-  const pct = porcentagem(feitos, doDia.length)
-
-  return (
-    <Secao
-      titulo="Rituais de hoje"
-      className="mb-10"
-      acao={
-        <Link href="/rotina/habitos" className="text-sm text-ink-2 hover:text-ink toque:-my-3 toque:py-3">
-          Ver hábitos
-        </Link>
-      }
-    >
-      {isLoading ? (
-        <div className="h-40 animate-pulse rounded-xl bg-surface-2" />
-      ) : doDia.length === 0 ? (
-        <Vazio
-          titulo="Nenhum hábito para hoje."
-          descricao="Cadastre os hábitos que quer acompanhar e marque-os aqui todos os dias."
-          acao={
-            <Link href="/rotina/habitos" className="text-sm font-medium text-pen hover:underline">
-              Cadastrar hábitos
-            </Link>
-          }
-        />
-      ) : (
-        <div className="rounded-xl border border-line bg-surface p-4 sm:p-5">
-          <div className="mb-4 flex items-center gap-3">
-            <Progresso valor={pct} cor="rotina" rotulo="Progresso dos rituais de hoje" className="h-2" />
-            <span className="tabular shrink-0 text-sm font-medium">{pct}%</span>
-            <span className="tabular shrink-0 text-sm text-ink-3">
-              {feitos} de {doDia.length}
-            </span>
-          </div>
-          <div className={cn("grid gap-x-8 gap-y-5", grupos.length > 1 && "md:grid-cols-2")}>
-            {grupos.map((g) => (
-              <div key={g.valor}>
-                <p className="mb-2 text-sm font-semibold">
-                  {g.emoji ? <span aria-hidden className="mr-1.5">{g.emoji}</span> : null}
-                  {g.titulo}
-                </p>
-                <ul className="grid gap-0.5">
-                  {g.habitos.map((h) => {
-                    const registro = indice.get(h.id)?.get(hoje)
-                    const feito = Boolean(registro)
-                    const seq = sequencia(h, indice.get(h.id), hoje)
-                    return (
-                      <li key={h.id}>
-                        <button
-                          type="button"
-                          role="checkbox"
-                          aria-checked={feito}
-                          onClick={() => alternar.mutate({ habito: h.id, dia: hoje, registro })}
-                          className="flex w-full items-center gap-3 rounded-md px-1.5 py-1.5 text-left text-sm hover:bg-surface-2 toque:py-3"
-                        >
-                          <span
-                            className={cn(
-                              "grid size-5 shrink-0 place-items-center rounded-[5px] border transition-colors",
-                              feito ? "border-rotina bg-rotina text-white" : "border-line-strong",
-                            )}
-                          >
-                            {feito ? <Check className="size-3.5 animate-marcar" strokeWidth={3} /> : null}
-                          </span>
-                          <span className={cn("flex-1", feito && "text-ink-3 line-through decoration-ink-3/50")}>{h.name}</span>
-                          {seq >= 2 ? (
-                            <span className="inline-flex items-center gap-0.5 text-xs text-ink-3" title={`${seq} dias seguidos`}>
-                              <Flame className="size-3.5 text-estudos" />
-                              {seq}
-                            </span>
-                          ) : null}
-                        </button>
-                      </li>
-                    )
-                  })}
-                </ul>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-    </Secao>
-  )
-}
+// A página Hoje é a ponte de comando do dia (./ponte). As tarefas e a agenda daqui, no visual de sempre,
+// aparecem também nas telas de Vida pessoal sem tela própria (src/features/vida/pagina-hub.tsx).
 
 /* ------------------------------------------------------------------ */
 /* Tarefas do dia                                                      */
@@ -207,23 +33,18 @@ export function TarefasHoje() {
 
   const nomes = React.useMemo(() => new Map(projetos.map((p) => [p.id, p.name])), [projetos])
 
-  const doDia = tarefas
-    .filter((t) => t.status !== "done" && t.due_date && t.due_date <= hoje)
-    .sort((a, b) => (a.due_date! < b.due_date! ? -1 : a.due_date! > b.due_date! ? 1 : (a.due_time ?? "99").localeCompare(b.due_time ?? "99")))
-  const concluidasHoje = tarefas.filter((t) => t.status === "done" && t.done_at && isoDia(new Date(t.done_at)) === hoje)
-  const semData = tarefas.filter((t) => t.status === "doing" && !t.due_date)
+  const { pendentes: doDia, concluidasHoje, semData } = tarefasDoDia(tarefas, hoje)
 
   const adicionar = (e: React.FormEvent) => {
     e.preventDefault()
     if (!nova.trim()) return
-    criar.mutate({ id: novoId(), title: nova.trim(), due_date: hoje, position: Date.now() })
+    criar.mutate({ id: novoId(), title: nova.trim(), due_date: hoje, position: posicaoNoFim() })
     setNova("")
   }
 
   return (
     <Secao
       titulo="Para hoje"
-      descricao={doDia.length ? undefined : undefined}
       acao={
         <Link href="/rotina/tarefas" className="text-sm text-ink-2 hover:text-ink toque:-my-3 toque:py-3">
           Todas as tarefas
@@ -283,20 +104,8 @@ const corCategoria: Record<string, string> = {
 
 export function AgendaProxima() {
   const hoje = isoDia()
-  const limite = somarDias(hoje, 8)
   const { data: eventos = [], isLoading } = useLista("events", { ordem: [{ coluna: "starts_at" }] })
-
-  const proximos = eventos.filter((e) => {
-    const dia = isoDia(new Date(e.starts_at))
-    const fim = e.ends_at ? isoDia(new Date(e.ends_at)) : dia
-    return fim >= hoje && dia < limite
-  })
-
-  const porDia = new Map<string, typeof proximos>()
-  for (const e of proximos) {
-    const dia = isoDia(new Date(e.starts_at)) < hoje ? hoje : isoDia(new Date(e.starts_at))
-    porDia.set(dia, [...(porDia.get(dia) ?? []), e])
-  }
+  const porDia = new Map(agendaPorDia(eventos, hoje))
 
   return (
     <Secao
@@ -336,140 +145,9 @@ export function AgendaProxima() {
 }
 
 /* ------------------------------------------------------------------ */
-/* Resumos: metas, leitura, projetos                                   */
-/* ------------------------------------------------------------------ */
-
-function MetasAno() {
-  const ano = new Date().getFullYear()
-  const { data: metas = [] } = useLista("goals", { ordem: [{ coluna: "position" }, { coluna: "name" }] })
-  const doAno = metas.filter((m) => !m.done && (m.year === ano || m.year === null)).slice(0, 5)
-  return (
-    <Secao titulo={`Metas de ${ano}`} acao={<Link href="/rotina/metas" className="text-sm text-ink-2 hover:text-ink toque:-my-3 toque:py-3">Ver metas</Link>}>
-      {doAno.length === 0 ? (
-        <p className="text-sm text-ink-2">Nenhuma meta para este ano.</p>
-      ) : (
-        <ul className="grid gap-3.5">
-          {doAno.map((m) => {
-            const p = porcentagem(Number(m.progress), Number(m.target))
-            return (
-              <li key={m.id}>
-                <div className="mb-1 flex items-baseline justify-between gap-3 text-sm">
-                  <span className="truncate">{m.name}</span>
-                  <span className="tabular shrink-0 text-ink-3">{m.target ? `${p}%` : ""}</span>
-                </div>
-                <Progresso valor={p} cor="rotina" rotulo={`Progresso de ${m.name}`} />
-              </li>
-            )
-          })}
-        </ul>
-      )}
-    </Secao>
-  )
-}
-
-function LendoAgora() {
-  const { data: livros = [] } = useLista("books", { colunas: COLUNAS_LIVRO_LISTA, ordem: [{ coluna: "updated_at", asc: false }] })
-  const lendo = livros.filter((l) => l.status === "lendo").slice(0, 3)
-  return (
-    <Secao titulo="Lendo agora" acao={<Link href="/estudos/leitura" className="text-sm text-ink-2 hover:text-ink toque:-my-3 toque:py-3">Estante</Link>}>
-      {lendo.length === 0 ? (
-        <p className="text-sm text-ink-2">Nenhum livro em leitura.</p>
-      ) : (
-        <ul className="grid gap-3.5">
-          {lendo.map((l) => {
-            const p = porcentagem(l.pages_read, l.pages_total)
-            return (
-              <li key={l.id}>
-                <Link href={`/estudos/leitura/${l.id}`} className="block text-sm hover:underline">
-                  <span className="font-medium">{l.title}</span>
-                  {l.author ? <span className="text-ink-3"> de {l.author}</span> : null}
-                </Link>
-                <div className="mt-1 flex items-center gap-2">
-                  <Progresso valor={p} cor="estudos" rotulo={`Leitura de ${l.title}`} />
-                  <span className="tabular shrink-0 text-xs text-ink-3">{l.pages_total ? `${p}%` : `${l.pages_read} p.`}</span>
-                </div>
-              </li>
-            )
-          })}
-        </ul>
-      )}
-    </Secao>
-  )
-}
-
-function ProjetosAndamento() {
-  const { data: projetos = [] } = useProjetos()
-  const { data: capturas = [] } = useLista("captures", { colunas: "id,area_id,archived,kind" })
-  const { data: vinculos = [] } = useLista("capture_projects", { colunas: "capture_id,project_id" })
-
-  const filhos = new Map<string, { total: number; feitos: number }>()
-  for (const p of projetos) {
-    if (!p.parent_id) continue
-    const f = filhos.get(p.parent_id) ?? { total: 0, feitos: 0 }
-    f.total++
-    if (p.done) f.feitos++
-    filhos.set(p.parent_id, f)
-  }
-  const ativos = projetos.filter((p) => !p.parent_id && !p.archived && !p.done).slice(0, 5)
-
-  const comProjeto = new Set(vinculos.map((v) => v.capture_id))
-  const caixa = capturas.filter((c) => !c.archived && !c.area_id && !c.kind && !comProjeto.has(c.id)).length
-
-  return (
-    <Secao titulo="Projetos em andamento" acao={<Link href="/projetos" className="text-sm text-ink-2 hover:text-ink toque:-my-3 toque:py-3">Projetos</Link>}>
-      {ativos.length === 0 ? (
-        <p className="text-sm text-ink-2">Nenhum projeto ativo.</p>
-      ) : (
-        <ul className="grid gap-3.5">
-          {ativos.map((p) => {
-            const f = filhos.get(p.id)
-            const pct = f ? porcentagem(f.feitos, f.total) : 0
-            return (
-              <li key={p.id}>
-                <div className="mb-1 flex items-baseline justify-between gap-3 text-sm">
-                  <Link href={`/projetos/${p.id}`} className="truncate hover:underline">
-                    {p.name}
-                  </Link>
-                  <span className="tabular shrink-0 text-xs text-ink-3">{f ? `${f.feitos}/${f.total}` : ""}</span>
-                </div>
-                <Progresso valor={pct} cor="projetos" rotulo={`Progresso de ${p.name}`} />
-              </li>
-            )
-          })}
-        </ul>
-      )}
-      {caixa > 0 ? (
-        <Link href="/projetos/entrada" className="mt-5 flex items-center gap-2 text-sm text-ink-2 hover:text-ink">
-          <Etiqueta cor="projetos">{caixa}</Etiqueta>
-          {caixa === 1 ? "captura esperando organização" : "capturas esperando organização"}
-        </Link>
-      ) : null}
-    </Secao>
-  )
-}
-
-/* ------------------------------------------------------------------ */
 /* Página                                                              */
 /* ------------------------------------------------------------------ */
 
 export function Hoje() {
-  return (
-    <div>
-      <Abertura />
-      <HabitosHoje />
-      <div className="mb-12 grid gap-10 md:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
-        <TarefasHoje />
-        <AgendaProxima />
-      </div>
-      {/* O dia vem antes: os atalhos repetem o menu e ficam depois do que é para fazer hoje */}
-      <Secao titulo="Atalhos" className="mb-12">
-        <MenuAtalhos />
-      </Secao>
-      <div className="grid gap-10 border-t border-line pt-8 sm:grid-cols-2 lg:grid-cols-3">
-        <MetasAno />
-        <LendoAgora />
-        <ProjetosAndamento />
-      </div>
-    </div>
-  )
+  return <PonteDoDia />
 }

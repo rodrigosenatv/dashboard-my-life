@@ -38,6 +38,18 @@ A barra lateral (no computador), o topo, as abas da área e a barra de baixo (no
 - A barra do sistema no celular (`theme-color`) tem a cor da cabine, `#03131a`.
 - Código: o bloco "A cabine" do `src/app/globals.css` (a classe `.cabine` com as cores; `data-area` escolhe a luz) e `src/components/shell` (`barra-lateral.tsx`, `celular.tsx`, `novo.tsx` e `busca-painel.tsx`).
 
+## Hoje (a ponte de comando do dia)
+
+A página inicial é a ponte de comando do dia: o azul petróleo da capa do caderno no escuro, com o quadriculado do Notion virado em grade de luz e cada painel aceso na cor da sua área (rituais, tarefas e metas em verde, leitura em âmbar, projetos em violeta). Fica sempre escura, no tema claro ou escuro.
+
+- **Capa do dia.** O número do dia em luz, o dia da semana, o mês, a saudação e a hora; a frase da capa escrita à mão (e a imagem de fundo, se escolhida em Configurações). Quando a capa tem largura para os dois, a frase vai para o lado da data; no tablet e no celular, fica embaixo.
+- **Linha do dia.** Das 6h (ou antes, de madrugada) à meia-noite: o que já passou em luz, o agora pulsando e os compromissos com hora marcados na cor do tipo (reunião em violeta, aniversário em rosa, viagem em âmbar). Embaixo, o que está acontecendo ("Agora: … · até 11:00") ou o próximo ("Próximo: 10:00 Reunião · em 1 h 25").
+- **Captura rápida e resumo.** O campo "›" guarda a ideia ou o link sem tipo, na Caixa de Entrada do Segundo Cérebro. As pílulas resumem o dia (rituais feitos, tarefas para hoje, atrasadas, compromissos de hoje, capturas na caixa) e levam ao painel de cada uma; no celular, rolam para o lado.
+- **Rituais.** O anel verde com quanto já foi feito e os hábitos do dia por ritual (matutino, noturno…), com a contagem de cada ritual e os dias seguidos; um toque marca.
+- **Para hoje e Agenda.** As tarefas que vencem hoje ou já venceram (as atrasadas primeiro, depois pela hora) e as em andamento sem data, com "Adicionar tarefa para hoje". A agenda dos próximos 7 dias, por dia, com o que já passou apagado; "Agendar" e o toque num compromisso abrem a janela ali mesmo, sem sair do dia.
+- **Atalhos e resumos.** Os atalhos com o ícone aceso na cor da área do destino (no celular, os nomes longos quebram em duas linhas); as metas do ano, os livros em leitura e os projetos em andamento, com o anel, as etapas e o prazo.
+- Código: `src/features/hoje` (`ponte.tsx` a página; `logica.ts` as contas de tarefas, agenda e linha do dia, testada em `tests/hoje.test.cjs`) e o bloco "Hoje: a ponte de comando do dia" do `src/app/globals.css`.
+
 ## Biblioteca (Estudos > Leitura)
 
 A página de leitura é uma biblioteca do futuro: livros em 3D, prateleiras com luz e um painel com a meta do ano, os dias seguidos de leitura e o acervo em números.
@@ -106,6 +118,7 @@ npm run dev
 Estrutura principal:
 - `src/app/(app)` rotas do app; `src/features/*` cada módulo; `src/components` interface compartilhada.
 - `src/features/importar` leitura do .zip do Notion e gravação no Supabase.
+- `src/features/hoje` a página Hoje: capa do dia, linha do dia, rituais, tarefas, agenda e resumos (`logica.ts`, testada em `tests/hoje.test.cjs`).
 - `src/features/leitura` biblioteca: prateleiras, capas, busca de livros, diário e meta de leitura.
 - `src/features/cursos` plataforma de cursos: trilha de aulas e ações lidas das anotações (`logica.ts`, testada em `tests/cursos.test.cjs`).
 - `src/features/laboratorio` laboratório de experimentos: andamento dos testes, diário e protocolo (`logica.ts`, testada em `tests/laboratorio.test.cjs`).
