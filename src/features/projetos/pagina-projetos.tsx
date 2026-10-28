@@ -194,7 +194,7 @@ export function PaginaProjetos() {
       <div className="vidro mb-6 grid gap-3 p-3 sm:p-4">
         <Segmentos
           rotulo="Situação dos projetos"
-          className="w-full bg-black/25 sm:w-fit"
+          className="w-full bg-surface sm:w-fit"
           valor={aba}
           aoMudar={setAba}
           opcoes={[
@@ -206,11 +206,11 @@ export function PaginaProjetos() {
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
           <div className="relative min-w-0 flex-1">
             <Search aria-hidden className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-ink-3" />
-            <input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Buscar projetos…" aria-label="Buscar projetos" className="h-11 w-full rounded-full border border-[var(--b-borda)] bg-black/25 pl-10 pr-10 text-base placeholder:text-ink-3 focus-visible:border-[var(--b-luz)] focus-visible:outline-none sm:text-sm" />
+            <input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Buscar projetos…" aria-label="Buscar projetos" className="h-11 w-full rounded-full border border-[var(--b-borda)] bg-surface pl-10 pr-10 text-base placeholder:text-ink-3 focus-visible:border-[var(--b-luz)] focus-visible:outline-none sm:text-sm" />
             {busca ? <button type="button" onClick={() => setBusca("")} aria-label="Limpar busca" className="absolute right-1 top-1/2 grid size-10 -translate-y-1/2 place-items-center rounded-full text-ink-2"><X className="size-4" /></button> : null}
           </div>
           {areas.length ? (
-            <Seletor aria-label="Filtrar por área" value={filtroArea ?? ""} onChange={(e) => setFiltroArea(e.target.value || null)} className="w-full rounded-full bg-black/25 sm:w-auto sm:max-w-60">
+            <Seletor aria-label="Filtrar por área" value={filtroArea ?? ""} onChange={(e) => setFiltroArea(e.target.value || null)} className="w-full rounded-full bg-surface sm:w-auto sm:max-w-60">
               <option value="">Todas as áreas</option>
               {areas.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
             </Seletor>
@@ -218,7 +218,7 @@ export function PaginaProjetos() {
         </div>
         <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[var(--b-borda)] pt-3">
           <span className="tabular text-xs font-medium text-ink-2" aria-live="polite">{plural(lista.length, "projeto")}</span>
-          {haFiltros ? <button type="button" onClick={limpar} className="inline-flex min-h-9 items-center gap-1 rounded-full px-2.5 text-xs font-semibold text-[var(--b-luz)] hover:bg-white/[0.06]"><X className="size-3.5" /> Limpar filtros</button> : null}
+          {haFiltros ? <button type="button" onClick={limpar} className="inline-flex min-h-9 items-center gap-1 rounded-full px-2.5 text-xs font-semibold text-[var(--b-luz)] hover:bg-ink/[0.06]"><X className="size-3.5" /> Limpar filtros</button> : null}
         </div>
       </div>
 

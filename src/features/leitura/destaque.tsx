@@ -78,7 +78,7 @@ export function LendoAgora({
               onClick={() => ir(i)}
               className="relative grid h-6 place-items-center px-1 toque:h-8"
             >
-              <span className={cn("block h-1.5 rounded-full transition-all", i === atual ? "w-6 bg-[var(--b-luz)] shadow-[0_0_8px_var(--b-luz)]" : "w-1.5 bg-white/25")} />
+              <span className={cn("block h-1.5 rounded-full transition-all", i === atual ? "w-6 bg-[var(--b-luz)]" : "w-1.5 bg-ink/25")} />
             </button>
           ))}
         </div>
@@ -104,7 +104,7 @@ function CartaoLendo({ livro: l, dias, temArquivo, aoAtualizar, prioridade }: { 
     // A partir do tablet: o livro grande à esquerda e tudo à direita.
     <article className="vidro relative grid h-full grid-cols-[6.5rem_minmax(0,1fr)] items-center gap-x-5 gap-y-5 overflow-hidden p-5 pb-6 sm:grid-cols-[auto_minmax(0,1fr)] sm:gap-x-8 sm:p-7 lg:p-8">
       {/* Brilho atrás do livro */}
-      <span aria-hidden className="pointer-events-none absolute -left-16 -top-20 size-72 rounded-full bg-[var(--b-luz)]/15 blur-3xl" />
+      <span aria-hidden className="pointer-events-none absolute -left-16 -top-20 size-72 rounded-full bg-[var(--b-luz)]/15 hidden" />
       <div className="relative w-full pb-4 sm:row-span-2 sm:w-44 sm:pb-5 lg:w-48">
         <Link href={`/estudos/leitura/${l.id}`} aria-label={`Abrir ${l.title}`} className="flutuar block rounded-md focus-visible:outline-none">
           <Livro3D livro={l} prioridade={prioridade} />
@@ -155,7 +155,7 @@ function CartaoLendo({ livro: l, dias, temArquivo, aoAtualizar, prioridade }: { 
         {/* Com o arquivo, "Continuar lendo" é a ação (o leitor já marca a página); sem arquivo, marcar a página */}
         <div className="mt-5 flex gap-2 sm:flex-wrap">
           {temArquivo ? (
-            <Botao asChild variante="primario" tamanho="lg" className="flex-1 shadow-[0_0_24px_-4px_var(--b-luz)] sm:flex-none">
+            <Botao asChild variante="primario" tamanho="lg" className="flex-1 sm:flex-none">
               <Link href={`/ler/${l.id}`}>
                 <BookOpen /> Continuar lendo
               </Link>
@@ -167,7 +167,7 @@ function CartaoLendo({ livro: l, dias, temArquivo, aoAtualizar, prioridade }: { 
             onClick={aoAtualizar}
             aria-label="Atualizar página"
             title="Atualizar página"
-            className={cn(temArquivo ? "size-11 bg-transparent px-0 sm:w-auto sm:px-5" : "flex-1 shadow-[0_0_24px_-4px_var(--b-luz)] sm:flex-none")}
+            className={cn(temArquivo ? "size-11 bg-transparent px-0 sm:w-auto sm:px-5" : "flex-1 sm:flex-none")}
           >
             <BookMarked /> <span className={cn(temArquivo && "sr-only sm:not-sr-only")}>Atualizar página</span>
           </Botao>
@@ -180,7 +180,7 @@ function CartaoLendo({ livro: l, dias, temArquivo, aoAtualizar, prioridade }: { 
 function SemLeitura({ aoEscolherProximo, temFila }: { aoEscolherProximo: () => void; temFila: boolean }) {
   return (
     <section aria-label="Lendo agora" className="vidro relative overflow-hidden px-6 py-10 text-center sm:py-12">
-      <span aria-hidden className="pointer-events-none absolute left-1/2 top-0 size-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--b-luz)]/15 blur-3xl" />
+      <span aria-hidden className="pointer-events-none absolute left-1/2 top-0 size-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--b-luz)]/15 hidden" />
       <Library className="relative mx-auto size-8 text-[var(--b-luz)]" aria-hidden />
       <h2 className="relative mt-3 font-display text-2xl font-semibold">A sala de leitura está em silêncio</h2>
       <p className="relative mx-auto mt-1.5 max-w-sm text-ink-2">

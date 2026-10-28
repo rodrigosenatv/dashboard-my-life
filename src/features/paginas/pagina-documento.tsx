@@ -81,7 +81,7 @@ export function PaginaDocumento() {
       {pagina.cover_path ? <Capa caminho={pagina.cover_path} /> : null}
 
       <header className={cn("mb-6 flex flex-wrap items-start gap-2 p-4 sm:gap-3 sm:p-6", futurista ? "vidro relative overflow-hidden" : "rounded-2xl border border-line bg-surface")}>
-        {futurista ? <span aria-hidden className="pointer-events-none absolute -left-16 -top-20 size-56 rounded-full bg-[var(--b-luz)]/15 blur-3xl" /> : null}
+        {futurista ? <span aria-hidden className="pointer-events-none absolute -left-16 -top-20 size-56 rounded-full bg-[var(--b-luz)]/15 hidden" /> : null}
         <div className="relative min-w-0 flex-[1_1_100%] sm:flex-1">
           {futurista ? (
             <TituloEditavel rotulo="Renomear a página" valor={pagina.title} aoSalvar={(v) => atualizar.mutate({ id: pagina.id, title: v })} className="font-display text-[1.75rem] font-semibold leading-tight tracking-tight sm:text-3xl" />

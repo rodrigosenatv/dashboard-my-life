@@ -15,7 +15,7 @@ export default function LayoutApp({ children }: LayoutProps<"/">) {
     // A cabine (barra lateral, topo e barra de baixo) envolve a página; o fundo dela fica no bloco "A cabine" do globals.css
     <div className="cabine-moldura flex min-h-dvh">
       {/* A navegação lê a rota atual; em rotas com id ela só resolve na requisição. */}
-      <Suspense fallback={<aside aria-hidden className="cabine sticky top-0 hidden h-dvh w-60 shrink-0 recolhido:w-16 lg:block" />}>
+      <Suspense fallback={<aside aria-hidden className="cabine cabine-lateral sticky top-0 hidden h-dvh w-60 shrink-0 recolhido:w-16 lg:block" />}>
         <BarraLateral />
       </Suspense>
       <div className="cabine-papel flex min-w-0 flex-1 flex-col bg-bg lg:rounded-l-[1.25rem]">

@@ -66,7 +66,7 @@ function CartaoModulo({ modulo, paginas }: { modulo: Modulo; paginas: Map<string
       <div className="flex items-start gap-3">
         <span
           aria-hidden
-          className="grid size-11 shrink-0 place-items-center rounded-xl border border-[var(--b-borda-2)] bg-black/25 font-display text-lg font-bold tabular-nums text-[var(--b-luz)] shadow-[inset_0_0_14px_-6px_var(--b-luz)] [text-shadow:0_0_12px_rgb(255_111_181/0.6)]"
+          className="grid size-11 shrink-0 place-items-center rounded-xl border border-[var(--b-borda-2)] bg-surface font-display text-lg font-bold tabular-nums text-[var(--b-luz)] [text-shadow:0_0_12px_rgb(255_111_181/0.6)]"
         >
           {modulo.numero ?? <Sparkles className="size-5" />}
         </span>
@@ -82,7 +82,7 @@ function CartaoModulo({ modulo, paginas }: { modulo: Modulo; paginas: Map<string
             {g.titulo ? <li className="rotulo-hud px-2 pb-0.5 pt-2 text-[10px] first:pt-0.5">{g.titulo}</li> : null}
             {g.ids.map((id) => (
               <li key={id} className="min-w-0">
-                <Link href={`/paginas/${id}`} className="block truncate rounded-lg px-2 py-1.5 text-sm text-ink-2 transition-colors hover:bg-white/[0.05] hover:text-[var(--b-luz)] toque:py-2.5">
+                <Link href={`/paginas/${id}`} className="block truncate rounded-lg px-2 py-1.5 text-sm text-ink-2 transition-colors hover:bg-ink/[0.05] hover:text-[var(--b-luz)] toque:py-2.5">
                   {paginas.get(id)?.title || "Sem título"}
                 </Link>
               </li>
@@ -91,7 +91,7 @@ function CartaoModulo({ modulo, paginas }: { modulo: Modulo; paginas: Map<string
         ))}
       </ul>
       {total > LIMITE_AULAS ? (
-        <button type="button" onClick={() => setAberto((a) => !a)} aria-expanded={aberto} className="mt-2 inline-flex min-h-9 self-start items-center rounded-full px-2 text-xs font-medium text-[var(--b-luz)] hover:bg-white/[0.05] toque:min-h-10">
+        <button type="button" onClick={() => setAberto((a) => !a)} aria-expanded={aberto} className="mt-2 inline-flex min-h-9 self-start items-center rounded-full px-2 text-xs font-medium text-[var(--b-luz)] hover:bg-ink/[0.05] toque:min-h-10">
           {aberto ? "Mostrar menos" : `Ver as ${total} aulas`}
         </button>
       ) : null}
@@ -122,7 +122,7 @@ export function MapaDoCurso({ curso, paginas }: { curso: Curso; paginas: Map<str
             </h2>
           </div>
         </div>
-        <Link href={`/paginas/${pagina.id}`} className="inline-flex min-h-10 items-center gap-1.5 rounded-full border border-[var(--b-borda)] bg-white/[0.03] px-3.5 text-sm text-ink-2 transition-colors hover:border-[var(--b-borda-2)] hover:text-ink">
+        <Link href={`/paginas/${pagina.id}`} className="inline-flex min-h-10 items-center gap-1.5 rounded-full border border-[var(--b-borda)] bg-ink/[0.03] px-3.5 text-sm text-ink-2 transition-colors hover:border-[var(--b-borda-2)] hover:text-ink">
           Abrir a página <ArrowUpRight className="size-4" aria-hidden />
         </Link>
       </div>
@@ -132,7 +132,7 @@ export function MapaDoCurso({ curso, paginas }: { curso: Curso; paginas: Map<str
             <li key={id} className="min-w-0 max-w-full">
               <Link
                 href={`/paginas/${id}`}
-                className="inline-flex min-h-10 max-w-full items-center gap-1.5 rounded-full border border-[var(--b-luz)]/35 bg-[var(--b-luz)]/[0.08] px-3.5 py-2 text-sm font-medium shadow-[0_0_20px_-10px_var(--b-luz)] transition-colors hover:border-[var(--b-luz)]/70"
+                className="inline-flex min-h-10 max-w-full items-center gap-1.5 rounded-full border border-[var(--b-luz)]/35 bg-[var(--b-luz)]/[0.08] px-3.5 py-2 text-sm font-medium transition-colors hover:border-[var(--b-luz)]/70"
               >
                 <Star className="size-3.5 shrink-0 fill-[var(--b-ambar)] text-[var(--b-ambar)]" aria-hidden />
                 <span className="truncate">{paginas.get(id)?.title}</span>

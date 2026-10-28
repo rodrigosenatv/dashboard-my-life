@@ -186,7 +186,7 @@ export function JanelaAdicionarLivro({
                   onClick={() => setSituacao(s.valor)}
                   className={cn(
                     "min-h-11 rounded-xl border px-2 text-sm font-medium transition-colors",
-                    situacao === s.valor ? "border-[var(--b-luz)] bg-[var(--b-luz)]/12 text-ink shadow-[0_0_16px_-6px_var(--b-luz)]" : "border-line-strong text-ink-2 hover:text-ink",
+                    situacao === s.valor ? "border-[var(--b-luz)] bg-[var(--b-luz)]/12 text-ink" : "border-line-strong text-ink-2 hover:text-ink",
                   )}
                 >
                   {s.rotulo}
@@ -248,7 +248,7 @@ export function JanelaAdicionarLivro({
               onChange={(e) => setTermo(e.target.value)}
               placeholder="Ex.: Hábitos Atômicos, James Clear"
               aria-label="Buscar livro"
-              className="h-12 w-full rounded-xl border border-line-strong bg-surface pl-10 pr-10 text-[16px] text-ink placeholder:text-ink-3 focus-visible:border-[var(--b-luz)] focus-visible:shadow-[0_0_0_3px_rgb(99_227_255/0.15)] focus-visible:outline-none"
+              className="h-12 w-full rounded-xl border border-line-strong bg-surface pl-10 pr-10 text-[16px] text-ink placeholder:text-ink-3 focus-visible:border-[var(--b-luz)] focus-visible:outline-none"
             />
             {termo ? (
               <button
@@ -290,7 +290,7 @@ export function JanelaAdicionarLivro({
                     <button
                       type="button"
                       onClick={() => setEscolhido(r)}
-                      className="flex w-full items-center gap-3 rounded-xl px-2 py-2 text-left transition-colors hover:bg-white/[0.05] focus-visible:bg-white/[0.05] focus-visible:outline-none"
+                      className="flex w-full items-center gap-3 rounded-xl px-2 py-2 text-left transition-colors hover:bg-ink/[0.05] focus-visible:bg-ink/[0.05] focus-visible:outline-none"
                     >
                       <CapaDoResultado resultado={r} className="w-11" />
                       <span className="min-w-0 flex-1">

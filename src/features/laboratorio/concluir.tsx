@@ -12,7 +12,7 @@ import { diaIso, escreverConclusao, itensDe, notaDo, protocolo, PROXIMOS, RESULT
 
 type Final = Exclude<ResultadoExp, "indefinido">
 const OPCOES: { id: Final; rotulo: string; cor: string }[] = [
-  { id: "funcionou", rotulo: RESULTADOS.funcionou, cor: "border-[var(--b-luz)] bg-[var(--b-luz)]/14 shadow-[0_0_18px_-6px_var(--b-luz)]" },
+  { id: "funcionou", rotulo: RESULTADOS.funcionou, cor: "border-[var(--b-luz)] bg-[var(--b-luz)]/14" },
   { id: "parcial", rotulo: RESULTADOS.parcial, cor: "border-[var(--b-ambar)] bg-[var(--b-ambar)]/14" },
   { id: "nao_funcionou", rotulo: RESULTADOS.nao_funcionou, cor: "border-[var(--b-rosa)] bg-[var(--b-rosa)]/14" },
 ]
@@ -83,7 +83,7 @@ export function JanelaConcluir({ experimento: e, aberta, aoMudar, aoNovaRodada }
     >
       <form id="form-concluir" onSubmit={salvar} className="grid gap-5">
         {e.hypothesis ? (
-          <p className="rounded-xl border border-[var(--b-borda)] bg-white/[0.03] px-3.5 py-2.5 text-sm text-ink-2">
+          <p className="rounded-xl border border-[var(--b-borda)] bg-ink/[0.03] px-3.5 py-2.5 text-sm text-ink-2">
             <span className="rotulo-hud mb-1 block">Hipótese</span>
             {e.hypothesis}
           </p>

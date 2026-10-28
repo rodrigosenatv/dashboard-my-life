@@ -36,7 +36,7 @@ export function SelosDaCapa({ livro: l }: { livro: Livro }) {
       ) : null}
       {pct !== null && l.pages_total ? (
         <span aria-hidden className="absolute inset-x-1.5 bottom-1.5 h-1 overflow-hidden rounded-full bg-black/55">
-          <span className="block h-full rounded-full bg-[var(--b-luz)] shadow-[0_0_8px_var(--b-luz)]" style={{ width: `${pct}%` }} />
+          <span className="block h-full rounded-full bg-[var(--b-luz)]" style={{ width: `${pct}%` }} />
         </span>
       ) : null}
     </>
@@ -100,7 +100,7 @@ export function Prateleira({
           <button
             type="button"
             onClick={aoVerTudo}
-            className="inline-flex min-h-10 shrink-0 items-center gap-1 rounded-full px-3 text-sm font-medium text-[var(--b-luz)] hover:bg-white/[0.06]"
+            className="inline-flex min-h-10 shrink-0 items-center gap-1 rounded-full px-3 text-sm font-medium text-[var(--b-luz)] hover:bg-ink/[0.06]"
           >
             Ver tudo <ArrowRight className="size-4" aria-hidden />
           </button>

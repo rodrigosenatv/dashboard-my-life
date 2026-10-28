@@ -50,14 +50,14 @@ export function CapaCurso({ curso, caminho, className, prioridade }: { curso: Pi
       />
     )
   }
-  if (caminho && !url && !falhou) return <div aria-hidden className={cn("h-full w-full animate-pulse bg-white/[0.06]", className)} />
+  if (caminho && !url && !falhou) return <div aria-hidden className={cn("h-full w-full animate-pulse bg-ink/[0.06]", className)} />
   const { h1, h2 } = tonsDoCurso(curso)
   return (
     <div aria-hidden className={cn("capa-curso", className)} style={{ "--h1": h1, "--h2": h2 } as React.CSSProperties}>
       <span className="capa-curso-anel" />
       <span className="capa-curso-sigla">{iniciais(curso.name)}</span>
       {plataforma ? (
-        <span className="absolute bottom-[7%] right-[6%] grid size-[clamp(18px,12cqw,34px)] place-items-center rounded-full bg-black/35 text-white/85 ring-1 ring-white/15 backdrop-blur-sm">
+        <span className="absolute bottom-[7%] right-[6%] grid size-[clamp(18px,12cqw,34px)] place-items-center rounded-full bg-black/35 text-ink/85 ring-1 ring-white/15 backdrop-blur-sm">
           <IconePlataforma id={plataforma.id} className="size-[55%]" />
         </span>
       ) : null}

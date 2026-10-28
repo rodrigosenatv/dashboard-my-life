@@ -176,7 +176,7 @@ export function PaginaArquivo() {
       />
       <Segmentos
         rotulo="O que ver no arquivo"
-        className="mb-6 w-full bg-black/25 sm:w-auto"
+        className="mb-6 w-full bg-surface sm:w-auto"
         valor={aba}
         aoMudar={setAba}
         opcoes={[
@@ -308,7 +308,7 @@ export function PaginaAreas() {
       />
       <Segmentos
         rotulo="Situação das áreas"
-        className="mb-6 w-full bg-black/25 sm:w-auto"
+        className="mb-6 w-full bg-surface sm:w-auto"
         valor={verArquivadas ? "arq" : "ativas"}
         aoMudar={(v) => setVerArquivadas(v === "arq")}
         opcoes={[
@@ -351,11 +351,11 @@ export function PaginaAreas() {
                     </div>
                     {a.description ? <p className="mt-3 line-clamp-2 text-sm text-ink-2">{a.description}</p> : null}
                     <dl className="mt-auto grid grid-cols-2 gap-2 pt-4">
-                      <div className="rounded-xl border border-[var(--b-borda)] bg-black/20 px-3 py-2">
+                      <div className="rounded-xl border border-[var(--b-borda)] bg-surface px-3 py-2">
                         <dt className="rotulo-hud text-[10px]">Projetos</dt>
                         <dd className="tabular font-display text-xl font-semibold text-[var(--b-luz)]">{n.projetos}</dd>
                       </div>
-                      <div className="rounded-xl border border-[var(--b-borda)] bg-black/20 px-3 py-2">
+                      <div className="rounded-xl border border-[var(--b-borda)] bg-surface px-3 py-2">
                         <dt className="rotulo-hud text-[10px]">Capturas</dt>
                         <dd className="tabular font-display text-xl font-semibold">{n.capturas}</dd>
                       </div>
@@ -365,7 +365,7 @@ export function PaginaAreas() {
                     type="button"
                     onClick={() => setEditar(a)}
                     aria-label={`Editar ${a.name}`}
-                    className="absolute right-3 top-3 grid size-10 place-items-center rounded-full text-ink-2 opacity-100 transition-opacity hover:bg-white/[0.08] hover:text-ink focus-visible:opacity-100 sm:opacity-0 sm:group-hover:opacity-100 toque:opacity-100"
+                    className="absolute right-3 top-3 grid size-10 place-items-center rounded-full text-ink-2 opacity-100 transition-opacity hover:bg-ink/[0.08] hover:text-ink focus-visible:opacity-100 sm:opacity-0 sm:group-hover:opacity-100 toque:opacity-100"
                   >
                     <Pencil className="size-3.5" />
                   </button>
@@ -448,7 +448,7 @@ export function PaginaArea() {
       >
         <Segmentos
           rotulo="Situação da área"
-          className="mt-4 w-full bg-black/25 sm:w-auto"
+          className="mt-4 w-full bg-surface sm:w-auto"
           valor={area.status}
           aoMudar={(v) => atualizar.mutate({ id: area.id, status: v })}
           opcoes={Object.entries(STATUS_AREA).map(([valor, rotulo]) => ({ valor, rotulo }))}

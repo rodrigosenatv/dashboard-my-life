@@ -60,11 +60,11 @@ export function PaginaCurso() {
     return (
       <div className={MOLDURA} aria-busy="true" aria-label="Carregando o curso">
         <div className="grid gap-6 pt-12 sm:grid-cols-[20rem_1fr]">
-          <Esqueleto className="aspect-video w-full rounded-2xl bg-white/[0.06]" />
+          <Esqueleto className="aspect-video w-full rounded-2xl bg-ink/[0.06]" />
           <div className="grid content-start gap-3">
-            <Esqueleto className="h-4 w-40 bg-white/[0.06]" />
-            <Esqueleto className="h-10 w-3/4 bg-white/[0.06]" />
-            <Esqueleto className="mt-4 h-2 w-full bg-white/[0.06]" />
+            <Esqueleto className="h-4 w-40 bg-ink/[0.06]" />
+            <Esqueleto className="h-10 w-3/4 bg-ink/[0.06]" />
+            <Esqueleto className="mt-4 h-2 w-full bg-ink/[0.06]" />
           </div>
         </div>
       </div>
@@ -236,7 +236,7 @@ function Cabeca({
               <li key={k}>
                 <Link
                   href={`/estudos/cursos?ver=todos&area=${encodeURIComponent(k)}`}
-                  className="inline-flex rounded-full border border-[var(--b-borda)] bg-white/[0.04] px-2.5 py-0.5 text-xs text-ink-2 hover:border-[var(--b-borda-2)] hover:text-ink"
+                  className="inline-flex rounded-full border border-[var(--b-borda)] bg-ink/[0.04] px-2.5 py-0.5 text-xs text-ink-2 hover:border-[var(--b-borda-2)] hover:text-ink"
                 >
                   {k}
                 </Link>
@@ -260,7 +260,7 @@ function Cabeca({
                   ativo
                     ? st === "concluido"
                       ? "border-[var(--b-ambar)] bg-[var(--b-ambar)]/15 text-ink"
-                      : "border-[var(--b-luz)] bg-[var(--b-luz)]/12 text-ink shadow-[0_0_16px_-6px_var(--b-luz)]"
+                      : "border-[var(--b-luz)] bg-[var(--b-luz)]/12 text-ink"
                     : "border-[var(--b-borda)] text-ink-2 hover:border-[var(--b-borda-2)] hover:text-ink",
                 )}
               >
@@ -292,7 +292,7 @@ function Cabeca({
 
         <div className="order-3 mt-5 flex flex-wrap gap-2 sm:order-none">
           {link ? (
-            <Botao asChild variante="primario" tamanho="lg" className="flex-1 shadow-[0_0_26px_-6px_var(--b-luz)] sm:flex-none">
+            <Botao asChild variante="primario" tamanho="lg" className="flex-1 sm:flex-none">
               <a href={link} target="_blank" rel="noopener noreferrer">
                 {plataforma ? <IconePlataforma id={plataforma.id} /> : <ArrowUpRight />} {s === "concluido" ? (plataforma?.acao ?? "Abrir o curso") : plataforma?.em ? `Continuar ${plataforma.em}` : "Continuar o curso"}
               </a>
@@ -320,7 +320,7 @@ function ControleProgresso({ curso }: { curso: Curso }) {
   if (s === "concluido") {
     return (
       <div className="mt-5 flex items-center gap-3">
-        <div className="barra-luz flex-1 [&>span]:!bg-[var(--b-ambar)] [&>span]:shadow-[0_0_14px_rgb(245_197_74/0.6)]" aria-hidden>
+        <div className="barra-luz flex-1 [&>span]:!bg-[var(--b-ambar)] [&>span]:" aria-hidden>
           <span style={{ width: "100%" }} />
         </div>
         <span className="text-sm font-semibold text-[var(--b-ambar)]">Concluído</span>
@@ -339,7 +339,7 @@ function ControleProgresso({ curso }: { curso: Curso }) {
     return (
       <div className="mt-5 flex items-center gap-3 text-sm text-ink-3">
         <span>Progresso não informado.</span>
-        <button type="button" onClick={() => gravar(0)} className="min-h-10 rounded-full px-2 font-medium text-[var(--b-luz)] hover:bg-white/[0.06]">
+        <button type="button" onClick={() => gravar(0)} className="min-h-10 rounded-full px-2 font-medium text-[var(--b-luz)] hover:bg-ink/[0.06]">
           Informar
         </button>
       </div>
@@ -447,7 +447,7 @@ function Trilha({ curso, mapa, aoAnotar, aoAbrirAula }: { curso: Curso; mapa: Ma
                       <ChevronDown className={cn("mt-0.5 size-4 shrink-0 text-ink-3 transition-transform", aberta && "rotate-180")} aria-hidden />
                     </button>
                     {aberta ? (
-                      <div className="mt-2 rounded-xl border border-[var(--b-borda)] bg-white/[0.03] p-3.5 sm:p-4">
+                      <div className="mt-2 rounded-xl border border-[var(--b-borda)] bg-ink/[0.03] p-3.5 sm:p-4">
                         {a.corpo ? (
                           <Markdown texto={a.corpo} aoMudar={(novo) => mudar(curso, (t) => editarAula(t, a, { titulo: a.titulo, corpo: novo }))} className="text-[15px]" />
                         ) : (
@@ -532,7 +532,7 @@ function Acesso({ curso, aoEditar }: { curso: Curso; aoEditar: () => void }) {
         <KeyRound className="size-3.5 text-[var(--b-luz)]" aria-hidden /> Acesso
       </h2>
       {link ? (
-        <a href={link} target="_blank" rel="noopener noreferrer" className="mt-3 flex items-center gap-3 rounded-xl border border-[var(--b-borda)] bg-white/[0.03] px-3 py-2.5 hover:border-[var(--b-borda-2)]">
+        <a href={link} target="_blank" rel="noopener noreferrer" className="mt-3 flex items-center gap-3 rounded-xl border border-[var(--b-borda)] bg-ink/[0.03] px-3 py-2.5 hover:border-[var(--b-borda-2)]">
           <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-[var(--b-luz)]/12 text-[var(--b-luz)]">
             <IconePlataforma id={plataforma?.id ?? "site"} className="size-4" />
           </span>
@@ -546,7 +546,7 @@ function Acesso({ curso, aoEditar }: { curso: Curso; aoEditar: () => void }) {
         <p className="mt-2 text-sm text-ink-2">Sem link de acesso.</p>
       )}
       {curso.access_email ? (
-        <div className="mt-2 flex items-center gap-2 rounded-xl border border-[var(--b-borda)] bg-white/[0.03] px-3 py-2">
+        <div className="mt-2 flex items-center gap-2 rounded-xl border border-[var(--b-borda)] bg-ink/[0.03] px-3 py-2">
           <span className="min-w-0 flex-1">
             <span className="block text-xs text-ink-3">E-mail de acesso</span>
             <span className="block truncate text-sm">{curso.access_email}</span>
@@ -558,13 +558,13 @@ function Acesso({ curso, aoEditar }: { curso: Curso; aoEditar: () => void }) {
               if (await copiarTexto(curso.access_email ?? "")) toast.success("E-mail copiado.")
               else toast.error("Não foi possível copiar.")
             }}
-            className="grid size-9 shrink-0 place-items-center rounded-full text-ink-3 hover:bg-white/[0.06] hover:text-ink toque:size-11"
+            className="grid size-9 shrink-0 place-items-center rounded-full text-ink-3 hover:bg-ink/[0.06] hover:text-ink toque:size-11"
           >
             <Copy className="size-4" />
           </button>
         </div>
       ) : null}
-      <button type="button" onClick={aoEditar} className="mt-3 min-h-10 rounded-full px-2 text-sm font-medium text-[var(--b-luz)] hover:bg-white/[0.06]">
+      <button type="button" onClick={aoEditar} className="mt-3 min-h-10 rounded-full px-2 text-sm font-medium text-[var(--b-luz)] hover:bg-ink/[0.06]">
         {link || curso.access_email ? "Editar acesso" : "Pôr o link e o e-mail"}
       </button>
     </section>

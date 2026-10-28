@@ -107,7 +107,7 @@ export function PaginaCursos() {
           <h1 className="font-display text-[2.5rem] font-semibold leading-none tracking-tight sm:text-[3.25rem]">Cursos</h1>
           <div className="flex shrink-0 items-center gap-2">
             <BotaoFoco className="hidden sm:inline-flex" />
-            <Botao variante="primario" tamanho="lg" onClick={() => setNovo(true)} className="px-4 shadow-[0_0_24px_-6px_var(--b-luz)]">
+            <Botao variante="primario" tamanho="lg" onClick={() => setNovo(true)} className="px-4">
               <Plus /> Curso
             </Botao>
             <Menu>
@@ -135,7 +135,7 @@ export function PaginaCursos() {
                 <button
                   type="button"
                   onClick={() => abrirCatalogo({ status: h.status })}
-                  className="inline-flex min-h-9 items-baseline gap-1.5 rounded-full border border-[var(--b-borda)] bg-white/[0.03] px-3 py-1 text-sm text-ink-2 backdrop-blur hover:border-[var(--b-borda-2)] hover:text-ink toque:min-h-11 toque:items-center"
+                  className="inline-flex min-h-9 items-baseline gap-1.5 rounded-full border border-[var(--b-borda)] bg-ink/[0.03] px-3 py-1 text-sm text-ink-2 backdrop-blur hover:border-[var(--b-borda-2)] hover:text-ink toque:min-h-11 toque:items-center"
                 >
                   <span className="tabular font-display text-base font-semibold" style={h.cor ? { color: h.cor } : undefined}>
                     {h.n}
@@ -160,7 +160,7 @@ export function PaginaCursos() {
           onChange={(e) => setBusca(e.target.value)}
           placeholder="Curso, área ou algo que você anotou"
           aria-label="Buscar nos cursos"
-          className="h-12 w-full rounded-2xl border border-[var(--b-borda)] bg-white/[0.04] pl-11 pr-11 text-[16px] text-ink backdrop-blur placeholder:text-ink-3 focus-visible:border-[var(--b-luz)] focus-visible:shadow-[0_0_0_3px_rgb(126_240_255/0.14),0_0_30px_-8px_var(--b-luz)] focus-visible:outline-none sm:text-[15px]"
+          className="h-12 w-full rounded-2xl border border-[var(--b-borda)] bg-ink/[0.04] pl-11 pr-11 text-[16px] text-ink backdrop-blur placeholder:text-ink-3 focus-visible:border-[var(--b-luz)] focus-visible:outline-none sm:text-[15px]"
         />
         {busca ? (
           <button type="button" aria-label="Limpar busca" onClick={() => setBusca("")} className="absolute right-2 top-1/2 z-10 grid size-9 -translate-y-1/2 place-items-center rounded-full text-ink-3 hover:text-ink">
@@ -225,15 +225,15 @@ function Carregando() {
   return (
     <div className="grid gap-10" aria-busy="true" aria-label="Carregando os cursos">
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_20rem]">
-        <Esqueleto className="h-80 rounded-[1.25rem] bg-white/[0.05]" />
-        <Esqueleto className="h-56 rounded-[1.25rem] bg-white/[0.05]" />
+        <Esqueleto className="h-80 rounded-[1.25rem] bg-ink/[0.05]" />
+        <Esqueleto className="h-56 rounded-[1.25rem] bg-ink/[0.05]" />
       </div>
       {[0, 1].map((i) => (
         <div key={i} className="grid gap-3">
-          <Esqueleto className="h-6 w-40 bg-white/[0.05]" />
+          <Esqueleto className="h-6 w-40 bg-ink/[0.05]" />
           <div className="flex gap-4 overflow-hidden">
             {[0, 1, 2, 3].map((j) => (
-              <Esqueleto key={j} className={cn("aspect-video w-[13.5rem] shrink-0 rounded-[0.875rem] bg-white/[0.05] sm:w-[15.5rem]")} />
+              <Esqueleto key={j} className={cn("aspect-video w-[13.5rem] shrink-0 rounded-[0.875rem] bg-ink/[0.05] sm:w-[15.5rem]")} />
             ))}
           </div>
         </div>
@@ -245,7 +245,7 @@ function Carregando() {
 function SemCursos({ aoCriar }: { aoCriar: () => void }) {
   return (
     <div className="vidro relative overflow-hidden px-6 py-12 text-center">
-      <span aria-hidden className="pointer-events-none absolute left-1/2 top-0 size-72 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--b-luz-2)]/25 blur-3xl" />
+      <span aria-hidden className="pointer-events-none absolute left-1/2 top-0 size-72 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--b-luz-2)]/25 hidden" />
       <GraduationCap className="relative mx-auto size-9 text-[var(--b-luz)]" aria-hidden />
       <h2 className="relative mt-3 font-display text-2xl font-semibold">Sua plataforma está pronta</h2>
       <p className="relative mx-auto mt-1.5 max-w-md text-ink-2">

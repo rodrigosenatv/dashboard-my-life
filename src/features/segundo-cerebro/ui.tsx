@@ -33,8 +33,8 @@ export function IconeCaptura({ tipo, className }: { tipo: string | null | undefi
 
 export { textoEtapas } from "./logica"
 
-/** As cores do anel: ciano, violeta e rosa (o padrão do Segundo Cérebro). */
-const CORES_ANEL: [string, string, string] = ["#6ee7ff", "#b69cff", "#ff8fd1"]
+/** As cores do anel: as de destaque da tela (o padrão do Segundo Cérebro: petróleo, violeta e rosa). */
+const CORES_ANEL: [string, string, string] = ["var(--b-luz-2)", "var(--b-luz)", "var(--b-rosa)"]
 
 /** O anel de luz com um progresso (em %), em degradê de três cores. */
 export function AnelProgresso({
@@ -57,7 +57,7 @@ export function AnelProgresso({
   const id = `anel${useId().replace(/[^a-zA-Z0-9]/g, "")}`
   return (
     <span className="relative grid shrink-0 place-items-center" style={{ width: tamanho, height: tamanho }} role="img" aria-label={`Progresso: ${pct}%`}>
-      <svg width={tamanho} height={tamanho} viewBox={`0 0 ${tamanho} ${tamanho}`} className="absolute inset-0 -rotate-90 overflow-visible" style={{ filter: `drop-shadow(0 0 6px color-mix(in oklab, ${cores[1]} 55%, transparent))` }} aria-hidden>
+      <svg width={tamanho} height={tamanho} viewBox={`0 0 ${tamanho} ${tamanho}`} className="absolute inset-0 -rotate-90 overflow-visible" aria-hidden>
         <defs>
           <linearGradient id={id} x1="0" y1="0" x2="1" y2="1">
             <stop offset="0%" stopColor={cores[0]} />
@@ -65,7 +65,7 @@ export function AnelProgresso({
             <stop offset="100%" stopColor={cores[2]} />
           </linearGradient>
         </defs>
-        <circle cx={tamanho / 2} cy={tamanho / 2} r={raio} fill="none" stroke="rgb(255 255 255 / 0.08)" strokeWidth={espessura} />
+        <circle cx={tamanho / 2} cy={tamanho / 2} r={raio} fill="none" stroke="var(--surface-3)" strokeWidth={espessura} />
         {fracao > 0 ? (
           <circle
             cx={tamanho / 2}
@@ -136,7 +136,7 @@ export function VazioCerebro({
     <div className={cn("vidro relative overflow-hidden px-5 py-10 text-center sm:px-8 sm:py-12", className)}>
       <span
         aria-hidden
-        className="pointer-events-none absolute left-1/2 top-0 size-64 -translate-x-1/2 -translate-y-1/2 rounded-full blur-3xl"
+        className="pointer-events-none absolute left-1/2 top-0 size-64 -translate-x-1/2 -translate-y-1/2 rounded-full hidden"
         style={{ background: comemorar ? "rgb(124 245 196 / 0.18)" : "rgb(182 156 255 / 0.2)" }}
       />
       <span aria-hidden className="icone-aceso relative mx-auto size-14 rounded-2xl" style={{ "--cor": comemorar ? "var(--b-menta)" : "var(--b-luz)" } as CSSProperties}>
@@ -181,7 +181,7 @@ export function TituloEditavel({ valor, aoSalvar, rotulo, className }: { valor: 
             setEditando(false)
           }
         }}
-        className={cn("-mx-2 w-[calc(100%+1rem)] rounded-xl border border-[var(--b-luz)] bg-black/25 px-2 py-1 focus-visible:outline-none", className)}
+        className={cn("-mx-2 w-[calc(100%+1rem)] rounded-xl border border-[var(--b-luz)] bg-surface px-2 py-1 focus-visible:outline-none", className)}
       />
     )
   return (
@@ -193,7 +193,7 @@ export function TituloEditavel({ valor, aoSalvar, rotulo, className }: { valor: 
         type="button"
         onClick={() => setEditando(true)}
         aria-label={rotulo}
-        className="mt-1.5 grid size-9 shrink-0 place-items-center rounded-full text-ink-3 transition-opacity hover:bg-white/[0.06] hover:text-ink focus-visible:opacity-100 sm:opacity-0 sm:group-hover/titulo:opacity-100 toque:opacity-100"
+        className="mt-1.5 grid size-9 shrink-0 place-items-center rounded-full text-ink-3 transition-opacity hover:bg-ink/[0.06] hover:text-ink focus-visible:opacity-100 sm:opacity-0 sm:group-hover/titulo:opacity-100 toque:opacity-100"
       >
         <Pencil className="size-4" />
       </button>

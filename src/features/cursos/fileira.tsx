@@ -47,7 +47,7 @@ export function CartaoCurso({ curso: c, capa, className }: { curso: Curso; capa?
         ) : null}
         {pct !== null && s !== "concluido" ? (
           <span aria-hidden className="absolute inset-x-2 bottom-2 h-1 overflow-hidden rounded-full bg-black/55">
-            <span className="block h-full rounded-full bg-[var(--b-luz)] shadow-[0_0_8px_var(--b-luz)]" style={{ width: `${pct}%` }} />
+            <span className="block h-full rounded-full bg-[var(--b-luz)]" style={{ width: `${pct}%` }} />
           </span>
         ) : null}
       </span>
@@ -120,7 +120,7 @@ export function Fileira({
           {descricao ? <p className="text-sm text-ink-3">{descricao}</p> : null}
         </div>
         {aoVerTudo ? (
-          <button type="button" onClick={aoVerTudo} className="inline-flex min-h-10 shrink-0 items-center gap-1 rounded-full px-3 text-sm font-medium text-[var(--b-luz)] hover:bg-white/[0.06]">
+          <button type="button" onClick={aoVerTudo} className="inline-flex min-h-10 shrink-0 items-center gap-1 rounded-full px-3 text-sm font-medium text-[var(--b-luz)] hover:bg-ink/[0.06]">
             Ver tudo <ArrowRight className="size-4" aria-hidden />
           </button>
         ) : null}

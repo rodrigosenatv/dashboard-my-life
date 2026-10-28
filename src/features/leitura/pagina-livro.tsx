@@ -44,11 +44,11 @@ export function PaginaLivro() {
     return (
       <div className={moldura} aria-busy="true" aria-label="Carregando o livro">
         <div className="grid gap-6 pt-10 sm:grid-cols-[12rem_1fr]">
-          <Esqueleto className="mx-auto aspect-[2/3] w-40 rounded-md bg-white/[0.06] sm:w-48" />
+          <Esqueleto className="mx-auto aspect-[2/3] w-40 rounded-md bg-ink/[0.06] sm:w-48" />
           <div className="grid content-start gap-3">
-            <Esqueleto className="h-10 w-3/4 bg-white/[0.06]" />
-            <Esqueleto className="h-5 w-1/3 bg-white/[0.06]" />
-            <Esqueleto className="mt-6 h-2 w-full bg-white/[0.06]" />
+            <Esqueleto className="h-10 w-3/4 bg-ink/[0.06]" />
+            <Esqueleto className="h-5 w-1/3 bg-ink/[0.06]" />
+            <Esqueleto className="mt-6 h-2 w-full bg-ink/[0.06]" />
           </div>
         </div>
       </div>
@@ -178,7 +178,7 @@ function Cabeca({
     <header className="relative mt-4 grid items-center gap-x-10 gap-y-8 sm:grid-cols-[auto_minmax(0,1fr)]">
       {/* A própria capa, desfocada, ilumina o fundo */}
       <span aria-hidden className="pointer-events-none absolute -inset-x-10 -top-24 bottom-0 -z-10 overflow-hidden opacity-40 [mask-image:radial-gradient(70%_70%_at_30%_40%,#000,transparent)]">
-        <span className="block size-full scale-125 blur-3xl saturate-150">
+        <span className="block size-full scale-125 hidden saturate-150">
           <CapaLivro livro={l} />
         </span>
       </span>
@@ -232,7 +232,7 @@ function Cabeca({
 
         <div className="mt-6 flex flex-wrap gap-2">
           {disponivel.temArquivo ? (
-            <Botao asChild variante="primario" tamanho="lg" className="shadow-[0_0_24px_-4px_var(--b-luz)]">
+            <Botao asChild variante="primario" tamanho="lg" className="">
               <Link href={`/ler/${l.id}`}>
                 <BookOpen /> {l.pages_read ? "Continuar lendo" : "Ler"}
               </Link>
@@ -269,7 +269,7 @@ function Estrelas({ nota, aoMudar }: { nota: number | null; aoMudar: (n: number 
           onClick={() => aoMudar(nota === n ? null : n)}
           className="grid size-9 place-items-center rounded-full transition-transform active:scale-90 toque:size-10"
         >
-          <Star className={cn("size-6 transition-colors", n <= mostrada ? "fill-[var(--b-ambar)] text-[var(--b-ambar)] drop-shadow-[0_0_6px_rgb(245_197_74/0.6)]" : "text-white/25")} aria-hidden />
+          <Star className={cn("size-6 transition-colors", n <= mostrada ? "fill-[var(--b-ambar)] text-[var(--b-ambar)]" : "text-ink/25")} aria-hidden />
         </button>
       ))}
     </div>
@@ -284,7 +284,7 @@ function Situacao({ livro: l, rotulo, aoSituacao }: { livro: Livro; rotulo: stri
           type="button"
           className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-[var(--b-luz)]/40 bg-[var(--b-luz)]/10 px-3 text-sm font-medium text-ink transition-colors hover:border-[var(--b-luz)] toque:min-h-11"
         >
-          <span aria-hidden className="size-2 rounded-full bg-[var(--b-luz)] shadow-[0_0_8px_var(--b-luz)]" />
+          <span aria-hidden className="size-2 rounded-full bg-[var(--b-luz)]" />
           {rotulo}
           <ChevronDown className="size-4 text-ink-3" aria-hidden />
         </button>
@@ -374,7 +374,7 @@ function Trechos({ livro, insights }: { livro: Livro; insights: { id: string; te
           onChange={(e) => setFrase(e.target.value)}
           placeholder="Uma frase ou ideia do livro"
           aria-label="Novo trecho"
-          className="h-11 min-w-0 flex-1 rounded-lg border border-line-strong bg-white/[0.04] px-3 text-sm text-ink placeholder:text-ink-3 focus-visible:border-[var(--b-luz)] focus-visible:outline-none toque:text-[16px]"
+          className="h-11 min-w-0 flex-1 rounded-lg border border-line-strong bg-ink/[0.04] px-3 text-sm text-ink placeholder:text-ink-3 focus-visible:border-[var(--b-luz)] focus-visible:outline-none toque:text-[16px]"
         />
         <Botao type="submit" variante="primario" tamanho="lg" disabled={!frase.trim()}>
           Guardar
@@ -454,8 +454,8 @@ function Diario({ dias }: { dias: DiaLeitura[] }) {
         {janela.map((d) => {
           const n = porDia.get(d) ?? 0
           return (
-            <span key={d} className="flex-1 rounded-t-sm bg-white/[0.06]" style={{ height: `${Math.max(6, (n / maior) * 100)}%` }}>
-              {n ? <span className="block size-full rounded-t-sm bg-gradient-to-t from-[var(--b-luz-2)] to-[var(--b-luz)] shadow-[0_0_10px_-2px_var(--b-luz)]" /> : null}
+            <span key={d} className="flex-1 rounded-t-sm bg-ink/[0.06]" style={{ height: `${Math.max(6, (n / maior) * 100)}%` }}>
+              {n ? <span className="block size-full rounded-t-sm bg-gradient-to-t from-[var(--b-luz-2)] to-[var(--b-luz)]" /> : null}
             </span>
           )
         })}

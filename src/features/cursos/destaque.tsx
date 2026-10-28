@@ -67,7 +67,7 @@ export function EstudandoAgora({
         <div className="mt-3 flex justify-center gap-1.5" role="tablist" aria-label="Cursos em andamento">
           {cursos.map((c, i) => (
             <button key={c.id} type="button" role="tab" aria-selected={i === atual} aria-label={c.name} onClick={() => ir(i)} className="grid h-6 place-items-center px-1 toque:h-8">
-              <span className={cn("block h-1.5 rounded-full transition-all", i === atual ? "w-6 bg-[var(--b-luz)] shadow-[0_0_8px_var(--b-luz)]" : "w-1.5 bg-white/25")} />
+              <span className={cn("block h-1.5 rounded-full transition-all", i === atual ? "w-6 bg-[var(--b-luz)]" : "w-1.5 bg-ink/25")} />
             </button>
           ))}
         </div>
@@ -89,7 +89,7 @@ function CartaoDestaque({ curso: c, capa, aoAnotar, prioridade }: { curso: Curso
     // No celular: a capa pequena ao lado do nome e, embaixo, onde parou e os botões (cabe na primeira tela).
     // A partir do tablet: a capa grande na tela de luz à esquerda e tudo à direita.
     <article className="vidro relative grid h-full grid-cols-[minmax(0,8.5rem)_minmax(0,1fr)] items-center gap-x-4 gap-y-4 overflow-hidden p-4 sm:grid-cols-[minmax(0,17rem)_minmax(0,1fr)] sm:items-start sm:gap-x-7 sm:p-6 lg:grid-cols-[minmax(0,23rem)_minmax(0,1fr)] lg:p-7">
-      <span aria-hidden className="pointer-events-none absolute -right-24 -top-24 size-72 rounded-full bg-[var(--b-luz-2)]/20 blur-3xl" />
+      <span aria-hidden className="pointer-events-none absolute -right-24 -top-24 size-72 rounded-full bg-[var(--b-luz-2)]/20 hidden" />
       <Link href={`/estudos/cursos/${c.id}`} aria-label={`Abrir ${c.name}`} className="tela-holo block focus-visible:outline-none sm:row-span-2">
         <span className="tela-conteudo block aspect-video">
           <CapaCurso curso={c} caminho={capa} prioridade={prioridade} />
@@ -115,7 +115,7 @@ function CartaoDestaque({ curso: c, capa, aoAnotar, prioridade }: { curso: Curso
       </div>
 
       <div className="relative col-span-2 flex min-w-0 flex-col sm:col-span-1 sm:col-start-2">
-        <div className="rounded-xl border border-[var(--b-borda)] bg-white/[0.03] px-3.5 py-3">
+        <div className="rounded-xl border border-[var(--b-borda)] bg-ink/[0.03] px-3.5 py-3">
           {parou && partes ? (
             <>
               <p className="rotulo-hud flex items-center gap-1.5">
@@ -146,7 +146,7 @@ function CartaoDestaque({ curso: c, capa, aoAnotar, prioridade }: { curso: Curso
 
         <div className="mt-4 flex flex-wrap gap-2 sm:mt-5">
           {link ? (
-            <Botao asChild variante="primario" tamanho="lg" className="flex-1 shadow-[0_0_26px_-6px_var(--b-luz)] sm:flex-none">
+            <Botao asChild variante="primario" tamanho="lg" className="flex-1 sm:flex-none">
               <a href={link} target="_blank" rel="noopener noreferrer">
                 {plataforma ? <IconePlataforma id={plataforma.id} /> : <ArrowUpRight />} {plataforma?.em ? `Continuar ${plataforma.em}` : "Continuar o curso"}
               </a>
@@ -169,7 +169,7 @@ function CartaoDestaque({ curso: c, capa, aoAnotar, prioridade }: { curso: Curso
 function SemCurso({ aoEscolher, temFila }: { aoEscolher: () => void; temFila: boolean }) {
   return (
     <section aria-label="Estudando agora" className="vidro relative overflow-hidden px-6 py-10 text-center sm:py-12">
-      <span aria-hidden className="pointer-events-none absolute left-1/2 top-0 size-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--b-luz-2)]/25 blur-3xl" />
+      <span aria-hidden className="pointer-events-none absolute left-1/2 top-0 size-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--b-luz-2)]/25 hidden" />
       <Route className="relative mx-auto size-8 text-[var(--b-luz)]" aria-hidden />
       <h2 className="relative mt-3 font-display text-2xl font-semibold">Nenhum curso em andamento</h2>
       <p className="relative mx-auto mt-1.5 max-w-sm text-ink-2">

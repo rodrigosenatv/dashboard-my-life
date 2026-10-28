@@ -107,7 +107,7 @@ export function JanelaProgresso({ livro, aberta, aoMudar }: { livro: Livro | nul
               }}
               onBlur={() => setTexto(String(pagina))}
               onKeyDown={(e) => e.key === "Enter" && salvar()}
-              className="tabular w-full rounded-xl bg-transparent text-center font-display text-5xl font-semibold leading-none text-ink outline-none focus-visible:bg-white/[0.06]"
+              className="tabular w-full rounded-xl bg-transparent text-center font-display text-5xl font-semibold leading-none text-ink outline-none focus-visible:bg-ink/[0.06]"
             />
             <span className="rotulo-hud mt-2">{totalNum ? `de ${totalNum} páginas` : "página"}</span>
           </label>

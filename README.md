@@ -29,18 +29,18 @@ Feito com Next.js 16, Supabase (banco, login e arquivos) e hospedado na Vercel.
 2. No app: **Configurações > Importar do Notion**, escolha o .zip, confira o resumo e importe.
 3. A página *Senhas* e os campos de senha dos cursos não são importados. Importar de novo substitui só o que veio do Notion.
 
-## A cabine (moldura do app)
+## Visual: papel limpo, poucos detalhes de luz
 
-A barra lateral (no computador), o topo, as abas da área e a barra de baixo (no celular) formam a cabine: o azul petróleo da capa do caderno no escuro, com a luz ciano da biblioteca. Fica sempre escura, no tema claro ou escuro.
+O app segue o tema claro ou escuro escolhido, com o fundo liso da página e cartões simples (superfície e borda fina), como era antes das telas futuristas. Delas ficaram só alguns detalhes: os rótulos de HUD (letras pequenas e espaçadas), os anéis e as barras de progresso, a linha do dia, os pontos que pulsam, a trilha das aulas, o livro em 3D, o núcleo da IA e a cor de destaque de cada tela (petróleo em Hoje, Leitura e Cursos; verde-menta no Laboratório; violeta no Segundo Cérebro; rosa em Conteúdo e IA). No tema escuro, esses destaques acendem em tons mais vivos. Sem grades, redes, ondas ou brilhos ao fundo.
 
-- **Barra lateral.** A assinatura "My life" acesa, o botão Novo em luz ciano, a busca de vidro, os grupos com rótulo de HUD (o ponto aceso na cor da área e um fio que some) e o item da página aberta aceso na cor da área: Rotina verde, Segundo Cérebro violeta, Estudos âmbar, Conteúdo rosa; Hoje, Vida pessoal e o resto, ciano. Recolhida (Ctrl+B), fica só com os ícones. Ao abrir uma tela de um grupo mais abaixo (Conteúdo e IA, Vida pessoal), a lista rola sozinha até o item dela. A página aparece como uma tela acesa, com um fio de luz na borda.
-- **Celular.** O topo de vidro escuro com um fio de luz embaixo; colada nele, a faixa de abas da área (a aberta com o ícone e um traço de luz); a barra de baixo com a aba aberta acesa. A janela "Mais áreas", os menus Novo e Conta e a busca (Ctrl+K) abrem com as mesmas cores.
-- A barra do sistema no celular (`theme-color`) tem a cor da cabine, `#03131a`.
-- Código: o bloco "A cabine" do `src/app/globals.css` (a classe `.cabine` com as cores; `data-area` escolhe a luz) e `src/components/shell` (`barra-lateral.tsx`, `celular.tsx`, `novo.tsx` e `busca-painel.tsx`).
+- **Moldura.** No computador, a barra lateral é a capa azul petróleo do caderno, lisa; o item aberto ganha um traço e o ícone na cor da área (Rotina verde, Segundo Cérebro violeta, Estudos âmbar, Conteúdo rosa). No celular, o topo, as abas da área e a barra de baixo são do papel, com uma linha fina; a aba aberta fica na cor da área. A barra do sistema (`theme-color`) acompanha o tema (`#f3f5f6` claro, `#111618` escuro).
+- **Código.** Os blocos "As telas das áreas" e "A moldura do app" do `src/app/globals.css`. As telas continuam usando as classes `.tema-*` e os nomes de cor `--b-*` (`--b-luz`, `--b-vidro`, `--b-borda`…), que agora apontam para as cores do app; a cor de destaque de cada tela é `--b-luz`. Para um detalhe novo, use essas variáveis, não cores fixas nem `bg-white/…` ou `bg-black/…` (use `bg-ink/…` e `bg-surface`).
 
 ## Hoje (a ponte de comando do dia)
 
-A página inicial é a ponte de comando do dia: o azul petróleo da capa do caderno no escuro, com o quadriculado do Notion virado em grade de luz e cada painel aceso na cor da sua área (rituais, tarefas e metas em verde, leitura em âmbar, projetos em violeta). Fica sempre escura, no tema claro ou escuro.
+(O visual de cada tela segue a seção "Visual: papel limpo, poucos detalhes de luz"; as descrições de luz e fundo abaixo são da versão futurista.)
+
+A página inicial é a ponte de comando do dia: o azul petróleo da capa do caderno no escuro, com o quadriculado do Notion virado em grade de luz e cada painel aceso na cor da sua área (rituais, tarefas e metas em verde, leitura em âmbar, projetos em violeta).
 
 - **Capa do dia.** O número do dia em luz, o dia da semana, o mês, a saudação e a hora; a frase da capa escrita à mão (e a imagem de fundo, se escolhida em Configurações). Quando a capa tem largura para os dois, a frase vai para o lado da data; no tablet e no celular, fica embaixo.
 - **Linha do dia.** Das 6h (ou antes, de madrugada) à meia-noite: o que já passou em luz, o agora pulsando e os compromissos com hora marcados na cor do tipo (reunião em violeta, aniversário em rosa, viagem em âmbar). Embaixo, o que está acontecendo ("Agora: … · até 11:00") ou o próximo ("Próximo: 10:00 Reunião · em 1 h 25").
@@ -87,7 +87,7 @@ O laboratório do futuro, da mesma família da biblioteca e dos cursos: vidro es
 
 ## Segundo Cérebro
 
-As telas do Segundo Cérebro (o método PARA: Projetos, Áreas, Recursos e Arquivo, mais a Caixa de Entrada, as Anotações e as Páginas) viram uma rede neural: violeta de céu noturno, pontos de luz ligados por fios ao fundo (`public/rede-neural.svg`), painéis de vidro e rótulos de HUD. Ficam sempre escuras, no tema claro ou escuro.
+As telas do Segundo Cérebro (o método PARA: Projetos, Áreas, Recursos e Arquivo, mais a Caixa de Entrada, as Anotações e as Páginas) viram uma rede neural: violeta de céu noturno, pontos de luz ligados por fios ao fundo (`public/rede-neural.svg`), painéis de vidro e rótulos de HUD.
 
 - **Cabeçalho.** Cada tela diz o seu papel no PARA ("Captura e triagem", "Objetivos com prazo", "Responsabilidades contínuas"…) e mostra um resumo em números. Na Caixa de Entrada: quantas capturas esperam, quantas chegaram hoje e há quantos dias espera a mais antiga. Em Projetos: em andamento, atrasados, que vencem em 7 dias e concluídos.
 - **Capturas** (Caixa de Entrada, Anotações, Recursos, Arquivo e a tela da área): cartões de vidro com o ícone do tipo aceso na cor dele (ideia em âmbar, citação em rosa, link em ciano…), busca, agrupar por tag, tipo, categoria ou mês, e "Organizar" (ligar a um projeto, mover para uma área ou arquivar). No celular, os filtros de tipo e categoria ficam atrás de "Filtros". Uma captura nova começa sem tipo: sem projeto nem área, ela espera na Caixa de Entrada (como a captura rápida da página Hoje).
@@ -99,7 +99,7 @@ As telas do Segundo Cérebro (o método PARA: Projetos, Áreas, Recursos e Arqui
 
 ## Conteúdo e IA (o estúdio)
 
-Biblioteca, Planner e Assistente viram um estúdio de criação à noite: ameixa quase preto, a luz rosa-neon da área, faíscas ciano e violeta, ondas de som ao fundo (`public/ondas.svg`) e linhas finas de tela. Ficam sempre escuras, no tema claro ou escuro. As páginas da Biblioteca, do Planner e as conversas do assistente abrem com o mesmo tema.
+Biblioteca, Planner e Assistente viram um estúdio de criação à noite: ameixa quase preto, a luz rosa-neon da área, faíscas ciano e violeta, ondas de som ao fundo (`public/ondas.svg`) e linhas finas de tela. As páginas da Biblioteca, do Planner e as conversas do assistente abrem com o mesmo tema.
 
 - **Biblioteca.** Um curso como "Dominando a IA" aparece em módulos, como no Notion: o app lê os callouts da página do curso (título com ícone, "MÓDULO 02 - …", e os links das aulas; dentro deles, títulos sem ícone viram grupos, como VÍDEOS e SHORTS) e mostra um cartão por módulo, com as primeiras aulas e "Ver as N aulas". Os destaques soltos do curso (como RECURSOS PREMIUMS) ficam em pílulas. As outras páginas e o Planner seguem na árvore; na busca, tudo volta para a árvore.
 - **Prompts.** Cada prompt é uma tela de terminal com os campos a preencher acesos ([TÓPICO], {número}) e quantos são, o módulo de onde vem, "Copiar" e "Usar no assistente". O filtro por módulo usa os módulos do curso. Os campos também acendem nos blocos de prompt dentro das páginas.

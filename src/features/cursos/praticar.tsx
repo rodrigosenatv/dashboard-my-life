@@ -57,7 +57,7 @@ export function PainelPraticar({ itens, className }: { itens: { curso: Curso; pr
             ))}
           </ul>
           {itens.length > 6 ? (
-            <button type="button" onClick={() => setTodas((v) => !v)} className="mt-2 min-h-10 rounded-full px-2 text-sm font-medium text-[var(--b-luz)] hover:bg-white/[0.06]">
+            <button type="button" onClick={() => setTodas((v) => !v)} className="mt-2 min-h-10 rounded-full px-2 text-sm font-medium text-[var(--b-luz)] hover:bg-ink/[0.06]">
               {todas ? "Mostrar menos" : `Ver todas (${itens.length})`}
             </button>
           ) : null}
@@ -118,7 +118,7 @@ export function ListaPraticas({ curso, praticas }: { curso: Curso; praticas: Pra
                 const m = mudar(curso, (t) => removerPratica(t, p.linha))
                 if (m) toast("Ação tirada.", { action: { label: "Desfazer", onClick: () => desfazer(curso, m) } })
               }}
-              className="grid size-8 shrink-0 place-items-center rounded-full text-ink-3 opacity-100 hover:bg-white/[0.06] hover:text-ink pointer-fine:opacity-0 pointer-fine:group-hover:opacity-100 pointer-fine:focus-visible:opacity-100"
+              className="grid size-8 shrink-0 place-items-center rounded-full text-ink-3 opacity-100 hover:bg-ink/[0.06] hover:text-ink pointer-fine:opacity-0 pointer-fine:group-hover:opacity-100 pointer-fine:focus-visible:opacity-100"
             >
               <X className="size-4" />
             </button>
@@ -132,13 +132,13 @@ export function ListaPraticas({ curso, praticas }: { curso: Curso; praticas: Pra
           onChange={(e) => setNova(e.target.value)}
           placeholder="Uma ação para praticar"
           aria-label="Nova ação para praticar"
-          className="h-10 min-w-0 flex-1 rounded-xl border border-[var(--b-borda)] bg-white/[0.04] px-3 text-[16px] text-ink placeholder:text-ink-3 focus-visible:border-[var(--b-luz)] focus-visible:outline-none sm:text-sm toque:h-11"
+          className="h-10 min-w-0 flex-1 rounded-xl border border-[var(--b-borda)] bg-ink/[0.04] px-3 text-[16px] text-ink placeholder:text-ink-3 focus-visible:border-[var(--b-luz)] focus-visible:outline-none sm:text-sm toque:h-11"
         />
         <button
           type="submit"
           aria-label="Acrescentar ação"
           disabled={!nova.trim()}
-          className="grid size-10 shrink-0 place-items-center rounded-xl border border-[var(--b-borda-2)] text-[var(--b-luz)] hover:bg-white/[0.06] disabled:opacity-40 toque:size-11"
+          className="grid size-10 shrink-0 place-items-center rounded-xl border border-[var(--b-borda-2)] text-[var(--b-luz)] hover:bg-ink/[0.06] disabled:opacity-40 toque:size-11"
         >
           <Plus className="size-4" />
         </button>

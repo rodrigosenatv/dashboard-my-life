@@ -111,7 +111,7 @@ export function BarraLateral() {
           aria-expanded={!recolhida}
           aria-label={recolhida ? "Expandir menu" : "Recolher menu"}
           title={recolhida ? "Expandir menu (Ctrl+B)" : "Recolher menu (Ctrl+B)"}
-          className="grid size-8 shrink-0 place-items-center rounded-lg text-ink-3 transition-colors hover:bg-white/[0.06] hover:text-ink"
+          className="grid size-8 shrink-0 place-items-center rounded-lg text-ink-3 transition-colors hover:bg-ink/[0.06] hover:text-ink"
         >
           <PanelLeftClose className="size-4 recolhido:hidden" />
           <PanelLeftOpen className="hidden size-4 recolhido:block" />
@@ -129,7 +129,7 @@ export function BarraLateral() {
         >
           <Search className="size-4" />
           <span className="flex-1 text-left recolhido:hidden">Buscar</span>
-          <kbd className="rounded-md border border-[var(--b-borda)] bg-black/25 px-1.5 font-sans text-[10px] tracking-wider recolhido:hidden">Ctrl K</kbd>
+          <kbd className="rounded-md border border-[var(--b-borda)] bg-surface px-1.5 font-sans text-[10px] tracking-wider recolhido:hidden">Ctrl K</kbd>
         </button>
       </div>
 
@@ -201,7 +201,7 @@ export function MenuUsuario({ compacto }: { compacto?: boolean }) {
     <Menu>
       <MenuGatilho
         className={cn(
-          "mt-2 flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-left text-sm transition-colors hover:bg-white/[0.06] recolhido:justify-center recolhido:px-0",
+          "mt-2 flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-left text-sm transition-colors hover:bg-ink/[0.06] recolhido:justify-center recolhido:px-0",
           compacto && "mt-0 size-11 justify-center rounded-full p-0",
         )}
         aria-label="Conta e tema"

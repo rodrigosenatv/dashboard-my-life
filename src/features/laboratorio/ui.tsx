@@ -31,7 +31,7 @@ export function AnelDias({ dia, total, tamanho = 112, bolhas = false }: { dia: n
   return (
     <span className="relative grid shrink-0 place-items-center" style={{ width: tamanho, height: tamanho }}>
       <svg width={tamanho} height={tamanho} viewBox={`0 0 ${tamanho} ${tamanho}`} className="anel-lab absolute inset-0 -rotate-90" aria-hidden>
-        <circle cx={tamanho / 2} cy={tamanho / 2} r={raio} fill="none" stroke="rgb(255 255 255 / 0.08)" strokeWidth="6" />
+        <circle cx={tamanho / 2} cy={tamanho / 2} r={raio} fill="none" stroke="var(--surface-3)" strokeWidth="6" />
         <circle
           cx={tamanho / 2}
           cy={tamanho / 2}
@@ -53,7 +53,7 @@ export function AnelDias({ dia, total, tamanho = 112, bolhas = false }: { dia: n
       ) : null}
       <span className="relative text-center leading-none">
         <span className="rotulo-hud block text-[10px]">Dia</span>
-        <span className="tabular mt-1 block font-display text-3xl font-semibold text-[var(--b-luz)] drop-shadow-[0_0_10px_rgb(92_255_196/0.5)]" style={{ fontSize: tamanho < 90 ? "1.4rem" : undefined }}>
+        <span className="tabular mt-1 block font-display text-3xl font-semibold text-[var(--b-luz)]" style={{ fontSize: tamanho < 90 ? "1.4rem" : undefined }}>
           {dia}
         </span>
         {total ? <span className="tabular mt-1 block text-xs text-ink-3">de {total}</span> : null}
@@ -85,7 +85,7 @@ const COR_RESULTADO: Record<ResultadoExp, string> = {
   funcionou: "border-[var(--b-luz)]/50 bg-[var(--b-luz)]/12 text-[var(--b-luz)]",
   parcial: "border-[var(--b-ambar)]/50 bg-[var(--b-ambar)]/12 text-[var(--b-ambar)]",
   nao_funcionou: "border-[var(--b-rosa)]/50 bg-[var(--b-rosa)]/12 text-[var(--b-rosa)]",
-  indefinido: "border-[var(--b-borda-2)] bg-white/[0.04] text-ink-2",
+  indefinido: "border-[var(--b-borda-2)] bg-ink/[0.04] text-ink-2",
 }
 
 /** O selo do resultado (Funcionou, Parcial, Não funcionou). */

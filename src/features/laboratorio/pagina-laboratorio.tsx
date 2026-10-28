@@ -53,7 +53,7 @@ export function PaginaLaboratorio() {
         </p>
         <div className="mt-1.5 flex items-center justify-between gap-3">
           <h1 className="font-display text-[2.4rem] font-semibold leading-none tracking-tight sm:text-[3.25rem]">Laboratório</h1>
-          <Botao variante="primario" tamanho="lg" onClick={() => setNovo(true)} className="shrink-0 px-4 shadow-[0_0_24px_-6px_var(--b-luz)]">
+          <Botao variante="primario" tamanho="lg" onClick={() => setNovo(true)} className="shrink-0 px-4">
             <Plus /> Experimento
           </Botao>
         </div>
@@ -63,7 +63,7 @@ export function PaginaLaboratorio() {
         {experimentos.length ? (
           <ul className="mt-4 flex flex-wrap gap-2" aria-label="Seus experimentos">
             {hud.map((h) => (
-              <li key={h.rotulo} className="inline-flex min-h-9 items-baseline gap-1.5 rounded-full border border-[var(--b-borda)] bg-white/[0.03] px-3 py-1 text-sm text-ink-2">
+              <li key={h.rotulo} className="inline-flex min-h-9 items-baseline gap-1.5 rounded-full border border-[var(--b-borda)] bg-ink/[0.03] px-3 py-1 text-sm text-ink-2">
                 <span className="tabular font-display text-base font-semibold" style={h.cor ? { color: h.cor } : undefined}>
                   {h.n}
                 </span>
@@ -104,10 +104,10 @@ export function PaginaLaboratorio() {
 function Carregando() {
   return (
     <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_21rem]" aria-busy="true" aria-label="Carregando o laboratório">
-      <Esqueleto className="h-80 rounded-[1.25rem] bg-white/[0.05]" />
+      <Esqueleto className="h-80 rounded-[1.25rem] bg-ink/[0.05]" />
       <div className="grid gap-4">
-        <Esqueleto className="h-40 rounded-[1.25rem] bg-white/[0.05]" />
-        <Esqueleto className="h-40 rounded-[1.25rem] bg-white/[0.05]" />
+        <Esqueleto className="h-40 rounded-[1.25rem] bg-ink/[0.05]" />
+        <Esqueleto className="h-40 rounded-[1.25rem] bg-ink/[0.05]" />
       </div>
     </div>
   )

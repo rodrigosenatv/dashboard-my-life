@@ -30,7 +30,7 @@ type Evento = Tables<"events">
 const carregarDialogoEvento = () => import("@/features/agenda/dialogo-evento").then((m) => m.DialogoEvento)
 const DialogoEvento = dynamic(carregarDialogoEvento, { ssr: false })
 
-const VERDES: [string, string, string] = ["#1fae7e", "#3ccb92", "#7cf5c4"]
+const VERDES: [string, string, string] = ["var(--b-verde)", "var(--b-verde)", "var(--b-menta)"]
 
 /** A cor de cada tipo de compromisso, na agenda e na linha do dia. */
 function corDoEvento(categoria: string | null): string {
@@ -64,7 +64,7 @@ function CabecalhoPainel({ id, icone: Icone, titulo, cor = "var(--b-luz)", extra
   )
 }
 
-const LINK_PAINEL = "inline-flex min-h-9 shrink-0 items-center rounded-full px-2.5 text-sm text-ink-2 transition-colors hover:bg-white/[0.06] hover:text-ink toque:min-h-11"
+const LINK_PAINEL = "inline-flex min-h-9 shrink-0 items-center rounded-full px-2.5 text-sm text-ink-2 transition-colors hover:bg-ink/[0.06] hover:text-ink toque:min-h-11"
 
 /* ------------------------------------------------------------------ */
 /* A capa do dia                                                       */
@@ -98,8 +98,8 @@ function CapaDoDia({ agora, eventos, chips }: { agora: Date; eventos: Evento[]; 
         <>
           {/* A imagem escolhida em Configurações vira o fundo; o véu escuro garante a leitura mesmo sobre uma foto clara */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={urlCapa} alt="" className="absolute inset-0 -z-10 size-full object-cover opacity-70" />
-          <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-r from-[#03141a] via-[#03141a]/85 via-60% to-[#03141a]/45" />
+          <img src={urlCapa} alt="" className="absolute inset-0 -z-10 size-full object-cover opacity-60" />
+          <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-r from-[var(--surface)] via-[var(--surface)]/85 via-60% to-[var(--surface)]/45" />
         </>
       ) : null}
 
@@ -144,7 +144,7 @@ function CapaDoDia({ agora, eventos, chips }: { agora: Date; eventos: Evento[]; 
           value={texto}
           onChange={(e) => setTexto(e.target.value)}
           placeholder="Capturar ideia, link ou lembrete…"
-          className="h-12 w-full rounded-2xl border border-[var(--b-borda-2)] bg-black/30 pl-9 pr-11 text-base text-ink placeholder:text-ink-3 transition-[border-color,box-shadow] focus-visible:border-[var(--b-luz)] focus-visible:shadow-[0_0_0_3px_rgb(99_227_255/0.15),0_0_24px_-6px_rgb(99_227_255/0.6)] focus-visible:outline-none"
+          className="h-12 w-full rounded-2xl border border-[var(--b-borda-2)] bg-surface pl-9 pr-11 text-base text-ink placeholder:text-ink-3 transition-[border-color,box-shadow] focus-visible:border-[var(--b-luz)] focus-visible:outline-none"
         />
         <CornerDownLeft aria-hidden className="pointer-events-none absolute right-4 top-1/2 size-4 -translate-y-1/2 text-ink-3" />
       </form>
@@ -154,7 +154,7 @@ function CapaDoDia({ agora, eventos, chips }: { agora: Date; eventos: Evento[]; 
         <ul aria-label="Resumo do dia" className="-mx-5 mt-4 flex gap-2 overflow-x-auto px-5 pb-1 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0">
           {chips.map((c) => (
             <li key={c.rotulo} className="shrink-0">
-              <Link href={c.href} className="inline-flex min-h-9 items-baseline gap-1.5 rounded-full border border-[var(--b-borda)] bg-white/[0.04] px-3 py-1 text-sm text-ink-2 transition-colors hover:border-[var(--b-borda-2)] hover:text-ink toque:min-h-10">
+              <Link href={c.href} className="inline-flex min-h-9 items-baseline gap-1.5 rounded-full border border-[var(--b-borda)] bg-ink/[0.04] px-3 py-1 text-sm text-ink-2 transition-colors hover:border-[var(--b-borda-2)] hover:text-ink toque:min-h-10">
                 <span className="tabular font-display text-base font-semibold" style={c.cor ? { color: c.cor } : undefined}>
                   {c.n}
                 </span>
@@ -211,7 +211,7 @@ function LinhaDoDia({ agora, eventos, className }: { agora: Date; eventos: Event
         ))}
         <span className="absolute top-1/2" style={{ left: `${pAgora}%` }} aria-hidden>
           <span className="absolute -left-2 -top-2 size-4 animate-ping rounded-full bg-[var(--b-luz)] opacity-40 motion-reduce:hidden" />
-          <span className="absolute -left-1.5 -top-1.5 size-3 rounded-full bg-white shadow-[0_0_10px_3px_rgb(99_227_255/0.75)]" />
+          <span className="absolute -left-1.5 -top-1.5 size-3 rounded-full bg-white" />
         </span>
       </div>
       <div className="relative mt-1 h-4 text-[10px] text-ink-3" aria-hidden>
@@ -263,7 +263,7 @@ function PainelRituais({ hoje }: { hoje: string }) {
         }
       />
       {isLoading ? (
-        <div className="h-40 animate-pulse rounded-2xl bg-white/[0.04]" />
+        <div className="h-40 animate-pulse rounded-2xl bg-ink/[0.04]" />
       ) : doDia.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-[var(--b-borda-2)] px-4 py-6 text-sm">
           <p className="font-medium">Nenhum hábito para hoje.</p>
@@ -312,7 +312,7 @@ function PainelRituais({ hoje }: { hoje: string }) {
                             role="checkbox"
                             aria-checked={feito}
                             onClick={() => alternar.mutate({ habito: h.id, dia: hoje, registro })}
-                            className="flex w-full items-center gap-3 rounded-xl px-2 py-2 text-left text-sm transition-colors hover:bg-white/[0.05] toque:py-3"
+                            className="flex w-full items-center gap-3 rounded-xl px-2 py-2 text-left text-sm transition-colors hover:bg-ink/[0.05] toque:py-3"
                           >
                             <span className="caixa-ritual" data-feito={feito ? "" : undefined}>
                               {feito ? <Check className="size-3.5 animate-marcar" strokeWidth={3} /> : null}
@@ -320,7 +320,7 @@ function PainelRituais({ hoje }: { hoje: string }) {
                             <span className={cn("min-w-0 flex-1", feito && "text-ink-3 line-through decoration-ink-3/50")}>{h.name}</span>
                             {seq >= 2 ? (
                               <span className="inline-flex shrink-0 items-center gap-0.5 text-xs text-ink-2" title={`${seq} dias seguidos`}>
-                                <Flame className="size-3.5 text-[var(--b-ambar)] drop-shadow-[0_0_4px_rgb(245_197_74/0.6)]" aria-hidden />
+                                <Flame className="size-3.5 text-[var(--b-ambar)]" aria-hidden />
                                 <span className="tabular">{seq}</span>
                               </span>
                             ) : null}
@@ -368,7 +368,7 @@ function PainelTarefas({ hoje, tarefas, carregando }: { hoje: string; tarefas: T
         cor="var(--b-verde)"
         extra={
           lista.length ? (
-            <span className="tabular rounded-full border border-[var(--b-borda)] bg-white/[0.04] px-2 py-0.5 text-[11px] tracking-normal text-ink-2">{lista.length}</span>
+            <span className="tabular rounded-full border border-[var(--b-borda)] bg-ink/[0.04] px-2 py-0.5 text-[11px] tracking-normal text-ink-2">{lista.length}</span>
           ) : null
         }
         acao={
@@ -380,7 +380,7 @@ function PainelTarefas({ hoje, tarefas, carregando }: { hoje: string; tarefas: T
       {carregando ? (
         <div className="grid gap-2">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-10 animate-pulse rounded-xl bg-white/[0.04]" />
+            <div key={i} className="h-10 animate-pulse rounded-xl bg-ink/[0.04]" />
           ))}
         </div>
       ) : (
@@ -395,7 +395,7 @@ function PainelTarefas({ hoje, tarefas, carregando }: { hoje: string; tarefas: T
               ))}
             </ul>
           )}
-          <form onSubmit={adicionar} className="mt-3 flex min-h-11 items-center gap-3 rounded-full border border-dashed border-[var(--b-borda-2)] bg-black/15 px-3.5 focus-within:border-[var(--b-luz)]">
+          <form onSubmit={adicionar} className="mt-3 flex min-h-11 items-center gap-3 rounded-full border border-dashed border-[var(--b-borda-2)] bg-surface px-3.5 focus-within:border-[var(--b-luz)]">
             <Plus className="size-4 shrink-0 text-[var(--b-luz)]" aria-hidden />
             <input
               value={nova}
@@ -435,7 +435,7 @@ function PainelAgenda({ hoje, agora, eventos, carregando }: { hoje: string; agor
         }
       />
       {carregando ? (
-        <div className="h-24 animate-pulse rounded-2xl bg-white/[0.04]" />
+        <div className="h-24 animate-pulse rounded-2xl bg-ink/[0.04]" />
       ) : dias.length === 0 ? (
         <p className="py-1 text-ink-2">Nenhum compromisso nos próximos 7 dias.</p>
       ) : (
@@ -453,7 +453,7 @@ function PainelAgenda({ hoje, agora, eventos, carregando }: { hoje: string; agor
                         type="button"
                         onClick={() => setJanela({ evento: e })}
                         onPointerEnter={() => void carregarDialogoEvento().catch(() => {})}
-                        className="group flex min-h-8 w-full min-w-0 items-center gap-2.5 rounded-lg px-1.5 text-left text-sm transition-colors hover:bg-white/[0.05] toque:min-h-10"
+                        className="group flex min-h-8 w-full min-w-0 items-center gap-2.5 rounded-lg px-1.5 text-left text-sm transition-colors hover:bg-ink/[0.05] toque:min-h-10"
                       >
                         <span aria-hidden className="size-2 shrink-0 rounded-full" style={{ background: corDoEvento(e.category), boxShadow: `0 0 8px ${corDoEvento(e.category)}` }} />
                         <span className="tabular w-11 shrink-0 text-ink-3">{e.all_day ? "dia" : format(new Date(e.starts_at), "HH:mm")}</span>
@@ -614,7 +614,7 @@ function PainelProjetos({ caixa }: { caixa: number }) {
         </ul>
       )}
       {caixa > 0 ? (
-        <Link href="/projetos/entrada" className="mt-4 flex items-center gap-2 rounded-xl border border-[var(--b-borda)] bg-white/[0.03] px-3 py-2.5 text-sm text-ink-2 transition-colors hover:border-[var(--b-violeta)] hover:text-ink">
+        <Link href="/projetos/entrada" className="mt-4 flex items-center gap-2 rounded-xl border border-[var(--b-borda)] bg-ink/[0.03] px-3 py-2.5 text-sm text-ink-2 transition-colors hover:border-[var(--b-violeta)] hover:text-ink">
           <Inbox className="size-4 shrink-0 text-[var(--b-violeta)]" aria-hidden />
           <span className="tabular font-semibold text-ink">{caixa}</span>
           {caixa === 1 ? "captura esperando organização" : "capturas esperando organização"}

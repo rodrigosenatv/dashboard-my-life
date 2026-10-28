@@ -3,11 +3,10 @@
 /*
   My Life — sistema visual "caderno de capa azul petróleo"
 
-  A capa do caderno (a mesma do painel do Notion, com a assinatura "My life") abre a tela
-  Hoje; a moldura do app é a cabine (bloco "A cabine", mais abaixo): o mesmo petróleo no
-  escuro, com luz ciano. As páginas são o papel: neutros levemente puxados para o petróleo,
-  tinta escura, a caneta petróleo para ações e os marca-textos que identificam cada área
-  da vida.
+  A capa do caderno (a mesma do painel do Notion, com a assinatura "My life") é a barra
+  lateral (bloco "A moldura do app", mais abaixo). As páginas são o papel: neutros
+  levemente puxados para o petróleo, tinta escura, a caneta petróleo para ações e os
+  marca-textos que identificam cada área da vida.
 */
 
 @custom-variant dark (&:where(.dark, .dark *));
@@ -453,109 +452,157 @@
 }
 
 /* =====================================================================
-   Leitura: a biblioteca do futuro
-   Uma sala de leitura à noite: o azul petróleo da capa do caderno no
-   escuro, prateleiras com faixa de luz ciano e o âmbar de Estudos nos
-   destaques. Fica sempre escura, no tema claro ou escuro do app (como o
-   destaque de Filmes & Séries).
+   As telas das áreas: o papel limpo, com alguns detalhes de luz
+   Leitura, Cursos, Laboratório, Hoje, Segundo Cérebro e Conteúdo e IA
+   seguem o tema claro ou escuro do app, com o fundo liso da página e
+   cartões simples (superfície e borda fina). De futurista ficam só
+   detalhes: os rótulos de HUD, os anéis e as barras de progresso, a
+   linha do dia, os pontos que pulsam, a trilha das aulas, o livro em 3D
+   e o núcleo da IA. Cada tela tem a sua cor de destaque (--b-luz).
+
+   Os nomes de cor (--b-*) são os mesmos de antes, então as telas não
+   mudam: --b-fundo, --b-tinta, --b-vidro e --b-borda viram as cores do
+   app, e as cores de destaque têm um tom para o claro (legível no papel)
+   e outro, mais aceso, para o escuro.
    ===================================================================== */
 
 @layer components {
-/* As cores: valem na tela e nas janelas abertas a partir dela */
-.tema-biblioteca {
-  --b-fundo: #03141a;
-  --b-fundo-2: #072631;
-  --b-tinta: #e8f6fa;
-  --b-tinta-2: rgb(232 246 250 / 0.78);
-  --b-tinta-3: rgb(232 246 250 / 0.6);
+.tema-biblioteca,
+.tema-cursos,
+.tema-lab,
+.tema-hoje,
+.tema-cerebro,
+.tema-estudio {
+  --b-fundo: var(--bg);
+  --b-fundo-2: var(--bg);
+  --b-tinta: var(--ink);
+  --b-tinta-2: var(--ink-2);
+  --b-tinta-3: var(--ink-3);
+  --b-vidro: var(--surface);
+  --b-vidro-2: var(--surface-2);
+  --b-borda: var(--line);
+  --b-borda-2: var(--line-strong);
+
+  /* Destaques no papel claro (o petróleo da caneta, ou a cor da área da tela) */
+  --b-luz: #1f6079;
+  --b-luz-2: var(--projetos);
+  --b-ambar: var(--estudos);
+  --b-verde: var(--rotina);
+  --b-menta: #0f7a63;
+  --b-violeta: var(--projetos);
+  --b-rosa: var(--conteudo);
+  --b-coral: #c2410c;
+
+  /* A ação principal (botões, caixas marcadas) na cor de destaque da tela */
+  --pen: var(--b-luz);
+  --pen-ink: #ffffff;
+  --pen-soft: color-mix(in oklab, var(--b-luz) 12%, var(--surface));
+  --ring: var(--b-luz);
+  color: var(--ink);
+}
+.tema-lab {
+  --b-luz: var(--b-menta);
+  --b-luz-2: #1f6079;
+}
+.tema-cerebro {
+  --b-luz: var(--projetos);
+  --b-luz-2: #1f6079;
+}
+.tema-estudio {
+  --b-luz: var(--conteudo);
+  --b-luz-2: #1f6079;
+}
+
+/* No escuro, os destaques acendem (o detalhe futurista que fica) */
+.dark :is(.tema-biblioteca, .tema-cursos, .tema-lab, .tema-hoje, .tema-cerebro, .tema-estudio),
+.dark:is(.tema-biblioteca, .tema-cursos, .tema-lab, .tema-hoje, .tema-cerebro, .tema-estudio) {
   --b-luz: #63e3ff;
   --b-luz-2: #9a8cff;
   --b-ambar: #f5c54a;
-  --b-vidro: rgb(160 230 255 / 0.05);
-  --b-vidro-2: rgb(160 230 255 / 0.09);
-  --b-borda: rgb(150 225 255 / 0.14);
-  --b-borda-2: rgb(150 225 255 / 0.28);
-
-  /* As cores do app, no escuro da biblioteca (botões, campos, menus) */
-  --bg: var(--b-fundo);
-  --surface: #0a2630;
-  --surface-2: #0f303b;
-  --surface-3: #18404d;
-  --ink: var(--b-tinta);
-  --ink-2: var(--b-tinta-2);
-  --ink-3: var(--b-tinta-3);
-  --line: var(--b-borda);
-  --line-strong: var(--b-borda-2);
-  --pen: var(--b-luz);
-  --pen-ink: #03171e;
-  --pen-soft: rgb(99 227 255 / 0.14);
-  --ring: var(--b-luz);
-  --estudos: var(--b-ambar);
-  --estudos-soft: rgb(245 197 74 / 0.15);
-  --danger: #ff7b84;
-  --danger-soft: rgb(255 123 132 / 0.15);
-  --shadow-overlay: 0 24px 60px -16px rgb(0 0 0 / 0.8), 0 0 0 1px rgb(150 225 255 / 0.12);
-  color-scheme: dark;
-  color: var(--ink);
+  --b-verde: #3ccb92;
+  --b-menta: #7cf5c4;
+  --b-violeta: #b69cff;
+  --b-rosa: #ff8fd1;
+  --b-coral: #ff9e7d;
+  --pen-ink: #0b1418;
+}
+.dark .tema-cursos,
+.dark.tema-cursos {
+  --b-luz: #7ef0ff;
+  --b-luz-2: #a78bfa;
+}
+.dark .tema-lab,
+.dark.tema-lab {
+  --b-luz: #5cffc4;
+  --b-luz-2: #6ee7ff;
+}
+.dark .tema-cerebro,
+.dark.tema-cerebro {
+  --b-luz: #b69cff;
+  --b-luz-2: #6ee7ff;
+}
+.dark .tema-estudio,
+.dark.tema-estudio {
+  --b-luz: #ff6fb5;
+  --b-luz-2: #5ee7ff;
 }
 
-/* O fundo da sala: luz do teto, brilhos laterais e uma grade fina que some para baixo */
-.biblioteca {
+/* O fundo das telas: o papel liso da página (sem grade, rede, ondas ou brilhos) */
+.biblioteca,
+.plataforma,
+.laboratorio,
+.ponte,
+.cerebro {
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  background:
-    radial-gradient(110% 50% at 50% -10%, rgb(31 98 120 / 0.8), transparent 62%),
-    radial-gradient(55% 35% at 105% 30%, rgb(99 227 255 / 0.1), transparent 70%),
-    radial-gradient(60% 40% at -5% 70%, rgb(154 140 255 / 0.1), transparent 70%),
-    linear-gradient(180deg, var(--b-fundo-2), var(--b-fundo) 45%);
+  background: var(--bg);
 }
-.biblioteca::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background-image:
-    linear-gradient(rgb(99 227 255 / 0.055) 1px, transparent 1px),
-    linear-gradient(90deg, rgb(99 227 255 / 0.055) 1px, transparent 1px);
-  background-size: 44px 44px;
-  mask-image: radial-gradient(120% 55% at 50% 0%, #000 20%, transparent 72%);
+.estudio {
+  position: relative;
+  isolation: isolate;
+  /* clip, e não hidden: assim o console do assistente e o histórico continuam grudando na tela (sticky) */
+  overflow: clip;
+  background: var(--bg);
 }
 
-/* Painel de vidro. Sem backdrop-filter: o fundo atrás é liso, o desfoque não aparecia e cada painel pagava uma camada
-   de composição (dezenas por tela). O desfoque fica só onde algo rola por baixo: cabeçalho, barra de baixo e janelas. */
+/* Painel: superfície com borda fina */
 .vidro {
-  background: var(--b-vidro);
-  border: 1px solid var(--b-borda);
+  background: var(--surface);
+  border: 1px solid var(--line);
   border-radius: 1.25rem;
 }
 
-/* Rótulo de painel (letras pequenas, espaçadas) */
+/* Rótulo de painel (letras pequenas, espaçadas): o detalhe de HUD que fica */
 .rotulo-hud {
   font-size: 0.6875rem;
   line-height: 1rem;
   font-weight: 600;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--b-tinta-3);
+  color: var(--ink-3);
 }
 
-/* Barra de progresso com luz */
+/* Barra de progresso: trilho discreto e a cor de destaque */
 .barra-luz {
   position: relative;
   height: 6px;
   border-radius: 999px;
-  background: rgb(255 255 255 / 0.09);
+  background: var(--surface-3);
   overflow: hidden;
 }
 .barra-luz > span {
   position: absolute;
   inset: 0 auto 0 0;
   border-radius: inherit;
-  background: linear-gradient(90deg, var(--b-luz-2), var(--b-luz));
-  box-shadow: 0 0 14px rgb(99 227 255 / 0.65);
+  background: var(--b-luz);
   transition: width 600ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.barra-luz[data-cor="rotina"] > span {
+  background: var(--b-verde);
+}
+.barra-luz[data-cor="estudos"] > span {
+  background: var(--b-ambar);
 }
 
 /* Capa gerada (livro sem foto): gradiente do próprio título, linhas finas e o nome */
@@ -605,13 +652,13 @@
   opacity: 0.78;
 }
 
-/* A capa em pé: vinco da lombada, brilho do papel e a borda das páginas à direita */
+/* A capa em pé: vinco da lombada e uma sombra curta */
 .capa-em-pe {
   position: relative;
   border-radius: 3px 7px 7px 3px;
   box-shadow:
-    0 18px 26px -14px rgb(0 0 0 / 0.85),
-    0 2px 6px rgb(0 0 0 / 0.45);
+    0 10px 18px -12px rgb(0 0 0 / 0.45),
+    0 1px 3px rgb(0 0 0 / 0.18);
 }
 .capa-em-pe > .capa-imagem {
   border-radius: inherit;
@@ -623,10 +670,8 @@
   inset: 0;
   border-radius: inherit;
   pointer-events: none;
-  background:
-    linear-gradient(90deg, rgb(0 0 0 / 0.38) 0, rgb(255 255 255 / 0.22) 2.2%, rgb(0 0 0 / 0.12) 4.5%, transparent 9%),
-    linear-gradient(118deg, rgb(255 255 255 / 0.16), transparent 38%);
-  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.08);
+  background: linear-gradient(90deg, rgb(0 0 0 / 0.28) 0, rgb(255 255 255 / 0.18) 2.2%, rgb(0 0 0 / 0.08) 4.5%, transparent 9%);
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.06);
 }
 
 /* O livro em 3D do destaque: frente, borda das páginas, lombada e verso */
@@ -662,7 +707,7 @@ a:focus-visible .livro3d-corpo,
   transform: translateZ(calc(var(--esp) / 2));
   border-radius: 3px 8px 8px 3px;
   overflow: hidden;
-  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.06);
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 0.06);
 }
 .livro3d-frente::after {
   content: "";
@@ -671,14 +716,13 @@ a:focus-visible .livro3d-corpo,
   pointer-events: none;
   background:
     linear-gradient(90deg, rgb(0 0 0 / 0.4) 0, rgb(255 255 255 / 0.24) 2%, rgb(0 0 0 / 0.14) 4%, transparent 8%),
-    linear-gradient(120deg, rgb(255 255 255 / 0.22), transparent 34%),
-    linear-gradient(300deg, rgb(99 227 255 / 0.12), transparent 30%);
+    linear-gradient(120deg, rgb(255 255 255 / 0.18), transparent 34%);
 }
 .livro3d-verso {
   inset: 0;
   transform: rotateY(180deg) translateZ(calc(var(--esp) / 2));
   border-radius: 8px 3px 3px 8px;
-  background: linear-gradient(160deg, #10313c, #061a21);
+  background: linear-gradient(160deg, #2a3f47, #14242b);
 }
 .livro3d-paginas {
   top: 1.2%;
@@ -696,29 +740,19 @@ a:focus-visible .livro3d-corpo,
   left: calc(50% - var(--esp) / 2);
   width: var(--esp);
   transform: rotateY(-90deg) translateZ(50cqw);
-  background: linear-gradient(90deg, #04161c, #0d3542 50%, #04161c);
+  background: linear-gradient(90deg, #14242b, #2a3f47 50%, #14242b);
 }
-/* O pedestal de luz do destaque */
+/* A sombra do livro do destaque, no chão (antes era um pedestal de luz) */
 .pedestal {
   position: absolute;
   left: 50%;
-  bottom: -18px;
-  width: 125%;
-  height: 34px;
+  bottom: -14px;
+  width: 90%;
+  height: 18px;
   transform: translateX(-50%);
   border-radius: 50%;
-  background: radial-gradient(closest-side, rgb(99 227 255 / 0.42), rgb(99 227 255 / 0.08) 60%, transparent);
-  box-shadow: inset 0 0 0 1px rgb(99 227 255 / 0.22);
-  filter: blur(0.3px);
+  background: radial-gradient(closest-side, rgb(0 0 0 / 0.18), transparent);
   pointer-events: none;
-}
-.pedestal::after {
-  content: "";
-  position: absolute;
-  inset: 30% 18%;
-  border-radius: 50%;
-  background: rgb(99 227 255 / 0.55);
-  filter: blur(12px);
 }
 
 @keyframes flutuar {
@@ -727,30 +761,19 @@ a:focus-visible .livro3d-corpo,
     transform: translateY(0);
   }
   50% {
-    transform: translateY(-7px);
+    transform: translateY(-5px);
   }
 }
 .flutuar {
   animation: flutuar 6s ease-in-out infinite;
 }
 
-/* A prateleira: os livros apoiados numa faixa de luz */
+/* A prateleira: os livros apoiados numa tábua fina */
 .prateleira-tabua {
-  height: 14px;
-  border-radius: 2px;
-  background: linear-gradient(180deg, rgb(150 225 255 / 0.16), rgb(150 225 255 / 0.02) 70%);
-  box-shadow:
-    0 -1px 0 rgb(99 227 255 / 0.9),
-    0 -2px 22px rgb(99 227 255 / 0.5),
-    0 14px 30px -8px rgb(0 0 0 / 0.8);
-}
-.prateleira-tabua::after {
-  content: "";
-  position: absolute;
-  inset: 100% 6% auto;
-  height: 40px;
-  background: radial-gradient(closest-side, rgb(99 227 255 / 0.16), transparent);
-  filter: blur(6px);
+  height: 6px;
+  border-radius: 3px;
+  background: var(--surface-3);
+  box-shadow: 0 6px 12px -8px rgb(0 0 0 / 0.35);
 }
 
 /* Anel de progresso (meta do ano) */
@@ -759,146 +782,23 @@ a:focus-visible .livro3d-corpo,
 }
 .anel-luz {
   overflow: visible;
-  filter: drop-shadow(0 0 5px rgb(245 197 74 / 0.45));
-}
 }
 
-/* =====================================================================
-   Cursos: a plataforma holográfica
-   Da mesma família da biblioteca (painéis de vidro, rótulos de HUD,
-   barras de luz), num azul-anil de céu noturno com luz ciano e violeta.
-   Usa os mesmos nomes de cor (--b-*), então as peças da biblioteca
-   (vidro, rotulo-hud, barra-luz) servem aqui também. Sempre escura.
-   ===================================================================== */
-
-@layer components {
-.tema-cursos {
-  --b-fundo: #050817;
-  --b-fundo-2: #0b1236;
-  --b-tinta: #eef0ff;
-  --b-tinta-2: rgb(238 240 255 / 0.78);
-  --b-tinta-3: rgb(238 240 255 / 0.6);
-  --b-luz: #7ef0ff;
-  --b-luz-2: #a78bfa;
-  --b-rosa: #ff7ad9;
-  --b-ambar: #f5c54a;
-  --b-vidro: rgb(150 140 255 / 0.06);
-  --b-vidro-2: rgb(150 140 255 / 0.1);
-  --b-borda: rgb(190 180 255 / 0.15);
-  --b-borda-2: rgb(190 180 255 / 0.3);
-
-  --bg: var(--b-fundo);
-  --surface: #0d1338;
-  --surface-2: #141b48;
-  --surface-3: #1e2659;
-  --ink: var(--b-tinta);
-  --ink-2: var(--b-tinta-2);
-  --ink-3: var(--b-tinta-3);
-  --line: var(--b-borda);
-  --line-strong: var(--b-borda-2);
-  --pen: var(--b-luz);
-  --pen-ink: #06102a;
-  --pen-soft: rgb(126 240 255 / 0.14);
-  --ring: var(--b-luz);
-  --estudos: var(--b-ambar);
-  --estudos-soft: rgb(245 197 74 / 0.15);
-  --danger: #ff7b9a;
-  --danger-soft: rgb(255 123 154 / 0.15);
-  --shadow-overlay: 0 24px 60px -16px rgb(0 0 0 / 0.8), 0 0 0 1px rgb(190 180 255 / 0.14);
-  color-scheme: dark;
-  color: var(--ink);
-}
-
-/* O fundo: brilho violeta no alto e um horizonte em perspectiva atrás do destaque */
-.plataforma {
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
-  background:
-    radial-gradient(80% 42% at 50% -6%, rgb(120 90 255 / 0.42), transparent 66%),
-    radial-gradient(45% 32% at 102% 18%, rgb(126 240 255 / 0.13), transparent 70%),
-    radial-gradient(50% 36% at -4% 55%, rgb(255 122 217 / 0.09), transparent 70%),
-    linear-gradient(180deg, var(--b-fundo-2), var(--b-fundo) 38%);
-}
-.plataforma::before {
-  content: "";
-  position: absolute;
-  z-index: -1;
-  left: -30%;
-  right: -30%;
-  top: 0;
-  height: 30rem;
-  pointer-events: none;
-  background-image:
-    linear-gradient(rgb(167 139 250 / 0.2) 1px, transparent 1px),
-    linear-gradient(90deg, rgb(126 240 255 / 0.13) 1px, transparent 1px);
-  background-size: 60px 60px;
-  transform: perspective(26rem) rotateX(60deg);
-  transform-origin: 50% 0%;
-  mask-image: linear-gradient(to bottom, transparent, #000 22%, rgb(0 0 0 / 0.55) 55%, transparent 88%);
-}
-.plataforma::after {
-  content: "";
-  position: absolute;
-  z-index: -1;
-  left: 0;
-  right: 0;
-  top: 0;
-  height: 1px;
-  pointer-events: none;
-  background: linear-gradient(90deg, transparent, rgb(126 240 255 / 0.7), rgb(255 122 217 / 0.6), transparent);
-  box-shadow: 0 0 24px 2px rgb(126 240 255 / 0.35);
-}
-
-/* A tela do destaque: borda holográfica, mira nos cantos, reflexo e linhas de varredura */
+/* O destaque dos cursos: um cartão com borda na cor de destaque (antes, a tela holográfica) */
 .tela-holo {
   position: relative;
   border-radius: 1rem;
-  padding: 1.5px;
-  background: linear-gradient(135deg, rgb(126 240 255 / 0.95), rgb(167 139 250 / 0.55) 42%, rgb(255 122 217 / 0.8));
-  box-shadow:
-    0 18px 60px -14px rgb(120 90 255 / 0.6),
-    0 0 46px -12px rgb(126 240 255 / 0.5);
+  padding: 1px;
+  background: color-mix(in oklab, var(--b-luz) 45%, var(--line));
 }
 .tela-holo > .tela-conteudo {
   position: relative;
   overflow: hidden;
-  border-radius: calc(1rem - 1.5px);
-  background: var(--b-fundo);
-}
-.tela-holo > .tela-conteudo::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background:
-    linear-gradient(115deg, rgb(255 255 255 / 0.16), transparent 30%),
-    repeating-linear-gradient(0deg, rgb(255 255 255 / 0.04) 0 1px, transparent 1px 3px);
-}
-.tela-holo::before,
-.tela-holo::after {
-  content: "";
-  position: absolute;
-  width: 16px;
-  height: 16px;
-  border: 0 solid var(--b-luz);
-  pointer-events: none;
-  filter: drop-shadow(0 0 4px rgb(126 240 255 / 0.8));
-}
-.tela-holo::before {
-  top: -8px;
-  left: -8px;
-  border-width: 2px 0 0 2px;
-  border-top-left-radius: 5px;
-}
-.tela-holo::after {
-  right: -8px;
-  bottom: -8px;
-  border-width: 0 2px 2px 0;
-  border-bottom-right-radius: 5px;
+  border-radius: calc(1rem - 1px);
+  background: var(--surface);
 }
 
-/* A capa gerada do curso: o tom da categoria, uma grade de circuito, um anel de luz e as iniciais */
+/* A capa gerada do curso: o tom da categoria, um anel e as iniciais */
 .capa-curso {
   container-type: inline-size;
   position: relative;
@@ -909,20 +809,8 @@ a:focus-visible .livro3d-corpo,
   overflow: hidden;
   color: #f4f5ff;
   background:
-    radial-gradient(90% 80% at 88% 8%, hsl(var(--h2) 95% 66% / 0.55), transparent 60%),
-    radial-gradient(70% 70% at 0% 100%, hsl(var(--h1) 90% 58% / 0.35), transparent 66%),
-    linear-gradient(150deg, hsl(var(--h1) 58% 22%), hsl(var(--h1) 70% 7%));
-}
-.capa-curso::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background-image:
-    linear-gradient(rgb(255 255 255 / 0.08) 1px, transparent 1px),
-    linear-gradient(90deg, rgb(255 255 255 / 0.08) 1px, transparent 1px);
-  background-size: 11cqw 11cqw;
-  mask-image: radial-gradient(75% 75% at 50% 50%, #000 25%, transparent 85%);
+    radial-gradient(90% 80% at 88% 8%, hsl(var(--h2) 95% 66% / 0.45), transparent 60%),
+    linear-gradient(150deg, hsl(var(--h1) 50% 30%), hsl(var(--h1) 60% 14%));
 }
 .capa-curso-anel {
   position: absolute;
@@ -930,9 +818,6 @@ a:focus-visible .livro3d-corpo,
   aspect-ratio: 1;
   border-radius: 50%;
   border: 1px solid rgb(255 255 255 / 0.22);
-  box-shadow:
-    inset 0 0 28px hsl(var(--h2) 100% 65% / 0.3),
-    0 0 22px hsl(var(--h2) 100% 65% / 0.25);
 }
 .capa-curso-sigla {
   position: relative;
@@ -941,14 +826,10 @@ a:focus-visible .livro3d-corpo,
   font-size: clamp(16px, 26cqw, 112px);
   line-height: 1;
   letter-spacing: -0.04em;
-  background: linear-gradient(180deg, #ffffff 30%, hsl(var(--h2) 100% 82%));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  filter: drop-shadow(0 0 10px hsl(var(--h2) 100% 65% / 0.55));
+  color: #ffffff;
 }
 
-/* Os cartões das fileiras: sobem e acendem a borda ao passar o mouse */
+/* Os cartões das fileiras: sobem um pouco ao passar o mouse */
 .cartao-curso {
   position: relative;
   border-radius: 0.875rem;
@@ -958,18 +839,16 @@ a:focus-visible .livro3d-corpo,
 }
 .cartao-curso:hover,
 .cartao-curso:focus-visible {
-  box-shadow:
-    0 0 0 1px rgb(126 240 255 / 0.55),
-    0 14px 40px -12px rgb(120 90 255 / 0.7);
+  box-shadow: 0 0 0 1px var(--line-strong), 0 12px 28px -18px rgb(0 0 0 / 0.45);
 }
 @media (prefers-reduced-motion: no-preference) {
   .cartao-curso:hover,
   .cartao-curso:focus-visible {
-    transform: translateY(-4px);
+    transform: translateY(-3px);
   }
 }
 
-/* A trilha de aulas: uma linha de luz com um nó por aula; a aula onde parou pulsa */
+/* A trilha de aulas: uma linha com um nó por aula; a aula onde parou pulsa */
 .trilha {
   position: relative;
 }
@@ -981,9 +860,7 @@ a:focus-visible .livro3d-corpo,
   bottom: 14px;
   width: 2px;
   border-radius: 2px;
-  background: linear-gradient(180deg, var(--b-luz), var(--b-luz-2) 60%, rgb(255 122 217 / 0.65));
-  box-shadow: 0 0 10px rgb(126 240 255 / 0.45);
-  opacity: 0.7;
+  background: var(--line-strong);
 }
 .no-trilha {
   position: relative;
@@ -995,12 +872,10 @@ a:focus-visible .livro3d-corpo,
   place-items: center;
   border-radius: 50%;
   border: 2px solid var(--b-luz);
-  background: var(--b-fundo);
-  box-shadow: 0 0 10px rgb(126 240 255 / 0.5);
+  background: var(--surface);
 }
 .no-trilha[data-atual] {
   border-color: var(--b-rosa);
-  box-shadow: 0 0 14px rgb(255 122 217 / 0.7);
 }
 .no-trilha[data-atual]::after {
   content: "";
@@ -1030,101 +905,19 @@ a:focus-visible .livro3d-corpo,
 .barra-competencia {
   height: 8px;
   border-radius: 999px;
-  background: rgb(255 255 255 / 0.07);
+  background: var(--surface-3);
   overflow: hidden;
 }
 .barra-competencia > span {
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, var(--b-luz-2), var(--b-luz));
-  box-shadow: 0 0 12px rgb(126 240 255 / 0.55);
-}
-}
-
-/* =====================================================================
-   Laboratório: o laboratório do futuro
-   Da mesma família da biblioteca e dos cursos, num verde-escuro de
-   bancada à noite, com luz verde-menta, uma colmeia fina ao fundo e
-   anéis e faixas de sensor para os dias do teste. Sempre escuro.
-   ===================================================================== */
-
-@layer components {
-.tema-lab {
-  --b-fundo: #03100f;
-  --b-fundo-2: #06231f;
-  --b-tinta: #e9fff8;
-  --b-tinta-2: rgb(233 255 248 / 0.78);
-  --b-tinta-3: rgb(233 255 248 / 0.6);
-  --b-luz: #5cffc4;
-  --b-luz-2: #6ee7ff;
-  --b-rosa: #ff8fab;
-  --b-ambar: #f5c54a;
-  --b-vidro: rgb(120 255 210 / 0.05);
-  --b-vidro-2: rgb(120 255 210 / 0.09);
-  --b-borda: rgb(140 255 215 / 0.14);
-  --b-borda-2: rgb(140 255 215 / 0.28);
-
-  --bg: var(--b-fundo);
-  --surface: #082520;
-  --surface-2: #0c2f29;
-  --surface-3: #134039;
-  --ink: var(--b-tinta);
-  --ink-2: var(--b-tinta-2);
-  --ink-3: var(--b-tinta-3);
-  --line: var(--b-borda);
-  --line-strong: var(--b-borda-2);
-  --pen: var(--b-luz);
-  --pen-ink: #02201a;
-  --pen-soft: rgb(92 255 196 / 0.14);
-  --ring: var(--b-luz);
-  --estudos: var(--b-ambar);
-  --estudos-soft: rgb(245 197 74 / 0.15);
-  --danger: #ff8fab;
-  --danger-soft: rgb(255 143 171 / 0.15);
-  --shadow-overlay: 0 24px 60px -16px rgb(0 0 0 / 0.8), 0 0 0 1px rgb(140 255 215 / 0.12);
-  color-scheme: dark;
-  color: var(--ink);
-}
-
-/* O fundo: luz verde no alto e uma colmeia fina que some para baixo */
-.laboratorio {
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
-  background:
-    radial-gradient(80% 45% at 50% -8%, rgb(40 200 150 / 0.34), transparent 66%),
-    radial-gradient(45% 30% at 102% 22%, rgb(110 231 255 / 0.12), transparent 70%),
-    radial-gradient(50% 36% at -6% 60%, rgb(200 255 92 / 0.06), transparent 70%),
-    linear-gradient(180deg, var(--b-fundo-2), var(--b-fundo) 40%);
-}
-.laboratorio::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='48' viewBox='0 0 28 48'%3E%3Cpath d='M14 0 28 8v16l-14 8-14-8V8zM14 32v16' fill='none' stroke='%235cffc4' stroke-opacity='.16'/%3E%3C/svg%3E");
-  background-size: 35px 60px;
-  mask-image: radial-gradient(120% 50% at 50% 0%, #000 15%, transparent 70%);
-}
-.laboratorio::after {
-  content: "";
-  position: absolute;
-  z-index: -1;
-  left: 0;
-  right: 0;
-  top: 0;
-  height: 1px;
-  pointer-events: none;
-  background: linear-gradient(90deg, transparent, rgb(92 255 196 / 0.7), rgb(110 231 255 / 0.6), transparent);
-  box-shadow: 0 0 24px 2px rgb(92 255 196 / 0.3);
+  background: var(--b-luz);
 }
 
 /* O anel dos dias do teste */
 .anel-lab {
   overflow: visible;
-  filter: drop-shadow(0 0 6px rgb(92 255 196 / 0.55));
 }
 .anel-lab circle {
   transition: stroke-dashoffset 900ms cubic-bezier(0.2, 0.8, 0.2, 1);
@@ -1141,28 +934,27 @@ a:focus-visible .livro3d-corpo,
   flex: 1 1 0;
   max-width: 18px;
   border-radius: 3px;
-  background: rgb(255 255 255 / 0.07);
+  background: var(--surface-3);
 }
 .faixa-sensor > span[data-registro] {
-  background: linear-gradient(180deg, var(--b-luz), rgb(92 255 196 / 0.55));
-  box-shadow: 0 0 10px rgb(92 255 196 / 0.55);
+  background: var(--b-luz);
 }
 .faixa-sensor > span[data-hoje] {
   outline: 1.5px solid var(--b-luz);
   outline-offset: 1.5px;
 }
 .faixa-sensor > span[data-futuro] {
-  background: rgb(255 255 255 / 0.035);
+  background: var(--surface-2);
 }
 
-/* O frasco de vidro do experimento em teste: brilho que sobe devagar */
+/* As bolhas do experimento em teste: sobem devagar */
 @keyframes bolhas {
   0% {
     transform: translateY(0) scale(0.6);
     opacity: 0;
   }
   25% {
-    opacity: 0.9;
+    opacity: 0.7;
   }
   100% {
     transform: translateY(-46px) scale(1);
@@ -1176,7 +968,6 @@ a:focus-visible .livro3d-corpo,
   height: 6px;
   border-radius: 50%;
   background: var(--b-luz);
-  box-shadow: 0 0 8px var(--b-luz);
   opacity: 0;
 }
 @media (prefers-reduced-motion: no-preference) {
@@ -1184,151 +975,33 @@ a:focus-visible .livro3d-corpo,
     animation: bolhas 3.2s ease-in infinite;
   }
 }
-}
 
-/* =====================================================================
-   Hoje: a ponte de comando do dia
-   O azul petróleo da capa do caderno no escuro, com a luz ciano da
-   cabine e o quadriculado da capa do Notion virado em grade de luz. A
-   capa do dia (data, frase, linha do dia e captura) é um painel aceso;
-   cada painel usa a luz da sua área (rituais e metas em verde, leitura
-   em âmbar, projetos em violeta). Sempre escura.
-   ===================================================================== */
-
-@layer components {
-.tema-hoje {
-  --b-fundo: #03131a;
-  --b-fundo-2: #082a36;
-  --b-tinta: #e8f6fa;
-  --b-tinta-2: rgb(232 246 250 / 0.78);
-  --b-tinta-3: rgb(232 246 250 / 0.6);
-  --b-luz: #63e3ff;
-  --b-luz-2: #9a8cff;
-  --b-ambar: #f5c54a;
-  --b-verde: #3ccb92;
-  --b-menta: #7cf5c4;
-  --b-violeta: #b69cff;
-  --b-rosa: #ff8fd1;
-  --b-vidro: rgb(160 230 255 / 0.05);
-  --b-vidro-2: rgb(160 230 255 / 0.09);
-  --b-borda: rgb(150 225 255 / 0.14);
-  --b-borda-2: rgb(150 225 255 / 0.28);
-
-  /* As cores do app no escuro da ponte (botões, campos, menus, janelas) */
-  --bg: var(--b-fundo);
-  --surface: #0a2630;
-  --surface-2: #0f303b;
-  --surface-3: #18404d;
-  --ink: var(--b-tinta);
-  --ink-2: var(--b-tinta-2);
-  --ink-3: var(--b-tinta-3);
-  --line: var(--b-borda);
-  --line-strong: var(--b-borda-2);
-  --pen: var(--b-luz);
-  --pen-ink: #03171e;
-  --pen-soft: rgb(99 227 255 / 0.14);
-  --ring: var(--b-luz);
-  --rotina: var(--b-verde);
-  --rotina-soft: rgb(60 203 146 / 0.15);
-  --projetos: var(--b-violeta);
-  --projetos-soft: rgb(182 156 255 / 0.15);
-  --estudos: var(--b-ambar);
-  --estudos-soft: rgb(245 197 74 / 0.15);
-  --conteudo: #ff7aa6;
-  --conteudo-soft: rgb(255 122 166 / 0.15);
-  --danger: #ff7b84;
-  --danger-soft: rgb(255 123 132 / 0.15);
-  --warning: var(--b-ambar);
-  --shadow-overlay: 0 24px 60px -16px rgb(0 0 0 / 0.8), 0 0 0 1px rgb(150 225 255 / 0.12);
-  color-scheme: dark;
-  color: var(--ink);
-}
-
-/* O fundo: luz petróleo no alto e a grade da capa, que some para baixo */
-.ponte {
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
-  background:
-    radial-gradient(90% 45% at 12% -8%, rgb(31 98 120 / 0.75), transparent 65%),
-    radial-gradient(45% 32% at 102% 14%, rgb(99 227 255 / 0.12), transparent 70%),
-    radial-gradient(50% 36% at -4% 72%, rgb(154 140 255 / 0.08), transparent 70%),
-    linear-gradient(180deg, var(--b-fundo-2), var(--b-fundo) 40%);
-}
-.ponte::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background-image:
-    linear-gradient(rgb(99 227 255 / 0.055) 1px, transparent 1px),
-    linear-gradient(90deg, rgb(99 227 255 / 0.055) 1px, transparent 1px);
-  background-size: 64px 64px;
-  mask-image: radial-gradient(120% 50% at 50% 0%, #000 20%, transparent 70%);
-}
-.ponte::after {
-  content: "";
-  position: absolute;
-  z-index: -1;
-  left: 0;
-  right: 0;
-  top: 0;
-  height: 1px;
-  pointer-events: none;
-  background: linear-gradient(90deg, transparent, rgb(99 227 255 / 0.75), rgb(182 156 255 / 0.55), transparent);
-  box-shadow: 0 0 24px 2px rgb(99 227 255 / 0.35);
-}
-
-/* A capa do dia: um painel aceso, com anéis de radar no canto da frase */
+/* A capa do dia (Hoje): um cartão simples; com imagem de Configurações, um véu na cor do papel */
 .capa-hoje {
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  border: 1px solid rgb(99 227 255 / 0.22);
+  border: 1px solid var(--line);
   border-radius: 1.5rem;
-  background:
-    radial-gradient(70% 90% at 100% 0%, rgb(99 227 255 / 0.13), transparent 60%),
-    linear-gradient(135deg, rgb(15 60 76 / 0.75), rgb(5 26 34 / 0.85));
-  box-shadow:
-    0 24px 60px -30px rgb(99 227 255 / 0.45),
-    inset 0 1px 0 rgb(255 255 255 / 0.06);
-}
-.capa-hoje::before {
-  content: "";
-  position: absolute;
-  z-index: -1;
-  right: -9rem;
-  top: -9rem;
-  width: 26rem;
-  height: 26rem;
-  pointer-events: none;
-  border-radius: 50%;
-  background: repeating-radial-gradient(circle, transparent 0 34px, rgb(99 227 255 / 0.12) 34px 35px);
-  mask-image: radial-gradient(circle, #000 30%, transparent 70%);
+  background: var(--surface);
 }
 
-/* O número do dia: grande, em luz */
+/* O número do dia: grande, na cor da tinta */
 .numero-dia {
   font-family: var(--font-display);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.04em;
   line-height: 0.85;
-  background: linear-gradient(180deg, #ffffff 30%, #9ef0ff);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  filter: drop-shadow(0 0 18px rgb(99 227 255 / 0.45));
+  color: var(--ink);
 }
 
-/* A frase da capa, escrita à mão, com um brilho leve */
+/* A frase da capa, escrita à mão */
 .frase-luz {
-  color: #f2fbfd;
-  text-shadow: 0 0 22px rgb(99 227 255 / 0.35);
+  color: var(--pen);
 }
 
-/* A linha do dia: o que já passou em luz, o agora pulsando e os compromissos marcados */
+/* A linha do dia: o que já passou, o agora pulsando e os compromissos marcados */
 .linha-dia-trilho {
   position: absolute;
   inset-inline: 0;
@@ -1336,7 +1009,7 @@ a:focus-visible .livro3d-corpo,
   height: 2px;
   transform: translateY(-50%);
   border-radius: 2px;
-  background: rgb(255 255 255 / 0.1);
+  background: var(--surface-3);
 }
 .linha-dia-feito {
   position: absolute;
@@ -1345,8 +1018,7 @@ a:focus-visible .livro3d-corpo,
   height: 2px;
   transform: translateY(-50%);
   border-radius: 2px;
-  background: linear-gradient(90deg, rgb(99 227 255 / 0.15), var(--b-luz));
-  box-shadow: 0 0 10px rgb(99 227 255 / 0.6);
+  background: var(--b-luz);
 }
 .linha-dia-marco {
   position: absolute;
@@ -1356,24 +1028,12 @@ a:focus-visible .livro3d-corpo,
   transform: translate(-50%, -50%) rotate(45deg);
   border-radius: 2px;
   background: var(--cor, var(--b-luz));
-  box-shadow: 0 0 10px var(--cor, var(--b-luz));
 }
 .linha-dia-marco[data-passou] {
   opacity: 0.4;
-  box-shadow: none;
 }
 
-/* As barras de luz de cada área */
-.tema-hoje .barra-luz[data-cor="rotina"] > span {
-  background: linear-gradient(90deg, #1fae7e, var(--b-menta));
-  box-shadow: 0 0 12px rgb(60 203 146 / 0.6);
-}
-.tema-hoje .barra-luz[data-cor="estudos"] > span {
-  background: linear-gradient(90deg, #d99a1e, var(--b-ambar));
-  box-shadow: 0 0 12px rgb(245 197 74 / 0.55);
-}
-
-/* A caixa de um ritual: verde aceso quando feito */
+/* A caixa de um ritual: verde quando feito */
 .caixa-ritual {
   display: grid;
   place-items: center;
@@ -1381,181 +1041,57 @@ a:focus-visible .livro3d-corpo,
   width: 1.375rem;
   height: 1.375rem;
   border-radius: 0.45rem;
-  border: 1.5px solid var(--b-borda-2);
-  color: #03201a;
-  transition: background-color 150ms, border-color 150ms, box-shadow 150ms;
+  border: 1.5px solid var(--line-strong);
+  color: var(--pen-ink);
+  transition: background-color 150ms, border-color 150ms;
 }
 .caixa-ritual[data-feito] {
   border-color: var(--b-verde);
-  background: linear-gradient(135deg, var(--b-menta), var(--b-verde));
-  box-shadow: 0 0 12px -2px rgb(60 203 146 / 0.8);
+  background: var(--b-verde);
 }
-.tema-hoje [role="checkbox"][aria-checked="true"] > svg {
+:is(.tema-hoje, .tema-cerebro, .tema-estudio) [role="checkbox"][aria-checked="true"] > svg {
   color: var(--pen-ink);
 }
-}
 
-/* =====================================================================
-   Segundo Cérebro: a rede neural
-   Da mesma família da biblioteca, dos cursos e do laboratório, num
-   violeta de céu noturno, com uma rede de neurônios ao fundo (pontos
-   ligados por fios, em public/rede-neural.svg) que some para baixo. A
-   luz é violeta (a cor da área), com faíscas ciano e rosa. Sempre escuro.
-   Usa os mesmos nomes de cor (--b-*), então vidro, rotulo-hud e
-   barra-luz servem aqui também.
-   ===================================================================== */
-
-@layer components {
-.tema-cerebro {
-  --b-fundo: #08051a;
-  --b-fundo-2: #170c36;
-  --b-tinta: #f2eeff;
-  --b-tinta-2: rgb(242 238 255 / 0.78);
-  --b-tinta-3: rgb(242 238 255 / 0.6);
-  --b-luz: #b69cff;
-  --b-luz-2: #6ee7ff;
-  --b-rosa: #ff8fd1;
-  --b-ambar: #f5c54a;
-  --b-menta: #7cf5c4;
-  --b-coral: #ff9e7d;
-  --b-vidro: rgb(190 170 255 / 0.05);
-  --b-vidro-2: rgb(190 170 255 / 0.09);
-  --b-borda: rgb(190 170 255 / 0.15);
-  --b-borda-2: rgb(190 170 255 / 0.3);
-
-  /* As cores do app, no escuro da rede (botões, campos, menus, janelas) */
-  --bg: var(--b-fundo);
-  --surface: #120b2b;
-  --surface-2: #1a1139;
-  --surface-3: #261a4c;
-  --ink: var(--b-tinta);
-  --ink-2: var(--b-tinta-2);
-  --ink-3: var(--b-tinta-3);
-  --line: var(--b-borda);
-  --line-strong: var(--b-borda-2);
-  --pen: var(--b-luz);
-  --pen-ink: #170b3d;
-  --pen-soft: rgb(182 156 255 / 0.15);
-  --ring: var(--b-luz);
-  --projetos: var(--b-luz);
-  --projetos-soft: rgb(182 156 255 / 0.15);
-  --rotina: #3ccb92;
-  --rotina-soft: rgb(60 203 146 / 0.15);
-  --estudos: var(--b-ambar);
-  --estudos-soft: rgb(245 197 74 / 0.15);
-  --conteudo: #ff7aa6;
-  --conteudo-soft: rgb(255 122 166 / 0.15);
-  --danger: #ff8fab;
-  --danger-soft: rgb(255 143 171 / 0.15);
-  --warning: var(--b-ambar);
-  --shadow-overlay: 0 24px 60px -16px rgb(0 0 0 / 0.8), 0 0 0 1px rgb(190 170 255 / 0.14);
-  color-scheme: dark;
-  color: var(--ink);
-}
-
-/* O fundo: luz violeta no alto e a rede de neurônios, que some para baixo */
-.cerebro {
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
-  background:
-    radial-gradient(80% 45% at 50% -8%, rgb(140 90 255 / 0.4), transparent 66%),
-    radial-gradient(45% 30% at 102% 20%, rgb(255 143 209 / 0.12), transparent 70%),
-    radial-gradient(50% 36% at -6% 58%, rgb(110 231 255 / 0.08), transparent 70%),
-    linear-gradient(180deg, var(--b-fundo-2), var(--b-fundo) 40%);
-}
-.cerebro::before {
-  content: "";
-  position: absolute;
-  z-index: -1;
-  left: 0;
-  right: 0;
-  top: 0;
-  height: 35rem;
-  pointer-events: none;
-  background: url("/rede-neural.svg") center top / 1200px auto repeat-x;
-  /* Some para baixo e fica mais fraca à esquerda, onde estão o título e o texto */
-  -webkit-mask-image:
-    linear-gradient(to bottom, #000 10%, rgb(0 0 0 / 0.5) 55%, transparent 92%),
-    linear-gradient(90deg, rgb(0 0 0 / 0.3), #000 60%);
-  -webkit-mask-composite: source-in;
-  mask-image:
-    linear-gradient(to bottom, #000 10%, rgb(0 0 0 / 0.5) 55%, transparent 92%),
-    linear-gradient(90deg, rgb(0 0 0 / 0.3), #000 60%);
-  mask-composite: intersect;
-}
-.cerebro::after {
-  content: "";
-  position: absolute;
-  z-index: -1;
-  left: 0;
-  right: 0;
-  top: 0;
-  height: 1px;
-  pointer-events: none;
-  background: linear-gradient(90deg, transparent, rgb(182 156 255 / 0.75), rgb(255 143 209 / 0.6), transparent);
-  box-shadow: 0 0 24px 2px rgb(182 156 255 / 0.35);
-}
-
-/* O visto das caixas marcadas (etapas, tarefas) em tinta escura: o branco some sobre a luz */
-.tema-cerebro [role="checkbox"][aria-checked="true"] > svg {
-  color: var(--pen-ink);
-}
-.tema-cerebro [role="checkbox"][aria-checked="true"] {
-  box-shadow: 0 0 10px -3px var(--b-luz);
-}
-
-/* A barra de luz no violeta da área */
-.tema-cerebro .barra-luz > span {
-  background: linear-gradient(90deg, var(--b-luz-2), var(--b-luz) 55%, var(--b-rosa));
-  box-shadow: 0 0 14px rgb(182 156 255 / 0.6);
-}
-
-/* Cartão de vidro que acende ao passar (projetos, áreas, capturas) */
+/* Cartão que se destaca ao passar (projetos, áreas, capturas) */
 .vidro-vivo {
-  background: var(--b-vidro);
-  border: 1px solid var(--b-borda);
+  background: var(--surface);
+  border: 1px solid var(--line);
   border-radius: 1.25rem;
-  transition: border-color 200ms, background-color 200ms, box-shadow 200ms, transform 200ms;
+  transition: border-color 200ms, box-shadow 200ms;
 }
 .vidro-vivo:hover,
 .vidro-vivo:focus-within {
-  border-color: var(--b-borda-2);
-  background: var(--b-vidro-2);
-  box-shadow: 0 18px 40px -26px rgb(140 90 255 / 0.7);
+  border-color: var(--line-strong);
+  box-shadow: 0 10px 24px -18px rgb(0 0 0 / 0.4);
 }
 
-/* O ícone de um tipo, aceso na própria cor (--cor) */
+/* O ícone de um tipo, na própria cor (--cor) sobre um fundo suave */
 .icone-aceso {
   display: grid;
   place-items: center;
   flex-shrink: 0;
   border-radius: 0.8rem;
   color: var(--cor, var(--b-luz));
-  background: color-mix(in oklab, var(--cor, var(--b-luz)) 14%, transparent);
-  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--cor, var(--b-luz)) 28%, transparent);
-}
-.icone-aceso > svg {
-  filter: drop-shadow(0 0 6px color-mix(in oklab, var(--cor, var(--b-luz)) 60%, transparent));
+  background: color-mix(in oklab, var(--cor, var(--b-luz)) 12%, transparent);
 }
 
-/* O núcleo de uma área: um anel de luz com a inicial, girando devagar */
+/* O núcleo de uma área: um anel com a inicial e um ponto que gira devagar */
 .nucleo {
   position: relative;
   display: grid;
   place-items: center;
   border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, rgb(182 156 255 / 0.35), rgb(23 12 54 / 0.9) 70%);
-  box-shadow:
-    0 0 0 1px rgb(182 156 255 / 0.45),
-    0 0 22px -4px rgb(182 156 255 / 0.7);
+  color: var(--b-luz);
+  background: color-mix(in oklab, var(--b-luz) 12%, var(--surface));
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--b-luz) 35%, transparent);
 }
 .nucleo::before {
   content: "";
   position: absolute;
   inset: -7px;
   border-radius: 50%;
-  border: 1px dashed rgb(182 156 255 / 0.35);
+  border: 1px dashed color-mix(in oklab, var(--b-luz) 30%, transparent);
 }
 .nucleo::after {
   content: "";
@@ -1567,7 +1103,6 @@ a:focus-visible .livro3d-corpo,
   margin-left: -3px;
   border-radius: 50%;
   background: var(--b-luz-2);
-  box-shadow: 0 0 8px var(--b-luz-2);
   /* Gira em volta do centro do núcleo (--r é a metade do tamanho dele), sobre o anel tracejado */
   transform-origin: 3px calc(10px + var(--r, 24px));
 }
@@ -1584,150 +1119,31 @@ a:focus-visible .livro3d-corpo,
 .nucleo[data-parado]::after {
   display: none;
 }
-}
 
-/* =====================================================================
-   Conteúdo e IA: o estúdio
-   Da mesma família da biblioteca, dos cursos, do laboratório e do
-   Segundo Cérebro: um estúdio de criação à noite, num ameixa quase preto,
-   com a luz rosa-neon da área (Conteúdo), faíscas ciano e violeta, ondas
-   de som ao fundo (public/ondas.svg) e linhas finas de tela, que somem
-   para baixo. Biblioteca, Planner, Assistente e as páginas da Biblioteca,
-   do Planner e das conversas. Sempre escuro. Usa os mesmos nomes de cor
-   (--b-*), então vidro, rotulo-hud, barra-luz, vidro-vivo e icone-aceso
-   servem aqui também.
-   ===================================================================== */
-
-@layer components {
-.tema-estudio {
-  --b-fundo: #0b0612;
-  --b-fundo-2: #2a0a33;
-  --b-tinta: #fdf0fa;
-  --b-tinta-2: rgb(253 240 250 / 0.78);
-  --b-tinta-3: rgb(253 240 250 / 0.6);
-  --b-luz: #ff6fb5;
-  --b-luz-2: #5ee7ff;
-  --b-violeta: #b69cff;
-  --b-rosa: #ff8fd1;
-  --b-ambar: #ffc65a;
-  --b-verde: #4ee0a0;
-  --b-menta: #7cf5c4;
-  --b-coral: #ff8a6b;
-  --b-vidro: rgb(255 180 230 / 0.05);
-  --b-vidro-2: rgb(255 180 230 / 0.09);
-  --b-borda: rgb(255 175 225 / 0.15);
-  --b-borda-2: rgb(255 175 225 / 0.3);
-
-  /* As cores do app no escuro do estúdio (botões, campos, menus, janelas) */
-  --bg: var(--b-fundo);
-  --surface: #1a0c22;
-  --surface-2: #24112f;
-  --surface-3: #331a42;
-  --ink: var(--b-tinta);
-  --ink-2: var(--b-tinta-2);
-  --ink-3: var(--b-tinta-3);
-  --line: var(--b-borda);
-  --line-strong: var(--b-borda-2);
-  --pen: var(--b-luz);
-  --pen-ink: #2b0619;
-  --pen-soft: rgb(255 111 181 / 0.15);
-  --ring: var(--b-luz);
-  --conteudo: var(--b-luz);
-  --conteudo-soft: rgb(255 111 181 / 0.15);
-  --rotina: var(--b-verde);
-  --rotina-soft: rgb(78 224 160 / 0.15);
-  --projetos: var(--b-violeta);
-  --projetos-soft: rgb(182 156 255 / 0.15);
-  --estudos: var(--b-ambar);
-  --estudos-soft: rgb(255 198 90 / 0.15);
-  /* O perigo puxa para o coral, para não se confundir com o rosa da área */
-  --danger: #ff7a66;
-  --danger-soft: rgb(255 122 102 / 0.15);
-  --warning: var(--b-ambar);
-  --shadow-overlay: 0 24px 60px -16px rgb(0 0 0 / 0.85), 0 0 0 1px rgb(255 175 225 / 0.14);
-  color-scheme: dark;
-  color: var(--ink);
-}
-
-/* O fundo: luz rosa no alto, as ondas de som e as linhas de tela, que somem para baixo */
-.estudio {
-  position: relative;
-  isolation: isolate;
-  /* clip, e não hidden: assim o console do assistente e o histórico continuam grudando na tela (sticky) */
-  overflow: clip;
-  background:
-    radial-gradient(85% 45% at 50% -10%, rgb(255 80 170 / 0.3), transparent 65%),
-    radial-gradient(45% 30% at 104% 16%, rgb(94 231 255 / 0.11), transparent 70%),
-    radial-gradient(50% 36% at -6% 62%, rgb(182 156 255 / 0.1), transparent 70%),
-    linear-gradient(180deg, var(--b-fundo-2), var(--b-fundo) 42%);
-}
-.estudio::before {
-  content: "";
-  position: absolute;
-  z-index: -1;
-  left: 0;
-  right: 0;
-  top: 0;
-  height: 28rem;
-  pointer-events: none;
-  background: url("/ondas.svg") center -36px / 1400px auto repeat-x;
-  /* Mais fraca à esquerda, onde ficam o título e o texto */
-  -webkit-mask-image:
-    linear-gradient(to bottom, #000 15%, rgb(0 0 0 / 0.45) 55%, transparent 92%),
-    linear-gradient(90deg, rgb(0 0 0 / 0.28), rgb(0 0 0 / 0.5) 45%, #000 75%);
-  -webkit-mask-composite: source-in;
-  mask-image:
-    linear-gradient(to bottom, #000 15%, rgb(0 0 0 / 0.45) 55%, transparent 92%),
-    linear-gradient(90deg, rgb(0 0 0 / 0.28), rgb(0 0 0 / 0.5) 45%, #000 75%);
-  mask-composite: intersect;
-}
-.estudio::after {
-  content: "";
-  position: absolute;
-  z-index: -1;
-  inset: 0;
-  pointer-events: none;
-  background:
-    linear-gradient(90deg, transparent, rgb(255 111 181 / 0.85), rgb(94 231 255 / 0.6), transparent) top / 100% 1px no-repeat,
-    repeating-linear-gradient(180deg, rgb(255 255 255 / 0.022) 0 1px, transparent 1px 4px);
-  -webkit-mask-image: linear-gradient(to bottom, #000, rgb(0 0 0 / 0.35) 40%, transparent 80%);
-  mask-image: linear-gradient(to bottom, #000, rgb(0 0 0 / 0.35) 40%, transparent 80%);
-}
-
-/* As abas (Segmentos) e o visto das caixas marcadas, no rosa da área */
+/* As abas (Segmentos) do estúdio, na cor da área */
 .tema-estudio [role="tablist"] > [role="tab"][aria-selected="true"] {
-  background: rgb(255 111 181 / 0.16);
+  background: color-mix(in oklab, var(--b-luz) 12%, var(--surface));
   color: var(--ink);
-  box-shadow: inset 0 0 0 1px rgb(255 111 181 / 0.42), 0 0 18px -8px var(--b-luz);
-}
-.tema-estudio [role="checkbox"][aria-checked="true"] > svg {
-  color: var(--pen-ink);
-}
-.tema-estudio .barra-luz > span {
-  background: linear-gradient(90deg, var(--b-violeta), var(--b-luz) 60%, #ffb3d9);
-  box-shadow: 0 0 14px rgb(255 111 181 / 0.6);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--b-luz) 35%, transparent);
 }
 
-/* O texto das páginas e das respostas: blocos de prompt como telas, callouts do Notion em vidro */
+/* O texto das páginas e das respostas: blocos de prompt com um traço na cor da área */
 .tema-estudio .prosa pre {
-  background: rgb(0 0 0 / 0.35);
-  border-color: var(--b-borda);
   border-left: 2px solid var(--b-luz);
-  box-shadow: -8px 0 20px -16px var(--b-luz);
 }
 .tema-estudio .prosa blockquote {
   border-left-color: var(--b-luz);
   border-radius: 0 0.75rem 0.75rem 0;
-  background: var(--b-vidro);
+  background: var(--surface-2);
   padding: 0.5em 0.9em;
 }
 
-/* Uma coluna do quadro de produção, acesa na cor da etapa (--cor) */
+/* Uma coluna do quadro de produção, com o traço na cor da etapa (--cor) */
 .coluna-etapa {
   position: relative;
-  border: 1px solid var(--b-borda);
+  border: 1px solid var(--line);
   border-radius: 1.25rem;
-  background: linear-gradient(180deg, color-mix(in oklab, var(--cor) 9%, transparent), var(--b-vidro) 9rem);
+  background: var(--surface);
   transition: border-color 160ms, box-shadow 160ms;
 }
 .coluna-etapa::before {
@@ -1739,11 +1155,10 @@ a:focus-visible .livro3d-corpo,
   height: 2px;
   border-radius: 2px;
   background: var(--cor);
-  box-shadow: 0 0 12px var(--cor);
 }
 .coluna-etapa[data-sobre] {
   border-color: var(--cor);
-  box-shadow: 0 0 0 1px var(--cor), 0 0 34px -12px var(--cor);
+  box-shadow: 0 0 0 1px var(--cor);
 }
 
 /* O ponto vermelho de "gravando" */
@@ -1752,8 +1167,7 @@ a:focus-visible .livro3d-corpo,
   height: 0.5rem;
   flex-shrink: 0;
   border-radius: 50%;
-  background: #ff4d6d;
-  box-shadow: 0 0 8px #ff4d6d;
+  background: #e5384f;
 }
 @media (prefers-reduced-motion: no-preference) {
   .ponto-rec {
@@ -1766,30 +1180,27 @@ a:focus-visible .livro3d-corpo,
   }
 }
 
-/* O núcleo da IA: uma esfera de luz rosa e violeta, com um anel girando (mais rápido quando pensa) */
+/* O núcleo da IA: uma esfera rosa e violeta com um anel girando (mais rápido quando pensa) */
 .orbe-ia {
   position: relative;
   display: grid;
   flex-shrink: 0;
   place-items: center;
   border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, #ffe0f0 0%, #ff6fb5 24%, #7d3cff 58%, #170a26 80%);
-  box-shadow:
-    0 0 0 1px rgb(255 175 225 / 0.35),
-    0 0 40px -6px rgb(255 111 181 / 0.7),
-    0 0 90px -24px rgb(94 231 255 / 0.55);
+  background: radial-gradient(circle at 35% 30%, #ffe0f0 0%, #ff6fb5 26%, #7d3cff 72%);
+  box-shadow: 0 8px 24px -12px rgb(125 60 255 / 0.55);
 }
 .orbe-ia::before {
   content: "";
   position: absolute;
   inset: -12%;
   border-radius: 50%;
-  background: conic-gradient(from 0deg, transparent, rgb(94 231 255 / 0.75), transparent 30%, rgb(255 111 181 / 0.75), transparent 62%);
+  background: conic-gradient(from 0deg, transparent, var(--b-luz-2), transparent 30%, var(--b-luz), transparent 62%);
   -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1.5px));
   mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1.5px));
 }
 .orbe-ia[data-apagado] {
-  filter: grayscale(0.7) brightness(0.7);
+  filter: grayscale(0.8) opacity(0.6);
 }
 @media (prefers-reduced-motion: no-preference) {
   .orbe-ia::before {
@@ -1809,27 +1220,23 @@ a:focus-visible .livro3d-corpo,
 }
 @keyframes orbe-pulsa {
   50% {
-    box-shadow:
-      0 0 0 1px rgb(255 175 225 / 0.5),
-      0 0 54px -4px rgb(255 111 181 / 0.95),
-      0 0 110px -20px rgb(94 231 255 / 0.75);
+    transform: scale(1.04);
   }
 }
 
 /* O console de envio do assistente */
 .console-ia {
-  border: 1px solid var(--b-borda-2);
+  border: 1px solid var(--line-strong);
   border-radius: 1.25rem;
-  background: rgb(12 5 18 / 0.78);
-  box-shadow: 0 18px 50px -24px rgb(0 0 0 / 0.95);
+  background: var(--surface);
+  box-shadow: 0 10px 30px -22px rgb(0 0 0 / 0.5);
   transition: border-color 200ms, box-shadow 200ms;
 }
 .console-ia:focus-within {
-  border-color: rgb(255 111 181 / 0.6);
+  border-color: var(--b-luz);
   box-shadow:
-    0 18px 50px -24px rgb(0 0 0 / 0.95),
-    0 0 0 3px rgb(255 111 181 / 0.12),
-    0 0 34px -10px rgb(255 111 181 / 0.6);
+    0 10px 30px -22px rgb(0 0 0 / 0.5),
+    0 0 0 3px color-mix(in oklab, var(--b-luz) 14%, transparent);
 }
 }
 
@@ -1843,60 +1250,78 @@ a:focus-visible .livro3d-corpo,
 }
 
 /* =====================================================================
-   A cabine: a moldura do app
-   A barra lateral, o topo e as abas do celular e a barra de baixo. É o
-   azul petróleo da capa do caderno no escuro, com a luz ciano da
-   biblioteca: vidro, uma grade fina, rótulos de HUD e, no item aberto,
-   a luz da cor da área (Rotina verde, Segundo Cérebro violeta, Estudos
-   âmbar, Conteúdo rosa; Hoje e o resto, ciano). Sempre escura, no tema
-   claro ou escuro; menus e janelas abertos dela recebem a mesma classe.
+   A moldura do app
+   No computador, a barra lateral é a capa azul petróleo do caderno,
+   lisa (sem grade nem brilhos). No celular, o topo, as abas da área e a
+   barra de baixo são do papel, no tema claro ou escuro. De detalhe,
+   fica a cor da área no item aberto (Rotina verde, Segundo Cérebro
+   violeta, Estudos âmbar, Conteúdo rosa; Hoje e o resto, petróleo):
+   o traço ao lado, o ponto do grupo e o ícone.
    ===================================================================== */
 
 @layer components {
 .cabine {
-  --b-fundo: #03131a;
-  --b-fundo-2: #072631;
-  --b-tinta: #e8f6fa;
-  --b-tinta-2: rgb(232 246 250 / 0.78);
-  --b-tinta-3: rgb(232 246 250 / 0.6);
-  --b-luz: #63e3ff;
-  --b-luz-2: #9a8cff;
-  --b-ambar: #f5c54a;
-  --b-vidro: rgb(160 230 255 / 0.05);
-  --b-vidro-2: rgb(160 230 255 / 0.09);
-  --b-borda: rgb(150 225 255 / 0.13);
-  --b-borda-2: rgb(150 225 255 / 0.26);
-
-  /* As cores do app dentro da cabine (botões, campos, menus) */
-  --bg: var(--b-fundo);
-  --surface: #0a2630;
-  --surface-2: #0f303b;
-  --surface-3: #18404d;
-  --ink: var(--b-tinta);
-  --ink-2: var(--b-tinta-2);
-  --ink-3: var(--b-tinta-3);
-  --line: var(--b-borda);
-  --line-strong: var(--b-borda-2);
-  --pen: var(--b-luz);
-  --pen-ink: #03171e;
-  --pen-soft: rgb(99 227 255 / 0.14);
-  --ring: var(--b-luz);
-  --rotina: #3ccb92;
-  --rotina-soft: rgb(60 203 146 / 0.15);
-  --projetos: #a68dff;
-  --projetos-soft: rgb(166 141 255 / 0.15);
-  --estudos: #f2bf3a;
-  --estudos-soft: rgb(242 191 58 / 0.15);
-  --conteudo: #ff7aa6;
-  --conteudo-soft: rgb(255 122 166 / 0.15);
-  --danger: #ff7b84;
-  --danger-soft: rgb(255 123 132 / 0.15);
-  --shadow-overlay: 0 24px 60px -16px rgb(0 0 0 / 0.8), 0 0 0 1px rgb(150 225 255 / 0.12);
-  /* A luz da área: ciano, ou a cor da área marcada em data-area */
-  --area: var(--b-luz);
-  color-scheme: dark;
+  --b-fundo: var(--bg);
+  --b-tinta: var(--ink);
+  --b-tinta-2: var(--ink-2);
+  --b-tinta-3: var(--ink-3);
+  --b-luz: var(--pen);
+  --b-vidro: var(--surface);
+  --b-vidro-2: var(--surface-2);
+  --b-borda: var(--line);
+  --b-borda-2: var(--line-strong);
+  /* A cor da área: petróleo, ou a cor da área marcada em data-area */
+  --area: var(--pen);
   color: var(--ink);
 }
+
+/* A barra lateral: a capa azul petróleo (as cores de dentro passam a valer sobre ela) */
+.cabine-lateral {
+  --capa: #1f4f61;
+  --capa-2: #285a6d;
+  --capa-linha: #2f6578;
+  --capa-linha-forte: #3d788c;
+  --bg: var(--capa);
+  --surface: var(--capa-2);
+  --surface-2: var(--capa-2);
+  --surface-3: var(--capa-linha);
+  --ink: #ffffff;
+  --ink-2: #d3e2e7;
+  --ink-3: #b5ccd5;
+  --line: var(--capa-linha);
+  --line-strong: var(--capa-linha-forte);
+  --pen: #ffffff;
+  --pen-ink: var(--capa);
+  --pen-soft: var(--capa-2);
+  --ring: #ffffff;
+  /* Os marca-textos, nos tons que aparecem sobre fundo escuro */
+  --rotina: #3ccb92;
+  --projetos: #b8a5ff;
+  --estudos: #f2bf3a;
+  --conteudo: #ff8fb4;
+  --b-luz: #ffffff;
+  --b-fundo: var(--capa);
+  --b-tinta: var(--ink);
+  --b-tinta-2: var(--ink-2);
+  --b-tinta-3: var(--ink-3);
+  --b-borda: var(--line);
+  --b-borda-2: var(--line-strong);
+  --area: #ffffff;
+  background: var(--capa);
+  color: var(--ink);
+}
+.dark .cabine-lateral {
+  --capa: #12303a;
+  --capa-2: #1b4352;
+  --capa-linha: #24505f;
+  --capa-linha-forte: #2f6578;
+  --ink: #f1f7f9;
+  --ink-2: #c3d5db;
+  --ink-3: #a2bac2;
+  --pen: #f1f7f9;
+  --ring: #f1f7f9;
+}
+
 .cabine[data-area="rotina"],
 .cabine [data-area="rotina"] {
   --area: var(--rotina);
@@ -1914,83 +1339,47 @@ a:focus-visible .livro3d-corpo,
   --area: var(--conteudo);
 }
 
-/* O fundo da cabine no computador: atrás da barra lateral e nos cantos da página. Fica preso à
-   tela, então a barra (presa no alto) mostra sempre a mesma luz */
+/* No computador, a capa fica atrás da barra lateral e nos cantos arredondados da página */
 @media (min-width: 64rem) {
   .cabine-moldura {
-    background:
-      radial-gradient(420px 320px at 0 0, rgb(31 98 120 / 0.62), transparent 72%),
-      radial-gradient(340px 280px at 0 100%, rgb(154 140 255 / 0.12), transparent 70%),
-      linear-gradient(180deg, #072631, #03131a 62%);
-    background-attachment: fixed;
+    background: #1f4f61;
   }
-  /* A página é a tela acesa da cabine: um fio de luz na borda */
-  .cabine-papel {
-    box-shadow:
-      -1px 0 0 rgb(99 227 255 / 0.24),
-      -22px 0 46px -30px rgb(99 227 255 / 0.55);
+  .dark .cabine-moldura {
+    background: #12303a;
   }
 }
 
-/* A barra lateral: uma grade fina no alto, que some para baixo */
-.cabine-lateral {
-  isolation: isolate;
-}
-.cabine-lateral::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background-image:
-    linear-gradient(rgb(99 227 255 / 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgb(99 227 255 / 0.05) 1px, transparent 1px);
-  background-size: 26px 26px;
-  mask-image: linear-gradient(180deg, #000, transparent 34%);
-}
-
-/* A assinatura "My life", com luz */
+/* A assinatura "My life" */
 .cabine-assinatura {
-  background: linear-gradient(100deg, #ffffff 30%, #a8f1ff);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  filter: drop-shadow(0 0 10px rgb(99 227 255 / 0.45));
+  color: var(--pen);
 }
 
-/* O botão de ação principal (Novo), aceso */
+/* O botão de ação principal (Novo): sem brilho */
 .cabine-acao {
-  box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 0.45),
-    0 0 22px -6px var(--b-luz);
-}
-.cabine-acao:hover {
-  box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 0.45),
-    0 0 28px -4px var(--b-luz);
+  box-shadow: none;
 }
 
-/* Campo e botões de vidro */
+/* Campo e botões discretos */
 .cabine-vidro {
-  background: var(--b-vidro);
-  border: 1px solid var(--b-borda);
-  color: var(--b-tinta-3);
+  background: color-mix(in oklab, var(--ink) 6%, transparent);
+  border: 1px solid var(--line);
+  color: var(--ink-3);
   transition: background-color 150ms, border-color 150ms, color 150ms;
 }
 .cabine-vidro:hover {
-  background: var(--b-vidro-2);
-  border-color: var(--b-borda-2);
-  color: var(--b-tinta-2);
+  background: color-mix(in oklab, var(--ink) 10%, transparent);
+  border-color: var(--line-strong);
+  color: var(--ink-2);
 }
 
-/* O título de cada grupo: rótulo de HUD, o ponto aceso da área e um fio que some */
+/* O título de cada grupo: rótulo de HUD, o ponto da área e um fio que some */
 .cabine-grupo {
   font-size: 0.65625rem;
   line-height: 1rem;
   font-weight: 600;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--b-tinta-3);
+  color: var(--ink-3);
 }
 .cabine-ponto {
   width: 6px;
@@ -1998,39 +1387,36 @@ a:focus-visible .livro3d-corpo,
   flex-shrink: 0;
   border-radius: 50%;
   background: var(--area);
-  box-shadow: 0 0 8px 1px color-mix(in oklab, var(--area) 75%, transparent);
 }
 .cabine-fio {
   height: 1px;
-  background: linear-gradient(90deg, var(--b-borda-2), transparent);
+  background: linear-gradient(90deg, var(--line-strong), transparent);
 }
 
-/* Item do menu: vidro ao passar; o da página aberta acende com a luz da área */
+/* Item do menu: fundo leve ao passar; o da página aberta ganha o traço e o ícone na cor da área */
 .cabine-item {
   position: relative;
-  color: var(--b-tinta-2);
-  transition: color 150ms, background-color 150ms, box-shadow 150ms;
+  color: var(--ink-2);
+  transition: color 150ms, background-color 150ms;
 }
 .cabine-item > svg {
-  color: var(--b-tinta-3);
-  transition: color 150ms, filter 150ms;
+  color: var(--ink-3);
+  transition: color 150ms;
 }
 .cabine-item:hover {
-  background: rgb(160 230 255 / 0.06);
-  color: var(--b-tinta);
+  background: color-mix(in oklab, var(--ink) 8%, transparent);
+  color: var(--ink);
 }
 .cabine-item:hover > svg {
-  color: var(--b-tinta-2);
+  color: var(--ink-2);
 }
 .cabine-item[aria-current="page"] {
-  color: var(--b-tinta);
+  color: var(--ink);
   font-weight: 500;
-  background: linear-gradient(90deg, color-mix(in oklab, var(--area) 22%, transparent), color-mix(in oklab, var(--area) 5%, transparent) 75%);
-  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--area) 24%, transparent);
+  background: color-mix(in oklab, var(--ink) 12%, transparent);
 }
 .cabine-item[aria-current="page"] > svg {
   color: var(--area);
-  filter: drop-shadow(0 0 6px color-mix(in oklab, var(--area) 70%, transparent));
 }
 .cabine-item[aria-current="page"]::before {
   content: "";
@@ -2042,56 +1428,42 @@ a:focus-visible .livro3d-corpo,
   transform: translateY(-50%);
   border-radius: 0 3px 3px 0;
   background: var(--area);
-  box-shadow: 0 0 12px 1px var(--area);
 }
 /* Recolhida, a lista tem só 2px de margem (e corta o que passa dela): o traço fica colado no ícone */
 [data-menu="recolhido"] .cabine-item[aria-current="page"]::before {
   left: -0.125rem;
 }
 
-/* A inicial da conta, num anel de luz */
+/* A inicial da conta */
 .cabine-avatar {
-  background: radial-gradient(circle at 30% 25%, #1d5263, #072631 75%);
-  color: var(--b-luz);
-  box-shadow:
-    0 0 0 1px rgb(99 227 255 / 0.5),
-    0 0 14px -3px rgb(99 227 255 / 0.7);
+  background: color-mix(in oklab, var(--ink) 14%, transparent);
+  color: var(--ink);
 }
 
-/* O topo no celular: vidro escuro com um fio de luz embaixo */
+/* O topo no celular: o papel, com uma linha fina embaixo */
 .cabine-topo {
   position: relative;
-  background: rgb(3 19 26 / 0.94);
-  -webkit-backdrop-filter: blur(16px) saturate(1.4);
-  backdrop-filter: blur(16px) saturate(1.4);
-}
-.cabine-topo::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 1px;
-  pointer-events: none;
-  background: linear-gradient(90deg, transparent, rgb(99 227 255 / 0.6) 28%, rgb(154 140 255 / 0.45) 72%, transparent);
-  box-shadow: 0 0 12px rgb(99 227 255 / 0.35);
+  background: color-mix(in oklab, var(--bg) 92%, transparent);
+  border-bottom: 1px solid var(--line);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
 }
 
 /* As abas da área, logo abaixo do topo */
 .cabine-abas {
-  background: linear-gradient(180deg, #05202a, #03161d);
-  border-bottom: 1px solid var(--b-borda);
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
 }
 .cabine-aba {
   position: relative;
-  color: var(--b-tinta-3);
+  color: var(--ink-3);
   transition: color 150ms;
 }
 .cabine-aba:hover {
-  color: var(--b-tinta-2);
+  color: var(--ink-2);
 }
 .cabine-aba[aria-current="page"] {
-  color: var(--b-tinta);
+  color: var(--ink);
 }
 .cabine-aba[aria-current="page"]::after {
   content: "";
@@ -2102,72 +1474,44 @@ a:focus-visible .livro3d-corpo,
   height: 2px;
   border-radius: 2px;
   background: var(--area);
-  box-shadow: 0 0 10px 1px color-mix(in oklab, var(--area) 80%, transparent);
 }
 
-/* A barra de baixo no celular: vidro escuro com um fio de luz em cima; a aba aberta acende */
+/* A barra de baixo no celular: o papel, com uma linha fina em cima; a aba aberta na cor da área */
 .cabine-base {
-  background: rgb(3 19 26 / 0.94);
-  -webkit-backdrop-filter: blur(16px) saturate(1.4);
-  backdrop-filter: blur(16px) saturate(1.4);
-}
-.cabine-base::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  height: 1px;
-  pointer-events: none;
-  background: linear-gradient(90deg, transparent, rgb(99 227 255 / 0.45) 25%, rgb(154 140 255 / 0.35) 75%, transparent);
+  background: color-mix(in oklab, var(--surface) 95%, transparent);
+  border-top: 1px solid var(--line);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
 }
 .cabine-tecla {
   position: relative;
-  color: var(--b-tinta-3);
+  color: var(--ink-3);
   transition: color 150ms;
-}
-.cabine-tecla > svg {
-  transition: filter 150ms;
 }
 .cabine-tecla[aria-current="page"],
 .cabine-tecla[data-ativo] {
   color: var(--area);
 }
-.cabine-tecla[aria-current="page"] > svg,
-.cabine-tecla[data-ativo] > svg {
-  filter: drop-shadow(0 0 7px color-mix(in oklab, var(--area) 75%, transparent));
-}
-.cabine-tecla[aria-current="page"]::before,
-.cabine-tecla[data-ativo]::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 50%;
-  width: 1.75rem;
-  height: 2px;
-  transform: translateX(-50%);
-  border-radius: 0 0 2px 2px;
-  background: var(--area);
-  box-shadow: 0 0 12px 1px var(--area);
+.cabine-tecla[data-ativo] {
+  color: var(--ink);
 }
 
-/* Os atalhos da janela "Mais áreas": ladrilhos de vidro com o ícone aceso */
+/* Os atalhos da janela "Mais áreas": ladrilhos com o ícone na cor da área */
 .cabine-ladrilho {
-  background: var(--b-vidro);
-  border: 1px solid var(--b-borda);
+  background: var(--surface);
+  border: 1px solid var(--line);
   transition: background-color 150ms, border-color 150ms;
 }
 .cabine-ladrilho:hover {
-  background: var(--b-vidro-2);
-  border-color: var(--b-borda-2);
+  background: var(--surface-2);
+  border-color: var(--line-strong);
 }
 .cabine-ladrilho > svg {
   color: var(--area);
-  filter: drop-shadow(0 0 5px color-mix(in oklab, var(--area) 60%, transparent));
 }
 .cabine-ladrilho[aria-current="page"] {
-  border-color: color-mix(in oklab, var(--area) 55%, transparent);
-  background: color-mix(in oklab, var(--area) 12%, transparent);
+  border-color: color-mix(in oklab, var(--area) 55%, var(--line));
+  background: color-mix(in oklab, var(--area) 10%, var(--surface));
 }
 }
 

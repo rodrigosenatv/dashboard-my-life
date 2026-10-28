@@ -177,7 +177,7 @@ export function ListaCapturas({
             </button>
             <div className="order-last flex shrink-0 items-center justify-end gap-2 border-t border-[var(--b-borda)] pt-2.5 sm:order-none sm:col-start-2 sm:row-start-1 sm:border-0 sm:pt-0">
               {link ? (
-                <a href={link} target="_blank" rel="noreferrer" className="inline-flex min-h-10 items-center justify-center gap-1 rounded-full px-2.5 py-1 text-xs text-ink-2 hover:bg-white/[0.06] hover:text-ink toque:min-h-11 toque:min-w-11" title={link}>
+                <a href={link} target="_blank" rel="noreferrer" className="inline-flex min-h-10 items-center justify-center gap-1 rounded-full px-2.5 py-1 text-xs text-ink-2 hover:bg-ink/[0.06] hover:text-ink toque:min-h-11 toque:min-w-11" title={link}>
                   <ExternalLink className="size-3.5" /> <span className="hidden sm:inline">{dominio(link)}</span>
                 </a>
               ) : null}
@@ -234,17 +234,17 @@ export function ListaCapturas({
         {agrupamentos.length > 1 ? (
           <div className="mb-3 flex min-w-0 items-center gap-3">
             <span className="rotulo-hud hidden shrink-0 sm:inline">Ver</span>
-            <Segmentos className="w-full bg-black/25 sm:w-auto" rotulo="Agrupar" valor={agrupar} aoMudar={(v) => { setAgrupar(v); setExtras({}) }} opcoes={agrupamentos.map((a) => ({ valor: a, rotulo: ROTULO_AGRUPAR[a] }))} />
+            <Segmentos className="w-full bg-surface sm:w-auto" rotulo="Agrupar" valor={agrupar} aoMudar={(v) => { setAgrupar(v); setExtras({}) }} opcoes={agrupamentos.map((a) => ({ valor: a, rotulo: ROTULO_AGRUPAR[a] }))} />
           </div>
         ) : null}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <div className="relative min-w-0 flex-1">
             <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-ink-3" />
-            <input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Buscar nas capturas…" aria-label="Buscar nas capturas" className="h-11 w-full rounded-full border border-[var(--b-borda)] bg-black/25 pl-10 pr-10 text-base placeholder:text-ink-3 focus-visible:border-[var(--b-luz)] focus-visible:outline-none sm:text-sm" />
+            <input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Buscar nas capturas…" aria-label="Buscar nas capturas" className="h-11 w-full rounded-full border border-[var(--b-borda)] bg-surface pl-10 pr-10 text-base placeholder:text-ink-3 focus-visible:border-[var(--b-luz)] focus-visible:outline-none sm:text-sm" />
             {busca ? <button type="button" onClick={() => setBusca("")} aria-label="Limpar busca" className="absolute right-1 top-1/2 grid size-10 -translate-y-1/2 place-items-center rounded-full text-ink-2 hover:text-ink"><X className="size-4" /></button> : null}
           </div>
           {botaoNova ? (
-            <Botao variante="primario" className="h-11 w-full rounded-full shadow-[0_0_20px_-6px_var(--b-luz)] sm:w-auto" onClick={() => setNova(true)}>
+            <Botao variante="primario" className="h-11 w-full rounded-full sm:w-auto" onClick={() => setNova(true)}>
               <Plus /> Nova captura
             </Botao>
           ) : null}
@@ -270,11 +270,11 @@ export function ListaCapturas({
           <p aria-live="polite" className="tabular text-xs font-medium text-ink-2">{lista.length === 1 ? "1 captura" : `${lista.length} capturas`} {haFiltros ? (lista.length === 1 ? "encontrada" : "encontradas") : "no total"}</p>
           <div className="flex items-center gap-1">
             {temFiltros && !tipo && !categoria ? (
-              <button type="button" onClick={() => setFiltrosAbertos((v) => !v)} aria-expanded={filtrosAbertos} className="inline-flex min-h-9 items-center gap-1.5 rounded-full px-2.5 text-xs font-semibold text-ink-2 hover:bg-white/[0.06] hover:text-ink sm:hidden">
+              <button type="button" onClick={() => setFiltrosAbertos((v) => !v)} aria-expanded={filtrosAbertos} className="inline-flex min-h-9 items-center gap-1.5 rounded-full px-2.5 text-xs font-semibold text-ink-2 hover:bg-ink/[0.06] hover:text-ink sm:hidden">
                 <SlidersHorizontal className="size-3.5" aria-hidden /> {filtrosAbertos ? "Esconder filtros" : "Filtros"}
               </button>
             ) : null}
-            {haFiltros ? <button type="button" onClick={limparFiltros} className="inline-flex min-h-9 items-center gap-1.5 rounded-full px-2.5 text-xs font-semibold text-[var(--b-luz)] hover:bg-white/[0.06]"><X className="size-3.5" /> Limpar filtros</button> : null}
+            {haFiltros ? <button type="button" onClick={limparFiltros} className="inline-flex min-h-9 items-center gap-1.5 rounded-full px-2.5 text-xs font-semibold text-[var(--b-luz)] hover:bg-ink/[0.06]"><X className="size-3.5" /> Limpar filtros</button> : null}
           </div>
         </div>
       </div>
@@ -298,7 +298,7 @@ export function ListaCapturas({
               {g.titulo ? (
                 <h2 className={cn("mb-3 flex items-center gap-2 font-display text-base font-semibold", agrupar === "mes" && "first-letter:uppercase")}>
                   <span className="min-w-0 break-words">{agrupar === "tag" && !g.titulo.startsWith("Sem ") ? `#${g.titulo}` : g.titulo}</span>
-                  <span className="tabular shrink-0 rounded-full border border-[var(--b-borda)] bg-white/[0.04] px-2 py-0.5 text-xs font-medium text-[var(--b-luz)]">{g.itens.length}</span>
+                  <span className="tabular shrink-0 rounded-full border border-[var(--b-borda)] bg-ink/[0.04] px-2 py-0.5 text-xs font-medium text-[var(--b-luz)]">{g.itens.length}</span>
                   <span aria-hidden className="h-px min-w-6 flex-1 bg-gradient-to-r from-[var(--b-borda-2)] to-transparent" />
                 </h2>
               ) : null}

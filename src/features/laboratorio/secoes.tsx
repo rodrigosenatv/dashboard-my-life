@@ -62,7 +62,7 @@ export function JanelaComecar({ experimento: e, aoMudar }: { experimento: Experi
               onClick={() => setDias(d || null)}
               className={cn(
                 "min-h-12 rounded-xl border text-sm font-medium transition-colors",
-                ativo ? "border-[var(--b-luz)] bg-[var(--b-luz)]/12 text-ink shadow-[0_0_16px_-6px_var(--b-luz)]" : "border-[var(--b-borda)] text-ink-2 hover:border-[var(--b-borda-2)] hover:text-ink",
+                ativo ? "border-[var(--b-luz)] bg-[var(--b-luz)]/12 text-ink" : "border-[var(--b-borda)] text-ink-2 hover:border-[var(--b-borda-2)] hover:text-ink",
               )}
             >
               {d ? `${d} dias` : "Sem prazo"}
@@ -106,9 +106,9 @@ export function IdeiasParaTestar({ ideias, aoComecar }: { ideias: Experimento[];
           onChange={(ev) => setTexto(ev.target.value)}
           placeholder="Tenho uma ideia para testar…"
           aria-label="Nova ideia para testar"
-          className="h-11 min-w-0 flex-1 rounded-xl border border-[var(--b-borda)] bg-black/20 px-3 text-[16px] text-ink placeholder:text-ink-3 focus-visible:border-[var(--b-luz)] focus-visible:outline-none sm:text-sm"
+          className="h-11 min-w-0 flex-1 rounded-xl border border-[var(--b-borda)] bg-surface px-3 text-[16px] text-ink placeholder:text-ink-3 focus-visible:border-[var(--b-luz)] focus-visible:outline-none sm:text-sm"
         />
-        <button type="submit" aria-label="Guardar ideia" disabled={!texto.trim()} className="grid size-11 shrink-0 place-items-center rounded-xl border border-[var(--b-borda-2)] text-[var(--b-luz)] hover:bg-white/[0.06] disabled:opacity-40">
+        <button type="submit" aria-label="Guardar ideia" disabled={!texto.trim()} className="grid size-11 shrink-0 place-items-center rounded-xl border border-[var(--b-borda-2)] text-[var(--b-luz)] hover:bg-ink/[0.06] disabled:opacity-40">
           <Plus className="size-4" />
         </button>
       </form>
@@ -117,7 +117,7 @@ export function IdeiasParaTestar({ ideias, aoComecar }: { ideias: Experimento[];
           {ideias.map((e) => {
             const agendado = e.starts_on && e.starts_on >= hoje
             return (
-              <li key={e.id} className="flex items-center gap-3 rounded-xl px-1.5 py-2 hover:bg-white/[0.03]">
+              <li key={e.id} className="flex items-center gap-3 rounded-xl px-1.5 py-2 hover:bg-ink/[0.03]">
                 <IconeTipo tipo={e.kind} className="size-4 shrink-0 text-[var(--b-luz)]" />
                 <Link href={`/estudos/laboratorio/${e.id}`} className="min-w-0 flex-1">
                   <span className="line-clamp-2 text-sm font-medium leading-snug hover:text-[var(--b-luz)]">{e.name}</span>
@@ -187,7 +187,7 @@ export function Resultados({ concluidos, abandonados }: { concluidos: Experiment
           </h2>
         </div>
         {abandonados.length ? (
-          <button type="button" onClick={() => setVerAbandonados((v) => !v)} className="min-h-10 rounded-full px-3 text-sm font-medium text-[var(--b-luz)] hover:bg-white/[0.06]">
+          <button type="button" onClick={() => setVerAbandonados((v) => !v)} className="min-h-10 rounded-full px-3 text-sm font-medium text-[var(--b-luz)] hover:bg-ink/[0.06]">
             {verAbandonados ? "Esconder os deixados de lado" : `Deixados de lado (${abandonados.length})`}
           </button>
         ) : null}
@@ -269,7 +269,7 @@ export function Descobertas({ insights, experimentos }: { insights: Insight[]; e
           rows={2}
           placeholder="Uma descoberta, uma reflexão, uma ideia solta…"
           aria-label="Nova descoberta"
-          className="w-full resize-none rounded-xl border border-[var(--b-borda)] bg-black/20 px-3 py-2.5 text-[16px] leading-snug text-ink placeholder:text-ink-3 focus-visible:border-[var(--b-luz)] focus-visible:outline-none sm:text-sm"
+          className="w-full resize-none rounded-xl border border-[var(--b-borda)] bg-surface px-3 py-2.5 text-[16px] leading-snug text-ink placeholder:text-ink-3 focus-visible:border-[var(--b-luz)] focus-visible:outline-none sm:text-sm"
         />
         <div className="flex flex-wrap items-center gap-1.5">
           {TIPOS_DESCOBERTA.map((t) => (
@@ -320,7 +320,7 @@ export function Descobertas({ insights, experimentos }: { insights: Insight[]; e
                     excluir.mutate(i.id)
                     toast("Descoberta apagada.", { action: { label: "Desfazer", onClick: () => criar.mutate({ ...i }) } })
                   }}
-                  className="grid size-8 shrink-0 place-items-center rounded-full text-ink-3 hover:bg-white/[0.06] hover:text-ink pointer-fine:opacity-0 pointer-fine:group-hover:opacity-100 pointer-fine:focus-visible:opacity-100"
+                  className="grid size-8 shrink-0 place-items-center rounded-full text-ink-3 hover:bg-ink/[0.06] hover:text-ink pointer-fine:opacity-0 pointer-fine:group-hover:opacity-100 pointer-fine:focus-visible:opacity-100"
                 >
                   <X className="size-4" />
                 </button>

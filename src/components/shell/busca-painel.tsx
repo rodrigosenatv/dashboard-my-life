@@ -120,7 +120,7 @@ export function PainelBusca({ aberta, aoMudar: setAberta }: { aberta: boolean; a
                         key={`${tipo}-${r.id}`}
                         value={`${tipo}-${r.id}`}
                         onSelect={() => ir(info.href(r.id))}
-                        className="flex cursor-pointer items-start gap-2.5 rounded-md px-2.5 py-2 text-sm data-[selected=true]:bg-[rgb(99_227_255/0.1)] data-[selected=true]:shadow-[inset_0_0_0_1px_rgb(99_227_255/0.22)]"
+                        className="flex cursor-pointer items-start gap-2.5 rounded-md px-2.5 py-2 text-sm data-[selected=true]:bg-[rgb(99_227_255/0.1)] data-[selected=true]:"
                       >
                         <Icone className="mt-0.5 size-4 shrink-0 text-ink-3" />
                         <span className="min-w-0">
@@ -145,7 +145,7 @@ export function PainelBusca({ aberta, aoMudar: setAberta }: { aberta: boolean; a
                         key={a.href}
                         value={a.href}
                         onSelect={() => ir(a.href)}
-                        className="flex cursor-pointer items-center gap-2.5 rounded-md px-2.5 py-2 text-sm data-[selected=true]:bg-[rgb(99_227_255/0.1)] data-[selected=true]:shadow-[inset_0_0_0_1px_rgb(99_227_255/0.22)]"
+                        className="flex cursor-pointer items-center gap-2.5 rounded-md px-2.5 py-2 text-sm data-[selected=true]:bg-[rgb(99_227_255/0.1)] data-[selected=true]:"
                       >
                         <a.icone className="size-4 text-ink-3" />
                         {a.rotulo}

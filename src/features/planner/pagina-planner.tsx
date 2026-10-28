@@ -77,7 +77,7 @@ const FORMATO: Record<string, LucideIcon> = {
 }
 
 const CAMPO =
-  "h-11 rounded-full border border-[var(--b-borda)] bg-black/25 px-4 text-sm placeholder:text-ink-3 focus-visible:border-[var(--b-luz)] focus-visible:outline-none"
+  "h-11 rounded-full border border-[var(--b-borda)] bg-surface px-4 text-sm placeholder:text-ink-3 focus-visible:border-[var(--b-luz)] focus-visible:outline-none"
 
 /* ------------------------------------------------------------------ */
 /* Banco de ideias                                                     */
@@ -185,15 +185,15 @@ function Cartao({ item, linha, hoje, aoAbrir }: { item: Conteudo; linha?: string
       {...listeners}
       onClick={aoAbrir}
       className={cn(
-        "relative cursor-pointer touch-none overflow-hidden rounded-xl border border-[var(--b-borda)] bg-[rgb(22_10_30/0.78)] p-3 pl-3.5 text-sm transition-[border-color,box-shadow] hover:border-[var(--b-borda-2)] hover:shadow-[0_14px_30px_-20px_var(--cor)]",
+        "relative cursor-pointer touch-none overflow-hidden rounded-xl border border-[var(--b-borda)] bg-[rgb(22_10_30/0.78)] p-3 pl-3.5 text-sm transition-[border-color,box-shadow] hover:border-[var(--b-borda-2)]",
         isDragging && "relative z-10 border-[var(--cor)] shadow-overlay",
       )}
     >
-      <span aria-hidden className="absolute inset-y-2.5 left-0 w-[3px] rounded-r-full bg-[var(--cor)] shadow-[0_0_8px_var(--cor)]" />
+      <span aria-hidden className="absolute inset-y-2.5 left-0 w-[3px] rounded-r-full bg-[var(--cor)]" />
       <p className="font-medium leading-snug">{item.title}</p>
       <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1.5 text-xs text-ink-3">
         {item.format && Formato ? (
-          <span className="inline-flex items-center gap-1 rounded-full border border-[var(--b-borda)] bg-white/[0.04] px-2 py-0.5 text-ink-2">
+          <span className="inline-flex items-center gap-1 rounded-full border border-[var(--b-borda)] bg-ink/[0.04] px-2 py-0.5 text-ink-2">
             <Formato className="size-3" aria-hidden />
             {item.format}
           </span>
@@ -230,9 +230,9 @@ function Coluna({ status, children, total, aoCriar }: { status: StatusConteudo; 
         <h3 className="flex min-w-0 items-center gap-2 text-sm font-semibold">
           {etapa.rec ? <span className="ponto-rec" aria-hidden /> : <Icone className="size-4 shrink-0" style={{ color: etapa.cor }} aria-hidden />}
           <span className="truncate">{STATUS_CONTEUDO[status]}</span>
-          <span className="tabular rounded-full border border-[var(--b-borda)] bg-white/[0.04] px-1.5 text-[11px] font-medium text-ink-2">{total}</span>
+          <span className="tabular rounded-full border border-[var(--b-borda)] bg-ink/[0.04] px-1.5 text-[11px] font-medium text-ink-2">{total}</span>
         </h3>
-        <button type="button" aria-label={`Novo em ${STATUS_CONTEUDO[status]}`} onClick={aoCriar} className="grid size-8 shrink-0 place-items-center rounded-full text-ink-3 transition-colors hover:bg-white/[0.06] hover:text-ink toque:size-10">
+        <button type="button" aria-label={`Novo em ${STATUS_CONTEUDO[status]}`} onClick={aoCriar} className="grid size-8 shrink-0 place-items-center rounded-full text-ink-3 transition-colors hover:bg-ink/[0.06] hover:text-ink toque:size-10">
           <Plus className="size-4" />
         </button>
       </div>
@@ -280,12 +280,12 @@ function Calendario({ itens, aoAbrir, aoCriar }: { itens: Conteudo[]; aoAbrir: (
               key={iso}
               onClick={() => aoCriar(iso)}
               className={cn(
-                "min-h-14 cursor-pointer rounded-lg border border-white/[0.05] bg-white/[0.02] p-1 transition-colors hover:border-[var(--b-borda-2)] hover:bg-white/[0.05] sm:min-h-28 sm:p-1.5",
+                "min-h-14 cursor-pointer rounded-lg border border-ink/[0.05] bg-ink/[0.02] p-1 transition-colors hover:border-[var(--b-borda-2)] hover:bg-ink/[0.05] sm:min-h-28 sm:p-1.5",
                 fora && "opacity-40",
                 iso === hoje && "border-[var(--b-luz)]/50 bg-[var(--b-luz)]/[0.06]",
               )}
             >
-              <span className={cn("tabular inline-grid size-6 place-items-center rounded-full text-xs", iso === hoje && "bg-pen font-semibold text-pen-ink shadow-[0_0_12px_-2px_var(--b-luz)]")}>{d.getDate()}</span>
+              <span className={cn("tabular inline-grid size-6 place-items-center rounded-full text-xs", iso === hoje && "bg-pen font-semibold text-pen-ink")}>{d.getDate()}</span>
               {/* No celular, só os pontos (a lista do mês fica embaixo); no computador, os títulos */}
               <div className="mt-0.5 flex flex-wrap gap-1 sm:hidden" aria-hidden>
                 {doDia.slice(0, 4).map((c) => (
@@ -316,7 +316,7 @@ function Calendario({ itens, aoAbrir, aoCriar }: { itens: Conteudo[]; aoAbrir: (
         <ol className="mt-4 grid gap-1 border-t border-[var(--b-borda)] pt-3 sm:hidden" aria-label="Conteúdos do mês">
           {doMes.map((c) => (
             <li key={c.id}>
-              <button type="button" onClick={() => aoAbrir(c)} className="flex min-h-11 w-full items-center gap-3 rounded-lg px-1.5 text-left text-sm hover:bg-white/[0.05]">
+              <button type="button" onClick={() => aoAbrir(c)} className="flex min-h-11 w-full items-center gap-3 rounded-lg px-1.5 text-left text-sm hover:bg-ink/[0.05]">
                 <span className="tabular w-12 shrink-0 text-xs text-ink-3">{format(new Date(`${c.publish_date}T12:00`), "dd/MM")}</span>
                 <span className="size-2 shrink-0 rounded-full" style={{ background: etapaDe(c.status).cor }} aria-hidden />
                 <span className="min-w-0 flex-1 truncate">{c.title}</span>
@@ -377,7 +377,7 @@ function Desempenho({ itens, aoAbrir }: { itens: Conteudo[]; aoAbrir: (c: Conteu
                 <button
                   type="button"
                   onClick={() => aoAbrir(p)}
-                  className="grid w-full grid-cols-[2rem_minmax(0,1fr)] items-center gap-x-3 gap-y-1.5 rounded-xl px-2 py-2.5 text-left text-sm transition-colors hover:bg-white/[0.04] lg:grid-cols-[2rem_minmax(0,1fr)_13rem_5rem_6rem_6rem]"
+                  className="grid w-full grid-cols-[2rem_minmax(0,1fr)] items-center gap-x-3 gap-y-1.5 rounded-xl px-2 py-2.5 text-left text-sm transition-colors hover:bg-ink/[0.04] lg:grid-cols-[2rem_minmax(0,1fr)_13rem_5rem_6rem_6rem]"
                 >
                   <span className={cn("tabular row-span-3 self-start pt-0.5 text-center font-display text-lg font-semibold lg:row-span-1 lg:self-center lg:pt-0", i === 0 ? "text-[var(--b-ambar)]" : "text-ink-3")}>{i + 1}</span>
                   <span className="min-w-0">
@@ -428,7 +428,7 @@ function ListaGuias({ paginas, icone: Icone }: { paginas: { id: string; title: s
     <ul className="grid gap-0.5">
       {paginas.map((p) => (
         <li key={p.id}>
-          <Link href={`/paginas/${p.id}`} className="flex min-h-10 items-center gap-2.5 rounded-lg px-2 text-sm transition-colors hover:bg-white/[0.05] hover:text-[var(--b-luz)]">
+          <Link href={`/paginas/${p.id}`} className="flex min-h-10 items-center gap-2.5 rounded-lg px-2 text-sm transition-colors hover:bg-ink/[0.05] hover:text-[var(--b-luz)]">
             {p.icon && !p.icon.startsWith("/") && p.icon.length <= 4 ? <span className="w-4 text-center">{p.icon}</span> : <Icone className="size-4 shrink-0 text-ink-3" />}
             <span className="truncate">{p.title}</span>
           </Link>
@@ -503,7 +503,7 @@ export function PaginaPlanner() {
       <div className="mb-6 flex flex-wrap items-center gap-2">
         <Segmentos
           rotulo="Visualização"
-          className="max-w-full rounded-full border border-[var(--b-borda)] bg-black/30 p-1 [&>button]:rounded-full [&>button]:px-3 sm:[&>button]:px-4"
+          className="max-w-full rounded-full border border-[var(--b-borda)] bg-surface p-1 [&>button]:rounded-full [&>button]:px-3 sm:[&>button]:px-4"
           valor={visao}
           aoMudar={setVisao}
           opcoes={[
@@ -580,7 +580,7 @@ export function PaginaPlanner() {
                     aria-pressed={ativa}
                     className={cn(
                       "inline-flex min-h-9 items-center gap-1.5 rounded-full border px-3 text-sm font-medium transition-colors toque:min-h-10",
-                      ativa ? "border-[var(--b-luz)] bg-[var(--b-luz)]/[0.16] shadow-[0_0_18px_-8px_var(--b-luz)]" : "border-[var(--b-borda)] bg-white/[0.03] text-ink-2 hover:border-[var(--b-borda-2)] hover:text-ink",
+                      ativa ? "border-[var(--b-luz)] bg-[var(--b-luz)]/[0.16]" : "border-[var(--b-borda)] bg-ink/[0.03] text-ink-2 hover:border-[var(--b-borda-2)] hover:text-ink",
                     )}
                   >
                     {l.name} <span className="tabular text-xs text-[var(--b-luz)]">{itens.filter((i) => i.editorial_line_id === l.id).length}</span>
@@ -621,7 +621,7 @@ export function PaginaPlanner() {
             <ul className="grid gap-0.5">
               {links.map((l) => (
                 <li key={l.id}>
-                  <a href={urlValida(l.url) ?? "#"} target="_blank" rel="noreferrer" className="flex min-h-10 items-center gap-2.5 rounded-lg px-2 text-sm transition-colors hover:bg-white/[0.05] hover:text-[var(--b-luz)]">
+                  <a href={urlValida(l.url) ?? "#"} target="_blank" rel="noreferrer" className="flex min-h-10 items-center gap-2.5 rounded-lg px-2 text-sm transition-colors hover:bg-ink/[0.05] hover:text-[var(--b-luz)]">
                     <ExternalLink className="size-4 shrink-0 text-ink-3" />
                     <span className="min-w-0 flex-1 truncate">{l.title}</span>
                     {l.kind ? <span className="shrink-0 text-xs text-ink-3">{l.kind}</span> : null}

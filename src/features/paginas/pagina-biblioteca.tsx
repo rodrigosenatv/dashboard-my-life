@@ -33,10 +33,10 @@ function CartaoPrompt({ p }: { p: Prompt }) {
       </p>
       {p.titulo ? <p className="mt-1.5 font-display font-semibold leading-snug">{p.titulo}</p> : null}
       {/* A tela do prompt: uma barra de terminal com quantos campos há para preencher */}
-      <div className="relative mt-3 overflow-hidden rounded-xl border border-[var(--b-borda)] bg-black/30">
+      <div className="relative mt-3 overflow-hidden rounded-xl border border-[var(--b-borda)] bg-surface">
         <div className="flex items-center justify-between gap-2 border-b border-[var(--b-borda)] px-3 py-1.5 font-mono text-[10.5px] uppercase tracking-[0.14em] text-ink-3">
           <span className="flex items-center gap-1.5">
-            <span aria-hidden className="size-1.5 rounded-full bg-[var(--b-luz)] shadow-[0_0_6px_var(--b-luz)]" />
+            <span aria-hidden className="size-1.5 rounded-full bg-[var(--b-luz)]" />
             prompt
           </span>
           {campos.length ? (
@@ -49,7 +49,7 @@ function CartaoPrompt({ p }: { p: Prompt }) {
         <pre className={cn("whitespace-pre-wrap break-words px-3 py-2.5 font-mono text-[12.5px] leading-relaxed text-ink-2", longo && !aberto && "max-h-48")}>
           <TextoPrompt texto={p.texto} />
         </pre>
-        {longo && !aberto ? <span aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-[#100816] to-transparent" /> : null}
+        {longo && !aberto ? <span aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-[var(--surface)] to-transparent" /> : null}
       </div>
       {longo ? (
         <button type="button" onClick={() => setAberto((a) => !a)} aria-expanded={aberto} className="mt-1.5 inline-flex min-h-8 self-start items-center rounded-full px-1 text-xs font-medium text-[var(--b-luz)] hover:underline toque:min-h-10">
@@ -77,7 +77,7 @@ function CartaoPrompt({ p }: { p: Prompt }) {
             } catch {}
             router.push("/conteudo/assistente?usar=1")
           }}
-          className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-full border border-[var(--b-luz)]/45 bg-[var(--b-luz)]/[0.1] px-3 text-xs font-semibold text-ink shadow-[0_0_18px_-10px_var(--b-luz)] transition-colors hover:border-[var(--b-luz)] hover:bg-[var(--b-luz)]/[0.18] toque:min-h-10"
+          className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-full border border-[var(--b-luz)]/45 bg-[var(--b-luz)]/[0.1] px-3 text-xs font-semibold text-ink transition-colors hover:border-[var(--b-luz)] hover:bg-[var(--b-luz)]/[0.18] toque:min-h-10"
         >
           <MessageSquareText className="size-3.5 text-[var(--b-luz)]" /> Usar no assistente
         </button>
@@ -111,7 +111,7 @@ function Prompts({ prompts, carregando }: { prompts: Prompt[]; carregando: boole
             }}
             placeholder="Buscar nos prompts"
             aria-label="Buscar nos prompts"
-            className="h-11 w-full rounded-full border border-[var(--b-borda)] bg-black/25 pl-10 pr-10 text-base placeholder:text-ink-3 focus-visible:border-[var(--b-luz)] focus-visible:outline-none sm:text-sm"
+            className="h-11 w-full rounded-full border border-[var(--b-borda)] bg-surface pl-10 pr-10 text-base placeholder:text-ink-3 focus-visible:border-[var(--b-luz)] focus-visible:outline-none sm:text-sm"
           />
           {busca ? (
             <button type="button" onClick={() => setBusca("")} aria-label="Limpar busca" className="absolute right-1 top-1/2 grid size-10 -translate-y-1/2 place-items-center text-ink-2">
@@ -128,7 +128,7 @@ function Prompts({ prompts, carregando }: { prompts: Prompt[]; carregando: boole
                 setLimite(60)
               }}
               aria-label="Módulo"
-              className="h-11 min-w-0 flex-1 rounded-full border border-[var(--b-borda)] bg-black/25 px-4 text-sm sm:w-64 sm:flex-none"
+              className="h-11 min-w-0 flex-1 rounded-full border border-[var(--b-borda)] bg-surface px-4 text-sm sm:w-64 sm:flex-none"
             >
               <option value="">Todos os módulos</option>
               {modulos.map((m) => (
@@ -194,7 +194,7 @@ export function PaginaBiblioteca() {
       topo={
         <Segmentos
           rotulo="O que ver na biblioteca"
-          className="mb-6 rounded-full border border-[var(--b-borda)] bg-black/30 p-1 [&>button]:rounded-full [&>button]:px-4"
+          className="mb-6 rounded-full border border-[var(--b-borda)] bg-surface p-1 [&>button]:rounded-full [&>button]:px-4"
           valor={aba}
           aoMudar={setAba}
           opcoes={[

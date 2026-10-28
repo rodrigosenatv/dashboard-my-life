@@ -51,7 +51,7 @@ function EscolherPrompt({ aberta, aoMudar, aoEscolher }: { aberta: boolean; aoMu
           onChange={(e) => setBusca(e.target.value)}
           placeholder="Buscar por assunto, módulo, página ou palavra"
           aria-label="Buscar prompt"
-          className="h-11 w-full rounded-full border border-line-strong bg-black/20 pl-10 pr-3 text-base placeholder:text-ink-3 focus-visible:border-pen focus-visible:outline-none sm:text-sm"
+          className="h-11 w-full rounded-full border border-line-strong bg-surface pl-10 pr-3 text-base placeholder:text-ink-3 focus-visible:border-pen focus-visible:outline-none sm:text-sm"
         />
       </div>
       {isLoading ? (
@@ -70,7 +70,7 @@ function EscolherPrompt({ aberta, aoMudar, aoEscolher }: { aberta: boolean; aoMu
                   aoEscolher(p.texto)
                   aoMudar(false)
                 }}
-                className="w-full rounded-xl border border-line bg-white/[0.03] p-3 text-left transition-colors hover:border-pen hover:bg-white/[0.05]"
+                className="w-full rounded-xl border border-line bg-ink/[0.03] p-3 text-left transition-colors hover:border-pen hover:bg-ink/[0.05]"
               >
                 <span className="block truncate text-xs text-ink-3">{[p.modulo !== p.pagina ? p.modulo : "", p.pagina].filter(Boolean).join(" › ")}</span>
                 {p.titulo ? <span className="mt-0.5 block text-sm font-medium">{p.titulo}</span> : null}
@@ -117,7 +117,7 @@ function ListaConversas({ atual, aoAbrir, aoNova }: { atual: string | null; aoAb
       <button
         type="button"
         onClick={aoNova}
-        className="mb-3 flex min-h-11 w-full items-center justify-center gap-2 rounded-full border border-[var(--b-luz)]/45 bg-[var(--b-luz)]/[0.1] px-4 text-sm font-semibold shadow-[0_0_20px_-10px_var(--b-luz)] transition-colors hover:border-[var(--b-luz)] hover:bg-[var(--b-luz)]/[0.18]"
+        className="mb-3 flex min-h-11 w-full items-center justify-center gap-2 rounded-full border border-[var(--b-luz)]/45 bg-[var(--b-luz)]/[0.1] px-4 text-sm font-semibold transition-colors hover:border-[var(--b-luz)] hover:bg-[var(--b-luz)]/[0.18]"
       >
         <Plus className="size-4 text-[var(--b-luz)]" /> Nova conversa
       </button>
@@ -131,12 +131,12 @@ function ListaConversas({ atual, aoAbrir, aoNova }: { atual: string | null; aoAb
               const ativa = c.id === atual
               return (
                 <li key={c.id} className="group relative flex min-w-0 items-center">
-                  {ativa ? <span aria-hidden className="absolute inset-y-2 left-0 w-[3px] rounded-r-full bg-[var(--b-luz)] shadow-[0_0_8px_var(--b-luz)]" /> : null}
+                  {ativa ? <span aria-hidden className="absolute inset-y-2 left-0 w-[3px] rounded-r-full bg-[var(--b-luz)]" /> : null}
                   <button
                     type="button"
                     onClick={() => aoAbrir(c.id)}
                     aria-current={ativa ? "true" : undefined}
-                    className={cn("min-w-0 flex-1 rounded-lg px-3 py-2 text-left text-sm transition-colors hover:bg-white/[0.05]", ativa && "bg-[var(--b-luz)]/[0.1] font-medium")}
+                    className={cn("min-w-0 flex-1 rounded-lg px-3 py-2 text-left text-sm transition-colors hover:bg-ink/[0.05]", ativa && "bg-[var(--b-luz)]/[0.1] font-medium")}
                   >
                     <span className="block truncate">{c.title}</span>
                     <span className="block text-xs font-normal text-ink-3 first-letter:uppercase">{dataRelativa(c.updated_at.slice(0, 10))}</span>
@@ -346,7 +346,7 @@ export function PaginaAssistente() {
           </p>
           <Link
             href="/configuracoes#ia"
-            className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-full bg-pen px-5 text-sm font-semibold text-pen-ink shadow-[0_0_24px_-6px_var(--b-luz)] transition-[filter] hover:brightness-110"
+            className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-full bg-pen px-5 text-sm font-semibold text-pen-ink transition-[filter] hover:brightness-110"
           >
             Abrir Configurações
           </Link>
@@ -396,8 +396,8 @@ export function PaginaAssistente() {
               <div className="mx-auto flex max-w-3xl flex-col items-center pb-4 pt-2 text-center sm:pt-6">
                 <span className="orbe-ia size-20 sm:size-24" aria-hidden />
                 <h2 className="mt-7 font-display text-2xl font-semibold sm:text-3xl">Como posso ajudar hoje?</h2>
-                <p className="mt-2 inline-flex items-center gap-2 rounded-full border border-[var(--b-borda)] bg-white/[0.03] px-3 py-1 text-xs text-ink-2">
-                  <span aria-hidden className="size-2 rounded-full bg-[var(--b-verde)] shadow-[0_0_8px_var(--b-verde)]" />
+                <p className="mt-2 inline-flex items-center gap-2 rounded-full border border-[var(--b-borda)] bg-ink/[0.03] px-3 py-1 text-xs text-ink-2">
+                  <span aria-hidden className="size-2 rounded-full bg-[var(--b-verde)]" />
                   {nomeIA} conectado
                 </p>
                 <ul className="mt-7 grid w-full gap-2 text-left sm:grid-cols-2">
@@ -428,7 +428,7 @@ export function PaginaAssistente() {
                 {mensagens.map((m, i) => {
                   const pensando = respondendo && i === mensagens.length - 1
                   return m.role === "user" ? (
-                    <li key={i} className="ml-auto max-w-[85%] rounded-2xl rounded-br-md border border-[var(--b-luz)]/30 bg-[var(--b-luz)]/[0.1] px-4 py-3 shadow-[0_0_26px_-16px_var(--b-luz)]">
+                    <li key={i} className="ml-auto max-w-[85%] rounded-2xl rounded-br-md border border-[var(--b-luz)]/30 bg-[var(--b-luz)]/[0.1] px-4 py-3">
                       <p className="whitespace-pre-wrap text-[15px]">{m.content}</p>
                     </li>
                   ) : (
@@ -466,7 +466,7 @@ export function PaginaAssistente() {
                       <input
                         value={campos[c] ?? ""}
                         onChange={(e) => setCampos((v) => ({ ...v, [c]: e.target.value }))}
-                        className="h-10 rounded-xl border border-[var(--b-borda)] bg-black/30 px-3 text-base text-ink focus-visible:border-[var(--b-luz)] focus-visible:outline-none sm:h-9 sm:text-sm"
+                        className="h-10 rounded-xl border border-[var(--b-borda)] bg-surface px-3 text-base text-ink focus-visible:border-[var(--b-luz)] focus-visible:outline-none sm:h-9 sm:text-sm"
                       />
                     </label>
                   ))}
@@ -482,7 +482,7 @@ export function PaginaAssistente() {
                     value={provedor}
                     onChange={(e) => setEscolhida(e.target.value as Provedor)}
                     aria-label="IA usada"
-                    className="h-10 max-w-28 shrink-0 rounded-full border border-[var(--b-borda)] bg-black/30 px-3 text-xs text-ink-2"
+                    className="h-10 max-w-28 shrink-0 rounded-full border border-[var(--b-borda)] bg-surface px-3 text-xs text-ink-2"
                   >
                     {opcoesIA.map((id) => (
                       <option key={id} value={id}>
@@ -512,7 +512,7 @@ export function PaginaAssistente() {
                     <Square />
                   </Botao>
                 ) : (
-                  <Botao type="submit" variante="primario" tamanho="icone" className="size-10 rounded-full shadow-[0_0_20px_-6px_var(--b-luz)]" aria-label="Enviar" disabled={!texto.trim()}>
+                  <Botao type="submit" variante="primario" tamanho="icone" className="size-10 rounded-full" aria-label="Enviar" disabled={!texto.trim()}>
                     <ArrowUp />
                   </Botao>
                 )}

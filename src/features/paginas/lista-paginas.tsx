@@ -29,7 +29,7 @@ const NoArvore = React.memo(function NoArvore({ pagina, indice, nivel, busca, vi
 
   return (
     <li className="min-w-0">
-      <div className="flex min-w-0 items-center gap-1 rounded-lg transition-colors hover:bg-white/[0.04]">
+      <div className="flex min-w-0 items-center gap-1 rounded-lg transition-colors hover:bg-ink/[0.04]">
         {filhos.length ? (
           <button
             type="button"
@@ -37,7 +37,7 @@ const NoArvore = React.memo(function NoArvore({ pagina, indice, nivel, busca, vi
             aria-expanded={expandido}
             onClick={() => setAberto((a) => !a)}
             disabled={Boolean(busca)}
-            className="grid size-9 shrink-0 place-items-center rounded-lg text-ink-3 hover:bg-white/[0.06] disabled:opacity-60 sm:size-8 toque:size-11"
+            className="grid size-9 shrink-0 place-items-center rounded-lg text-ink-3 hover:bg-ink/[0.06] disabled:opacity-60 sm:size-8 toque:size-11"
           >
             <ChevronRight className={cn("size-4 transition-transform", expandido && "rotate-90")} />
           </button>
@@ -164,7 +164,7 @@ export function ListaPaginas({
                 onChange={(e) => setBusca(e.target.value)}
                 placeholder="Buscar páginas por título…"
                 aria-label="Buscar páginas por título"
-                className="h-11 w-full rounded-full border border-[var(--b-borda)] bg-black/25 pl-10 pr-10 text-base placeholder:text-ink-3 focus-visible:border-[var(--b-luz)] focus-visible:outline-none sm:text-sm"
+                className="h-11 w-full rounded-full border border-[var(--b-borda)] bg-surface pl-10 pr-10 text-base placeholder:text-ink-3 focus-visible:border-[var(--b-luz)] focus-visible:outline-none sm:text-sm"
               />
               {busca ? (
                 <button type="button" onClick={() => setBusca("")} aria-label="Limpar busca" className="absolute right-1 top-1/2 grid size-10 -translate-y-1/2 place-items-center text-ink-2">
@@ -213,7 +213,7 @@ export function ListaPaginas({
                       <li key={p.id} className="min-w-0 max-w-full shrink-0">
                         <Link
                           href={`/paginas/${p.id}`}
-                          className="inline-flex min-h-10 max-w-full items-center gap-1.5 rounded-full border border-[var(--b-ambar)]/30 bg-[var(--b-ambar)]/[0.08] px-3 py-2 text-sm font-medium shadow-[0_0_18px_-10px_var(--b-ambar)] transition-colors hover:border-[var(--b-ambar)]/60 hover:text-ink"
+                          className="inline-flex min-h-10 max-w-full items-center gap-1.5 rounded-full border border-[var(--b-ambar)]/30 bg-[var(--b-ambar)]/[0.08] px-3 py-2 text-sm font-medium transition-colors hover:border-[var(--b-ambar)]/60 hover:text-ink"
                         >
                           <Star className="size-3.5 shrink-0 fill-estudos text-estudos" />
                           <span className="max-w-[65vw] truncate sm:max-w-64">{p.title}</span>
@@ -232,7 +232,7 @@ export function ListaPaginas({
                     {secoes.length > 1 ? (
                       <h2 className="mb-3 flex items-center gap-2">
                         <span className="rotulo-hud">{SECOES[s.secao] ?? s.secao}</span>
-                        <span className="tabular rounded-full border border-[var(--b-borda)] bg-white/[0.04] px-2 py-0.5 text-xs font-medium text-[var(--b-luz)]">{s.itens.length}</span>
+                        <span className="tabular rounded-full border border-[var(--b-borda)] bg-ink/[0.04] px-2 py-0.5 text-xs font-medium text-[var(--b-luz)]">{s.itens.length}</span>
                         <span aria-hidden className="h-px min-w-6 flex-1 bg-gradient-to-r from-[var(--b-borda-2)] to-transparent" />
                       </h2>
                     ) : null}

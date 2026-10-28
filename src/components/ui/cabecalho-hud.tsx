@@ -16,7 +16,7 @@ export function ChipsHud({ itens, className }: { itens: ItemHud[]; className?: s
     // No celular as pílulas ficam numa linha que desliza para o lado; a partir do tablet, quebram linha
     <ul className={cn("-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0", className)} aria-label="Resumo">
       {itens.map((h) => (
-        <li key={h.rotulo} className="inline-flex min-h-9 shrink-0 items-baseline gap-1.5 whitespace-nowrap rounded-full border border-[var(--b-borda)] bg-white/[0.03] px-3 py-1 text-sm text-ink-2">
+        <li key={h.rotulo} className="inline-flex min-h-9 shrink-0 items-baseline gap-1.5 whitespace-nowrap rounded-full border border-[var(--b-borda)] bg-ink/[0.03] px-3 py-1 text-sm text-ink-2">
           <span className="tabular font-display text-base font-semibold" style={h.cor ? { color: h.cor } : undefined}>
             {h.n}
           </span>
@@ -98,4 +98,4 @@ export function CabecalhoHud({
 }
 
 /** O botão da ação principal da tela, aceso. */
-export const ACAO_ACESA = "shadow-[0_0_24px_-6px_var(--b-luz)]"
+export const ACAO_ACESA = ""

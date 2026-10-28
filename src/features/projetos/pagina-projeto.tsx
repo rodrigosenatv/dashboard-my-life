@@ -57,7 +57,7 @@ function Etapa({ etapa, todos, nivel }: { etapa: Projeto; todos: Projeto[]; nive
           ) : null}
         </div>
         <Menu>
-          <MenuGatilho className="grid size-10 shrink-0 place-items-center rounded-full text-ink-3 hover:bg-white/[0.06] hover:text-ink focus-visible:opacity-100 sm:opacity-60 sm:group-hover:opacity-100 toque:opacity-100" aria-label={`Opções de ${etapa.name}`}>
+          <MenuGatilho className="grid size-10 shrink-0 place-items-center rounded-full text-ink-3 hover:bg-ink/[0.06] hover:text-ink focus-visible:opacity-100 sm:opacity-60 sm:group-hover:opacity-100 toque:opacity-100" aria-label={`Opções de ${etapa.name}`}>
             <Ellipsis className="size-4" />
           </MenuGatilho>
           <MenuConteudo>
@@ -89,7 +89,7 @@ function Etapa({ etapa, todos, nivel }: { etapa: Projeto; todos: Projeto[]; nive
                   setTexto("")
                 }}
               >
-                <Entrada autoFocus value={texto} onChange={(e) => setTexto(e.target.value)} onBlur={() => !texto && setSub(false)} placeholder="Nova subetapa e Enter" className="my-1 h-9 rounded-full bg-black/25" />
+                <Entrada autoFocus value={texto} onChange={(e) => setTexto(e.target.value)} onBlur={() => !texto && setSub(false)} placeholder="Nova subetapa e Enter" className="my-1 h-9 rounded-full bg-surface" />
               </form>
             </li>
           ) : null}
@@ -176,7 +176,7 @@ export function PaginaProjeto() {
         </Link>
 
         <header className="vidro relative overflow-hidden p-4 sm:p-6">
-          <span aria-hidden className="pointer-events-none absolute -left-16 -top-20 size-64 rounded-full bg-[var(--b-luz)]/15 blur-3xl" />
+          <span aria-hidden className="pointer-events-none absolute -left-16 -top-20 size-64 rounded-full bg-[var(--b-luz)]/15 hidden" />
           <div className="relative flex flex-col gap-5 sm:flex-row sm:items-center sm:gap-7">
             <div className="flex items-start justify-between gap-3 sm:block">
               <AnelProgresso pct={pct} tamanho={116} legenda={projeto.done ? "concluído" : "feito"} />
@@ -228,7 +228,7 @@ export function PaginaProjeto() {
               ) : (
                 <p className="text-sm text-ink-3">Divida o projeto em etapas: cada uma é um passo concreto até o fim.</p>
               )}
-              <form onSubmit={adicionarEtapa} className="mt-3 flex min-h-11 items-center gap-3 rounded-full border border-dashed border-[var(--b-borda-2)] bg-black/15 px-3.5 focus-within:border-[var(--b-luz)]">
+              <form onSubmit={adicionarEtapa} className="mt-3 flex min-h-11 items-center gap-3 rounded-full border border-dashed border-[var(--b-borda-2)] bg-surface px-3.5 focus-within:border-[var(--b-luz)]">
                 <Plus className="size-4 shrink-0 text-[var(--b-luz)]" aria-hidden />
                 <input value={nova} onChange={(e) => setNova(e.target.value)} placeholder="Adicionar etapa" aria-label="Adicionar etapa" className="h-11 min-w-0 flex-1 bg-transparent text-base outline-none placeholder:text-ink-3 sm:text-sm" />
               </form>
@@ -251,7 +251,7 @@ export function PaginaProjeto() {
                 <div className="grid gap-1.5">
                   <dt className="text-xs text-ink-3">Área</dt>
                   <dd>
-                    <Seletor aria-label="Área" value={projeto.area_id ?? ""} onChange={(e) => atualizar.mutate({ id: projeto.id, area_id: e.target.value || null })} className="w-full rounded-full bg-black/25">
+                    <Seletor aria-label="Área" value={projeto.area_id ?? ""} onChange={(e) => atualizar.mutate({ id: projeto.id, area_id: e.target.value || null })} className="w-full rounded-full bg-surface">
                       <option value="">Nenhuma</option>
                       {areas.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
                     </Seletor>
@@ -261,13 +261,13 @@ export function PaginaProjeto() {
                   <div className="grid min-w-0 gap-1.5">
                     <dt className="text-xs text-ink-3">Prazo</dt>
                     <dd>
-                      <Entrada type="date" aria-label="Prazo" value={projeto.deadline ?? ""} onChange={(e) => atualizar.mutate({ id: projeto.id, deadline: e.target.value || null })} className="rounded-full bg-black/25 [color-scheme:dark]" />
+                      <Entrada type="date" aria-label="Prazo" value={projeto.deadline ?? ""} onChange={(e) => atualizar.mutate({ id: projeto.id, deadline: e.target.value || null })} className="rounded-full bg-surface" />
                     </dd>
                   </div>
                   <div className="grid min-w-0 gap-1.5">
                     <dt className="text-xs text-ink-3">Publicação</dt>
                     <dd>
-                      <Entrada type="date" aria-label="Publicação" value={projeto.publish_date ?? ""} onChange={(e) => atualizar.mutate({ id: projeto.id, publish_date: e.target.value || null })} className="rounded-full bg-black/25 [color-scheme:dark]" />
+                      <Entrada type="date" aria-label="Publicação" value={projeto.publish_date ?? ""} onChange={(e) => atualizar.mutate({ id: projeto.id, publish_date: e.target.value || null })} className="rounded-full bg-surface" />
                     </dd>
                   </div>
                 </div>
@@ -277,7 +277,7 @@ export function PaginaProjeto() {
             <Painel
               icone={ListTodo}
               titulo="Tarefas"
-              acao={<button type="button" onClick={() => setNovaTarefa(true)} className="inline-flex min-h-10 items-center gap-1 rounded-full px-2.5 text-sm font-medium text-[var(--b-luz)] hover:bg-white/[0.06]"><Plus className="size-4" aria-hidden /> Nova</button>}
+              acao={<button type="button" onClick={() => setNovaTarefa(true)} className="inline-flex min-h-10 items-center gap-1 rounded-full px-2.5 text-sm font-medium text-[var(--b-luz)] hover:bg-ink/[0.06]"><Plus className="size-4" aria-hidden /> Nova</button>}
             >
               {tarefasDoProjeto.length === 0 ? (
                 <p className="text-sm text-ink-3">Nenhuma tarefa ligada a este projeto.</p>
@@ -293,14 +293,14 @@ export function PaginaProjeto() {
             <Painel
               icone={Sparkles}
               titulo="Capturas ligadas"
-              acao={<button type="button" onClick={() => setNovaCaptura(true)} className="inline-flex min-h-10 items-center gap-1 rounded-full px-2.5 text-sm font-medium text-[var(--b-luz)] hover:bg-white/[0.06]"><Plus className="size-4" aria-hidden /> Nova</button>}
+              acao={<button type="button" onClick={() => setNovaCaptura(true)} className="inline-flex min-h-10 items-center gap-1 rounded-full px-2.5 text-sm font-medium text-[var(--b-luz)] hover:bg-ink/[0.06]"><Plus className="size-4" aria-hidden /> Nova</button>}
             >
               {capturasDoProjeto.length === 0 ? (
                 <p className="text-sm text-ink-3">Nenhuma captura ligada. Ligue capturas pela caixa de entrada (Organizar).</p>
               ) : (
                 <ul className="grid gap-1.5">
                   {capturasDoProjeto.map((c) => (
-                    <li key={c.id} className="flex items-center gap-2.5 rounded-xl border border-[var(--b-borda)] bg-black/15 py-2 pl-2 pr-1">
+                    <li key={c.id} className="flex items-center gap-2.5 rounded-xl border border-[var(--b-borda)] bg-surface py-2 pl-2 pr-1">
                       <IconeCaptura tipo={c.kind} className="size-8" />
                       <button type="button" onClick={() => setCapturaAberta(c)} className="min-w-0 flex-1 text-left">
                         <span className="block truncate text-sm font-medium hover:text-[var(--b-luz)]">{c.title}</span>
@@ -309,7 +309,7 @@ export function PaginaProjeto() {
                           {c.url ? <span className="inline-flex min-w-0 items-center gap-1"><Link2 className="size-3 shrink-0" /><span className="truncate">{dominio(c.url)}</span></span> : null}
                         </span>
                       </button>
-                      <button type="button" onClick={() => desvincular(c.id)} className="inline-flex min-h-10 shrink-0 items-center rounded-full px-2.5 text-xs font-medium text-ink-3 hover:bg-white/[0.06] hover:text-danger" aria-label={`Desligar ${c.title}`}>
+                      <button type="button" onClick={() => desvincular(c.id)} className="inline-flex min-h-10 shrink-0 items-center rounded-full px-2.5 text-xs font-medium text-ink-3 hover:bg-ink/[0.06] hover:text-danger" aria-label={`Desligar ${c.title}`}>
                         Desligar
                       </button>
                     </li>

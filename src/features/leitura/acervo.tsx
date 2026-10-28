@@ -56,7 +56,7 @@ export function Acervo({ livros, busca, estado, aoMudar }: { livros: Livro[]; bu
               onClick={() => aoMudar({ filtro: f.valor, ano: f.valor === "lidos" || f.valor === "todos" ? estado.ano : null })}
               className={cn(
                 "inline-flex min-h-10 shrink-0 items-center gap-1.5 rounded-full border px-3.5 text-sm font-medium transition-colors toque:min-h-11",
-                ativo ? "border-[var(--b-luz)] bg-[var(--b-luz)]/12 text-ink shadow-[0_0_16px_-6px_var(--b-luz)]" : "border-line-strong text-ink-2 hover:text-ink",
+                ativo ? "border-[var(--b-luz)] bg-[var(--b-luz)]/12 text-ink" : "border-line-strong text-ink-2 hover:text-ink",
               )}
             >
               {f.rotulo}

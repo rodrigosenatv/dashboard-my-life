@@ -65,4 +65,4 @@ export function TituloPainel({
 
 /** Link discreto no canto de um painel ("Ver tudo"). */
 export const LINK_PAINEL =
-  "inline-flex min-h-9 shrink-0 items-center gap-1 rounded-full px-2.5 text-sm text-ink-2 transition-colors hover:bg-white/[0.06] hover:text-ink toque:min-h-11"
+  "inline-flex min-h-9 shrink-0 items-center gap-1 rounded-full px-2.5 text-sm text-ink-2 transition-colors hover:bg-ink/[0.06] hover:text-ink toque:min-h-11"

@@ -21,7 +21,7 @@ export function trechosDeLeitura(insights: Insight[]): Insight[] {
 function Trecho({ insight: i, livro, grande, aoExcluir }: { insight: Insight; livro?: Livro; grande?: boolean; aoExcluir?: () => void }) {
   return (
     <figure className={cn("vidro group relative flex h-full flex-col p-5", grande && "sm:p-6")}>
-      <Quote aria-hidden className="size-5 text-[var(--b-luz)] drop-shadow-[0_0_8px_var(--b-luz)]" />
+      <Quote aria-hidden className="size-5 text-[var(--b-luz)]" />
       <blockquote className={cn("mt-3 flex-1 font-display leading-snug text-ink", grande ? "text-lg sm:text-xl" : "line-clamp-5 text-base")}>{i.text}</blockquote>
       <figcaption className="mt-4 flex items-center justify-between gap-3 text-xs text-ink-3">
         <span className="min-w-0 truncate">
@@ -71,7 +71,7 @@ export function TrechosRecentes({ insights, livros, aoVerTodos }: { insights: In
           </h2>
           <p className="text-sm text-ink-3">As frases que você quis lembrar</p>
         </div>
-        <button type="button" onClick={aoVerTodos} className="inline-flex min-h-10 shrink-0 items-center gap-1 rounded-full px-3 text-sm font-medium text-[var(--b-luz)] hover:bg-white/[0.06]">
+        <button type="button" onClick={aoVerTodos} className="inline-flex min-h-10 shrink-0 items-center gap-1 rounded-full px-3 text-sm font-medium text-[var(--b-luz)] hover:bg-ink/[0.06]">
           Ver todos <ArrowRight className="size-4" aria-hidden />
         </button>
       </div>

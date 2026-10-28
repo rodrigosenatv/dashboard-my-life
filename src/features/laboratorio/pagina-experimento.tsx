@@ -38,11 +38,11 @@ export function PaginaExperimento() {
     return (
       <div className={MOLDURA} aria-busy="true" aria-label="Carregando o experimento">
         <div className="flex gap-6 pt-12">
-          <Esqueleto className="size-36 shrink-0 rounded-full bg-white/[0.06]" />
+          <Esqueleto className="size-36 shrink-0 rounded-full bg-ink/[0.06]" />
           <div className="grid flex-1 content-start gap-3">
-            <Esqueleto className="h-4 w-40 bg-white/[0.06]" />
-            <Esqueleto className="h-10 w-3/4 bg-white/[0.06]" />
-            <Esqueleto className="h-16 w-full bg-white/[0.06]" />
+            <Esqueleto className="h-4 w-40 bg-ink/[0.06]" />
+            <Esqueleto className="h-10 w-3/4 bg-ink/[0.06]" />
+            <Esqueleto className="h-16 w-full bg-ink/[0.06]" />
           </div>
         </div>
       </div>
@@ -158,12 +158,12 @@ function Cabeca({ e, registros, aoConcluir, aoComecar }: { e: Experimento; regis
         {s === "em_teste" || s === "pausado" ? (
           <AnelDias dia={a.dia} total={a.total} tamanho={148} bolhas={s === "em_teste"} />
         ) : s === "concluido" || s === "abandonado" ? (
-          <span className="grid size-[148px] place-items-center rounded-full border border-[var(--b-borda-2)] bg-white/[0.03] shadow-[0_0_40px_-12px_var(--b-luz)]">
+          <span className="grid size-[148px] place-items-center rounded-full border border-[var(--b-borda-2)] bg-ink/[0.03]">
             <span className="text-center">
               {nota !== null ? (
                 <>
                   <span className="rotulo-hud block text-[10px]">Nota</span>
-                  <span className="tabular mt-1 block font-display text-4xl font-semibold text-[var(--b-ambar)] drop-shadow-[0_0_10px_rgb(245_197_74/0.5)]">{String(nota).replace(".", ",")}</span>
+                  <span className="tabular mt-1 block font-display text-4xl font-semibold text-[var(--b-ambar)]">{String(nota).replace(".", ",")}</span>
                 </>
               ) : (
                 <IconeTipo tipo={e.kind} className="mx-auto size-10 text-[var(--b-luz)]" />
@@ -171,7 +171,7 @@ function Cabeca({ e, registros, aoConcluir, aoComecar }: { e: Experimento; regis
             </span>
           </span>
         ) : (
-          <span className="grid size-[148px] place-items-center rounded-full border border-dashed border-[var(--b-borda-2)] bg-white/[0.02]">
+          <span className="grid size-[148px] place-items-center rounded-full border border-dashed border-[var(--b-borda-2)] bg-ink/[0.02]">
             <FlaskConical className="size-10 text-[var(--b-luz)]" aria-hidden />
           </span>
         )}
@@ -206,13 +206,13 @@ function Cabeca({ e, registros, aoConcluir, aoComecar }: { e: Experimento; regis
 
         <div className="mt-5 flex flex-wrap items-center gap-2">
           {s === "a_iniciar" ? (
-            <Botao variante="primario" tamanho="lg" onClick={aoComecar} className="shadow-[0_0_24px_-6px_var(--b-luz)]">
+            <Botao variante="primario" tamanho="lg" onClick={aoComecar} className="">
               <Play /> Começar hoje
             </Botao>
           ) : null}
           {s === "em_teste" ? (
             <>
-              <Botao variante="primario" tamanho="lg" onClick={aoConcluir} className="shadow-[0_0_24px_-6px_var(--b-luz)]">
+              <Botao variante="primario" tamanho="lg" onClick={aoConcluir} className="">
                 <Check /> Concluir
               </Botao>
               <Botao variante="contorno" tamanho="lg" onClick={() => acoes.mudar(e, "pausado")} className="bg-transparent">
@@ -310,7 +310,7 @@ function Diario({ e, registros }: { e: Experimento; registros: Insight[] }) {
               }}
               rows={2}
               placeholder={dia === hoje ? "Como foi hoje? O que você observou?" : "O que aconteceu nesse dia?"}
-              className="block w-full resize-none rounded-xl border border-[var(--b-borda)] bg-black/20 px-3 py-2.5 text-[16px] leading-snug text-ink [field-sizing:content] placeholder:text-ink-3 focus-visible:border-[var(--b-luz)] focus-visible:outline-none sm:text-sm"
+              className="block w-full resize-none rounded-xl border border-[var(--b-borda)] bg-surface px-3 py-2.5 text-[16px] leading-snug text-ink [field-sizing:content] placeholder:text-ink-3 focus-visible:border-[var(--b-luz)] focus-visible:outline-none sm:text-sm"
             />
           </label>
           <div className="flex flex-wrap items-center gap-2">
@@ -322,10 +322,10 @@ function Diario({ e, registros }: { e: Experimento; registros: Insight[] }) {
                 max={ultimoDia}
                 min={e.starts_on ?? undefined}
                 onChange={(ev) => setDia(ev.target.value || hoje)}
-                className="h-9 rounded-lg border border-[var(--b-borda)] bg-black/20 px-2 text-sm text-ink [color-scheme:dark] toque:h-11"
+                className="h-9 rounded-lg border border-[var(--b-borda)] bg-surface px-2 text-sm text-ink toque:h-11"
               />
             </label>
-            <Botao type="submit" variante="primario" disabled={!texto.trim()} className="ml-auto shadow-[0_0_20px_-6px_var(--b-luz)]">
+            <Botao type="submit" variante="primario" disabled={!texto.trim()} className="ml-auto">
               Registrar
             </Botao>
           </div>
@@ -340,7 +340,7 @@ function Diario({ e, registros }: { e: Experimento; registros: Insight[] }) {
             const n = e.starts_on ? diasEntre(e.starts_on, d) + 1 : null
             return (
               <li key={d} className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-3.5">
-                <span className="mt-1.5 size-2.5 rounded-full bg-[var(--b-luz)] shadow-[0_0_10px_var(--b-luz)]" aria-hidden />
+                <span className="mt-1.5 size-2.5 rounded-full bg-[var(--b-luz)]" aria-hidden />
                 <div className="min-w-0">
                   <p className="text-xs font-medium uppercase tracking-wider text-ink-3">
                     {formatar(d, "EEE, d 'de' MMM")}
@@ -393,7 +393,7 @@ function ItemDiario({ item, aoSalvar, aoApagar }: { item: Insight; aoSalvar: (t:
             onChange={(ev) => setTexto(ev.target.value)}
             rows={2}
             aria-label="Editar registro"
-            className="block w-full resize-none rounded-xl border border-[var(--b-luz)]/60 bg-black/20 px-3 py-2 text-[16px] leading-snug text-ink [field-sizing:content] focus-visible:outline-none sm:text-sm"
+            className="block w-full resize-none rounded-xl border border-[var(--b-luz)]/60 bg-surface px-3 py-2 text-[16px] leading-snug text-ink [field-sizing:content] focus-visible:outline-none sm:text-sm"
           />
           <div className="flex justify-end gap-2">
             <Botao variante="fantasma" tamanho="sm" onClick={() => (setTexto(item.text), setEditando(false))}>
@@ -407,7 +407,7 @@ function ItemDiario({ item, aoSalvar, aoApagar }: { item: Insight; aoSalvar: (t:
       </li>
     )
   return (
-    <li className={cn("group flex items-start gap-2 rounded-xl border px-3 py-2.5", item.kind && item.kind !== OBSERVACAO ? "border-[var(--b-luz)]/35 bg-[var(--b-luz)]/[0.06]" : "border-[var(--b-borda)] bg-white/[0.03]")}>
+    <li className={cn("group flex items-start gap-2 rounded-xl border px-3 py-2.5", item.kind && item.kind !== OBSERVACAO ? "border-[var(--b-luz)]/35 bg-[var(--b-luz)]/[0.06]" : "border-[var(--b-borda)] bg-ink/[0.03]")}>
       <button type="button" onClick={() => setEditando(true)} className="min-w-0 flex-1 text-left text-[15px] leading-snug" aria-label={`Editar: ${item.text}`}>
         {item.kind && item.kind !== OBSERVACAO ? (
           <span className="mb-0.5 flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-[var(--b-luz)]">
@@ -421,7 +421,7 @@ function ItemDiario({ item, aoSalvar, aoApagar }: { item: Insight; aoSalvar: (t:
         type="button"
         aria-label={`Apagar: ${item.text}`}
         onClick={aoApagar}
-        className="grid size-8 shrink-0 place-items-center rounded-full text-ink-3 hover:bg-white/[0.06] hover:text-ink pointer-fine:opacity-0 pointer-fine:group-hover:opacity-100 pointer-fine:focus-visible:opacity-100"
+        className="grid size-8 shrink-0 place-items-center rounded-full text-ink-3 hover:bg-ink/[0.06] hover:text-ink pointer-fine:opacity-0 pointer-fine:group-hover:opacity-100 pointer-fine:focus-visible:opacity-100"
       >
         <X className="size-4" />
       </button>
@@ -450,7 +450,7 @@ function Protocolo({ e }: { e: Experimento }) {
       </h2>
       <div className="mt-4">
         {vazio && !escrevendo ? (
-          <div className="flex flex-col items-start gap-3 rounded-xl border border-dashed border-[var(--b-borda-2)] bg-white/[0.02] px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col items-start gap-3 rounded-xl border border-dashed border-[var(--b-borda-2)] bg-ink/[0.02] px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-sm text-ink-3">Ainda em branco. Anote o objetivo, o passo a passo e onde guardar as evidências.</p>
             <Botao variante="contorno" onClick={() => setEscrevendo(true)} className="shrink-0 bg-transparent">
               <Pencil /> Escrever o protocolo
@@ -481,7 +481,7 @@ function Resultado({ e, aoEditar, className }: { e: Experimento; aoEditar: () =>
         <h2 id="titulo-resultado" className="rotulo-hud">
           Resultado
         </h2>
-        <button type="button" onClick={aoEditar} className="min-h-9 rounded-full px-2 text-xs font-medium text-[var(--b-luz)] hover:bg-white/[0.06]">
+        <button type="button" onClick={aoEditar} className="min-h-9 rounded-full px-2 text-xs font-medium text-[var(--b-luz)] hover:bg-ink/[0.06]">
           Editar
         </button>
       </div>

@@ -147,7 +147,7 @@ export function JanelaExperimento({
                   key={s.nome}
                   type="button"
                   onClick={() => usarSugestao(s)}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-[var(--b-borda)] bg-white/[0.03] px-3 py-1 text-sm text-ink-2 hover:border-[var(--b-borda-2)] hover:text-ink toque:min-h-11"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-[var(--b-borda)] bg-ink/[0.03] px-3 py-1 text-sm text-ink-2 hover:border-[var(--b-borda-2)] hover:text-ink toque:min-h-11"
                 >
                   <IconeTipo tipo={s.tipo} className="size-3.5 text-[var(--b-luz)]" />
                   {s.nome}

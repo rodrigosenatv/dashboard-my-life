@@ -32,7 +32,7 @@ export function BotaoFoco({ className }: { className?: string }) {
       aria-label={ligado ? `${fase}: faltam ${mmss(restante)}. Pausar` : `Começar ${fase.toLowerCase()} de ${mmss(restante)}`}
       className={cn(
         "inline-flex h-11 shrink-0 items-center gap-2 rounded-full border px-4 text-sm font-medium transition-colors",
-        ligado ? "border-[var(--b-luz)]/60 bg-[var(--b-luz)]/10 text-ink shadow-[0_0_18px_-6px_var(--b-luz)]" : "border-[var(--b-borda-2)] text-ink-2 hover:border-[var(--b-luz)]/60 hover:text-ink",
+        ligado ? "border-[var(--b-luz)]/60 bg-[var(--b-luz)]/10 text-ink" : "border-[var(--b-borda-2)] text-ink-2 hover:border-[var(--b-luz)]/60 hover:text-ink",
         className,
       )}
     >

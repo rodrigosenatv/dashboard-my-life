@@ -144,7 +144,7 @@ export function PaginaLeitura() {
         <div className="mt-1.5 flex items-center justify-between gap-3">
           <h1 className="font-display text-[2.5rem] font-semibold leading-none tracking-tight sm:text-[3.25rem]">Leitura</h1>
           <div className="flex shrink-0 items-center gap-2">
-            <Botao variante="primario" tamanho="lg" onClick={() => setAdicionar(true)} className="px-4 shadow-[0_0_24px_-6px_var(--b-luz)]">
+            <Botao variante="primario" tamanho="lg" onClick={() => setAdicionar(true)} className="px-4">
               <Plus /> Livro
             </Botao>
             <Menu>
@@ -188,7 +188,7 @@ export function PaginaLeitura() {
           onChange={(e) => setBusca(e.target.value)}
           placeholder="Título, autor ou categoria"
           aria-label="Buscar no acervo"
-          className="h-12 w-full rounded-2xl border border-[var(--b-borda)] bg-white/[0.04] pl-11 pr-11 text-[16px] text-ink backdrop-blur placeholder:text-ink-3 focus-visible:border-[var(--b-luz)] focus-visible:shadow-[0_0_0_3px_rgb(99_227_255/0.14),0_0_30px_-8px_var(--b-luz)] focus-visible:outline-none sm:text-[15px]"
+          className="h-12 w-full rounded-2xl border border-[var(--b-borda)] bg-ink/[0.04] pl-11 pr-11 text-[16px] text-ink backdrop-blur placeholder:text-ink-3 focus-visible:border-[var(--b-luz)] focus-visible:outline-none sm:text-[15px]"
         />
         {busca ? (
           <button type="button" aria-label="Limpar busca" onClick={() => setBusca("")} className="absolute right-2 top-1/2 z-10 grid size-9 -translate-y-1/2 place-items-center rounded-full text-ink-3 hover:text-ink">
@@ -325,15 +325,15 @@ function Carregando() {
   return (
     <div className="grid gap-10" aria-busy="true" aria-label="Carregando a biblioteca">
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_19rem]">
-        <Esqueleto className="h-72 rounded-[1.25rem] bg-white/[0.05]" />
+        <Esqueleto className="h-72 rounded-[1.25rem] bg-ink/[0.05]" />
         <div className="grid gap-3">
-          <Esqueleto className="h-24 rounded-[1.25rem] bg-white/[0.05]" />
-          <Esqueleto className="h-24 rounded-[1.25rem] bg-white/[0.05]" />
+          <Esqueleto className="h-24 rounded-[1.25rem] bg-ink/[0.05]" />
+          <Esqueleto className="h-24 rounded-[1.25rem] bg-ink/[0.05]" />
         </div>
       </div>
       <div className="flex gap-4 overflow-hidden">
         {Array.from({ length: 7 }).map((_, i) => (
-          <Esqueleto key={i} className="aspect-[2/3] w-28 shrink-0 rounded-md bg-white/[0.05]" />
+          <Esqueleto key={i} className="aspect-[2/3] w-28 shrink-0 rounded-md bg-ink/[0.05]" />
         ))}
       </div>
     </div>
@@ -343,7 +343,7 @@ function Carregando() {
 function BibliotecaVazia({ aoAdicionar }: { aoAdicionar: () => void }) {
   return (
     <section className={cn("vidro relative overflow-hidden px-6 py-14 text-center")}>
-      <span aria-hidden className="pointer-events-none absolute left-1/2 top-0 size-80 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--b-luz)]/15 blur-3xl" />
+      <span aria-hidden className="pointer-events-none absolute left-1/2 top-0 size-80 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--b-luz)]/15 hidden" />
       <Library className="relative mx-auto size-9 text-[var(--b-luz)]" aria-hidden />
       <h2 className="relative mt-4 font-display text-2xl font-semibold">As prateleiras estão esperando</h2>
       <p className="relative mx-auto mt-2 max-w-md text-ink-2">Adicione o primeiro livro: busque pelo nome e a capa, o autor e o número de páginas vêm junto.</p>

@@ -24,7 +24,7 @@ export function TopoCelular() {
           type="button"
           onClick={abrirBusca}
           aria-label="Buscar"
-          className="grid size-11 place-items-center rounded-full text-ink-2 transition-colors hover:bg-white/[0.06] hover:text-ink"
+          className="grid size-11 place-items-center rounded-full text-ink-2 transition-colors hover:bg-ink/[0.06] hover:text-ink"
         >
           <Search className="size-5" />
         </button>
@@ -161,7 +161,7 @@ export function AbasArea() {
               className="cabine-aba flex h-11 items-center gap-1.5 whitespace-nowrap px-3 text-sm font-medium"
             >
               {/* Só a aba aberta leva o ícone, aceso na cor da área */}
-              {sel ? <i.icone className="size-3.5 shrink-0 text-[var(--area)] drop-shadow-[0_0_5px_var(--area)]" aria-hidden /> : null}
+              {sel ? <i.icone className="size-3.5 shrink-0 text-[var(--area)]" aria-hidden /> : null}
               {i.rotulo}
             </LinkIntencao>
           )

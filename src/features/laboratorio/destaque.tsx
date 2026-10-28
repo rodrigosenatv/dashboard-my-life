@@ -49,7 +49,7 @@ function Bancada({ experimento: e, diario, aoConcluir }: { experimento: Experime
 
   return (
     <article className="vidro relative overflow-hidden p-4 sm:p-6 lg:p-7">
-      <span aria-hidden className="pointer-events-none absolute -left-20 -top-24 size-72 rounded-full bg-[var(--b-luz)]/12 blur-3xl" />
+      <span aria-hidden className="pointer-events-none absolute -left-20 -top-24 size-72 rounded-full bg-[var(--b-luz)]/12 hidden" />
       <div className="relative grid gap-5 sm:grid-cols-[auto_minmax(0,1fr)] sm:gap-7">
         <div className="flex items-center gap-4 sm:block">
           <AnelDias dia={a.dia} total={a.total} bolhas />
@@ -132,7 +132,7 @@ export function RegistroDoDia({ experimento, deHoje, ultimo }: { experimento: Ex
   }
   const mostrarCampo = !deHoje.length || aberto
   return (
-    <div className="mt-4 rounded-xl border border-[var(--b-borda)] bg-white/[0.03] p-3.5">
+    <div className="mt-4 rounded-xl border border-[var(--b-borda)] bg-ink/[0.03] p-3.5">
       {deHoje.length ? (
         <div>
           <p className="rotulo-hud flex items-center gap-1.5 text-[var(--b-luz)]">
@@ -168,10 +168,10 @@ export function RegistroDoDia({ experimento, deHoje, ultimo }: { experimento: Ex
               }}
               rows={1}
               placeholder="Como foi hoje? O que você observou?"
-              className="block max-h-40 min-h-11 w-full resize-none rounded-xl border border-[var(--b-borda)] bg-black/20 px-3 py-2.5 text-[16px] leading-snug text-ink [field-sizing:content] placeholder:text-ink-3 focus-visible:border-[var(--b-luz)] focus-visible:outline-none sm:text-sm"
+              className="block max-h-40 min-h-11 w-full resize-none rounded-xl border border-[var(--b-borda)] bg-surface px-3 py-2.5 text-[16px] leading-snug text-ink [field-sizing:content] placeholder:text-ink-3 focus-visible:border-[var(--b-luz)] focus-visible:outline-none sm:text-sm"
             />
           </label>
-          <Botao type="submit" variante="primario" disabled={!texto.trim()} className="h-11 shadow-[0_0_20px_-6px_var(--b-luz)]">
+          <Botao type="submit" variante="primario" disabled={!texto.trim()} className="h-11">
             Registrar
           </Botao>
         </form>
@@ -183,12 +183,12 @@ export function RegistroDoDia({ experimento, deHoje, ultimo }: { experimento: Ex
 function BancadaVazia({ aoNovo, ideias, aoComecarIdeia }: { aoNovo: () => void; ideias: Experimento[]; aoComecarIdeia: (e: Experimento) => void }) {
   return (
     <section aria-label="Em teste agora" className="vidro relative overflow-hidden px-5 py-10 text-center sm:px-8 sm:py-12">
-      <span aria-hidden className="pointer-events-none absolute left-1/2 top-0 size-72 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--b-luz)]/20 blur-3xl" />
+      <span aria-hidden className="pointer-events-none absolute left-1/2 top-0 size-72 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--b-luz)]/20 hidden" />
       <FlaskConical className="relative mx-auto size-9 text-[var(--b-luz)]" aria-hidden />
       <h2 className="relative mt-3 font-display text-2xl font-semibold">A bancada está livre</h2>
       <p className="relative mx-auto mt-1.5 max-w-md text-ink-2">Escolha uma ideia e teste por alguns dias: anote o que acontece a cada dia e, no fim, veja se funcionou.</p>
       <div className="relative mt-5 flex flex-wrap justify-center gap-2">
-        <Botao variante="primario" tamanho="lg" onClick={aoNovo} className="shadow-[0_0_24px_-6px_var(--b-luz)]">
+        <Botao variante="primario" tamanho="lg" onClick={aoNovo} className="">
           <Plus /> Novo experimento
         </Botao>
       </div>
@@ -197,7 +197,7 @@ function BancadaVazia({ aoNovo, ideias, aoComecarIdeia }: { aoNovo: () => void; 
           <p className="rotulo-hud mb-2">Ou comece uma das suas ideias</p>
           <ul className="grid gap-2">
             {ideias.slice(0, 3).map((e) => (
-              <li key={e.id} className="flex items-center gap-3 rounded-xl border border-[var(--b-borda)] bg-white/[0.03] px-3.5 py-2.5">
+              <li key={e.id} className="flex items-center gap-3 rounded-xl border border-[var(--b-borda)] bg-ink/[0.03] px-3.5 py-2.5">
                 <IconeTipo tipo={e.kind} className="size-4 shrink-0 text-[var(--b-luz)]" />
                 <span className="min-w-0 flex-1 truncate text-sm">{e.name}</span>
                 <Botao variante="fantasma" tamanho="sm" onClick={() => aoComecarIdeia(e)}>

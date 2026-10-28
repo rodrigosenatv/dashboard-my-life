@@ -37,7 +37,7 @@ function Anel({ valor, total, tamanho = 76 }: { valor: number; total: number; ta
   const fracao = total > 0 ? Math.min(1, valor / total) : 0
   return (
     <svg width={tamanho} height={tamanho} viewBox={`0 0 ${tamanho} ${tamanho}`} className="anel-luz shrink-0 -rotate-90" aria-hidden>
-      <circle cx={tamanho / 2} cy={tamanho / 2} r={raio} fill="none" stroke="rgb(255 255 255 / 0.1)" strokeWidth="6" />
+      <circle cx={tamanho / 2} cy={tamanho / 2} r={raio} fill="none" stroke="var(--surface-3)" strokeWidth="6" />
       <circle
         className="anel-valor"
         cx={tamanho / 2}
@@ -78,7 +78,7 @@ function BlocoMeta({ livros, ano, meta, aoDefinirMeta }: { livros: Livro[]; ano:
   const ritmo = ritmoDaMeta(meta, feitos.length, diaIso())
   return (
     <section aria-label={`Meta de ${ano}`} className="vidro relative">
-      <button type="button" onClick={aoDefinirMeta} className="flex w-full items-center gap-4 rounded-[inherit] p-4 text-left hover:bg-white/[0.03]">
+      <button type="button" onClick={aoDefinirMeta} className="flex w-full items-center gap-4 rounded-[inherit] p-4 text-left hover:bg-ink/[0.03]">
         <span className="relative grid place-items-center">
           <Anel valor={feitos.length} total={meta} />
           <span className="absolute inset-0 grid place-items-center text-center leading-none">
@@ -93,7 +93,7 @@ function BlocoMeta({ livros, ano, meta, aoDefinirMeta }: { livros: Livro[]; ano:
           <span
             className={cn(
               "mt-0.5 block text-sm font-semibold",
-              ritmo.tom === "atras" ? "text-[#ffb36b]" : ritmo.tom === "no-ritmo" ? "text-ink" : "text-[var(--b-ambar)]",
+              ritmo.tom === "atras" ? "text-[var(--b-coral)]" : ritmo.tom === "no-ritmo" ? "text-ink" : "text-[var(--b-ambar)]",
             )}
           >
             {ritmo.texto}
@@ -123,7 +123,7 @@ function BlocoSequencia({ dias }: { dias: DiaLeitura[] }) {
               Sequência <Flame className={cn("size-3.5", seguidos > 0 ? "text-[var(--b-ambar)]" : "text-ink-3")} aria-hidden />
             </p>
             <p className="mt-1 flex items-baseline gap-1.5">
-              <span className={cn("tabular font-display text-3xl font-semibold leading-none", seguidos > 0 && "text-[var(--b-ambar)] drop-shadow-[0_0_10px_rgb(245_197_74/0.5)]")}>{seguidos}</span>
+              <span className={cn("tabular font-display text-3xl font-semibold leading-none", seguidos > 0 && "text-[var(--b-ambar)]")}>{seguidos}</span>
               <span className="text-sm text-ink-2">{seguidos === 1 ? "dia seguido" : "dias seguidos"}</span>
             </p>
           </div>
@@ -142,7 +142,7 @@ function BlocoSequencia({ dias }: { dias: DiaLeitura[] }) {
                   aria-hidden
                   className={cn(
                     "size-3.5 rounded-full border transition-colors",
-                    lido ? "border-[var(--b-luz)] bg-[var(--b-luz)] shadow-[0_0_8px_var(--b-luz)]" : ehHoje ? "border-[var(--b-luz)]/70" : futuro ? "border-white/10" : "border-white/25",
+                    lido ? "border-[var(--b-luz)] bg-[var(--b-luz)]" : ehHoje ? "border-[var(--b-luz)]/70" : futuro ? "border-ink/10" : "border-ink/25",
                   )}
                 />
               </li>
@@ -161,7 +161,7 @@ const FAIXAS = [
   { chave: "finalizado", rotulo: "Lidos", cor: "var(--b-ambar)" },
   { chave: "lendo", rotulo: "Lendo", cor: "var(--b-luz)" },
   { chave: "desejo", rotulo: "Na fila", cor: "var(--b-luz-2)" },
-  { chave: "pausado", rotulo: "Pausados", cor: "rgb(255 255 255 / 0.35)" },
+  { chave: "pausado", rotulo: "Pausados", cor: "var(--ink-3)" },
 ] as const
 
 function BlocoAcervo({ livros, ano, className }: { livros: Livro[]; ano: number; className?: string }) {
@@ -180,7 +180,7 @@ function BlocoAcervo({ livros, ano, className }: { livros: Livro[]; ano: number;
       </p>
       {total ? (
         <>
-          <div className="mt-3 flex h-2 overflow-hidden rounded-full bg-white/[0.06]" aria-hidden>
+          <div className="mt-3 flex h-2 overflow-hidden rounded-full bg-ink/[0.06]" aria-hidden>
             {contagem.map((f) => (f.n ? <span key={f.chave} style={{ width: `${(f.n / total) * 100}%`, background: f.cor }} className="h-full first:rounded-l-full last:rounded-r-full" /> : null))}
           </div>
           <ul className="mt-2.5 grid grid-cols-2 gap-x-3 gap-y-1 text-xs text-ink-2">
@@ -252,7 +252,7 @@ export function JanelaMeta({ aberta, aoMudar, ano, meta, aoSalvar }: { aberta: b
             value={valor}
             onFocus={(e) => e.currentTarget.select()}
             onChange={(e) => setValor(e.target.value.replace(/\D/g, "").slice(0, 3))}
-            className="tabular w-32 rounded-xl bg-transparent text-center font-display text-5xl font-semibold text-ink outline-none focus-visible:bg-white/[0.06]"
+            className="tabular w-32 rounded-xl bg-transparent text-center font-display text-5xl font-semibold text-ink outline-none focus-visible:bg-ink/[0.06]"
           />
           <span className="rotulo-hud">livros em {ano}</span>
         </label>

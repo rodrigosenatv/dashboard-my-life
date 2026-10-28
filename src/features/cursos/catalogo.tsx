@@ -24,7 +24,7 @@ function Pilula({ ativo, onClick, children }: { ativo: boolean; onClick: () => v
       onClick={onClick}
       className={cn(
         "inline-flex min-h-9 shrink-0 items-center gap-1.5 rounded-full border px-3.5 text-sm transition-colors toque:min-h-11",
-        ativo ? "border-[var(--b-luz)] bg-[var(--b-luz)]/12 text-ink shadow-[0_0_16px_-6px_var(--b-luz)]" : "border-[var(--b-borda)] text-ink-2 hover:border-[var(--b-borda-2)] hover:text-ink",
+        ativo ? "border-[var(--b-luz)] bg-[var(--b-luz)]/12 text-ink" : "border-[var(--b-borda)] text-ink-2 hover:border-[var(--b-borda-2)] hover:text-ink",
       )}
     >
       {children}
@@ -88,7 +88,7 @@ export function Catalogo({
         <div className="vidro mt-6 px-5 py-8 text-center">
           <p className="font-medium">{busca ? `Nada encontrado para “${busca}”.` : "Nenhum curso com esses filtros."}</p>
           {estado.status !== "todos" || estado.categoria ? (
-            <button type="button" onClick={() => aoMudar({ status: "todos", categoria: "" })} className="mt-2 min-h-10 rounded-full px-3 text-sm font-medium text-[var(--b-luz)] hover:bg-white/[0.06]">
+            <button type="button" onClick={() => aoMudar({ status: "todos", categoria: "" })} className="mt-2 min-h-10 rounded-full px-3 text-sm font-medium text-[var(--b-luz)] hover:bg-ink/[0.06]">
               Limpar filtros
             </button>
           ) : null}
@@ -116,7 +116,7 @@ export function PainelCompetencias({ cursos, aoVerArea }: { cursos: Curso[]; aoV
           </h2>
         </div>
         <p className="text-sm text-ink-3">
-          <span className="tabular font-display text-2xl font-semibold text-[var(--b-ambar)] drop-shadow-[0_0_10px_rgb(245_197_74/0.45)]">{concluidos}</span>{" "}
+          <span className="tabular font-display text-2xl font-semibold text-[var(--b-ambar)]">{concluidos}</span>{" "}
           {concluidos === 1 ? "curso concluído" : "cursos concluídos"}
         </p>
       </div>
@@ -137,7 +137,7 @@ export function PainelCompetencias({ cursos, aoVerArea }: { cursos: Curso[]; aoV
               </span>
               <span className="barra-competencia mt-1.5 flex [&>span]:rounded-none" aria-hidden>
                 <span style={{ width: `${(k.concluidos / maximo) * 100}%` }} />
-                {k.estudando ? <span className="!shadow-none" style={{ width: `${(k.estudando / maximo) * 100}%`, background: "repeating-linear-gradient(135deg, rgb(126 240 255 / 0.55) 0 4px, rgb(126 240 255 / 0.15) 4px 8px)" }} /> : null}
+                {k.estudando ? <span className="!shadow-none" style={{ width: `${(k.estudando / maximo) * 100}%`, background: "repeating-linear-gradient(135deg, color-mix(in oklab, var(--b-luz) 55%, transparent) 0 4px, color-mix(in oklab, var(--b-luz) 15%, transparent) 4px 8px)" }} /> : null}
               </span>
             </button>
           </li>

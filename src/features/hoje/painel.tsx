@@ -64,13 +64,13 @@ const ALGUM_ATALHO_ABRE_PAGINA = MENU.some((a) => a.paginas?.length)
 
 // Ladrilhos de vidro (a página Hoje tem o tema da ponte); o ícone acende na cor da área do destino
 const estiloAtalho =
-  "group flex h-14 items-center gap-3 rounded-2xl border border-[var(--b-borda)] bg-[var(--b-vidro)] px-3 text-left transition-[border-color,background-color,box-shadow] hover:border-[var(--b-borda-2)] hover:bg-[var(--b-vidro-2)] hover:shadow-[0_12px_30px_-20px_rgb(99_227_255/0.6)]"
+  "group flex h-14 items-center gap-3 rounded-2xl border border-[var(--b-borda)] bg-[var(--b-vidro)] px-3 text-left transition-[border-color,background-color,box-shadow] hover:border-[var(--b-borda-2)] hover:bg-[var(--b-vidro-2)]"
 
 const LUZ_DA_AREA: Record<Area, string> = {
   rotina: "var(--b-verde)",
   projetos: "var(--b-violeta)",
   estudos: "var(--b-ambar)",
-  conteudo: "#ff7aa6",
+  conteudo: "var(--b-rosa)",
   geral: "var(--b-luz)",
 }
 
