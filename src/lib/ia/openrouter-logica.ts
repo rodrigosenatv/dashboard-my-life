@@ -96,11 +96,14 @@ export function lerPreferencia(modelo: string | undefined): string[] {
 
 export const usaAutomatico = (modelo: string | undefined) => lerPreferencia(modelo).some((m) => m.toLowerCase() === MODELO_AUTOMATICO)
 
-/** Ordem de tentativa: a lista da pessoa, com "auto" expandido no ranking atual; o roteador gratuito fecha a fila. */
-export function filaDeModelos(modelo: string | undefined, ranking: string[]): string[] {
+/**
+ * Ordem de tentativa: a lista da pessoa, com "auto" expandido no ranking atual.
+ * No OpenRouter, o roteador gratuito fecha a fila; outros provedores passam `null`.
+ */
+export function filaDeModelos(modelo: string | undefined, ranking: string[], fechamento: string | null = ROTEADOR_GRATUITO): string[] {
   const fila: string[] = []
   for (const item of lerPreferencia(modelo)) {
-    if (item.toLowerCase() === MODELO_AUTOMATICO) fila.push(...ranking, ROTEADOR_GRATUITO)
+    if (item.toLowerCase() === MODELO_AUTOMATICO) fila.push(...ranking, ...(fechamento ? [fechamento] : []))
     else fila.push(item)
   }
   return [...new Set(fila)]

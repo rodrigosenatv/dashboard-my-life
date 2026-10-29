@@ -315,7 +315,7 @@ export function PaginaAssistente() {
         throw new Error(corpo.erro ?? `Erro ${r.status}`)
       }
       const usado = r.headers.get("x-modelo-ia")
-      if (provedor === "openrouter" && usado) setModelos((v) => ({ ...v, [historico.length]: usado }))
+      if ((provedor === "openrouter" || provedor === "gemini") && usado) setModelos((v) => ({ ...v, [historico.length]: usado }))
       const leitor = r.body.getReader()
       const dec = new TextDecoder()
       for (;;) {
