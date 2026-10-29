@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Check, ExternalLink, KeyRound, LoaderCircle } from "lucide-react"
+import { Check, ChevronDown, ExternalLink, KeyRound, LoaderCircle } from "lucide-react"
 import { toast } from "sonner"
 import { Botao } from "@/components/ui/button"
 import { Secao } from "@/components/ui/basicos"
@@ -32,7 +32,7 @@ function LinhaProvedor({ p }: { p: InfoProvedor }) {
     try {
       const r = await fetch("/api/ia", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ teste: true, provedor: p.id, chave: k, modelo: m }) })
       const corpo = await r.json().catch(() => ({}))
-      if (corpo.ok) toast.success(`${p.nome} respondeu. A chave funciona.`)
+      if (corpo.ok) toast.success(p.id === "openrouter" && corpo.modelo ? `${p.nome} respondeu pelo modelo ${corpo.modelo}. A chave funciona.` : `${p.nome} respondeu. A chave funciona.`)
       else toast.error(`${p.nome}: ${corpo.erro ?? `erro ${r.status}`}`)
     } finally {
       setTestando(false)
@@ -57,7 +57,7 @@ function LinhaProvedor({ p }: { p: InfoProvedor }) {
         </a>
       </div>
       <form
-        className="grid gap-3 sm:grid-cols-[1fr_12rem]"
+        className={p.id === "openrouter" ? "grid gap-3 sm:grid-cols-[1fr_18rem]" : "grid gap-3 sm:grid-cols-[1fr_12rem]"}
         onSubmit={(e) => {
           e.preventDefault()
           const k = chave.trim() || atual?.chave
@@ -79,7 +79,11 @@ function LinhaProvedor({ p }: { p: InfoProvedor }) {
             placeholder={atual?.chave ? `•••• ${atual.chave.slice(-4)}` : "Cole a chave aqui"}
           />
         </Campo>
-        <Campo rotulo="Modelo" htmlFor={`ia-m-${p.id}`} dica={`Ex.: ${p.exemploModelos}`}>
+        <Campo
+          rotulo="Modelo"
+          htmlFor={`ia-m-${p.id}`}
+          dica={p.id === "openrouter" ? "“auto” usa sempre o gratuito mais avançado e troca sozinho quando um atinge o limite ou sai do ar. Ou liste modelos em ordem, separados por vírgula (pode incluir auto no fim)." : `Ex.: ${p.exemploModelos}`}
+        >
           <Entrada id={`ia-m-${p.id}`} value={valorModelo} onChange={(e) => setModelo(e.target.value)} placeholder={p.modeloPadrao} spellCheck={false} />
         </Campo>
         <div className="flex flex-wrap items-center gap-2 sm:col-span-2">
@@ -123,7 +127,68 @@ function LinhaProvedor({ p }: { p: InfoProvedor }) {
           ) : null}
         </div>
       </form>
+      {p.id === "openrouter" ? <OrdemGratuitos /> : null}
     </li>
+  )
+}
+
+type Gratuito = { id: string; nome: string; contexto: number }
+
+/** Mostra em que ordem o modo automático vai tentar os modelos gratuitos agora. */
+function OrdemGratuitos() {
+  const [aberta, setAberta] = React.useState(false)
+  const [estado, setEstado] = React.useState<{ carregando: boolean; modelos?: Gratuito[]; erro?: string }>({ carregando: false })
+
+  const alternar = async () => {
+    const abrir = !aberta
+    setAberta(abrir)
+    if (!abrir || estado.modelos || estado.carregando) return
+    setEstado({ carregando: true })
+    try {
+      const r = await fetch("/api/ia/gratuitos")
+      const corpo = await r.json().catch(() => ({}))
+      setEstado(r.ok && Array.isArray(corpo.modelos) ? { carregando: false, modelos: corpo.modelos } : { carregando: false, erro: corpo.erro ?? `Erro ${r.status}` })
+    } catch {
+      setEstado({ carregando: false, erro: "Sem conexão. Tente de novo." })
+    }
+  }
+
+  return (
+    <div className="mt-3 border-t border-line pt-3">
+      <button type="button" onClick={alternar} aria-expanded={aberta} className="inline-flex min-h-9 items-center gap-1.5 text-sm text-ink-2 hover:text-ink">
+        <ChevronDown className={`size-4 transition-transform ${aberta ? "rotate-180" : ""}`} />
+        Ordem atual dos modelos gratuitos
+      </button>
+      {aberta ? (
+        <div className="mt-2">
+          {estado.carregando ? (
+            <p className="flex items-center gap-2 text-sm text-ink-3" role="status">
+              <LoaderCircle className="size-4 animate-spin" /> Consultando o OpenRouter…
+            </p>
+          ) : estado.erro ? (
+            <p className="text-sm text-danger">{estado.erro}</p>
+          ) : (
+            <>
+              <ol className="grid gap-1 text-sm">
+                {estado.modelos?.map((m, i) => (
+                  <li key={m.id} className="flex min-w-0 items-baseline gap-2 rounded-md px-2 py-1 odd:bg-surface-2/60">
+                    <span className="w-5 shrink-0 text-right tabular-nums text-ink-3">{i + 1}.</span>
+                    <span className="min-w-0 flex-1 truncate" title={m.id}>
+                      {m.nome.replace(/\s*\(free\)\s*$/i, "")}
+                      <span className="ml-2 hidden font-mono text-xs text-ink-3 sm:inline">{m.id}</span>
+                    </span>
+                    {m.contexto ? <span className="shrink-0 text-xs tabular-nums text-ink-3">{Math.round(m.contexto / 1000)}k</span> : null}
+                  </li>
+                ))}
+              </ol>
+              <p className="mt-2 text-xs text-ink-3">
+                A ordem é estimada pelo preço da versão paga de cada modelo, tamanho, raciocínio, contexto e data de lançamento, e é atualizada a cada 30 minutos. Cada troca de modelo gasta um pedido da cota gratuita (cerca de 50 por dia sem créditos comprados).
+              </p>
+            </>
+          )}
+        </div>
+      ) : null}
+    </div>
   )
 }
 
@@ -131,7 +196,7 @@ export function ChavesIA() {
   return (
     <Secao
       titulo="Inteligência artificial"
-      descricao="Conecte sua própria conta do Claude, ChatGPT ou Gemini. Cada pessoa é responsável pelo consumo da sua API."
+      descricao="Conecte sua própria conta do Claude, ChatGPT, Gemini ou OpenRouter (este com modelos gratuitos). Cada pessoa é responsável pelo consumo da sua API."
     >
       <p className="mb-4 flex gap-2 rounded-lg border border-line bg-surface-2/60 p-3 text-sm text-ink-2">
         <KeyRound className="mt-0.5 size-4 shrink-0 text-ink-3" />

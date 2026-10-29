@@ -2,66 +2,33 @@ import "server-only"
 
 import Anthropic from "@anthropic-ai/sdk"
 import type { Provedor } from "./info"
+import { ErroIA, eventosSSE, falhaHttp } from "./comum"
+import { responderOpenRouter } from "./openrouter"
+
+export { ErroIA }
 
 export type Mensagem = { role: "user" | "assistant"; content: string }
 export type Chave = { chave: string; modelo: string }
-
-export class ErroIA extends Error {
-  constructor(
-    message: string,
-    public status?: number,
-  ) {
-    super(message)
-  }
-}
-
-/** Lê um fluxo SSE e devolve o JSON de cada linha "data:". */
-async function* eventosSSE(resposta: Response): AsyncGenerator<unknown> {
-  const leitor = resposta.body!.getReader()
-  const dec = new TextDecoder()
-  let resto = ""
-  for (;;) {
-    const { done, value } = await leitor.read()
-    if (done) break
-    resto += dec.decode(value, { stream: true })
-    const linhas = resto.split("\n")
-    resto = linhas.pop() ?? ""
-    for (const l of linhas) {
-      const evento = lerLinhaSSE(l)
-      if (evento !== undefined) yield evento
-    }
-  }
-  // O último evento pode chegar sem quebra de linha no fim
-  const evento = lerLinhaSSE(resto)
-  if (evento !== undefined) yield evento
-}
-
-function lerLinhaSSE(linha: string): unknown {
-  const t = linha.trim()
-  if (!t.startsWith("data:")) return undefined
-  const dado = t.slice(5).trim()
-  if (!dado || dado === "[DONE]") return undefined
-  try {
-    return JSON.parse(dado)
-  } catch {
-    return undefined
-  }
-}
-
-async function falhaHttp(r: Response): Promise<never> {
-  let detalhe = ""
-  try {
-    const corpo = await r.json()
-    detalhe = corpo?.error?.message ?? corpo?.message ?? ""
-  } catch {}
-  throw new ErroIA(detalhe || `erro ${r.status}`, r.status)
-}
 
 /**
  * Resposta em pedaços de texto, do provedor escolhido.
  * `sinal` interrompe o pedido ao provedor quando a pessoa cancela ou sai da tela.
  */
-export async function* responder(provedor: Provedor, { chave, modelo }: Chave, sistema: string, mensagens: Mensagem[], maxTokens = 4096, sinal?: AbortSignal): AsyncGenerator<string> {
+export async function* responder(
+  provedor: Provedor,
+  { chave, modelo }: Chave,
+  sistema: string,
+  mensagens: Mensagem[],
+  maxTokens = 4096,
+  sinal?: AbortSignal,
+  /** Avisa qual modelo de fato respondeu (no OpenRouter ele pode mudar a cada pedido). */
+  aoEscolher?: (modelo: string) => void,
+): AsyncGenerator<string> {
+  if (provedor === "openrouter") {
+    yield* responderOpenRouter(chave, modelo, sistema, mensagens, maxTokens, sinal, aoEscolher)
+    return
+  }
+  aoEscolher?.(modelo)
   if (provedor === "anthropic") {
     const cliente = new Anthropic({ apiKey: chave })
     try {
@@ -110,7 +77,11 @@ export async function* responder(provedor: Provedor, { chave, modelo }: Chave, s
 
 /** Mensagem curta e em português para os erros mais comuns. */
 export function explicarErro(e: unknown, nome: string): string {
-  const status = (e as { status?: number }).status
+  const { status, codigo } = e as { status?: number; codigo?: string }
+  if (codigo === "limite-diario") return `o limite diário de pedidos gratuitos do ${nome} acabou. Ele volta amanhã; quem já comprou ao menos 10 dólares em créditos lá tem um limite diário bem maior.`
+  if (codigo === "politica-dados") return `a sua conta do ${nome} está bloqueando os modelos gratuitos. Em openrouter.ai/settings/privacy, permita os provedores de modelos gratuitos e tente de novo.`
+  if (codigo === "conta" && status === 402) return `a conta do ${nome} está com saldo negativo, e isso bloqueia até os modelos gratuitos. Coloque saldo acima de zero para voltar a usar.`
+  if (codigo === "todos-falharam") return `nenhum modelo gratuito do ${nome} respondeu agora (limite por minuto ou modelos fora do ar). Tente de novo em um minuto.`
   if (status === 401 || status === 403) return `a chave do ${nome} não foi aceita. Confira em Configurações se ela foi colada inteira.`
   if (status === 404) return `o modelo escolhido para o ${nome} não existe ou não está liberado para a sua chave. Ajuste o modelo em Configurações.`
   if (status === 429) return `limite de uso do ${nome} atingido ou muitos pedidos seguidos. Confira o saldo da conta ou tente de novo em instantes.`
