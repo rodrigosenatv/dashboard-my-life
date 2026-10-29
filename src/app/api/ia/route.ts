@@ -61,8 +61,9 @@ export async function POST(request: NextRequest) {
   if (teste) {
     try {
       let texto = ""
-      for await (const pedaco of responder(provedor, credencial, sistema, mensagens, 30, request.signal)) texto += pedaco
-      return NextResponse.json({ ok: true, resposta: texto.trim().slice(0, 60) })
+      let usado = credencial.modelo
+      for await (const pedaco of responder(provedor, credencial, sistema, mensagens, 30, request.signal, (m) => (usado = m))) texto += pedaco
+      return NextResponse.json({ ok: true, resposta: texto.trim().slice(0, 60), modelo: usado })
     } catch (e) {
       return NextResponse.json({ erro: explicarErro(e, nome) }, { status: 200 })
     }
@@ -72,6 +73,18 @@ export async function POST(request: NextRequest) {
   const parar = new AbortController()
   request.signal.addEventListener("abort", () => parar.abort(), { once: true })
 
+  // Espera o primeiro pedaço antes de abrir o fluxo: assim um erro vira uma resposta
+  // de erro de verdade, e o cabeçalho já informa qual modelo respondeu.
+  let modeloUsado = credencial.modelo
+  const pedacos = responder(provedor, credencial, sistema, mensagens, undefined, parar.signal, (m) => (modeloUsado = m))
+  let primeiro: IteratorResult<string>
+  try {
+    primeiro = await pedacos.next()
+  } catch (e) {
+    if (parar.signal.aborted) return new Response(null, { status: 499 })
+    return NextResponse.json({ erro: explicarErro(e, nome) }, { status: 502 })
+  }
+
   const codificador = new TextEncoder()
   const fluxo = new ReadableStream<Uint8Array>({
     cancel() {
@@ -79,7 +92,8 @@ export async function POST(request: NextRequest) {
     },
     async start(controle) {
       try {
-        for await (const pedaco of responder(provedor, credencial!, sistema, mensagens, undefined, parar.signal)) controle.enqueue(codificador.encode(pedaco))
+        if (!primeiro.done) controle.enqueue(codificador.encode(primeiro.value))
+        for await (const pedaco of pedacos) controle.enqueue(codificador.encode(pedaco))
       } catch (e) {
         if (parar.signal.aborted) return
         controle.enqueue(codificador.encode(`\n\n[Não foi possível concluir a resposta: ${explicarErro(e, nome)}]`))
@@ -89,5 +103,11 @@ export async function POST(request: NextRequest) {
       }
     },
   })
-  return new Response(fluxo, { headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store" } })
+  return new Response(fluxo, {
+    headers: {
+      "Content-Type": "text/plain; charset=utf-8",
+      "Cache-Control": "no-store",
+      "X-Modelo-IA": modeloUsado.replace(/[^\w.:/@-]/g, "").slice(0, 120),
+    },
+  })
 }

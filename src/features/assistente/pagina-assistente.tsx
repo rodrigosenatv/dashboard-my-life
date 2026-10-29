@@ -221,6 +221,8 @@ export function PaginaAssistente() {
   const [texto, setTexto] = React.useState("")
   const [campos, setCampos] = React.useState<Record<string, string>>({})
   const [respondendo, setRespondendo] = React.useState(false)
+  // Qual modelo respondeu cada mensagem (útil no OpenRouter, que troca de modelo sozinho)
+  const [modelos, setModelos] = React.useState<Record<number, string>>({})
   const [verPrompts, setVerPrompts] = React.useState(false)
   const [verHistorico, setVerHistorico] = React.useState(false)
   const abortar = React.useRef<AbortController | null>(null)
@@ -257,6 +259,7 @@ export function PaginaAssistente() {
     abortar.current?.abort()
     setConversaId(null)
     setMensagens([])
+    setModelos({})
     setTexto("")
     setCampos({})
     setVerHistorico(false)
@@ -268,6 +271,7 @@ export function PaginaAssistente() {
     if (error || !data) return toast.error("Não foi possível abrir a conversa.")
     setConversaId(id)
     setMensagens(textoParaConversa(data.content))
+    setModelos({})
     setVerHistorico(false)
   }
 
@@ -310,6 +314,8 @@ export function PaginaAssistente() {
         const corpo = await r.json().catch(() => ({}))
         throw new Error(corpo.erro ?? `Erro ${r.status}`)
       }
+      const usado = r.headers.get("x-modelo-ia")
+      if (provedor === "openrouter" && usado) setModelos((v) => ({ ...v, [historico.length]: usado }))
       const leitor = r.body.getReader()
       const dec = new TextDecoder()
       for (;;) {
@@ -342,7 +348,7 @@ export function PaginaAssistente() {
           <span className="orbe-ia size-20" data-apagado="" aria-hidden />
           <h2 className="mt-7 font-display text-xl font-semibold">Nenhuma IA ligada neste navegador.</h2>
           <p className="mt-2 text-sm text-ink-2">
-            Cadastre a chave de API do Claude, do ChatGPT ou do Gemini em Configurações. A chave fica guardada só neste navegador, e o uso é cobrado pela empresa da IA conforme o consumo.
+            Cadastre a chave de API do Claude, do ChatGPT, do Gemini ou do OpenRouter (que tem modelos gratuitos) em Configurações. A chave fica guardada só neste navegador, e o uso, quando pago, é cobrado pela empresa da IA conforme o consumo.
           </p>
           <Link
             href="/configuracoes#ia"
@@ -439,6 +445,7 @@ export function PaginaAssistente() {
                         {m.content ? (
                           <>
                             <Markdown texto={m.content} videos={false} />
+                            {modelos[i] && !pensando ? <p className="mt-1 font-mono text-[11px] text-ink-3">via {modelos[i]}</p> : null}
                             {!pensando && !m.content.trimStart().startsWith(MARCA_ERRO) && !m.content.startsWith("Não foi possível") ? <AcoesResposta texto={m.content} pergunta={mensagens[i - 1]?.content ?? ""} /> : null}
                           </>
                         ) : (

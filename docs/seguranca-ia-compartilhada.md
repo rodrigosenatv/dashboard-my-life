@@ -2,11 +2,12 @@
 
 O Dashboard My Life não fornece chaves, créditos nem cota de IA compartilhada.
 
-- Cada usuário cria uma conta no provedor de sua escolha (Anthropic/Claude, OpenAI ou Google/Gemini) e cadastra a sua chave em **Configurações → Inteligência artificial**.
+- Cada usuário cria uma conta no provedor de sua escolha (Anthropic/Claude, OpenAI, Google/Gemini ou OpenRouter) e cadastra a sua chave em **Configurações → Inteligência artificial**.
 - Todo o consumo da API é atribuído à conta do provedor que emitiu a chave. O Dashboard My Life não paga por solicitações dos usuários.
 - Assinaturas dos aplicativos de chat podem não incluir acesso ou créditos de API.
 - As chaves são salvas no armazenamento local deste navegador e isoladas por conta. Ao sair da conta, elas são apagadas; em outro dispositivo devem ser cadastradas novamente.
 - A chave é transmitida à API autenticada do Dashboard apenas durante a solicitação, para consultar o provedor escolhido. Ela não é salva no Supabase.
+- No OpenRouter, a troca automática entre modelos gratuitos usa só a chave da pessoa. A pausa de modelos que falharam fica na memória do servidor, ligada a um resumo (hash) da chave, nunca à chave em si. A lista de modelos gratuitos é pública e não usa chave.
 - Sem chave pessoal válida, a API retorna erro 400 e não envia nenhum pedido ao provedor. O sistema não consulta credenciais globais da Vercel.
 
 ## Histórico de banco
