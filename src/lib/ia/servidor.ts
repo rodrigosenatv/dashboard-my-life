@@ -3,6 +3,7 @@ import "server-only"
 import Anthropic from "@anthropic-ai/sdk"
 import type { Provedor } from "./info"
 import { ErroIA, eventosSSE, falhaHttp } from "./comum"
+import { responderGemini } from "./gemini"
 import { responderOpenRouter } from "./openrouter"
 
 export { ErroIA }
@@ -26,6 +27,10 @@ export async function* responder(
 ): AsyncGenerator<string> {
   if (provedor === "openrouter") {
     yield* responderOpenRouter(chave, modelo, sistema, mensagens, maxTokens, sinal, aoEscolher)
+    return
+  }
+  if (provedor === "gemini") {
+    yield* responderGemini(chave, modelo, sistema, mensagens, maxTokens, sinal, aoEscolher)
     return
   }
   aoEscolher?.(modelo)
@@ -56,23 +61,6 @@ export async function* responder(
     }
     return
   }
-
-  const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(modelo)}:streamGenerateContent?alt=sse`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "x-goog-api-key": chave },
-    body: JSON.stringify({
-      systemInstruction: { parts: [{ text: sistema }] },
-      contents: mensagens.map((m) => ({ role: m.role === "assistant" ? "model" : "user", parts: [{ text: m.content }] })),
-      generationConfig: { maxOutputTokens: maxTokens },
-    }),
-    signal: sinal,
-  })
-  if (!r.ok || !r.body) await falhaHttp(r)
-  for await (const ev of eventosSSE(r)) {
-    const partes = (ev as { candidates?: { content?: { parts?: { text?: string }[] } }[] }).candidates?.[0]?.content?.parts ?? []
-    const texto = partes.map((p) => p.text ?? "").join("")
-    if (texto) yield texto
-  }
 }
 
 /** Mensagem curta e em português para os erros mais comuns. */
@@ -81,7 +69,11 @@ export function explicarErro(e: unknown, nome: string): string {
   if (codigo === "limite-diario") return `o limite diário de pedidos gratuitos do ${nome} acabou. Ele volta amanhã; quem já comprou ao menos 10 dólares em créditos lá tem um limite diário bem maior.`
   if (codigo === "politica-dados") return `a sua conta do ${nome} está bloqueando os modelos gratuitos. Em openrouter.ai/settings/privacy, permita os provedores de modelos gratuitos e tente de novo.`
   if (codigo === "conta" && status === 402) return `a conta do ${nome} está com saldo negativo, e isso bloqueia até os modelos gratuitos. Coloque saldo acima de zero para voltar a usar.`
-  if (codigo === "todos-falharam") return `nenhum modelo gratuito do ${nome} respondeu agora (limite por minuto ou modelos fora do ar). Tente de novo em um minuto.`
+  if (codigo === "todos-falharam") return `nenhum modelo ${nome === "OpenRouter" ? "gratuito " : ""}do ${nome} respondeu agora (limite de uso ou modelos fora do ar). Tente de novo em um minuto.`
+  if (codigo === "limites-esgotados") return `os limites de uso de todos os modelos do ${nome} foram atingidos. Os do minuto voltam em instantes; os do dia voltam à meia-noite do horário do Pacífico (4h ou 5h em Brasília).`
+  if (codigo === "chave-invalida") return `a chave do ${nome} não foi aceita. Confira em Configurações se ela foi colada inteira.`
+  if (codigo === "regiao") return `o ${nome} não está disponível na região de onde o pedido saiu.`
+  if (codigo === "bloqueado") return `o ${nome} bloqueou esta resposta pelas regras de segurança dele. Tente reformular o pedido.`
   if (status === 401 || status === 403) return `a chave do ${nome} não foi aceita. Confira em Configurações se ela foi colada inteira.`
   if (status === 404) return `o modelo escolhido para o ${nome} não existe ou não está liberado para a sua chave. Ajuste o modelo em Configurações.`
   if (status === 429) return `limite de uso do ${nome} atingido ou muitos pedidos seguidos. Confira o saldo da conta ou tente de novo em instantes.`

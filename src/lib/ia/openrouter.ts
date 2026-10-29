@@ -1,7 +1,6 @@
 import "server-only"
 
-import { createHash } from "node:crypto"
-import { ErroIA, eventosSSE } from "./comum"
+import { ErroIA, eventosSSE, pausadoAte, pausar, resumoDaChave } from "./comum"
 import { decidirAposFalha, escolherTentativas, filaDeModelos, ordenarGratuitos, usaAutomatico, type ModeloGratuito, type ModeloOR } from "./openrouter-logica"
 
 type Mensagem = { role: "user" | "assistant"; content: string }
@@ -33,18 +32,6 @@ export async function rankingGratuito(): Promise<ModeloGratuito[]> {
   } catch {
     return lista?.ranking ?? []
   }
-}
-
-/* ---------- Pausas: modelo que falhou fica de fora por um tempo ---------- */
-
-// Por chave (a cota é de cada conta). Guarda só um resumo da chave, nunca a chave.
-const pausas = new Map<string, number>()
-const dono = (chave: string) => createHash("sha256").update(chave).digest("hex").slice(0, 16)
-
-function pausar(conta: string, modelo: string, ms: number) {
-  if (ms <= 0) return
-  if (pausas.size > 2000) for (const [k, ate] of pausas) if (ate <= Date.now()) pausas.delete(k)
-  pausas.set(`${conta}|${modelo}`, Date.now() + ms)
 }
 
 function esperaSugerida(r: Response): number | undefined {
@@ -81,9 +68,9 @@ export async function* responderOpenRouter(
   sinal?: AbortSignal,
   aoEscolher?: (modelo: string) => void,
 ): AsyncGenerator<string> {
-  const conta = dono(chave)
+  const conta = resumoDaChave(chave)
   const ranking = usaAutomatico(modelo) ? (await rankingGratuito()).map((m) => m.id) : []
-  const tentativas = escolherTentativas(filaDeModelos(modelo, ranking), (id) => pausas.get(`${conta}|${id}`) ?? 0, Date.now())
+  const tentativas = escolherTentativas(filaDeModelos(modelo, ranking), (id) => pausadoAte(conta, id), Date.now())
   let ultimo: ErroIA | null = null
 
   for (const id of tentativas) {

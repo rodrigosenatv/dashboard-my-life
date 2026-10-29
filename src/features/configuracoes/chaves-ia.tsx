@@ -6,7 +6,7 @@ import { toast } from "sonner"
 import { Botao } from "@/components/ui/button"
 import { Secao } from "@/components/ui/basicos"
 import { Campo, Entrada } from "@/components/ui/campos"
-import { PROVEDORES, type InfoProvedor } from "@/lib/ia/info"
+import { PROVEDORES, type InfoProvedor, type Provedor } from "@/lib/ia/info"
 import { provedoresAtivos, salvarConfigIA, useConfigIA } from "@/lib/ia/chaves-locais"
 import { useSessao } from "@/components/provedores"
 
@@ -19,6 +19,7 @@ function LinhaProvedor({ p }: { p: InfoProvedor }) {
   const [testando, setTestando] = React.useState(false)
   const valorModelo = modelo ?? atual?.modelo ?? ""
   const padrao = provedoresAtivos(cfg)[0] === p.id
+  const automatico = p.id === "openrouter" || p.id === "gemini"
 
   const gravar = (novaChave: string | null) => {
     const provedores = { ...cfg.provedores }
@@ -32,7 +33,7 @@ function LinhaProvedor({ p }: { p: InfoProvedor }) {
     try {
       const r = await fetch("/api/ia", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ teste: true, provedor: p.id, chave: k, modelo: m }) })
       const corpo = await r.json().catch(() => ({}))
-      if (corpo.ok) toast.success(p.id === "openrouter" && corpo.modelo ? `${p.nome} respondeu pelo modelo ${corpo.modelo}. A chave funciona.` : `${p.nome} respondeu. A chave funciona.`)
+      if (corpo.ok) toast.success(automatico && corpo.modelo ? `${p.nome} respondeu pelo modelo ${corpo.modelo}. A chave funciona.` : `${p.nome} respondeu. A chave funciona.`)
       else toast.error(`${p.nome}: ${corpo.erro ?? `erro ${r.status}`}`)
     } finally {
       setTestando(false)
@@ -57,7 +58,7 @@ function LinhaProvedor({ p }: { p: InfoProvedor }) {
         </a>
       </div>
       <form
-        className={p.id === "openrouter" ? "grid gap-3 sm:grid-cols-[1fr_18rem]" : "grid gap-3 sm:grid-cols-[1fr_12rem]"}
+        className={automatico ? "grid gap-3 sm:grid-cols-[1fr_18rem]" : "grid gap-3 sm:grid-cols-[1fr_12rem]"}
         onSubmit={(e) => {
           e.preventDefault()
           const k = chave.trim() || atual?.chave
@@ -82,7 +83,13 @@ function LinhaProvedor({ p }: { p: InfoProvedor }) {
         <Campo
           rotulo="Modelo"
           htmlFor={`ia-m-${p.id}`}
-          dica={p.id === "openrouter" ? "“auto” usa sempre o gratuito mais avançado e troca sozinho quando um atinge o limite ou sai do ar. Ou liste modelos em ordem, separados por vírgula (pode incluir auto no fim)." : `Ex.: ${p.exemploModelos}`}
+          dica={
+            p.id === "openrouter"
+              ? "“auto” usa sempre o gratuito mais avançado e troca sozinho quando um atinge o limite ou sai do ar. Ou liste modelos em ordem, separados por vírgula (pode incluir auto no fim)."
+              : p.id === "gemini"
+                ? "“auto” usa sempre o melhor modelo liberado para a sua chave e troca sozinho quando um atinge o limite do minuto ou do dia. Ou liste modelos em ordem, separados por vírgula (pode incluir auto no fim)."
+                : `Ex.: ${p.exemploModelos}`
+          }
         >
           <Entrada id={`ia-m-${p.id}`} value={valorModelo} onChange={(e) => setModelo(e.target.value)} placeholder={p.modeloPadrao} spellCheck={false} />
         </Campo>
@@ -127,27 +134,30 @@ function LinhaProvedor({ p }: { p: InfoProvedor }) {
           ) : null}
         </div>
       </form>
-      {p.id === "openrouter" ? <OrdemGratuitos /> : null}
+      {automatico ? <OrdemModelos provedor={p.id} chave={atual?.chave} /> : null}
     </li>
   )
 }
 
-type Gratuito = { id: string; nome: string; contexto: number }
+type ModeloDaFila = { id: string; nome: string; contexto: number }
 
-/** Mostra em que ordem o modo automático vai tentar os modelos gratuitos agora. */
-function OrdemGratuitos() {
+/** Mostra em que ordem o modo automático vai tentar os modelos agora. */
+function OrdemModelos({ provedor, chave }: { provedor: Provedor; chave?: string }) {
   const [aberta, setAberta] = React.useState(false)
-  const [estado, setEstado] = React.useState<{ carregando: boolean; modelos?: Gratuito[]; erro?: string }>({ carregando: false })
+  const [estado, setEstado] = React.useState<{ carregando: boolean; modelos?: ModeloDaFila[]; erro?: string; chave?: string }>({ carregando: false })
+  const gemini = provedor === "gemini"
 
   const alternar = async () => {
     const abrir = !aberta
     setAberta(abrir)
-    if (!abrir || estado.modelos || estado.carregando) return
+    // A lista do Gemini depende da chave: se ela mudou, busca de novo
+    if (!abrir || estado.carregando || (estado.modelos && estado.chave === chave)) return
+    if (gemini && !chave) return setEstado({ carregando: false, erro: "Salve a chave para ver os modelos liberados para ela." })
     setEstado({ carregando: true })
     try {
-      const r = await fetch("/api/ia/gratuitos")
+      const r = await fetch("/api/ia/ordem", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ provedor, chave: gemini ? chave : undefined }) })
       const corpo = await r.json().catch(() => ({}))
-      setEstado(r.ok && Array.isArray(corpo.modelos) ? { carregando: false, modelos: corpo.modelos } : { carregando: false, erro: corpo.erro ?? `Erro ${r.status}` })
+      setEstado(r.ok && Array.isArray(corpo.modelos) ? { carregando: false, modelos: corpo.modelos, chave } : { carregando: false, erro: corpo.erro ?? `Erro ${r.status}` })
     } catch {
       setEstado({ carregando: false, erro: "Sem conexão. Tente de novo." })
     }
@@ -157,13 +167,13 @@ function OrdemGratuitos() {
     <div className="mt-3 border-t border-line pt-3">
       <button type="button" onClick={alternar} aria-expanded={aberta} className="inline-flex min-h-9 items-center gap-1.5 text-sm text-ink-2 hover:text-ink">
         <ChevronDown className={`size-4 transition-transform ${aberta ? "rotate-180" : ""}`} />
-        Ordem atual dos modelos gratuitos
+        {gemini ? "Ordem atual dos modelos" : "Ordem atual dos modelos gratuitos"}
       </button>
       {aberta ? (
         <div className="mt-2">
           {estado.carregando ? (
             <p className="flex items-center gap-2 text-sm text-ink-3" role="status">
-              <LoaderCircle className="size-4 animate-spin" /> Consultando o OpenRouter…
+              <LoaderCircle className="size-4 animate-spin" /> Consultando o {gemini ? "Google" : "OpenRouter"}…
             </p>
           ) : estado.erro ? (
             <p className="text-sm text-danger">{estado.erro}</p>
@@ -181,9 +191,15 @@ function OrdemGratuitos() {
                   </li>
                 ))}
               </ol>
+              {gemini ? (
+                <p className="mt-2 text-xs text-ink-3">
+                  Geração mais nova primeiro; dentro dela, Pro, Flash e Flash-Lite, com a versão estável antes da prévia. Os limites do Gemini são de cada modelo: quando um esgota, o próximo responde. Modelos fora do nível gratuito da sua chave ficam de lado por 12 horas. Atenção: com faturamento ativado no Google, os modelos Pro respondem e são cobrados. Para usar só modelos Flash, escreva-os em ordem no campo Modelo.
+                </p>
+              ) : (
               <p className="mt-2 text-xs text-ink-3">
                 A ordem é estimada pelo preço da versão paga de cada modelo, tamanho, raciocínio, contexto e data de lançamento, e é atualizada a cada 30 minutos. Cada troca de modelo gasta um pedido da cota gratuita (cerca de 50 por dia sem créditos comprados).
               </p>
+              )}
             </>
           )}
         </div>
