@@ -12,6 +12,7 @@ import { novoId, useAtualizar, useCriar, useExcluir, useLista, useRegistro } fro
 import type { Tables } from "@/lib/supabase/database.types"
 import { FORMATOS_CONTEUDO, STATUS_CONTEUDO } from "@/lib/rotulos"
 import { isoDia } from "@/lib/utils"
+import { GerarRoteiro, type MudancasGeradas } from "./gerar-roteiro"
 import { MODELOS } from "./modelos"
 import { MenuNovaVersao } from "./nova-versao"
 
@@ -63,6 +64,8 @@ export function DialogoConteudo({
   const [comentarios, setComentarios] = React.useState("")
   const [compart, setCompart] = React.useState("")
   const [modoRoteiro, setModoRoteiro] = React.useState<"editar" | "ler">("editar")
+  // A IA está escrevendo o roteiro: ele muda sozinho até ela terminar
+  const [gerando, setGerando] = React.useState(false)
 
   const preencher = (item: Conteudo | null) => {
     setTitulo(item?.title ?? "")
@@ -111,8 +114,16 @@ export function DialogoConteudo({
   const alternar = (p: string) =>
     setPlataformas((atual) => (atual.includes(p) ? atual.filter((x) => x !== p) : [...atual, p]))
 
-  // Sem o registro inteiro em mãos, salvar gravaria um roteiro vazio por cima do existente
-  const podeSalvar = Boolean(titulo.trim()) && !esperandoRoteiro
+  /** O que a IA gerou (ou o "Desfazer", que volta ao que era). */
+  const aplicarGerado = (m: MudancasGeradas) => {
+    if (m.roteiro !== undefined) setRoteiro(m.roteiro)
+    if (m.titulo !== undefined) setTitulo(m.titulo)
+    if (m.formato !== undefined) setFormato(m.formato)
+  }
+
+  // Sem o registro inteiro em mãos, salvar gravaria um roteiro vazio por cima do existente;
+  // com a IA escrevendo, gravaria o roteiro pela metade
+  const podeSalvar = Boolean(titulo.trim()) && !esperandoRoteiro && !gerando
 
   /** Grava o que está na janela e devolve os campos gravados. */
   const gravar = () => {
@@ -243,20 +254,43 @@ export function DialogoConteudo({
               Roteiro
             </h3>
             {MODELOS.map((m) => (
-              <Botao key={m.id} type="button" variante="contorno" tamanho="sm" onClick={() => usarModelo(m)} title={`Inserir o modelo Viral Canva de ${m.rotulo}`}>
+              <Botao
+                key={m.id}
+                type="button"
+                variante="contorno"
+                tamanho="sm"
+                disabled={gerando}
+                onClick={() => usarModelo(m)}
+                title={`Inserir o modelo Viral Canva de ${m.rotulo}`}
+              >
                 <LayoutTemplate /> Modelo {m.rotulo}
               </Botao>
             ))}
             <Segmentos
               rotulo="Modo do roteiro"
               valor={modoRoteiro}
-              aoMudar={setModoRoteiro}
+              aoMudar={(v) => !gerando && setModoRoteiro(v)}
               opcoes={[
                 { valor: "ler", rotulo: "Ler" },
                 { valor: "editar", rotulo: "Editar" },
               ]}
             />
           </div>
+          <GerarRoteiro
+            titulo={titulo}
+            formato={formato}
+            plataformas={plataformas}
+            linha={linhas.find((l) => l.id === linha)?.name ?? null}
+            roteiro={roteiro}
+            bloqueado={esperandoRoteiro}
+            abertoDeInicio={!item ? true : completo.data ? !completo.data.script?.trim() : null}
+            aoAplicar={aplicarGerado}
+            aoGerando={(g) => {
+              setGerando(g)
+              // O roteiro aparece pronto para ler enquanto a IA escreve
+              if (g) setModoRoteiro("ler")
+            }}
+          />
           {modoRoteiro === "editar" ? (
             <AreaTexto
               id="ct-roteiro"
@@ -272,7 +306,9 @@ export function DialogoConteudo({
               <Markdown texto={roteiro} aoMudar={setRoteiro} className="[&>*:first-child]:mt-0" />
             </div>
           ) : (
-            <p className="rounded-md border border-dashed border-line p-4 text-sm text-ink-3">Roteiro vazio. Escolha um modelo ou passe para Editar.</p>
+            <p role={gerando ? "status" : undefined} className="rounded-md border border-dashed border-line p-4 text-sm text-ink-3">
+              {gerando ? "A IA está começando o roteiro…" : "Roteiro vazio. Gere com IA, escolha um modelo ou passe para Editar."}
+            </p>
           )}
         </section>
         <div className="grid gap-3 sm:grid-cols-2">

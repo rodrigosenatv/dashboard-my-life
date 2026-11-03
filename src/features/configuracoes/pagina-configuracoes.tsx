@@ -15,6 +15,7 @@ import { BUCKET_ARQUIVOS } from "@/lib/supabase/env"
 import { numero } from "@/lib/utils"
 import { useConfiguracoes, useSalvarConfiguracoes, type Preferencias } from "./dados"
 import { ChavesIA } from "./chaves-ia"
+import { SecaoPromptsRoteiro } from "@/features/planner/prompts-roteiro"
 import { FRASE_PADRAO } from "@/lib/marca"
 import type { Plano } from "@/features/importar/notion"
 import type { Preparado } from "@/features/importar/preparar"
@@ -25,13 +26,16 @@ const TAMANHO_MAXIMO_CAPA = 8 * 1024 * 1024
 export function PaginaConfiguracoes() {
   return (
     <div className="max-w-3xl">
-      <Cabecalho titulo="Configurações" descricao="Seu perfil, a aparência do app, as chaves de IA e a importação do Notion." />
+      <Cabecalho titulo="Configurações" descricao="Seu perfil, a aparência do app, as chaves e os prompts de IA e a importação do Notion." />
       <div className="grid gap-12">
         <Perfil />
         <Aparencia />
         <InstalarApp />
         <div id="ia" className="scroll-mt-6">
           <ChavesIA />
+        </div>
+        <div id="roteiro-ia" className="scroll-mt-6">
+          <SecaoPromptsRoteiro />
         </div>
         <ImportarNotion />
         <CopiaSeguranca />
