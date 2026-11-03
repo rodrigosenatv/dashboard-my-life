@@ -12,6 +12,15 @@ const SISTEMA =
   "Você é o assistente pessoal do app My Life. Responda em português do Brasil, de forma clara e prática. " +
   "Quando receber um prompt da biblioteca do usuário, execute-o como pedido."
 
+// "Gerar com IA" no conteúdo do Planner: todas as partes do roteiro num pedido só, com os prompts da pessoa
+const SISTEMA_ROTEIRO =
+  "Você é roteirista de conteúdo para redes sociais no app My Life. Escreva em português do Brasil, com linguagem natural, pronta para gravar e publicar. " +
+  "Siga à risca o formato de resposta pedido: cada parte começa pela linha de título dela, e nada vem antes da primeira parte."
+
+// O roteiro inteiro (título, gancho, desenvolvimento, legenda, hashtags, checklist…) passa de 4 mil tokens nos
+// modelos que pensam antes de responder
+const LIMITE_ROTEIRO = 8192
+
 /**
  * Conversa com a IA escolhida. A chave vem do navegador (guardada só nele) e é
  * usada apenas neste pedido. O aplicativo não fornece chaves ou créditos de IA.
@@ -32,9 +41,11 @@ export async function POST(request: NextRequest) {
   let provedor: Provedor = "anthropic"
   let credencial: Chave | null = null
   let teste = false
+  let roteiro = false
   try {
     const corpo = await request.json()
     teste = corpo.teste === true
+    roteiro = corpo.modo === "roteiro"
     mensagens = teste
       ? [{ role: "user", content: "Responda apenas com a palavra: ok" }]
       : (corpo.mensagens ?? [])
@@ -56,7 +67,7 @@ export async function POST(request: NextRequest) {
   }
 
   const hoje = new Date().toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo", weekday: "long", day: "numeric", month: "long", year: "numeric" })
-  const sistema = `${SISTEMA} Hoje é ${hoje}.`
+  const sistema = `${roteiro && !teste ? SISTEMA_ROTEIRO : SISTEMA} Hoje é ${hoje}.`
 
   if (teste) {
     try {
@@ -76,7 +87,7 @@ export async function POST(request: NextRequest) {
   // Espera o primeiro pedaço antes de abrir o fluxo: assim um erro vira uma resposta
   // de erro de verdade, e o cabeçalho já informa qual modelo respondeu.
   let modeloUsado = credencial.modelo
-  const pedacos = responder(provedor, credencial, sistema, mensagens, undefined, parar.signal, (m) => (modeloUsado = m))
+  const pedacos = responder(provedor, credencial, sistema, mensagens, roteiro ? LIMITE_ROTEIRO : undefined, parar.signal, (m) => (modeloUsado = m))
   let primeiro: IteratorResult<string>
   try {
     primeiro = await pedacos.next()

@@ -230,6 +230,12 @@
   }
 }
 
+/* Com uma janela aberta, o resto da página não recebe toques; os avisos (e o "Desfazer" deles) recebem. Sem isto,
+   o toque no aviso caía no botão da janela que estava embaixo dele. */
+[data-sonner-toast][data-visible="true"] {
+  pointer-events: auto;
+}
+
 /* Utilidades próprias */
 @utility tabular {
   font-variant-numeric: tabular-nums;
@@ -1195,7 +1201,8 @@ a:focus-visible .livro3d-corpo,
   position: absolute;
   inset: -12%;
   border-radius: 50%;
-  background: conic-gradient(from 0deg, transparent, var(--b-luz-2), transparent 30%, var(--b-luz), transparent 62%);
+  /* Fora de uma tela com tema (ex.: o conteúdo aberto pelo "Novo" do topo), o anel fica nas cores do estúdio */
+  background: conic-gradient(from 0deg, transparent, var(--b-luz-2, #1f6079), transparent 30%, var(--b-luz, var(--conteudo)), transparent 62%);
   -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1.5px));
   mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1.5px));
 }

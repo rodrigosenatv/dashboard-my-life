@@ -24,26 +24,39 @@ export function useConfiguracoes() {
   })
 }
 
+export type CamposConfiguracoes = {
+  display_name?: string | null
+  /**
+   * Só o que mudou: é juntado ao que está gravado, para uma tela não apagar a preferência de outra. Como função,
+   * recebe as preferências lidas do banco na hora (para mudar uma parte de uma preferência sem apagar o resto).
+   */
+  prefs?: Preferencias | ((gravadas: Preferencias) => Preferencias)
+}
+
+/** Grava as configurações (sem aviso nem atualização das telas: veja `useSalvarConfiguracoes`). */
+export async function gravarConfiguracoes(campos: CamposConfiguracoes) {
+  const sb = supabase()
+  const { prefs, ...resto } = campos
+  let envio: Record<string, unknown> = resto
+  if (prefs) {
+    const { data: atual, error } = await sb.from("settings").select("prefs").maybeSingle()
+    if (error) throw new Error(error.message)
+    const gravadas = (atual?.prefs ?? {}) as Preferencias
+    envio = { ...resto, prefs: { ...gravadas, ...(typeof prefs === "function" ? prefs(gravadas) : prefs) } }
+  }
+  const { data, error } = await sb
+    .from("settings")
+    .upsert(envio as never, { onConflict: "user_id" })
+    .select()
+    .single()
+  if (error) throw new Error(error.message)
+  return data
+}
+
 export function useSalvarConfiguracoes() {
   const qc = useQueryClient()
   return useMutation({
-    /** `prefs` recebe só o que mudou: é juntado ao que está gravado, para uma tela não apagar a preferência de outra. */
-    mutationFn: async (campos: { display_name?: string | null; prefs?: Preferencias }) => {
-      const sb = supabase()
-      let envio = campos
-      if (campos.prefs) {
-        const { data: atual, error } = await sb.from("settings").select("prefs").maybeSingle()
-        if (error) throw new Error(error.message)
-        envio = { ...campos, prefs: { ...((atual?.prefs ?? {}) as Preferencias), ...campos.prefs } }
-      }
-      const { data, error } = await sb
-        .from("settings")
-        .upsert(envio as never, { onConflict: "user_id" })
-        .select()
-        .single()
-      if (error) throw new Error(error.message)
-      return data
-    },
+    mutationFn: gravarConfiguracoes,
     onSuccess: () => qc.invalidateQueries({ queryKey: ["settings"] }),
     onError: (erro) => toast.error("Não foi possível salvar.", { description: erro instanceof Error ? erro.message : undefined }),
   })

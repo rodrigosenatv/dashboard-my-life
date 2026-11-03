@@ -37,6 +37,10 @@ export function Janela({
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-ink/30 backdrop-blur-[2px] data-[state=open]:animate-[fade-in_120ms_ease-out] dark:bg-black/50" />
         <Dialog.Content
+          // Um toque num aviso (o "Desfazer" de uma ação feita aqui dentro) não fecha a janela
+          onInteractOutside={(e) => {
+            if ((e.target as Element | null)?.closest?.("[data-sonner-toaster]")) e.preventDefault()
+          }}
           className={cn(
             tema,
             "fixed z-50 flex max-h-[92dvh] flex-col bg-surface text-ink shadow-overlay outline-none data-[state=open]:animate-subir",
