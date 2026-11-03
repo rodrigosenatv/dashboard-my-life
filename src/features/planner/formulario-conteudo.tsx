@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { BotaoExcluir } from "@/components/ui/botao-excluir"
-import { LayoutTemplate } from "lucide-react"
+import { CopyPlus, LayoutTemplate } from "lucide-react"
 import { MarkdownSobDemanda as Markdown } from "@/components/markdown-sob-demanda"
 import { ErroCarregar, Segmentos } from "@/components/ui/basicos"
 import { Botao } from "@/components/ui/button"
@@ -11,7 +11,9 @@ import { Janela } from "@/components/ui/janela"
 import { novoId, useAtualizar, useCriar, useExcluir, useLista, useRegistro } from "@/lib/data"
 import type { Tables } from "@/lib/supabase/database.types"
 import { FORMATOS_CONTEUDO, STATUS_CONTEUDO } from "@/lib/rotulos"
+import { isoDia } from "@/lib/utils"
 import { MODELOS } from "./modelos"
+import { MenuNovaVersao } from "./nova-versao"
 
 type Conteudo = Tables<"content_items">
 
@@ -28,12 +30,15 @@ export function DialogoConteudo({
   item,
   statusInicial,
   dataInicial,
+  aoNovaVersao,
 }: {
   aberta: boolean
   aoMudar: (v: boolean) => void
   item?: Conteudo | null
   statusInicial?: string
   dataInicial?: string
+  /** Nova versão em outro formato, com o que está na janela agora (já gravado). */
+  aoNovaVersao?: (item: Conteudo, formato: string, roteiro: string | null) => void
 }) {
   const criar = useCriar("content_items", { aviso: "Conteúdo criado" })
   const atualizar = useAtualizar("content_items")
@@ -106,17 +111,19 @@ export function DialogoConteudo({
   const alternar = (p: string) =>
     setPlataformas((atual) => (atual.includes(p) ? atual.filter((x) => x !== p) : [...atual, p]))
 
-  const salvar = (e: React.FormEvent) => {
-    e.preventDefault()
-    // Sem o registro inteiro em mãos, salvar gravaria um roteiro vazio por cima do existente
-    if (!titulo.trim() || esperandoRoteiro) return
+  // Sem o registro inteiro em mãos, salvar gravaria um roteiro vazio por cima do existente
+  const podeSalvar = Boolean(titulo.trim()) && !esperandoRoteiro
+
+  /** Grava o que está na janela e devolve os campos gravados. */
+  const gravar = () => {
     const campos = {
       title: titulo.trim(),
       status,
       format: formato || null,
       editorial_line_id: linha || null,
       platforms: plataformas,
-      publish_date: data || null,
+      // Publicado sem data: vale o dia de hoje (o ritmo da semana conta pela data)
+      publish_date: data || (status === "publicado" ? isoDia() : null),
       script: roteiro.trim() || null,
       reference_url: referencia.trim() || null,
       published_url: publicado.trim() || null,
@@ -127,6 +134,20 @@ export function DialogoConteudo({
     }
     if (item) atualizar.mutate({ id: item.id, ...campos })
     else criar.mutate({ id: novoId(), position: Date.now(), ...campos })
+    return campos
+  }
+
+  const salvar = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!podeSalvar) return
+    gravar()
+    aoMudar(false)
+  }
+
+  const novaVersao = (novoFormato: string) => {
+    if (!item || !podeSalvar || !aoNovaVersao) return
+    const campos = gravar()
+    aoNovaVersao({ ...item, ...campos }, novoFormato, campos.script)
     aoMudar(false)
   }
 
@@ -149,7 +170,7 @@ export function DialogoConteudo({
           <Botao variante="fantasma" onClick={() => aoMudar(false)}>
             Cancelar
           </Botao>
-          <Botao variante="primario" type="submit" form="form-conteudo" disabled={!titulo.trim() || esperandoRoteiro}>
+          <Botao variante="primario" type="submit" form="form-conteudo" disabled={!podeSalvar}>
             {item ? "Salvar" : "Criar conteúdo"}
           </Botao>
         </>
@@ -263,19 +284,33 @@ export function DialogoConteudo({
           </Campo>
         </div>
         {status === "publicado" || views || likes ? (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <Campo rotulo="Visualizações" htmlFor="ct-v">
-              <Entrada id="ct-v" inputMode="numeric" value={views} onChange={(e) => setViews(e.target.value)} />
-            </Campo>
-            <Campo rotulo="Curtidas" htmlFor="ct-l">
-              <Entrada id="ct-l" inputMode="numeric" value={likes} onChange={(e) => setLikes(e.target.value)} />
-            </Campo>
-            <Campo rotulo="Comentários" htmlFor="ct-c">
-              <Entrada id="ct-c" inputMode="numeric" value={comentarios} onChange={(e) => setComentarios(e.target.value)} />
-            </Campo>
-            <Campo rotulo="Compartilhamentos" htmlFor="ct-s">
-              <Entrada id="ct-s" inputMode="numeric" value={compart} onChange={(e) => setCompart(e.target.value)} />
-            </Campo>
+          <fieldset className="grid gap-2">
+            <legend className="text-sm font-medium text-ink-2">Números</legend>
+            <p className="-mt-0.5 text-xs text-ink-3">Anote uns 7 dias depois de publicar, para comparar os posts na mesma idade. Compartilhamentos (os envios por mensagem) costumam ser o sinal que mais pesa no Instagram.</p>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              <Campo rotulo="Visualizações" htmlFor="ct-v">
+                <Entrada id="ct-v" inputMode="numeric" value={views} onChange={(e) => setViews(e.target.value)} />
+              </Campo>
+              <Campo rotulo="Curtidas" htmlFor="ct-l">
+                <Entrada id="ct-l" inputMode="numeric" value={likes} onChange={(e) => setLikes(e.target.value)} />
+              </Campo>
+              <Campo rotulo="Comentários" htmlFor="ct-c">
+                <Entrada id="ct-c" inputMode="numeric" value={comentarios} onChange={(e) => setComentarios(e.target.value)} />
+              </Campo>
+              <Campo rotulo="Compartilhamentos" htmlFor="ct-s">
+                <Entrada id="ct-s" inputMode="numeric" value={compart} onChange={(e) => setCompart(e.target.value)} />
+              </Campo>
+            </div>
+          </fieldset>
+        ) : null}
+        {item && aoNovaVersao ? (
+          <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 rounded-xl border border-dashed border-line-strong px-3 py-2.5">
+            <p className="min-w-0 text-sm text-ink-2">Levar este assunto para outro formato. O que mudou aqui é salvo antes.</p>
+            <MenuNovaVersao formatoAtual={formato || null} aoEscolher={novaVersao}>
+              <Botao variante="contorno" tamanho="sm" disabled={!podeSalvar} className="rounded-full">
+                <CopyPlus /> Nova versão
+              </Botao>
+            </MenuNovaVersao>
           </div>
         ) : null}
       </form>

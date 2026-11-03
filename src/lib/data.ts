@@ -59,6 +59,18 @@ export function useLista<T extends TableName>(tabela: T, opcoes: OpcoesLista = {
   })
 }
 
+/** Uma linha pelo id, direto do banco (o pedido de `useRegistro`, para usar fora de um componente). */
+export async function buscarRegistro<T extends TableName>(tabela: T, id: string, signal?: AbortSignal): Promise<Tables<T> | null> {
+  let q: any = (supabase().from(tabela) as any).select("*").eq("id", id)
+  if (signal) q = q.abortSignal(signal)
+  const { data, error } = await q.maybeSingle()
+  if (error) throw new Error(error.message)
+  return (data ?? null) as Tables<T> | null
+}
+
+/** A chave do cache de uma linha pelo id (a mesma de `useRegistro`). */
+export const chaveRegistro = (tabela: TableName, id: string | null | undefined): unknown[] => [tabela, "um", id]
+
 /** Uma linha pelo id. */
 export function useRegistro<T extends TableName>(
   tabela: T,
@@ -66,13 +78,9 @@ export function useRegistro<T extends TableName>(
   extra?: Partial<UseQueryOptions<Tables<T> | null>>,
 ) {
   return useQuery({
-    queryKey: [tabela, "um", id],
+    queryKey: chaveRegistro(tabela, id),
     enabled: Boolean(id),
-    queryFn: async ({ signal }) => {
-      const { data, error } = await (supabase().from(tabela) as any).select("*").eq("id", id).abortSignal(signal).maybeSingle()
-      if (error) throw new Error(error.message)
-      return (data ?? null) as Tables<T> | null
-    },
+    queryFn: ({ signal }) => buscarRegistro(tabela, id as string, signal),
     ...extra,
   })
 }
