@@ -21,6 +21,13 @@
   }
 }
 
+/* Tela baixa (celular deitado): o que é fixo em cima ou embaixo encolhe para o conteúdo ganhar altura */
+@custom-variant baixa {
+  @media (height < 31.25rem) {
+    @slot;
+  }
+}
+
 :root {
   --bg: #f3f5f6;
   --surface: #ffffff;

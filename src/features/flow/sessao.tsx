@@ -38,6 +38,7 @@ import {
 } from "./logica"
 import { useEventos, useTarefas } from "./dados"
 import { PilulaFoco } from "./indicador"
+import { ConviteDoQuadro, QuadroNaSessao, useQuadroDosAlvos } from "./quadro"
 import { foco, useAgora, useAvisoFoco, useRestante, useSessaoFoco } from "./relogio"
 
 const FASES: Fase[] = ["foco", "pausa", "longa"]
@@ -74,6 +75,7 @@ export function SessaoFoco() {
   const { data: tarefasBanco, isSuccess: tarefasCarregadas } = useTarefas()
   const { data: eventosBanco } = useEventos()
   const { data: projetos } = useProjetosPorNome()
+  const quadro = useQuadroDosAlvos()
   const tarefas = tarefasBanco ?? SEM_TAREFAS
   const eventos = eventosBanco ?? SEM_EVENTOS
   const nomesProjetos = React.useMemo(() => new Map((projetos ?? []).map((p) => [p.id, p.name])), [projetos])
@@ -116,6 +118,80 @@ export function SessaoFoco() {
     acaoComDesfazer("Timer reiniciado", () => foco.trocarRitmo(r))
   }
 
+  const timer = (
+    <div className="grid justify-items-center">
+      <div className="relative grid size-56 place-items-center sm:size-64">
+        <svg viewBox="0 0 100 100" className="absolute inset-0 -rotate-90" aria-hidden>
+          <circle cx="50" cy="50" r={RAIO} fill="none" strokeWidth="4" className="stroke-surface-3" />
+          {/* Traço reto: com a ponta redonda, um arco quase zerado aparecia como um pontinho no topo */}
+          <circle
+            cx="50"
+            cy="50"
+            r={RAIO}
+            fill="none"
+            strokeWidth="4"
+            strokeLinecap="butt"
+            strokeDasharray={VOLTA}
+            strokeDashoffset={VOLTA * (restante / duracaoFase)}
+            className={cn("motion-safe:transition-[stroke-dashoffset] motion-safe:duration-300", s.fase === "foco" ? "stroke-estudos" : "stroke-rotina")}
+          />
+        </svg>
+        <div className="grid justify-items-center">
+          <span role="timer" aria-live="off" className="font-display text-6xl font-semibold tabular tracking-tight sm:text-7xl">
+            {mmss(restante)}
+          </span>
+          <span className="mt-1 text-sm font-medium text-ink-2">
+            {ROTULO_FASE[s.fase]}
+            {pausadaNoMeio ? <span className="text-ink-3"> · pausado</span> : null}
+          </span>
+        </div>
+      </div>
+      <div role="img" aria-label={textoBolinhas(n)} className="mt-3 flex gap-1.5">
+        {Array.from({ length: CICLOS_ATE_LONGA }, (_, i) => (
+          <span key={i} aria-hidden className={cn("size-2 rounded-full", i < n ? "bg-estudos" : "bg-surface-3")} />
+        ))}
+      </div>
+      <div className="mt-5 flex items-center gap-2">
+        <Botao variante="primario" tamanho="lg" className="min-w-36" onClick={() => foco.alternar()}>
+          {rodando(s) ? <Pause /> : <Play />} {rotuloBotao(s)}
+        </Botao>
+        <Botao
+          variante="fantasma"
+          tamanho="icone"
+          aria-label="Reiniciar"
+          title="Reiniciar"
+          onClick={() => acaoComDesfazer("Timer reiniciado", () => foco.reiniciar())}
+        >
+          <RotateCcw />
+        </Botao>
+        <Botao
+          variante="fantasma"
+          tamanho="icone"
+          aria-label={s.fase === "foco" ? "Pular para a pausa" : "Pular para o foco"}
+          title={s.fase === "foco" ? "Pular para a pausa" : "Pular para o foco"}
+          onClick={() => acaoComDesfazer("Fase pulada", () => foco.pular())}
+        >
+          <SkipForward />
+        </Botao>
+      </div>
+      <p className="mt-3 text-center text-sm text-ink-3">{resumoDoDia(s, hoje)}</p>
+    </div>
+  )
+
+  const proximoBloco = (
+    <div className="flex gap-2.5 text-sm">
+      <CalendarClock aria-hidden className="mt-0.5 size-4 shrink-0 text-ink-3" />
+      <div>
+        <p className="text-ink-2">{textoProximo(proximo)}</p>
+        {conflito ? (
+          <p className="mt-1 flex items-center gap-1.5 font-medium text-warning">
+            <TriangleAlert aria-hidden className="size-3.5" /> Começa antes de este ciclo terminar.
+          </p>
+        ) : null}
+      </div>
+    </div>
+  )
+
   return (
     <section id="sessao-foco" aria-label="Sessão de foco" ref={ref} className="scroll-mt-20 rounded-2xl border border-line bg-surface p-5 sm:p-7 lg:p-8">
       {/* Linha de cima: a fase e o ritmo */}
@@ -151,83 +227,31 @@ export function SessaoFoco() {
         </label>
       </div>
 
-      <div className="mt-6 grid items-center gap-8 lg:grid-cols-2 lg:gap-10">
-        {/* Timer */}
-        <div className="grid justify-items-center">
-          <div className="relative grid size-56 place-items-center sm:size-64">
-            <svg viewBox="0 0 100 100" className="absolute inset-0 -rotate-90" aria-hidden>
-              <circle cx="50" cy="50" r={RAIO} fill="none" strokeWidth="4" className="stroke-surface-3" />
-              {/* Traço reto: com a ponta redonda, um arco quase zerado aparecia como um pontinho no topo */}
-              <circle
-                cx="50"
-                cy="50"
-                r={RAIO}
-                fill="none"
-                strokeWidth="4"
-                strokeLinecap="butt"
-                strokeDasharray={VOLTA}
-                strokeDashoffset={VOLTA * (restante / duracaoFase)}
-                className={cn("motion-safe:transition-[stroke-dashoffset] motion-safe:duration-300", s.fase === "foco" ? "stroke-estudos" : "stroke-rotina")}
-              />
-            </svg>
-            <div className="grid justify-items-center">
-              <span role="timer" aria-live="off" className="font-display text-6xl font-semibold tabular tracking-tight sm:text-7xl">
-                {mmss(restante)}
-              </span>
-              <span className="mt-1 text-sm font-medium text-ink-2">
-                {ROTULO_FASE[s.fase]}
-                {pausadaNoMeio ? <span className="text-ink-3"> · pausado</span> : null}
-              </span>
+      {quadro.temQuadro ? (
+        // Com o quadro dos alvos: o timer e o quadro lado a lado (no celular, o quadro logo abaixo do timer), para
+        // os alvos ficarem à vista o foco inteiro; a tarefa e o próximo compromisso descem para a linha de baixo
+        <div className="mt-6 grid gap-x-10 gap-y-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:items-center">
+          {timer}
+          <QuadroNaSessao quadro={quadro} />
+          <div className="min-w-0 border-t border-line pt-5 lg:self-start">
+            <PainelDeFoco s={s} tarefa={tarefa} deHoje={deHoje} hoje={hoje} nomesProjetos={nomesProjetos} />
+          </div>
+          <div className="min-w-0 border-t border-line pt-5 lg:self-start">{proximoBloco}</div>
+        </div>
+      ) : (
+        <>
+          <div className="mt-6 grid items-center gap-8 lg:grid-cols-2 lg:gap-10">
+            {timer}
+            {/* Foco e próximo compromisso */}
+            <div className="min-w-0 lg:border-l lg:border-line lg:pl-10">
+              <PainelDeFoco s={s} tarefa={tarefa} deHoje={deHoje} hoje={hoje} nomesProjetos={nomesProjetos} />
+              <hr className="my-5 border-line" />
+              {proximoBloco}
             </div>
           </div>
-          <div role="img" aria-label={textoBolinhas(n)} className="mt-3 flex gap-1.5">
-            {Array.from({ length: CICLOS_ATE_LONGA }, (_, i) => (
-              <span key={i} aria-hidden className={cn("size-2 rounded-full", i < n ? "bg-estudos" : "bg-surface-3")} />
-            ))}
-          </div>
-          <div className="mt-5 flex items-center gap-2">
-            <Botao variante="primario" tamanho="lg" className="min-w-36" onClick={() => foco.alternar()}>
-              {rodando(s) ? <Pause /> : <Play />} {rotuloBotao(s)}
-            </Botao>
-            <Botao
-              variante="fantasma"
-              tamanho="icone"
-              aria-label="Reiniciar"
-              title="Reiniciar"
-              onClick={() => acaoComDesfazer("Timer reiniciado", () => foco.reiniciar())}
-            >
-              <RotateCcw />
-            </Botao>
-            <Botao
-              variante="fantasma"
-              tamanho="icone"
-              aria-label={s.fase === "foco" ? "Pular para a pausa" : "Pular para o foco"}
-              title={s.fase === "foco" ? "Pular para a pausa" : "Pular para o foco"}
-              onClick={() => acaoComDesfazer("Fase pulada", () => foco.pular())}
-            >
-              <SkipForward />
-            </Botao>
-          </div>
-          <p className="mt-3 text-center text-sm text-ink-3">{resumoDoDia(s, hoje)}</p>
-        </div>
-
-        {/* Foco e próximo compromisso */}
-        <div className="min-w-0 lg:border-l lg:border-line lg:pl-10">
-          <PainelDeFoco s={s} tarefa={tarefa} deHoje={deHoje} hoje={hoje} nomesProjetos={nomesProjetos} />
-          <hr className="my-5 border-line" />
-          <div className="flex gap-2.5 text-sm">
-            <CalendarClock aria-hidden className="mt-0.5 size-4 shrink-0 text-ink-3" />
-            <div>
-              <p className="text-ink-2">{textoProximo(proximo)}</p>
-              {conflito ? (
-                <p className="mt-1 flex items-center gap-1.5 font-medium text-warning">
-                  <TriangleAlert aria-hidden className="size-3.5" /> Começa antes de este ciclo terminar.
-                </p>
-              ) : null}
-            </div>
-          </div>
-        </div>
-      </div>
+          <ConviteDoQuadro quadro={quadro} />
+        </>
+      )}
 
       <p role="status" aria-live="polite" className="sr-only">
         {aviso?.texto ?? ""}
