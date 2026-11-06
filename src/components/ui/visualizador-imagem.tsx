@@ -44,7 +44,7 @@ export function VisualizadorDeImagem({ url, aberto, aoMudar, titulo, legenda, ac
   return (
     <Dialog.Root open={aberto} onOpenChange={aoMudar}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/[0.97] data-[state=open]:animate-[fade-in_160ms_ease-out]" />
+        <Dialog.Overlay className="fixed inset-0 z-50 bg-black data-[state=open]:animate-[fade-in_160ms_ease-out]" />
         <Dialog.Content
           className="fixed inset-0 z-50 text-white outline-none data-[state=open]:animate-[fade-in_160ms_ease-out]"
           // O foco começa no X: Enter ou Esc fecham sem precisar procurar o botão
