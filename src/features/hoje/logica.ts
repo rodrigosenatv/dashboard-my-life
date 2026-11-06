@@ -1,4 +1,4 @@
-// As contas da página Hoje (testadas em tests/hoje.test.cjs): tarefas do dia, agenda e a linha do dia.
+// As contas da página Hoje (testadas em tests/hoje.test.cjs): tarefas do dia, agenda, a linha do dia e os ajustes da imagem da capa.
 
 /** AAAA-MM-DD no fuso do aparelho. */
 export function diaLocal(d: Date): string {
@@ -101,4 +101,33 @@ export function capturasNaCaixa(capturas: { id: string; archived: boolean; area_
 /** A posição de uma tarefa nova: o instante de agora, que cresce sempre, põe a tarefa no fim da lista. */
 export function posicaoNoFim(): number {
   return Date.now()
+}
+
+/** A cor de cada tipo de compromisso, na agenda e na linha do dia. */
+export function corDoEvento(categoria: string | null): string {
+  if (categoria === "Reunião") return "var(--b-violeta)"
+  if (categoria === "Aniversário") return "var(--b-rosa)"
+  if (categoria === "Viagem") return "var(--b-ambar)"
+  return "var(--b-luz)"
+}
+
+/* A imagem da capa ------------------------------------------------- */
+
+/** Quanto a imagem da capa aparece: o véu na cor do papel, atrás do texto, fica mais forte ou mais leve. */
+export type DestaqueCapa = "discreta" | "equilibrada" | "destaque"
+export const DESTAQUES_CAPA: readonly DestaqueCapa[] = ["discreta", "equilibrada", "destaque"]
+
+/** O ponto da imagem que fica sempre à vista quando ela não cabe inteira na capa (em % da largura e da altura). */
+export type FocoCapa = { x: number; y: number }
+export type AjustesCapa = { destaque: DestaqueCapa; foco: FocoCapa }
+
+/** Os ajustes da imagem da capa gravados nas preferências; o que falta ou veio estragado volta ao padrão. */
+export function ajustesDaCapa(prefs: Record<string, unknown> | null | undefined): AjustesCapa {
+  const destaque = DESTAQUES_CAPA.find((d) => d === prefs?.capaDestaque) ?? "equilibrada"
+  const foco = (prefs?.capaFoco ?? {}) as { x?: unknown; y?: unknown }
+  return { destaque, foco: { x: porcentagemValida(foco.x), y: porcentagemValida(foco.y) } }
+}
+
+function porcentagemValida(v: unknown): number {
+  return typeof v === "number" && Number.isFinite(v) ? Math.min(100, Math.max(0, Math.round(v))) : 50
 }

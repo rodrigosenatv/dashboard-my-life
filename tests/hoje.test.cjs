@@ -89,3 +89,17 @@ test('textos de espera e a caixa de entrada', () => {
   ]
   assert.equal(L.capturasNaCaixa(caps, new Set(['e'])), 1)
 })
+
+test('ajustes da imagem da capa: o que falta ou veio errado volta ao padrão', () => {
+  assert.deepEqual(L.ajustesDaCapa(undefined), { destaque: 'equilibrada', foco: { x: 50, y: 50 } })
+  assert.deepEqual(L.ajustesDaCapa({ capaDestaque: 'destaque', capaFoco: { x: 30, y: 72 } }), { destaque: 'destaque', foco: { x: 30, y: 72 } })
+  assert.deepEqual(L.ajustesDaCapa({ capaDestaque: 'discreta', capaFoco: null }), { destaque: 'discreta', foco: { x: 50, y: 50 } })
+  // Valores fora do esperado (de outra versão do app ou editados à mão)
+  assert.deepEqual(L.ajustesDaCapa({ capaDestaque: 'forte', capaFoco: { x: 130, y: -4 } }), { destaque: 'equilibrada', foco: { x: 100, y: 0 } })
+  assert.deepEqual(L.ajustesDaCapa({ capaFoco: { x: '20', y: 33.6 } }), { destaque: 'equilibrada', foco: { x: 50, y: 34 } })
+})
+
+test('a cor de cada tipo de compromisso', () => {
+  assert.equal(L.corDoEvento('Reunião'), 'var(--b-violeta)')
+  assert.equal(L.corDoEvento(null), 'var(--b-luz)')
+})

@@ -992,6 +992,170 @@ a:focus-visible .livro3d-corpo,
   background: var(--surface);
 }
 
+/* A imagem da capa (o quadro dos alvos, por exemplo), enquadrada no ponto escolhido em Configurações */
+.capa-imagem {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* O véu na cor do papel fica atrás do texto e deixa o resto da imagem à mostra. Com a capa larga, a data e o
+   resumo ficam à esquerda: o véu é forte ali e some aos poucos para a direita. Com a capa estreita (celular),
+   o texto ocupa a largura toda e o véu é por igual. A força vem de "Imagem na capa", em Configurações. */
+.capa-veu {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: color-mix(in oklab, var(--surface) var(--veu-estreita), transparent);
+}
+@container (width >= 48rem) {
+  .capa-veu {
+    background:
+      /* Uma nuvem suave atrás da frase, no canto de cima à direita */
+      radial-gradient(ellipse 30% 42% at 87% 30%, color-mix(in oklab, var(--surface) var(--veu-frase), transparent), transparent),
+      linear-gradient(
+        to right,
+        color-mix(in oklab, var(--surface) var(--veu-1), transparent) 0%,
+        color-mix(in oklab, var(--surface) var(--veu-2), transparent) 36%,
+        color-mix(in oklab, var(--surface) var(--veu-3), transparent) 64%,
+        color-mix(in oklab, var(--surface) var(--veu-4), transparent) 100%
+      );
+  }
+}
+.capa-hoje[data-imagem="discreta"] {
+  --veu-1: 97%;
+  --veu-2: 90%;
+  --veu-3: 76%;
+  --veu-4: 62%;
+  --veu-frase: 0%;
+  --veu-estreita: 86%;
+}
+.capa-hoje[data-imagem="equilibrada"] {
+  --veu-1: 92%;
+  --veu-2: 78%;
+  --veu-3: 42%;
+  --veu-4: 22%;
+  --veu-frase: 55%;
+  --veu-estreita: 72%;
+}
+.capa-hoje[data-imagem="destaque"] {
+  --veu-1: 84%;
+  --veu-2: 58%;
+  --veu-3: 16%;
+  --veu-4: 4%;
+  --veu-frase: 50%;
+  --veu-estreita: 56%;
+}
+
+/* Sobre a imagem, o texto ganha um contorno fino na cor do papel (como o nome das ruas num mapa): continua legível
+   em cima de partes claras e escuras. O campo de captura, as pílulas e o botão têm fundo próprio. */
+.capa-hoje[data-imagem] {
+  --halo: color-mix(in oklab, var(--surface) 92%, transparent);
+  --halo-suave: color-mix(in oklab, var(--surface) 50%, transparent);
+  text-shadow:
+    0 0 1px var(--halo),
+    0 0 1px var(--halo),
+    0 0 2px var(--halo),
+    0 0 3px var(--halo),
+    0 0 12px var(--halo-suave);
+}
+/* A frase, grande e escrita à mão, fica sobre a nuvem do véu: só um brilho suave, sem contorno */
+.capa-hoje[data-imagem] .frase-luz {
+  text-shadow:
+    0 0 2px var(--halo-suave),
+    0 0 16px var(--halo);
+}
+.capa-hoje[data-imagem] :is(input, .capa-pilula, .capa-ver-quadro) {
+  text-shadow: none;
+}
+.capa-hoje[data-imagem] .linha-dia-trilho {
+  background: color-mix(in oklab, var(--ink) 24%, transparent);
+  box-shadow: 0 0 6px var(--halo);
+}
+.capa-hoje[data-imagem] .linha-dia-agora {
+  box-shadow:
+    0 0 0 1.5px var(--b-luz),
+    0 0 8px var(--halo);
+}
+
+/* "Ver quadro": no canto da capa, sobre a imagem, abre a imagem inteira em tela cheia. Fica acima da data
+   (no celular, entre o rótulo "Hoje" e o número do dia) para não cobrir texto. */
+.capa-ver-quadro {
+  position: absolute;
+  top: 0.625rem;
+  right: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  min-width: 2.25rem;
+  height: 2.25rem;
+  padding-inline: 0.625rem;
+  border: 1px solid var(--b-borda-2);
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--surface) 80%, transparent);
+  color: var(--ink-2);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  transition:
+    color 150ms,
+    background-color 150ms,
+    border-color 150ms;
+}
+/* No toque, a área do botão cresce para 44px sem o desenho crescer (e sem encostar na data) */
+.capa-ver-quadro::before {
+  content: "";
+  position: absolute;
+  inset: -0.25rem;
+}
+.capa-ver-quadro:hover {
+  color: var(--ink);
+  border-color: var(--b-luz);
+  background: color-mix(in oklab, var(--surface) 92%, transparent);
+}
+.capa-ver-quadro:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+.capa-ver-quadro svg {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+}
+@media (width >= 40rem) {
+  /* Com a margem maior da capa: alinhado ao rótulo "Hoje" e à margem do texto */
+  .capa-ver-quadro {
+    top: 1.125rem;
+    right: 1.75rem;
+  }
+}
+
+/* A imagem em tela cheia (VisualizadorDeImagem): em tela baixa (celular deitado), os botões ficam por cima da
+   imagem, sobre uma sombra, e ela ganha a altura toda */
+@media (max-height: 31.25rem) {
+  .visualizador-topo {
+    position: absolute;
+    inset-inline: 0;
+    top: 0;
+    z-index: 10;
+    pointer-events: none;
+    background: linear-gradient(to bottom, rgb(0 0 0 / 0.7), rgb(0 0 0 / 0));
+  }
+  .visualizador-topo :is(button, a) {
+    pointer-events: auto;
+  }
+  /* A legenda ficaria por cima da imagem: some */
+  .visualizador-legenda {
+    display: none;
+  }
+}
+
 /* O número do dia: grande, na cor da tinta */
 .numero-dia {
   font-family: var(--font-display);

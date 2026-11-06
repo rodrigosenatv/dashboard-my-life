@@ -5,7 +5,7 @@ import { useQueryClient } from "@tanstack/react-query"
 import { Download, FileArchive, ImageUp, LoaderCircle, LogOut, Upload } from "lucide-react"
 import { toast } from "sonner"
 import { Botao } from "@/components/ui/button"
-import { Cabecalho, Progresso, Secao, Segmentos } from "@/components/ui/basicos"
+import { Cabecalho, Esqueleto, Progresso, Secao, Segmentos } from "@/components/ui/basicos"
 import { Campo, Entrada } from "@/components/ui/campos"
 import { Confirmar } from "@/components/ui/janela"
 import { useSessao, useTema, type Tema } from "@/components/provedores"
@@ -17,6 +17,9 @@ import { useConfiguracoes, useSalvarConfiguracoes, type Preferencias } from "./d
 import { ChavesIA } from "./chaves-ia"
 import { SecaoPromptsRoteiro } from "@/features/planner/prompts-roteiro"
 import { FRASE_PADRAO } from "@/lib/marca"
+import { useUrlArquivo } from "@/lib/arquivos"
+import { ajustesDaCapa, type AjustesCapa, type DestaqueCapa } from "@/features/hoje/logica"
+import { EscolherFoco } from "./foco-capa"
 import type { Plano } from "@/features/importar/notion"
 import type { Preparado } from "@/features/importar/preparar"
 import type { Progresso as EstadoProgresso } from "@/features/importar/executar"
@@ -82,7 +85,7 @@ function Aparencia() {
 
   const arquivos = () => supabase().storage.from(BUCKET_ARQUIVOS)
 
-  const salvarPrefs = (mudancas: Record<string, string | null>, aviso: string, depois?: { deuCerto?: () => void; falhou?: () => void }) =>
+  const salvarPrefs: SalvarPrefs = (mudancas, aviso, depois) =>
     salvar.mutate(
       { prefs: mudancas },
       {
@@ -108,7 +111,8 @@ function Aparencia() {
       if (error) throw new Error(error.message)
       // A imagem antiga só sai depois que a nova estiver gravada nas preferências; se gravar falhar, a nova é que sai
       const antiga = prefs.capa
-      salvarPrefs({ capa: caminho }, "Capa atualizada", {
+      // O ponto de foco era da imagem antiga: a nova começa centralizada
+      salvarPrefs({ capa: caminho, capaFoco: null }, "Capa atualizada", {
         deuCerto: () => {
           if (antiga) void arquivos().remove([antiga])
         },
@@ -146,9 +150,12 @@ function Aparencia() {
           </Campo>
           <Botao type="submit" variante="contorno" disabled={salvar.isPending}>Salvar</Botao>
         </form>
-        <div>
+        <div id="capa" className="scroll-mt-6">
           <p className="mb-1.5 text-sm font-medium">Imagem de capa</p>
-          <p className="mb-3 text-sm text-ink-3">Use a capa do seu Notion ou qualquer imagem larga. Sem imagem, a capa mostra o nome e a frase.</p>
+          <p className="mb-3 text-sm text-ink-3">
+            Use o seu quadro dos alvos, a capa do Notion ou qualquer imagem larga. Na página Hoje, &ldquo;Ver quadro&rdquo; abre a imagem inteira. Sem imagem, a capa mostra a data e a frase.
+          </p>
+          {prefs.capa ? <AjustesDaImagem caminho={prefs.capa} ajustes={ajustesDaCapa(prefs)} salvar={salvarPrefs} /> : null}
           <input
             ref={entradaCapa}
             type="file"
@@ -170,7 +177,7 @@ function Aparencia() {
                 variante="fantasma"
                 onClick={() => {
                   const antiga = prefs.capa!
-                  salvarPrefs({ capa: null }, "Capa removida", { deuCerto: () => void arquivos().remove([antiga]) })
+                  salvarPrefs({ capa: null, capaFoco: null }, "Capa removida", { deuCerto: () => void arquivos().remove([antiga]) })
                 }}
               >
                 Remover imagem
@@ -180,6 +187,60 @@ function Aparencia() {
         </div>
       </div>
     </Secao>
+  )
+}
+
+type SalvarPrefs = (mudancas: Preferencias, aviso: string, depois?: { deuCerto?: () => void; falhou?: () => void }) => void
+
+const DICAS_DESTAQUE: Record<DestaqueCapa, string> = {
+  discreta: "A imagem fica bem suave, atrás do texto, como era antes.",
+  equilibrada: "A imagem aparece mais e o texto continua com um fundo suave para ler bem.",
+  destaque: "A imagem quase sem véu; o texto ganha uma sombra para continuar legível.",
+}
+
+/** O enquadramento e o quanto a imagem de capa aparece (o véu atrás do texto), gravados nas preferências. */
+function AjustesDaImagem({ caminho, ajustes, salvar }: { caminho: string; ajustes: AjustesCapa; salvar: SalvarPrefs }) {
+  const { data: url } = useUrlArquivo(caminho)
+  // A opção tocada fica marcada na hora, sem esperar a gravação
+  const [destaque, setDestaque] = React.useState<DestaqueCapa | null>(null)
+  React.useEffect(() => setDestaque(null), [ajustes.destaque])
+  const valor = destaque ?? ajustes.destaque
+  const centralizado = ajustes.foco.x === 50 && ajustes.foco.y === 50
+
+  return (
+    <div className="mb-5 grid gap-5">
+      <div>
+        {url ? <EscolherFoco url={url} foco={ajustes.foco} aoMudar={(f) => salvar({ capaFoco: f }, "Enquadramento salvo")} /> : <Esqueleto className="aspect-video w-full max-w-md rounded-xl" />}
+        <p className="mt-2 max-w-md text-sm text-ink-3">
+          Toque na imagem para marcar a parte que sempre aparece. A capa corta as bordas quando a imagem não cabe inteira: em cima e embaixo no computador, dos lados no celular.
+          {!centralizado ? (
+            <>
+              {" "}
+              <button type="button" className="font-medium text-pen underline-offset-2 hover:underline" onClick={() => salvar({ capaFoco: null }, "Enquadramento no centro")}>
+                Voltar ao centro
+              </button>
+            </>
+          ) : null}
+        </p>
+      </div>
+      <div>
+        <p className="mb-1.5 text-sm font-medium">Quanto a imagem aparece</p>
+        <Segmentos<DestaqueCapa>
+          rotulo="Quanto a imagem aparece na capa"
+          valor={valor}
+          aoMudar={(v) => {
+            setDestaque(v)
+            salvar({ capaDestaque: v }, "Capa ajustada", { falhou: () => setDestaque(null) })
+          }}
+          opcoes={[
+            { valor: "discreta", rotulo: "Discreta" },
+            { valor: "equilibrada", rotulo: "Equilibrada" },
+            { valor: "destaque", rotulo: "Em destaque" },
+          ]}
+        />
+        <p className="mt-2 text-sm text-ink-3">{DICAS_DESTAQUE[valor]}</p>
+      </div>
+    </div>
   )
 }
 
