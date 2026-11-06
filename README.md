@@ -50,6 +50,14 @@ A página inicial é a ponte de comando do dia: o azul petróleo da capa do cade
 - **Atalhos e resumos.** Os atalhos com o ícone aceso na cor da área do destino (no celular, os nomes longos quebram em duas linhas); as metas do ano, os livros em leitura e os projetos em andamento, com o anel, as etapas e o prazo.
 - Código: `src/features/hoje` (`ponte.tsx` a página; `logica.ts` as contas de tarefas, agenda e linha do dia, testada em `tests/hoje.test.cjs`) e o bloco "Hoje: a ponte de comando do dia" do `src/app/globals.css`.
 
+## Flow (Vida pessoal > Flow)
+
+O modo foco numa tela só: a sessão de foco (o timer, a tarefa em foco e o próximo compromisso), as tarefas e a agenda de hoje, as músicas, as ferramentas e as anotações.
+
+- **Quadro dos alvos.** Na sessão de foco, o quadro fica ao lado do timer (no celular, logo abaixo dele), inteiro, sem corte nem véu, para os alvos estarem à vista durante todo o foco; a tarefa e o próximo compromisso descem para a linha de baixo. Sem quadro, o fim da sessão convida a pôr um: "Adicionar imagem" (ou soltar a imagem ali) e, se a capa do Hoje tem imagem, "Usar a imagem da capa do Hoje" (uma cópia: mexer na capa não leva o quadro junto). No "⋯", trocar a imagem ou remover (com confirmação). A imagem é otimizada no envio (até 1920 px) e fica em `arquivos/<usuário>/flow/`, com o caminho em `settings.prefs.quadroAlvos`. O aparelho lembra se há quadro, para o lugar dele aparecer antes das preferências chegarem (sem pulo na tela). Sem migração no banco.
+- **Tela de foco.** Um toque no quadro (ou "Tela de foco") abre o quadro grande, em tela cheia, com as cores dele desfocadas preenchendo as sobras, e o timer discreto embaixo: a fase, quanto falta, a tarefa, pausar ou continuar e uma barra fina com quanto da fase já passou. A tela fica acesa enquanto ela está aberta; Espaço pausa e continua; Esc, o X ou sair da tela cheia fecham (e o foco do teclado volta para o quadro). Em tela baixa (celular deitado) o timer vira uma linha só; no celular em pé, uma dica sugere deitar o aparelho. O código só é baixado quando ela vai abrir.
+- Código: `src/features/flow` (`sessao.tsx` a sessão de foco; `quadro.tsx` o quadro e o convite; `tela-foco.tsx` a tela de foco; `quadro-logica.ts` as regras do quadro, testadas em `tests/flow-quadro.test.cjs`) e a variante `baixa:` (tela com menos de 500 px de altura) no `src/app/globals.css`.
+
 ## Biblioteca (Estudos > Leitura)
 
 A página de leitura é uma biblioteca do futuro: livros em 3D, prateleiras com luz e um painel com a meta do ano, os dias seguidos de leitura e o acervo em números.
@@ -152,6 +160,7 @@ Estrutura principal:
 - `src/app/(app)` rotas do app; `src/features/*` cada módulo; `src/components` interface compartilhada.
 - `src/features/importar` leitura do .zip do Notion e gravação no Supabase.
 - `src/features/hoje` a página Hoje: capa do dia, linha do dia, rituais, tarefas, agenda e resumos (`logica.ts`, testada em `tests/hoje.test.cjs`).
+- `src/features/flow` o Flow: sessão de foco com o quadro dos alvos e a tela de foco, tarefas e agenda de hoje, músicas e ferramentas.
 - `src/features/leitura` biblioteca: prateleiras, capas, busca de livros, diário e meta de leitura.
 - `src/features/cursos` plataforma de cursos: trilha de aulas e ações lidas das anotações (`logica.ts`, testada em `tests/cursos.test.cjs`).
 - `src/features/laboratorio` laboratório de experimentos: andamento dos testes, diário e protocolo (`logica.ts`, testada em `tests/laboratorio.test.cjs`).
