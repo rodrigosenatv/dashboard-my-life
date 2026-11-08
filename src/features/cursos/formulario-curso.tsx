@@ -40,6 +40,7 @@ export function JanelaCurso({
   const [link, setLink] = React.useState("")
   const [email, setEmail] = React.useState("")
   const [progresso, setProgresso] = React.useState<number | null>(null)
+  const salvando = criar.isPending || atualizar.isPending
 
   React.useEffect(() => {
     if (!aberta) return
@@ -67,9 +68,9 @@ export function JanelaCurso({
 
   const salvar = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!nome.trim()) return
+    if (!nome.trim() || salvando) return
     const campos = {
-      name: nome.replace(/\s+/g, " ").trim(),
+      name: nome.replace(/\\s+/g, " ").trim(),
       status,
       categories: areas,
       url: link.trim() || null,
@@ -77,39 +78,45 @@ export function JanelaCurso({
       progress: status === "concluido" ? 100 : progresso,
     }
     if (curso) {
-      atualizar.mutate({ id: curso.id, ...campos })
-      aoMudar(false)
+      atualizar.mutate(
+        { id: curso.id, ...campos },
+        { onSuccess: () => {
+          toast.success("Dados do curso atualizados.")
+          aoMudar(false)
+        } },
+      )
       return
     }
     const id = novoId()
-    // A tela do curso abre quando ele já está no banco (com os dados prontos, sem piscar "não encontrado")
+    // A coluna position é INTEGER no Postgres: milissegundos de Date.now() causam overflow.
+    // Minutos desde a época Unix preservam a ordenação e cabem com folga em INTEGER.
     criar.mutate(
-      { id, ...campos, position: Date.now() },
+      { id, ...campos, position: Math.floor(Date.now() / 60_000) },
       {
         onSuccess: (novo) => {
           qc.setQueryData(["courses", "um", id], novo)
           toast.success("Curso na plataforma. Anote a primeira aula quando começar.")
+          aoMudar(false)
           router.push(`/estudos/cursos/${id}`)
         },
       },
     )
-    aoMudar(false)
   }
 
   return (
     <Janela
       aberta={aberta}
-      aoMudar={aoMudar}
+      aoMudar={(valor) => { if (!salvando) aoMudar(valor) }}
       titulo={curso ? "Dados do curso" : "Novo curso"}
       largura="md"
       className="tema-cursos"
       rodape={
         <>
-          <Botao variante="fantasma" onClick={() => aoMudar(false)}>
+          <Botao variante="fantasma" onClick={() => aoMudar(false)} disabled={salvando}>
             Cancelar
           </Botao>
-          <Botao variante="primario" type="submit" form="form-curso" disabled={!nome.trim()}>
-            {curso ? "Salvar" : "Adicionar curso"}
+          <Botao variante="primario" type="submit" form="form-curso" disabled={!nome.trim() || salvando}>
+            {salvando ? "Salvando…" : curso ? "Salvar" : "Adicionar curso"}
           </Botao>
         </>
       }
