@@ -70,7 +70,7 @@ export function JanelaCurso({
     e.preventDefault()
     if (!nome.trim() || salvando) return
     const campos = {
-      name: nome.replace(/\\s+/g, " ").trim(),
+      name: nome.replace(/\s+/g, " ").trim(),
       status,
       categories: areas,
       url: link.trim() || null,
