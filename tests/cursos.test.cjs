@@ -127,6 +127,101 @@ test('busca nas aulas: título, módulo e texto, sem acento', () => {
   assert.equal(C.buscarAulas(m.aulas, 'inexistente').length, 0)
 })
 
+test('materiais: os links e os arquivos das seções "Links" e "Materiais & Arquivos"', () => {
+  const texto = [
+    '> **Links:**',
+    '',
+    '- [Área de membros](https://hotmart.com/clube/x)',
+    '- Grupo do Telegram: https://t.me/grupo.',
+    '- https://www.skills.sh/remotion-dev/skills',
+    '- [script](javascript:alert(1)) e [e-mail](mailto:a@b.c)',
+    '',
+    '> **Materiais & Arquivos:**',
+    '',
+    '[Apostila (v2).pdf](arquivo://u1%2Fnotion%2F0-Apostila%20(v2).pdf)',
+    '![](arquivo://u1%2Fnotion%2F1-capa.png)',
+    '',
+    '### Conteúdo',
+    '',
+    '## 01 - Aula',
+    '',
+    '- Link de aula não entra: https://exemplo.com/aula',
+  ].join('\n')
+  const m = C.analisarCurso(texto)
+  assert.deepEqual(m.materiais.map((x) => [x.tipo, x.titulo, x.detalhe]), [
+    ['link', 'Área de membros', 'hotmart.com'],
+    ['link', 'Grupo do Telegram', 't.me'],
+    ['link', 'skills.sh', 'remotion-dev/skills'],
+    ['arquivo', 'Apostila (v2).pdf', 'PDF'],
+    ['arquivo', '1-capa.png', 'Imagem'],
+  ])
+  assert.equal(m.materiais[1].url, 'https://t.me/grupo')
+  assert.equal(m.materiais[3].caminho, 'u1/notion/0-Apostila (v2).pdf')
+  // As seções não viram aulas
+  assert.deepEqual(m.aulas.map((a) => a.titulo), ['01 - Aula'])
+  assert.deepEqual(C.analisarCurso('').materiais, [])
+})
+
+test('guardar link: só http(s), no fim de "Links" (ou numa seção nova no começo)', () => {
+  assert.equal(C.normalizarLink(' www.site.com/a '), 'https://www.site.com/a')
+  assert.equal(C.normalizarLink('https://pt.wikipedia.org/wiki/Corte_(cinema)'), 'https://pt.wikipedia.org/wiki/Corte_%28cinema%29')
+  for (const ruim of ['', 'javascript:alert(1)', 'arquivo://x', 'ftp://a.b/c', 'duas palavras', 'semponto', 'http://localhost']) assert.equal(C.normalizarLink(ruim), null, ruim)
+
+  const novo = C.adicionarLink('', { url: 'hotmart.com/x', titulo: ' Área [de] membros ' })
+  assert.equal(novo, '### Links\n\n- [Área (de) membros](https://hotmart.com/x)\n')
+  const dois = C.adicionarLink(novo, { url: 'https://t.me/g' })
+  assert.equal(dois, '### Links\n\n- [Área (de) membros](https://hotmart.com/x)\n- https://t.me/g\n')
+  assert.deepEqual(C.analisarCurso(dois).materiais.map((x) => x.titulo), ['Área (de) membros', 't.me'])
+  assert.equal(C.adicionarLink(dois, { url: 'nada' }), dois)
+
+  // Num texto com aulas, a seção nova entra no começo e as aulas continuam as mesmas
+  const comLinks = C.adicionarLink(ORDEM, { url: 'https://a.com', titulo: 'A' })
+  assert.deepEqual(C.analisarCurso(comLinks).materiais.map((x) => x.url), ['https://a.com'])
+  assert.deepEqual(C.analisarCurso(comLinks).aulas.map((a) => a.titulo), C.analisarCurso(ORDEM).aulas.map((a) => a.titulo))
+  assert.equal(C.analisarCurso(comLinks).praticas.length, 3)
+  // Sem a seção "Links" do modelo no texto: cria "### Links" antes do resto
+  const semModelo = '## 01 - Aula\n\n- ponto\n'
+  assert.equal(C.adicionarLink(semModelo, { url: 'https://a.com' }), '### Links\n\n- https://a.com\n\n## 01 - Aula\n\n- ponto\n')
+})
+
+test('guardar arquivos: em "Materiais", depois dos links; tirar um material devolve o texto de antes', () => {
+  const base = '### Links\n\n- https://a.com\n\n## 01 - Aula\n\n- ponto\n'
+  const ref = C.refDoArquivo('u1/cursos/c1/materiais/abc-apostila (1).pdf')
+  assert.equal(ref, 'arquivo://u1%2Fcursos%2Fc1%2Fmateriais%2Fabc-apostila%20%281%29.pdf')
+  assert.equal(C.caminhoDoArquivo(ref), 'u1/cursos/c1/materiais/abc-apostila (1).pdf')
+  const com = C.adicionarArquivos(base, [{ nome: 'Apostila (1).pdf', caminho: 'u1/cursos/c1/materiais/abc-apostila (1).pdf' }])
+  assert.equal(com, `### Links\n\n- https://a.com\n\n### Materiais\n\n- [Apostila (1).pdf](${ref})\n\n## 01 - Aula\n\n- ponto\n`)
+  const m = C.analisarCurso(com)
+  assert.deepEqual(m.materiais.map((x) => [x.tipo, x.titulo, x.detalhe]), [['link', 'a.com', ''], ['arquivo', 'Apostila (1).pdf', 'PDF']])
+  assert.deepEqual(m.aulas.map((a) => a.titulo), ['01 - Aula'])
+  assert.equal(C.ehMaterialEnviado(m.materiais[1].caminho, 'c1'), true)
+  assert.equal(C.ehMaterialEnviado(m.materiais[1].caminho, 'c2'), false)
+  assert.equal(C.ehMaterialEnviado('u1/notion/0-a.pdf', 'c1'), false)
+
+  // Tirar: a linha sai; com a linha mudada, o texto volta igual
+  const semArquivo = C.removerMaterial(com, m.materiais[1])
+  assert.deepEqual(C.analisarCurso(semArquivo).materiais.map((x) => x.url), ['https://a.com'])
+  assert.equal(C.removerMaterial(com, { linha: 0, url: 'https://a.com' }), com)
+  // Dois links na mesma linha: sai só o pedido
+  const dupla = '### Links\n\nDrive: https://d.com/x e site: https://s.com\n'
+  const md = C.analisarCurso(dupla)
+  assert.deepEqual(md.materiais.map((x) => x.titulo), ['Drive', 'e site'])
+  assert.equal(C.removerMaterial(dupla, md.materiais[0]), '### Links\n\nDrive: e site: https://s.com\n')
+})
+
+test('arquivos do curso: tipos aceitos e nome seguro para o storage', () => {
+  assert.equal(C.tipoDoArquivo('Apostila Final.PDF'), 'PDF')
+  assert.equal(C.tipoDoArquivo('dados.xlsx'), 'Planilha')
+  assert.equal(C.tipoDoArquivo('sem-extensao'), 'Arquivo')
+  for (const ok of ['a.pdf', 'b.DOCX', 'c.png', 'd.mp4', 'e.zip']) assert.equal(C.arquivoPermitido(ok), true, ok)
+  for (const nao of ['pagina.html', 'vetor.svg', 'x.js', 'instalar.exe', 'sem-extensao', 'truque.pdf.html']) assert.equal(C.arquivoPermitido(nao), false, nao)
+  assert.equal(C.nomeSeguro('Apostila de Edição (versão 2).PDF'), 'apostila-de-edicao-versao-2.pdf')
+  assert.equal(C.nomeSeguro('../../etc/passwd'), 'etc-passwd')
+  assert.equal(C.nomeSeguro('😀.png'), 'arquivo.png')
+  assert.ok(C.nomeSeguro('a'.repeat(200) + '.pdf').length <= 64)
+  assert.ok(C.EXTENSOES_DE_MATERIAL.includes('.pdf') && !C.EXTENSOES_DE_MATERIAL.includes('.html'))
+})
+
 test('marcar, tirar e acrescentar ações sem mexer no resto', () => {
   const m = C.analisarCurso(ORDEM)
   const marcado = C.marcarPratica(ORDEM, m.praticas[0].linha, true)

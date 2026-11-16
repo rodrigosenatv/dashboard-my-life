@@ -39,7 +39,7 @@ import { copiarTexto } from "@/lib/copiar"
 import { cn } from "@/lib/utils"
 import { JanelaAula } from "./aula"
 import { CapaCurso, IconePlataforma } from "./capa"
-import { apagarCapasDoCurso, useCapaDoCurso, useCapasDosCursos, useCurso, useCursos, useMudarNotas, useMudarStatus, type Curso } from "./dados"
+import { apagarCapasDoCurso, apagarMateriaisDoCurso, useCapaDoCurso, useCapasDosCursos, useCurso, useCursos, useMudarNotas, useMudarStatus, type Curso } from "./dados"
 import { BotaoFoco } from "./foco"
 import { JanelaCurso } from "./formulario-curso"
 import {
@@ -61,6 +61,7 @@ import {
   type MapaCurso,
   type StatusCurso,
 } from "./logica"
+import { ListaMateriais } from "./materiais"
 import { ListaPraticas } from "./praticar"
 
 const MOLDURA = "tema-cursos plataforma -mx-4 -mb-28 -mt-5 min-h-[calc(100dvh-7rem)] px-4 pb-32 pt-5 sm:mx-0 sm:mb-0 sm:mt-0 sm:min-h-0 sm:rounded-[1.75rem] sm:px-6 sm:pb-10 sm:pt-6 lg:px-8"
@@ -166,13 +167,14 @@ export function PaginaCurso() {
 
       <Cabeca curso={curso} mapa={mapa} caminhoCapa={caminhoCapa} enviandoCapa={capa.enviando} aoAnotar={anotar} aoCapa={() => entradaCapa.current?.click()} aoVerAula={(aula) => trilha.current?.mostrar(aula)} />
 
-      {/* No celular: a trilha, o que praticar, o acesso e o caderno. No computador, praticar e acesso à direita */}
+      {/* No celular: a trilha, o que praticar, os links e arquivos, o acesso e o caderno. No computador, os três cartões à direita */}
       <div className="mt-10 grid gap-10 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
         <div className="min-w-0 lg:col-start-1 lg:row-start-1">
           <Trilha ref={trilha} curso={curso} mapa={mapa} aoAnotar={anotar} aoAbrirAula={(aula) => setJanelaAula({ aberta: true, aula })} />
         </div>
         <aside className="grid gap-4 lg:sticky lg:top-6 lg:col-start-2 lg:row-span-2 lg:row-start-1">
           <ListaPraticas curso={curso} praticas={mapa.praticas} />
+          <ListaMateriais curso={curso} materiais={mapa.materiais} />
           <Acesso curso={curso} aoEditar={() => setEditar(true)} />
         </aside>
         <div className="min-w-0 lg:col-start-1 lg:row-start-2">
@@ -187,11 +189,12 @@ export function PaginaCurso() {
         aoMudar={setApagar}
         className="tema-cursos"
         titulo={`Excluir “${curso.name}”?`}
-        descricao="O curso, as aulas anotadas e as ações saem da plataforma."
+        descricao="O curso, as aulas anotadas, as ações e os arquivos guardados nele saem da plataforma."
         aoConfirmar={() => {
           excluir.mutate(curso.id, {
             onSuccess: () => {
               void apagarCapasDoCurso(curso.id)
+              void apagarMateriaisDoCurso(curso.id)
               toast.success("Curso excluído.")
             },
           })

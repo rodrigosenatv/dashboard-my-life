@@ -124,6 +124,23 @@ export type MapaCurso = {
   inicioConteudo: number
   /** O rótulo "Modelagem (Passo a Passo)" (ou "Para praticar") e onde o bloco termina. */
   blocoPratica: { linha: number; fim: number } | null
+  /** Os links e os arquivos guardados no curso (das seções "Links" e "Materiais & Arquivos"). */
+  materiais: Material[]
+  blocoLinks: { linha: number; fim: number } | null
+  blocoMateriais: { linha: number; fim: number } | null
+}
+
+/** Um link ou um arquivo guardado no curso: uma linha das seções "Links" ou "Materiais & Arquivos". */
+export type Material = {
+  linha: number
+  /** O endereço como está no texto (https://… ou arquivo://…). */
+  url: string
+  tipo: "link" | "arquivo"
+  titulo: string
+  /** A segunda linha: o site do link ou o tipo do arquivo ("PDF", "Planilha"). */
+  detalhe: string
+  /** Só nos arquivos: o caminho no storage. */
+  caminho: string | null
 }
 
 /** O título parece de aula: numerado ("01 - ", "Aula 3", "#F02 01 - ") ou começa com "Aula". */
@@ -224,7 +241,31 @@ export function analisarCurso(texto: string | null | undefined): MapaCurso {
     }
   }
 
-  return { aulas, modulos, praticas, nivelAula, nivelModulo, inicioConteudo, blocoPratica }
+  // Onde os links e os materiais ficam: do rótulo até o próximo título ou rótulo
+  const bloco = (padrao: RegExp): { linha: number; fim: number } | null => {
+    for (let i = 0; i < info.length; i++) {
+      const l = info[i]
+      if ((l.tipo !== "titulo" && l.tipo !== "rotulo") || !padrao.test(chave(l.texto))) continue
+      let fim = info.length
+      for (let j = i + 1; j < info.length; j++) {
+        if (info[j].tipo === "titulo" || info[j].tipo === "rotulo") {
+          fim = j
+          break
+        }
+      }
+      return { linha: i, fim }
+    }
+    return null
+  }
+  const blocoLinks = bloco(BLOCO_LINKS)
+  const blocoMateriais = bloco(BLOCO_MATERIAIS)
+  const materiais: Material[] = []
+  for (const b of [blocoLinks, blocoMateriais]) {
+    if (!b) continue
+    for (let i = b.linha + 1; i < b.fim; i++) materiais.push(...materiaisDaLinha(linhas[i], i))
+  }
+
+  return { aulas, modulos, praticas, nivelAula, nivelModulo, inicioConteudo, blocoPratica, materiais, blocoLinks, blocoMateriais }
 }
 
 const mapas = new Map<string, MapaCurso>()
@@ -455,6 +496,221 @@ export function removerAula(texto: string, aula: Pick<Aula, "linha" | "titulo">)
   while (antes.length && !antes[antes.length - 1].trim()) antes.pop()
   while (depois.length && !depois[0].trim()) depois.shift()
   return juntar([...antes, ...(antes.length && depois.length ? [""] : []), ...depois])
+}
+
+/* ------------------------------------------------------------------ */
+/* Materiais: os links e os arquivos guardados no curso                */
+/* ------------------------------------------------------------------ */
+
+/*
+ * Os links ficam na seção "Links" das anotações e os arquivos em "Materiais & Arquivos" (as duas do modelo
+ * do Notion): uma linha por item, "- [Nome](https://…)" ou "- [apostila.pdf](arquivo://…)". Um arquivo é
+ * um endereço "arquivo://" com o caminho dele no storage, o mesmo formato que a importação do Notion grava
+ * e que o leitor de markdown abre. Assim a lista da tela e o caderno do curso mostram sempre a mesma coisa.
+ */
+
+const BLOCO_LINKS = /^links?\b/
+const BLOCO_MATERIAIS = /^(materia(l|is)|arquivos)\b/
+
+/** O começo dos endereços de arquivos do storage nos textos (o mesmo de `PREFIXO_ARQUIVO`, em lib/arquivos). */
+const ARQUIVO = "arquivo://"
+
+/** "[texto](endereço)" (com um nível de parênteses no endereço) ou um endereço solto. */
+const LINK_NO_TEXTO = /(!?)\[([^\]]*)\]\(\s*<?((?:[^()\s<>]|\([^()\s]*\))+)>?(?:\s+"[^"]*")?\s*\)|((?:https?|arquivo):\/\/(?:[^\s<>"'()\]]|\([^\s()]*\))+)/gi
+
+type Achado = { inicio: number; fim: number; texto: string; url: string }
+
+function linksDaLinha(linha: string): Achado[] {
+  const achados: Achado[] = []
+  for (const m of linha.matchAll(LINK_NO_TEXTO)) {
+    const inicio = m.index ?? 0
+    if (m[3] !== undefined) achados.push({ inicio, fim: inicio + m[0].length, texto: m[2] ?? "", url: m[3] })
+    else {
+      // Endereço solto: a pontuação do fim da frase não faz parte dele
+      const url = m[4].replace(/[.,;:!?]+$/, "")
+      achados.push({ inicio, fim: inicio + url.length, texto: "", url })
+    }
+  }
+  return achados
+}
+
+const MARCA_DE_LISTA = /^[\s>]*(?:[-*+]|\d+[.)])?\s*(?:\[[ xX]\]\s+)?/
+
+function materiaisDaLinha(linha: string, numero: number): Material[] {
+  const achados = linksDaLinha(linha)
+  const materiais: Material[] = []
+  achados.forEach((a, i) => {
+    // O texto antes de um endereço solto é o nome dele ("Grupo do Telegram: https://t.me/x")
+    const antes = linha.slice(i ? achados[i - 1].fim : 0, a.inicio).replace(MARCA_DE_LISTA, "")
+    const nome = textoLimpo(a.texto) || textoLimpo(antes.replace(/[\s:–—|-]+$/, ""))
+    if (a.url.toLowerCase().startsWith(ARQUIVO)) {
+      const caminho = caminhoDoArquivo(a.url)
+      if (!caminho) return
+      const arquivo = caminho.split("/").pop() ?? caminho
+      const titulo = nome && nome !== a.url ? nome : arquivo
+      materiais.push({ linha: numero, url: a.url, tipo: "arquivo", titulo, detalhe: tipoDoArquivo(extensaoDe(arquivo) ? arquivo : titulo), caminho })
+      return
+    }
+    let endereco: URL
+    try {
+      endereco = new URL(a.url)
+    } catch {
+      return
+    }
+    if (endereco.protocol !== "http:" && endereco.protocol !== "https:") return
+    const site = endereco.hostname.replace(/^www\./, "")
+    const resto = decodificar(endereco.pathname).replace(/\/$/, "")
+    const titulo = nome && nome !== a.url ? nome : site
+    materiais.push({ linha: numero, url: a.url, tipo: "link", titulo, detalhe: titulo === site ? resto.replace(/^\//, "") : site, caminho: null })
+  })
+  return materiais
+}
+
+function decodificar(t: string): string {
+  try {
+    return decodeURIComponent(t)
+  } catch {
+    return t
+  }
+}
+
+/** O caminho no storage de um endereço "arquivo://…" (null quando não é um). */
+export function caminhoDoArquivo(url: string): string | null {
+  if (!url.toLowerCase().startsWith(ARQUIVO)) return null
+  const caminho = decodificar(url.slice(ARQUIVO.length)).trim()
+  return caminho || null
+}
+
+const escaparEndereco = (t: string) => t.replace(/[()<>"'\s]/g, (c) => `%${c.charCodeAt(0).toString(16).toUpperCase().padStart(2, "0")}`)
+
+/** O endereço "arquivo://…" de um caminho do storage, pronto para entrar num link de markdown. */
+export function refDoArquivo(caminho: string): string {
+  return ARQUIVO + escaparEndereco(encodeURIComponent(caminho))
+}
+
+/**
+ * O endereço de um link digitado pela pessoa: só http e https ("www.site.com" ganha https), sem espaços,
+ * e com os parênteses e as aspas trocados para não quebrar o markdown. Null quando não é um link.
+ */
+export function normalizarLink(u: string | null | undefined): string | null {
+  const t = (u ?? "").trim()
+  if (!t || /\s/.test(t)) return null
+  const completo = /^https?:\/\//i.test(t) ? t : /^[\w-]+(\.[\w-]+)+([/?#]\S*)?$/.test(t) ? `https://${t}` : null
+  if (!completo) return null
+  try {
+    const endereco = new URL(completo)
+    if ((endereco.protocol !== "http:" && endereco.protocol !== "https:") || !endereco.hostname.includes(".")) return null
+  } catch {
+    return null
+  }
+  return escaparEndereco(completo)
+}
+
+function extensaoDe(nome: string): string {
+  const m = /\.([a-z0-9]{1,8})$/i.exec(nome.trim())
+  return m ? m[1].toLowerCase() : ""
+}
+
+/** Os arquivos que o curso guarda, por tipo (o que não está aqui não é aceito: páginas, SVG, programas). */
+const TIPOS_DE_ARQUIVO: Record<string, string[]> = {
+  PDF: ["pdf"],
+  Documento: ["doc", "docx", "odt", "rtf", "pages"],
+  Planilha: ["xls", "xlsx", "csv", "ods", "numbers"],
+  Apresentação: ["ppt", "pptx", "odp", "key"],
+  Texto: ["txt", "md", "json", "srt", "vtt"],
+  Livro: ["epub", "mobi"],
+  Imagem: ["png", "jpg", "jpeg", "webp", "gif", "avif", "heic"],
+  Áudio: ["mp3", "m4a", "wav", "ogg", "aac", "flac"],
+  Vídeo: ["mp4", "mov", "webm", "mkv", "m4v"],
+  Compactado: ["zip", "rar", "7z"],
+  Projeto: ["psd", "ai", "fig", "xd", "prproj", "aep", "drp", "cdr"],
+}
+const TIPO_DA_EXTENSAO = new Map(Object.entries(TIPOS_DE_ARQUIVO).flatMap(([tipo, extensoes]) => extensoes.map((e) => [e, tipo] as const)))
+
+/** As extensões aceitas, para o seletor de arquivos (".pdf,.docx,…"). */
+export const EXTENSOES_DE_MATERIAL = [...TIPO_DA_EXTENSAO.keys()].map((e) => `.${e}`).join(",")
+
+/** Cada arquivo do curso pode ter até 50 MB (o limite padrão do storage). */
+export const TAMANHO_MAXIMO_MATERIAL = 50 * 1024 * 1024
+
+/** "PDF", "Planilha", "Vídeo"…; a extensão em maiúsculas quando o tipo não é conhecido e "Arquivo" sem extensão. */
+export function tipoDoArquivo(nome: string): string {
+  const ext = extensaoDe(nome)
+  return TIPO_DA_EXTENSAO.get(ext) ?? (ext ? ext.toUpperCase() : "Arquivo")
+}
+
+/** O curso guarda este arquivo? (pela extensão: documentos, planilhas, imagens, áudio, vídeo e compactados) */
+export function arquivoPermitido(nome: string): boolean {
+  return TIPO_DA_EXTENSAO.has(extensaoDe(nome))
+}
+
+/** O nome do arquivo para o storage: sem acento, sem espaços nem sinais, com a extensão em minúsculas. */
+export function nomeSeguro(nome: string): string {
+  const ext = extensaoDe(nome)
+  const base = semAcento(ext ? nome.trim().slice(0, -(ext.length + 1)) : nome.trim())
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 60)
+    .replace(/-+$/, "")
+  return `${base || "arquivo"}${ext ? `.${ext}` : ""}`
+}
+
+/** A pasta dos arquivos enviados para um curso, dentro da pasta do usuário no storage. */
+export function pastaDosMateriais(cursoId: string): string {
+  return `cursos/${cursoId}/materiais/`
+}
+
+/** O arquivo foi enviado pela tela deste curso? (os que vieram do Notion ficam em outra pasta e podem estar em mais de um texto) */
+export function ehMaterialEnviado(caminho: string | null | undefined, cursoId: string): boolean {
+  return Boolean(caminho && caminho.includes(`/${pastaDosMateriais(cursoId)}`))
+}
+
+const nomeNoLink = (t: string) => umaLinha(t).replace(/\[/g, "(").replace(/\]/g, ")")
+
+/** Põe linhas de lista no fim de um bloco (ou cria o bloco com o título dado, em `ondeCriar`). */
+function acrescentarAoBloco(texto: string, bloco: { linha: number; fim: number } | null, novos: string[], titulo: string, ondeCriar: number): string {
+  if (!novos.length) return texto
+  const linhas = dividir(texto)
+  if (!bloco) {
+    if (!texto.trim()) return juntar([titulo, "", ...novos])
+    return juntar(inserirBloco(linhas, ondeCriar, [titulo, "", ...novos]))
+  }
+  let ultima = -1
+  for (let i = bloco.linha + 1; i < bloco.fim; i++) if (linhas[i].trim()) ultima = i
+  // Depois de um item de lista, a linha nova continua a lista; depois de outro texto, vira uma lista à parte
+  if (ultima >= 0 && /^[ \t]*[-*+][ \t]+/.test(linhas[ultima])) {
+    linhas.splice(ultima + 1, 0, ...novos)
+    return linhas.join("\n")
+  }
+  return juntar(inserirBloco(linhas, ultima >= 0 ? ultima + 1 : bloco.linha + 1, novos))
+}
+
+/** Guarda um link no curso: no fim da seção "Links" (criada no começo do texto quando não existe). */
+export function adicionarLink(texto: string, novo: { url: string; titulo?: string | null }): string {
+  const url = normalizarLink(novo.url)
+  if (!url) return texto
+  const titulo = nomeNoLink(novo.titulo ?? "")
+  const mapa = analisarCurso(texto)
+  return acrescentarAoBloco(texto, mapa.blocoLinks, [titulo ? `- [${titulo}](${url})` : `- ${url}`], "### Links", 0)
+}
+
+/** Guarda arquivos já enviados ao storage: no fim de "Materiais & Arquivos" (criada depois dos links quando não existe). */
+export function adicionarArquivos(texto: string, itens: { nome: string; caminho: string }[]): string {
+  const novos = itens.filter((a) => a.caminho.trim()).map((a) => `- [${nomeNoLink(a.nome) || "arquivo"}](${refDoArquivo(a.caminho)})`)
+  const mapa = analisarCurso(texto)
+  return acrescentarAoBloco(texto, mapa.blocoMateriais, novos, "### Materiais", mapa.blocoLinks?.fim ?? 0)
+}
+
+/** Tira um link ou um arquivo da lista (o texto volta igual se a linha não tiver mais esse endereço). */
+export function removerMaterial(texto: string, material: Pick<Material, "linha" | "url">): string {
+  const linhas = dividir(texto)
+  const linha = linhas[material.linha] ?? ""
+  const achados = linksDaLinha(linha)
+  const alvo = achados.find((a) => a.url === material.url)
+  if (!alvo) return texto
+  if (achados.length === 1) linhas.splice(material.linha, 1)
+  else linhas[material.linha] = (linha.slice(0, alvo.inicio).replace(/[ \t]+$/, "") + " " + linha.slice(alvo.fim).replace(/^[ \t]+/, "")).replace(/[ \t]+$/, "")
+  return linhas.join("\n")
 }
 
 /* ------------------------------------------------------------------ */

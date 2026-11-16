@@ -6,7 +6,7 @@ import { toast } from "sonner"
 import { useAtualizar, useLista, useRegistro } from "@/lib/data"
 import { supabase } from "@/lib/supabase/client"
 import { BUCKET_ARQUIVOS } from "@/lib/supabase/env"
-import { camposDoStatus, STATUS, type Curso, type StatusCurso } from "./logica"
+import { arquivoPermitido, camposDoStatus, nomeSeguro, pastaDosMateriais, STATUS, TAMANHO_MAXIMO_MATERIAL, type Curso, type StatusCurso } from "./logica"
 
 export type { Curso } from "./logica"
 
@@ -198,4 +198,67 @@ export function useCapaDoCurso() {
       }
     },
   }
+}
+
+/* ------------------------------------------------------------------ */
+/* Arquivos do curso (apostilas, planilhas, imagens…)                  */
+/* ------------------------------------------------------------------ */
+
+/** Um arquivo guardado num curso fica em `files`; a linha dele nas anotações é o que aparece na tela. */
+export const ENTIDADE_MATERIAL_CURSO = "curso_material"
+
+/** Tipos que o navegador abriria como página: vão como arquivo comum, para baixar. */
+const TIPO_QUE_VIRA_PAGINA = /html|svg|xml|javascript|ecmascript/i
+
+/**
+ * Envia um arquivo do curso para o storage e guarda o registro. Devolve o caminho e o nome, para entrar
+ * nas anotações. Recusa o que o curso não guarda (páginas, programas) e o que passa de 50 MB.
+ */
+export async function enviarMaterialDoCurso(arquivo: File, cursoId: string): Promise<{ caminho: string; nome: string }> {
+  if (!arquivoPermitido(arquivo.name)) throw new Error("Esse tipo de arquivo não é aceito.")
+  if (arquivo.size > TAMANHO_MAXIMO_MATERIAL) throw new Error("O arquivo passa de 50 MB.")
+  if (!arquivo.size) throw new Error("O arquivo está vazio.")
+  const sb = supabase()
+  const { data: sessao } = await sb.auth.getSession()
+  const usuario = sessao.session?.user.id
+  if (!usuario) throw new Error("Sua sessão expirou. Entre de novo para enviar o arquivo.")
+  const tipo = arquivo.type && !TIPO_QUE_VIRA_PAGINA.test(arquivo.type) ? arquivo.type : "application/octet-stream"
+  // O começo do nome muda a cada envio: dois arquivos com o mesmo nome não se sobrescrevem
+  const marca = `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`
+  const caminho = `${usuario}/${pastaDosMateriais(cursoId)}${marca}-${nomeSeguro(arquivo.name)}`
+  const { error } = await sb.storage.from(BUCKET_ARQUIVOS).upload(caminho, arquivo, { contentType: tipo })
+  if (error) throw new Error(error.message)
+  const { error: erroRegistro } = await sb
+    .from("files")
+    .insert({ path: caminho, name: arquivo.name || "arquivo", mime: tipo, size: arquivo.size, entity_type: ENTIDADE_MATERIAL_CURSO, entity_id: cursoId })
+  if (erroRegistro) {
+    // Sem o registro o arquivo ficaria solto no storage
+    await sb.storage.from(BUCKET_ARQUIVOS).remove([caminho])
+    throw new Error(erroRegistro.message)
+  }
+  return { caminho, nome: arquivo.name || "arquivo" }
+}
+
+/** Apaga do storage (e do registro) arquivos enviados para um curso. */
+export async function apagarMateriais(caminhos: string[]) {
+  if (!caminhos.length) return
+  const sb = supabase()
+  const { error } = await sb.storage.from(BUCKET_ARQUIVOS).remove(caminhos)
+  if (error) throw new Error(error.message)
+  await sb.from("files").delete().eq("entity_type", ENTIDADE_MATERIAL_CURSO).in("path", caminhos)
+}
+
+/** Apaga todos os arquivos enviados para um curso (quando o curso é excluído). */
+export async function apagarMateriaisDoCurso(cursoId: string) {
+  const sb = supabase()
+  const { data } = await sb.from("files").select("path").eq("entity_type", ENTIDADE_MATERIAL_CURSO).eq("entity_id", cursoId)
+  const caminhos = (data ?? []).map((f) => f.path)
+  if (caminhos.length) await apagarMateriais(caminhos).catch(() => {})
+}
+
+/** O endereço temporário para baixar um arquivo com o nome original dele. */
+export async function linkParaBaixar(caminho: string, nome: string): Promise<string> {
+  const { data, error } = await supabase().storage.from(BUCKET_ARQUIVOS).createSignedUrl(caminho, 60, { download: nome })
+  if (error) throw new Error(error.message)
+  return data.signedUrl
 }
