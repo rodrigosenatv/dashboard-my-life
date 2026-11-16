@@ -57,7 +57,7 @@ export function CapaCurso({ curso, caminho, className, prioridade }: { curso: Pi
       <span className="capa-curso-anel" />
       <span className="capa-curso-sigla">{iniciais(curso.name)}</span>
       {plataforma ? (
-        <span className="absolute bottom-[7%] right-[6%] grid size-[clamp(18px,12cqw,34px)] place-items-center rounded-full bg-black/35 text-ink/85 ring-1 ring-white/15 backdrop-blur-sm">
+        <span className="absolute bottom-[7%] right-[6%] grid size-[clamp(18px,12cqw,34px)] place-items-center rounded-full bg-black/35 text-white/85 ring-1 ring-white/15 backdrop-blur-sm">
           <IconePlataforma id={plataforma.id} className="size-[55%]" />
         </span>
       ) : null}

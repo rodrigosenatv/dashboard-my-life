@@ -47,6 +47,29 @@ export function MenuItem({
   )
 }
 
+/** Um grupo de opções em que só uma vale (a situação de um curso, uma ordem): cada opção é um `MenuEscolha`. */
+export const MenuEscolhas = DropdownMenu.RadioGroup
+
+/** Uma opção de um `MenuEscolhas`: a escolhida ganha o sinal de certo à direita. */
+export function MenuEscolha({ className, children, ...props }: React.ComponentProps<typeof DropdownMenu.RadioItem>) {
+  return (
+    <DropdownMenu.RadioItem
+      className={cn(
+        "flex cursor-pointer select-none items-center gap-2 rounded-md px-2.5 py-1.5 outline-none toque:min-h-11 data-[highlighted]:bg-surface-2 data-[state=checked]:font-medium",
+        className,
+      )}
+      {...props}
+    >
+      <span className="flex min-w-0 flex-1 items-center gap-2">{children}</span>
+      <DropdownMenu.ItemIndicator>
+        <svg viewBox="0 0 12 12" className="size-3.5 text-pen" aria-hidden>
+          <path d="M2.5 6.2 5 8.5 9.5 3.8" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </DropdownMenu.ItemIndicator>
+    </DropdownMenu.RadioItem>
+  )
+}
+
 export function MenuSeparador() {
   return <DropdownMenu.Separator className="my-1 h-px bg-line" />
 }

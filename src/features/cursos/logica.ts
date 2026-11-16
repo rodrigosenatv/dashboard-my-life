@@ -248,6 +248,9 @@ export function ondeParei(mapa: MapaCurso): Aula | null {
   return mapa.aulas.length ? mapa.aulas[mapa.aulas.length - 1] : null
 }
 
+/** "Aula 05 · Nome", "05 - Nome", "5) Nome": o número, o sinal que separa e o nome. */
+const SEPARADOR_AULA = /^(?:aula\s*)?(\d{1,3})\s*([-–—.:)·•|])\s*(.+)$/i
+
 /** "#F02 01 - Mentalidade do foda-se" → marcador "#F02", número "01" e o nome. */
 export function partesDoTitulo(titulo: string): { tag: string | null; numero: string | null; nome: string } {
   let t = textoLimpo(titulo)
@@ -258,10 +261,10 @@ export function partesDoTitulo(titulo: string): { tag: string | null; numero: st
     t = mt[2]
   }
   let numero: string | null = null
-  const mn = /^(?:aula\s*)?(\d{1,3})\s*[-–—.:)]\s*(.+)$/i.exec(t)
+  const mn = SEPARADOR_AULA.exec(t)
   if (mn) {
     numero = mn[1]
-    t = mn[2]
+    t = mn[3]
   } else {
     const so = /^aula\s*(\d{1,3})$/i.exec(t)
     if (so) numero = so[1]
@@ -281,7 +284,50 @@ export function proximoTitulo(mapa: MapaCurso): string {
   const mt = p.tag ? /^#([\p{L}_-]*)(\d+)$/u.exec(p.tag) : null
   if (mt) tag = `#${mt[1]}${String(Number(mt[2]) + 1).padStart(mt[2].length, "0")} `
   const comAula = /^(#\S+\s+)?aula\s*\d/i.test(limpo)
-  return `${tag}${comAula ? "Aula " : ""}${n} - `
+  // O mesmo sinal da última aula ("Aula 05 · Nome" sugere "Aula 06 · ")
+  const sinal = SEPARADOR_AULA.exec(limpo.replace(/^#\S+\s+/, ""))?.[2]
+  const separador = sinal === "·" || sinal === "•" || sinal === "|" || sinal === "–" || sinal === "—" ? ` ${sinal} ` : " - "
+  return `${tag}${comAula ? "Aula " : ""}${n}${separador}`
+}
+
+/**
+ * O resumo de uma aula para a trilha: as primeiras linhas sem marcação, com os endereços reduzidos ao
+ * site ("https://www.skills.sh/a/b" vira "skills.sh") e os rótulos ("Prompt:") ligados ao que vem depois.
+ */
+export function previaDaAula(corpo: string, maximo = 220): string {
+  let emCodigo = false
+  let texto = ""
+  for (const bruta of dividir(corpo)) {
+    if (CERCA.test(bruta)) {
+      emCodigo = !emCodigo
+      continue
+    }
+    if (emCodigo) continue
+    const linha = textoLimpo(
+      bruta
+        .replace(/^\s*([-*+]\s+(\[[ xX]\]\s+)?|\d+[.)]\s+|>\s*|#{1,6}\s+)/, "")
+        .replace(/https?:\/\/(?:www\.)?([^\s/<>"')]+)[^\s<>"')]*/gi, "$1"),
+    )
+    if (!linha) continue
+    // textoLimpo tira os dois-pontos do fim: o rótulo se liga ao texto seguinte com eles de volta
+    const rotulo = /:\s*(\*\*|__)?\s*$/.test(bruta)
+    texto += (texto ? (texto.endsWith(":") ? " " : " · ") : "") + linha + (rotulo ? ":" : "")
+    if (texto.length >= maximo) break
+  }
+  texto = texto.replace(/:$/, "")
+  if (texto.length <= maximo) return texto
+  const corte = texto.slice(0, maximo)
+  return `${corte.slice(0, Math.max(corte.lastIndexOf(" "), maximo - 40)).replace(/[\s·,;:.]+$/, "")}…`
+}
+
+/** As aulas cujo título ou texto têm todas as palavras da busca (sem acento). */
+export function buscarAulas(aulas: Aula[], busca: string): Aula[] {
+  const termos = semAcento(busca).split(/\s+/).filter(Boolean)
+  if (!termos.length) return aulas
+  return aulas.filter((a) => {
+    const alvo = semAcento(`${a.titulo} ${a.modulo ?? ""} ${a.corpo}`)
+    return termos.every((t) => alvo.includes(t))
+  })
 }
 
 /* ------------------------------------------------------------------ */

@@ -101,6 +101,32 @@ test('título da aula: marcador, número e nome; e a sugestão da próxima', () 
   assert.equal(C.proximoTitulo(C.analisarCurso('')), '')
 })
 
+test('título da aula com outros sinais: "Aula 05 · Nome" tem número e a próxima segue o sinal', () => {
+  assert.deepEqual(C.partesDoTitulo('Aula 05 · Faça a primeira edição simples'), { tag: null, numero: '05', nome: 'Faça a primeira edição simples' })
+  assert.deepEqual(C.partesDoTitulo('4 | O que pedir'), { tag: null, numero: '4', nome: 'O que pedir' })
+  assert.equal(C.proximoTitulo(C.analisarCurso('## Aula 05 · Faça a primeira edição simples\n')), 'Aula 06 · ')
+  assert.equal(C.proximoTitulo(C.analisarCurso('## 09 — Fim\n')), '10 — ')
+  assert.equal(C.pareceAula('Aula 02 · Instale e abra o primeiro projeto'), true)
+})
+
+test('prévia da aula: sem marcação, endereço reduzido ao site e rótulo ligado ao texto', () => {
+  const corpo = 'SKILL REMOTION:\nhttps://www.skills.sh/remotion-dev/skills/remotion-best-practices\n\n**Prompt Inicial:**\n\nQuero preparar este computador.\n\n- [x] Um item **forte**\n\n```\ncodigo que nao entra\n```\n'
+  assert.equal(C.previaDaAula(corpo), 'SKILL REMOTION: skills.sh · Prompt Inicial: Quero preparar este computador. · Um item forte')
+  assert.equal(C.previaDaAula(''), '')
+  const longa = C.previaDaAula('- ' + 'palavra '.repeat(80))
+  assert.ok(longa.length <= 221 && longa.endsWith('…'))
+  assert.equal(C.previaDaAula('Ver [a área de membros](https://hotmart.com/x) hoje'), 'Ver a área de membros hoje')
+})
+
+test('busca nas aulas: título, módulo e texto, sem acento', () => {
+  const m = C.analisarCurso(ORDEM)
+  assert.deepEqual(C.buscarAulas(m.aulas, 'carisma postura').map((a) => a.titulo), ['#F03 02 - Carisma único'])
+  assert.equal(C.buscarAulas(m.aulas, 'presenca').length, 1)
+  assert.equal(C.buscarAulas(m.aulas, 'ordem').length, 3)
+  assert.equal(C.buscarAulas(m.aulas, '  ').length, 3)
+  assert.equal(C.buscarAulas(m.aulas, 'inexistente').length, 0)
+})
+
 test('marcar, tirar e acrescentar ações sem mexer no resto', () => {
   const m = C.analisarCurso(ORDEM)
   const marcado = C.marcarPratica(ORDEM, m.praticas[0].linha, true)

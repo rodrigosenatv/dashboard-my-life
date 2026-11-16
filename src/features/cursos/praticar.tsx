@@ -2,7 +2,7 @@
 
 import { LinkIntencao as Link } from "@/components/ui/link-intencao"
 import * as React from "react"
-import { ListChecks, Plus, X } from "lucide-react"
+import { ChevronDown, CircleCheck, ListChecks, Plus, X } from "lucide-react"
 import { toast } from "sonner"
 import { Marcador } from "@/components/ui/basicos"
 import { cn } from "@/lib/utils"
@@ -71,13 +71,19 @@ export function PainelPraticar({ itens, className }: { itens: { curso: Curso; pr
   )
 }
 
-/** As ações de um curso: marcar, tirar e acrescentar (na tela do curso). */
+/**
+ * As ações de um curso: marcar, tirar e acrescentar (na tela do curso). As por fazer ficam em cima; as
+ * feitas se recolhem numa linha ("8 feitas"), para a lista não crescer com o que já foi resolvido.
+ */
 export function ListaPraticas({ curso, praticas }: { curso: Curso; praticas: Pratica[] }) {
   const marcar = useMarcar()
   const mudar = useMudarNotas()
   const desfazer = useDesfazerNotas()
   const [nova, setNova] = React.useState("")
-  const feitas = praticas.filter((p) => p.feito).length
+  const [verFeitas, setVerFeitas] = React.useState(false)
+  const pendentes = praticas.filter((p) => !p.feito)
+  const feitas = praticas.filter((p) => p.feito)
+  const tudoFeito = praticas.length > 0 && !pendentes.length
 
   const acrescentar = (e: React.FormEvent) => {
     e.preventDefault()
@@ -87,6 +93,26 @@ export function ListaPraticas({ curso, praticas }: { curso: Curso; praticas: Pra
     setNova("")
   }
 
+  const item = (p: Pratica) => (
+    <li key={p.linha} className="group flex items-start gap-3 rounded-lg px-1 py-1.5">
+      <span className="pt-0.5">
+        <Marcador marcado={p.feito} aoMudar={(v) => marcar(curso, p, v)} rotulo={p.feito ? `Desmarcar: ${p.texto}` : `Marcar como feita: ${p.texto}`} />
+      </span>
+      <span className={cn("min-w-0 flex-1 text-sm leading-snug", p.feito ? "text-ink-3 line-through decoration-ink-3/60" : "text-ink")}>{p.texto}</span>
+      <button
+        type="button"
+        aria-label={`Tirar: ${p.texto}`}
+        onClick={() => {
+          const m = mudar(curso, (t) => removerPratica(t, p.linha))
+          if (m) toast("Ação tirada.", { action: { label: "Desfazer", onClick: () => desfazer(curso, m) } })
+        }}
+        className="-my-1 grid size-8 shrink-0 place-items-center rounded-full text-ink-3 opacity-100 hover:bg-ink/[0.06] hover:text-ink pointer-fine:opacity-0 pointer-fine:group-hover:opacity-100 pointer-fine:focus-visible:opacity-100"
+      >
+        <X className="size-4" />
+      </button>
+    </li>
+  )
+
   return (
     <section aria-labelledby="titulo-acoes" className="vidro p-4 sm:p-5">
       <div className="flex items-center justify-between gap-3">
@@ -95,37 +121,48 @@ export function ListaPraticas({ curso, praticas }: { curso: Curso; praticas: Pra
         </h2>
         {praticas.length ? (
           <span className="tabular text-xs text-ink-3">
-            {feitas} de {praticas.length}
+            {feitas.length} de {praticas.length}
           </span>
         ) : null}
       </div>
       {praticas.length ? (
-        <div className="barra-luz mt-3" aria-hidden>
-          <span style={{ width: `${(feitas / praticas.length) * 100}%` }} />
+        <div className="barra-luz mt-3" data-cor={tudoFeito ? "rotina" : undefined} aria-hidden>
+          <span style={{ width: `${(feitas.length / praticas.length) * 100}%` }} />
         </div>
       ) : null}
-      <ul className="mt-3 grid gap-0.5">
-        {praticas.map((p) => (
-          <li key={p.linha} className="group flex items-start gap-3 rounded-lg px-1 py-1.5">
-            <span className="pt-0.5">
-              <Marcador marcado={p.feito} aoMudar={(v) => marcar(curso, p, v)} rotulo={p.feito ? `Desmarcar: ${p.texto}` : `Marcar como feita: ${p.texto}`} />
-            </span>
-            <span className={cn("min-w-0 flex-1 text-sm leading-snug", p.feito ? "text-ink-3 line-through decoration-white/30" : "text-ink")}>{p.texto}</span>
-            <button
-              type="button"
-              aria-label={`Tirar: ${p.texto}`}
-              onClick={() => {
-                const m = mudar(curso, (t) => removerPratica(t, p.linha))
-                if (m) toast("Ação tirada.", { action: { label: "Desfazer", onClick: () => desfazer(curso, m) } })
-              }}
-              className="grid size-8 shrink-0 place-items-center rounded-full text-ink-3 opacity-100 hover:bg-ink/[0.06] hover:text-ink pointer-fine:opacity-0 pointer-fine:group-hover:opacity-100 pointer-fine:focus-visible:opacity-100"
-            >
-              <X className="size-4" />
-            </button>
-          </li>
-        ))}
-      </ul>
-      {!praticas.length ? <p className="mt-1 text-sm text-ink-2">O que deste curso você vai colocar em prática?</p> : null}
+
+      {tudoFeito ? (
+        <p className="mt-3 flex items-start gap-2.5 rounded-xl bg-[var(--b-verde)]/10 px-3 py-2.5 text-sm">
+          <CircleCheck className="mt-0.5 size-4 shrink-0 text-[var(--b-verde)]" aria-hidden />
+          <span>
+            <span className="font-medium">Tudo em prática.</span> <span className="text-ink-2">Na próxima aula, anote a ação seguinte.</span>
+          </span>
+        </p>
+      ) : null}
+      {!praticas.length ? <p className="mt-2 text-sm text-ink-2">O que deste curso você vai colocar em prática?</p> : null}
+
+      {pendentes.length ? <ul className="mt-3 grid gap-0.5">{pendentes.map(item)}</ul> : null}
+
+      {feitas.length ? (
+        <div className={cn("mt-2", pendentes.length && "border-t border-[var(--b-borda)] pt-2")}>
+          <button
+            type="button"
+            aria-expanded={verFeitas}
+            aria-controls="acoes-feitas"
+            onClick={() => setVerFeitas((v) => !v)}
+            className="-mx-1 flex min-h-9 w-[calc(100%+0.5rem)] items-center justify-between gap-2 rounded-lg px-2 text-sm text-ink-2 hover:bg-ink/[0.04] hover:text-ink toque:min-h-11"
+          >
+            <span>{verFeitas ? "Ocultar as feitas" : feitas.length === 1 ? "Ver 1 ação feita" : `Ver ${feitas.length} ações feitas`}</span>
+            <ChevronDown className={cn("size-4 text-ink-3 transition-transform", verFeitas && "rotate-180")} aria-hidden />
+          </button>
+          {verFeitas ? (
+            <ul id="acoes-feitas" className="mt-1 grid gap-0.5">
+              {feitas.map(item)}
+            </ul>
+          ) : null}
+        </div>
+      ) : null}
+
       <form onSubmit={acrescentar} className="mt-3 flex items-center gap-2">
         <input
           value={nova}

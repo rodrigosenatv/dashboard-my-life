@@ -59,7 +59,7 @@ export function JanelaAula({ curso, aula, aberta, aoMudar }: { curso: Curso | nu
   const salvar = (e: React.FormEvent) => {
     e.preventDefault()
     const t = titulo.replace(/\s+/g, " ").trim()
-    if (!t || /[-–—:]$/.test(t)) {
+    if (!t || /[-–—:·•|]$/.test(t)) {
       toast.error("Dê um nome para a aula.")
       return
     }
