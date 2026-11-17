@@ -8,7 +8,7 @@ import { ChevronRight, LogOut, Monitor, Moon, PanelLeftClose, PanelLeftOpen, Sea
 import { cn } from "@/lib/utils"
 import { EXTRAS, GRUPOS, HOJE, ativo, grupoDaRota, type ItemNav } from "@/lib/navegacao"
 import type { Area } from "@/lib/areas"
-import { CHAVE_MENU_RECOLHIDO, useSessao, useTema, type Tema } from "@/components/provedores"
+import { CHAVE_MENU_FECHADOS, CHAVE_MENU_RECOLHIDO, useSessao, useTema, type Tema } from "@/components/provedores"
 import { LinkIntencao } from "@/components/ui/link-intencao"
 import { Menu, MenuConteudo, MenuGatilho, MenuItem, MenuRotulo, MenuSeparador } from "@/components/ui/menu"
 import { BotaoNovo } from "./novo"
@@ -28,22 +28,34 @@ function LinkNav({ item, area }: { item: ItemNav; area?: Area }) {
       className="cabine-item flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-sm recolhido:justify-center recolhido:px-0 recolhido:py-2.5"
     >
       <Icone className="size-4 shrink-0" />
-      <span className="truncate recolhido:hidden">{item.rotulo}</span>
+      {/* Recolhido, o nome some da vista mas continua sendo o nome do link para leitores de tela (o title é só a dica do mouse) */}
+      <span className="truncate recolhido:sr-only">{item.rotulo}</span>
     </LinkIntencao>
   )
 }
 
-const CHAVE_FECHADOS = "dml:menu-fechados"
+const nada = () => () => {}
+
+/** A tecla dos atalhos como a pessoa a vê no teclado: ⌘ nos aparelhos da Apple, Ctrl nos outros. */
+function useTeclaDeAtalho(): string {
+  const apple = React.useSyncExternalStore(
+    nada,
+    () => /Mac|iPhone|iPad/.test(navigator.platform),
+    () => false,
+  )
+  return apple ? "⌘" : "Ctrl"
+}
 
 export function BarraLateral() {
   const pathname = usePathname()
   const atual = grupoDaRota(pathname)?.area
+  const tecla = useTeclaDeAtalho()
+  // Quais grupos estão fechados vem de um atributo no <html>, posto antes da pintura (é ele que esconde a lista,
+  // no globals.css); o estado só acompanha, para o botão dizer se o grupo está aberto
   const [fechados, setFechados] = React.useState<string[]>([])
 
   React.useEffect(() => {
-    try {
-      setFechados(JSON.parse(localStorage.getItem(CHAVE_FECHADOS) ?? "[]"))
-    } catch {}
+    setFechados((document.documentElement.dataset.menuFechados ?? "").split(" ").filter(Boolean))
   }, [])
 
   // A largura vem de um atributo no <html>, posto antes da pintura; o estado só acompanha para o rótulo do botão
@@ -65,7 +77,7 @@ export function BarraLateral() {
   }, [])
 
   React.useEffect(() => {
-    const tecla = (e: KeyboardEvent) => {
+    const aoTeclar = (e: KeyboardEvent) => {
       if (!(e.ctrlKey || e.metaKey) || e.shiftKey || e.altKey || e.key.toLowerCase() !== "b") return
       // Em campos de texto o Ctrl+B pertence ao campo; em telas sem barra lateral não há o que recolher
       const alvo = e.target as HTMLElement | null
@@ -74,8 +86,8 @@ export function BarraLateral() {
       e.preventDefault()
       alternarMenu()
     }
-    window.addEventListener("keydown", tecla)
-    return () => window.removeEventListener("keydown", tecla)
+    window.addEventListener("keydown", aoTeclar)
+    return () => window.removeEventListener("keydown", aoTeclar)
   }, [alternarMenu])
 
   // O item da página aberta fica à vista: com a lista mais alta que a tela (Conteúdo e IA, Vida pessoal), ela
@@ -93,8 +105,10 @@ export function BarraLateral() {
   const alternar = (area: Area) => {
     const novo = fechados.includes(area) ? fechados.filter((a) => a !== area) : [...fechados, area]
     setFechados(novo)
+    if (novo.length) document.documentElement.setAttribute("data-menu-fechados", novo.join(" "))
+    else document.documentElement.removeAttribute("data-menu-fechados")
     try {
-      localStorage.setItem(CHAVE_FECHADOS, JSON.stringify(novo))
+      localStorage.setItem(CHAVE_MENU_FECHADOS, JSON.stringify(novo))
     } catch {}
   }
 
@@ -110,7 +124,7 @@ export function BarraLateral() {
           onClick={alternarMenu}
           aria-expanded={!recolhida}
           aria-label={recolhida ? "Expandir menu" : "Recolher menu"}
-          title={recolhida ? "Expandir menu (Ctrl+B)" : "Recolher menu (Ctrl+B)"}
+          title={`${recolhida ? "Expandir" : "Recolher"} menu (${tecla}+B)`}
           className="grid size-8 shrink-0 place-items-center rounded-lg text-ink-3 transition-colors hover:bg-ink/[0.06] hover:text-ink"
         >
           <PanelLeftClose className="size-4 recolhido:hidden" />
@@ -124,53 +138,65 @@ export function BarraLateral() {
           type="button"
           onClick={abrirBusca}
           aria-label="Buscar"
-          title="Buscar (Ctrl+K)"
+          title={`Buscar (${tecla}+K)`}
           className="cabine-vidro flex h-9 items-center gap-2 rounded-lg px-2.5 text-sm recolhido:justify-center recolhido:px-0"
         >
           <Search className="size-4" />
           <span className="flex-1 text-left recolhido:hidden">Buscar</span>
-          <kbd className="rounded-md border border-[var(--b-borda)] bg-surface px-1.5 font-sans text-[10px] tracking-wider recolhido:hidden">Ctrl K</kbd>
+          <kbd className="rounded-md border border-[var(--b-borda)] bg-surface px-1.5 font-sans text-[10px] tracking-wider recolhido:hidden">{tecla} K</kbd>
         </button>
       </div>
 
-      {/* A lista some aos poucos embaixo: sinal de que ela rola */}
-      <nav ref={nav} aria-label="Principal" className="-mr-1 flex-1 overflow-y-auto pb-5 pl-3 pr-1 scrollbar-thin [mask-image:linear-gradient(to_bottom,#000_calc(100%-1.5rem),transparent)] recolhido:mr-0 recolhido:px-0.5 recolhido:[scrollbar-width:none]">
-        <LinkNav item={HOJE} area="geral" />
-        {GRUPOS.map((g) => {
-          // O grupo da página atual fica sempre aberto, para o item marcado não sumir
-          const aberto = g.area === atual || !fechados.includes(g.area)
-          return (
-            <div key={g.area} data-area={g.area} className="mt-5 recolhido:mt-3 recolhido:border-t recolhido:border-line recolhido:pt-2">
-              <button
-                type="button"
-                title={g.rotulo}
-                aria-expanded={aberto}
-                disabled={g.area === atual}
-                onClick={() => alternar(g.area)}
-                className="cabine-grupo group mb-1 flex w-full items-center gap-2 rounded-md px-2.5 py-1 text-left enabled:hover:text-ink-2 recolhido:justify-center recolhido:px-0 recolhido:py-2"
-              >
-                <span aria-hidden className="cabine-ponto" />
-                <span className="shrink-0 recolhido:hidden">{g.rotulo}</span>
-                <span aria-hidden className="cabine-fio min-w-3 flex-1 recolhido:hidden" />
-                {g.area === atual ? null : (
-                  <ChevronRight aria-hidden className={cn("size-3.5 shrink-0 transition-transform recolhido:hidden", aberto && "rotate-90")} />
-                )}
-              </button>
-              {aberto ? (
-                <div className="grid gap-0.5">
+      {/* A ponta da lista some só do lado em que ainda há itens para rolar (esmaece-y, no globals.css) */}
+      <nav ref={nav} aria-label="Principal" className="esmaece-y -mr-1 flex-1 overflow-y-auto pb-3 pl-3 pr-1 scrollbar-thin recolhido:mr-0 recolhido:px-0.5 recolhido:[scrollbar-width:none]">
+        <ul>
+          <li>
+            <LinkNav item={HOJE} area="geral" />
+          </li>
+          {GRUPOS.map((g) => {
+            // O grupo da página atual fica sempre aberto, para o item marcado não sumir
+            const ehAtual = g.area === atual
+            const aberto = ehAtual || !fechados.includes(g.area)
+            const idLista = `menu-${g.area}`
+            return (
+              <li key={g.area} data-area={g.area} data-atual={ehAtual ? "" : undefined} className="cabine-bloco mt-5 recolhido:mt-3 recolhido:border-t recolhido:border-line recolhido:pt-2">
+                {/* Travado no grupo da página aberta, mas ainda alcançável pelo teclado (aria-disabled, e não disabled) */}
+                <button
+                  type="button"
+                  title={g.rotulo}
+                  aria-expanded={aberto}
+                  aria-controls={idLista}
+                  aria-disabled={ehAtual || undefined}
+                  onClick={() => {
+                    if (!ehAtual) alternar(g.area)
+                  }}
+                  className="cabine-grupo group mb-1 flex w-full items-center gap-2 rounded-md px-2.5 py-1 text-left [&:not([aria-disabled=true])]:hover:text-ink-2 recolhido:justify-center recolhido:px-0 recolhido:py-2"
+                >
+                  <span aria-hidden className="cabine-ponto" />
+                  <span className="shrink-0 recolhido:sr-only">{g.rotulo}</span>
+                  <span aria-hidden className="cabine-fio min-w-3 flex-1 recolhido:hidden" />
+                  {ehAtual ? null : <ChevronRight aria-hidden className="cabine-seta size-3.5 shrink-0 recolhido:hidden" />}
+                </button>
+                <ul id={idLista} className="cabine-lista grid gap-0.5">
                   {g.itens.map((i) => (
-                    <LinkNav key={i.href} item={i} area={g.area} />
+                    <li key={i.href}>
+                      <LinkNav item={i} area={g.area} />
+                    </li>
                   ))}
-                </div>
-              ) : null}
-            </div>
-          )
-        })}
-        <div className="relative mt-5 grid gap-0.5 pt-4">
+                </ul>
+              </li>
+            )
+          })}
+        </ul>
+        <div className="relative mt-5 pt-4">
           <span aria-hidden className="cabine-fio absolute inset-x-0 top-0" />
-          {EXTRAS.map((i) => (
-            <LinkNav key={i.href} item={i} area="geral" />
-          ))}
+          <ul className="grid gap-0.5">
+            {EXTRAS.map((i) => (
+              <li key={i.href}>
+                <LinkNav item={i} area="geral" />
+              </li>
+            ))}
+          </ul>
         </div>
       </nav>
 

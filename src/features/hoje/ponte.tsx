@@ -5,7 +5,7 @@ import dynamic from "next/dynamic"
 import * as React from "react"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
-import { BookOpen, CalendarDays, Check, CornerDownLeft, Flame, FolderKanban, Inbox, LayoutGrid, ListTodo, Plus, Sun, Target, type LucideIcon } from "lucide-react"
+import { BookOpen, CalendarDays, Check, ChevronRight, CornerDownLeft, Flame, FolderKanban, Inbox, ListTodo, Plus, Sun, Target, type LucideIcon } from "lucide-react"
 import { TemaDasJanelas } from "@/components/ui/tema-janelas"
 import { novoId, useCriar, useLista } from "@/lib/data"
 import { cn, dataRelativa, isoDia, plural, porcentagem, saudacao, somarDias } from "@/lib/utils"
@@ -20,7 +20,7 @@ import { CapaLivro } from "@/features/leitura/capa"
 import { progresso, useProjetos, useProjetosPorNome } from "@/features/projetos/dados"
 import { AnelProgresso, ChipPrazo, textoEtapas } from "@/features/segundo-cerebro/ui"
 import { FRASE_PADRAO } from "@/lib/marca"
-import { MenuAtalhos } from "./painel"
+import { MENU, MenuAtalhos } from "./painel"
 import { agendaPorDia, capturasNaCaixa, eventosComHora, faixaDoDia, posicaoNaFaixa, posicaoNoFim, situacaoDaAgenda, tarefasDoDia, textoEspera } from "./logica"
 
 type Tarefa = Tables<"tasks">
@@ -40,14 +40,36 @@ function corDoEvento(categoria: string | null): string {
   return "var(--b-luz)"
 }
 
-/** A hora de agora, atualizada a cada meio minuto (o relógio da capa e o "agora" da linha do dia). */
+/**
+ * A hora de agora, atualizada a cada meio minuto (o relógio da capa e o "agora" da linha do dia). Com a aba
+ * escondida o navegador atrasa o relógio: ao voltar para ela, a hora (e o dia, depois da meia-noite) acerta na hora.
+ */
 function useAgora(): Date {
   const [agora, setAgora] = React.useState(() => new Date())
   React.useEffect(() => {
-    const t = window.setInterval(() => setAgora(new Date()), 30_000)
-    return () => window.clearInterval(t)
+    const acertar = () => setAgora(new Date())
+    const aoVoltar = () => {
+      if (document.visibilityState === "visible") acertar()
+    }
+    const t = window.setInterval(acertar, 30_000)
+    document.addEventListener("visibilitychange", aoVoltar)
+    return () => {
+      window.clearInterval(t)
+      document.removeEventListener("visibilitychange", aoVoltar)
+    }
   }, [])
   return agora
+}
+
+/** As linhas de espera de um painel de resumo, enquanto os dados não chegam (no lugar do aviso de "nenhum"). */
+function Esperando({ linhas = 3, rotulo }: { linhas?: number; rotulo: string }) {
+  return (
+    <div className="grid gap-3.5" aria-busy="true" aria-label={rotulo}>
+      {Array.from({ length: linhas }, (_, i) => (
+        <div key={i} className="h-10 animate-pulse rounded-xl bg-ink/[0.04] motion-reduce:animate-none" />
+      ))}
+    </div>
+  )
 }
 
 /** O título de um painel: rótulo de HUD com o ícone aceso na cor da área e uma ação à direita. */
@@ -150,8 +172,8 @@ function CapaDoDia({ agora, eventos, chips }: { agora: Date; eventos: Evento[]; 
       </form>
 
       {chips.length ? (
-        // No celular as pílulas ficam numa linha que rola para o lado; no computador, quebram linha
-        <ul aria-label="Resumo do dia" className="-mx-5 mt-4 flex gap-2 overflow-x-auto px-5 pb-1 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0">
+        // No celular as pílulas ficam numa linha que rola para o lado (a ponta esmaece enquanto há mais); no computador, quebram linha
+        <ul aria-label="Resumo do dia" className="esmaece-x -mx-5 mt-4 flex gap-2 overflow-x-auto px-5 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0">
           {chips.map((c) => (
             <li key={c.rotulo} className="shrink-0">
               <Link href={c.href} className="inline-flex min-h-9 items-baseline gap-1.5 rounded-full border border-[var(--b-borda)] bg-ink/[0.04] px-3 py-1 text-sm text-ink-2 transition-colors hover:border-[var(--b-borda-2)] hover:text-ink toque:min-h-10">
@@ -275,7 +297,7 @@ function PainelRituais({ hoje }: { hoje: string }) {
       ) : (
         <div className="grid gap-5 md:grid-cols-[auto_minmax(0,1fr)] md:items-start md:gap-8">
           <div className="flex items-center gap-4 md:flex-col md:gap-3 md:pt-1 md:text-center">
-            <AnelProgresso pct={pct} tamanho={104} legenda="feito" cores={VERDES} />
+            <AnelProgresso pct={pct} tamanho={104} legenda="feito" cores={VERDES} rotulo="Rituais feitos hoje" />
             <p className="text-sm text-ink-2">
               {completo ? (
                 <span className="inline-flex items-center gap-1 font-medium text-[var(--b-menta)]">
@@ -300,13 +322,14 @@ function PainelRituais({ hoje }: { hoje: string }) {
                       {feitosGrupo}/{g.habitos.length}
                     </span>
                   </p>
-                  <ul className="grid gap-0.5">
+                  {/* Em colunas quando o painel tem largura (lê-se de cima para baixo, na ordem do dia) */}
+                  <ul className="columns-[15rem] gap-x-8">
                     {g.habitos.map((h) => {
                       const registro = indice.get(h.id)?.get(hoje)
                       const feito = Boolean(registro)
                       const seq = sequencia(h, indice.get(h.id), hoje)
                       return (
-                        <li key={h.id}>
+                        <li key={h.id} className="mb-0.5 break-inside-avoid">
                           <button
                             type="button"
                             role="checkbox"
@@ -478,7 +501,7 @@ function PainelAgenda({ hoje, agora, eventos, carregando }: { hoje: string; agor
 
 function PainelMetas() {
   const ano = new Date().getFullYear()
-  const { data: metas = [] } = useLista("goals", { ordem: [{ coluna: "position" }, { coluna: "name" }] })
+  const { data: metas = [], isLoading } = useLista("goals", { ordem: [{ coluna: "position" }, { coluna: "name" }] })
   const doAno = metas.filter((m) => !m.done && (m.year === ano || m.year === null)).slice(0, 5)
   return (
     <section aria-labelledby="titulo-metas" className="vidro min-w-0 p-4 sm:p-5">
@@ -493,7 +516,9 @@ function PainelMetas() {
           </Link>
         }
       />
-      {doAno.length === 0 ? (
+      {isLoading ? (
+        <Esperando rotulo="Carregando as metas" />
+      ) : doAno.length === 0 ? (
         <p className="text-sm text-ink-2">Nenhuma meta para este ano.</p>
       ) : (
         <ul className="grid gap-4">
@@ -526,7 +551,7 @@ function PainelMetas() {
 }
 
 function PainelLeitura() {
-  const { data: livros = [] } = useLista("books", { colunas: COLUNAS_LIVRO_LISTA, ordem: [{ coluna: "updated_at", asc: false }] })
+  const { data: livros = [], isLoading } = useLista("books", { colunas: COLUNAS_LIVRO_LISTA, ordem: [{ coluna: "updated_at", asc: false }] })
   const lendo = livros.filter((l) => l.status === "lendo").slice(0, 3)
   return (
     <section aria-labelledby="titulo-leitura" className="vidro min-w-0 p-4 sm:p-5">
@@ -541,7 +566,9 @@ function PainelLeitura() {
           </Link>
         }
       />
-      {lendo.length === 0 ? (
+      {isLoading ? (
+        <Esperando linhas={2} rotulo="Carregando os livros" />
+      ) : lendo.length === 0 ? (
         <p className="text-sm text-ink-2">Nenhum livro em leitura.</p>
       ) : (
         <ul className="grid gap-3.5">
@@ -574,22 +601,24 @@ function PainelLeitura() {
 }
 
 function PainelProjetos({ caixa }: { caixa: number }) {
-  const { data: projetos = [] } = useProjetos()
+  const { data: projetos = [], isLoading } = useProjetos()
   const ativos = projetos.filter((p) => !p.parent_id && !p.archived && !p.done).slice(0, 5)
   return (
     <section aria-labelledby="titulo-projetos" className="vidro min-w-0 p-4 sm:p-5">
       <CabecalhoPainel
         id="titulo-projetos"
         icone={FolderKanban}
-        titulo="Projetos em andamento"
+        titulo="Projetos ativos"
         cor="var(--b-violeta)"
         acao={
           <Link href="/projetos" className={LINK_PAINEL}>
-            Projetos
+            Ver todos
           </Link>
         }
       />
-      {ativos.length === 0 ? (
+      {isLoading ? (
+        <Esperando rotulo="Carregando os projetos" />
+      ) : ativos.length === 0 ? (
         <p className="text-sm text-ink-2">Nenhum projeto ativo.</p>
       ) : (
         <ul className="grid gap-3">
@@ -599,7 +628,7 @@ function PainelProjetos({ caixa }: { caixa: number }) {
             return (
               <li key={p.id}>
                 <Link href={`/projetos/${p.id}`} className="group flex items-center gap-3">
-                  <AnelProgresso pct={pct} tamanho={40} espessura={3} />
+                  <AnelProgresso pct={pct} tamanho={40} espessura={3} rotulo={`Progresso de ${p.name}`} />
                   <span className="min-w-0 flex-1">
                     <span className="block truncate text-sm font-medium transition-colors group-hover:text-[var(--b-violeta)]">{p.name}</span>
                     <span className="flex flex-wrap items-center gap-x-2 text-xs text-ink-3">
@@ -625,12 +654,59 @@ function PainelProjetos({ caixa }: { caixa: number }) {
 }
 
 /* ------------------------------------------------------------------ */
+/* Atalhos                                                             */
+/* ------------------------------------------------------------------ */
+
+const CHAVE_ATALHOS = "dml:hoje-atalhos"
+
+/**
+ * Os atalhos numa gaveta: repetem os destinos do menu, então no computador (onde a barra lateral está sempre
+ * à vista) começam fechados e o dia fica em primeiro plano; no celular, sem barra lateral, começam abertos.
+ * A escolha de abrir ou fechar fica guardada no aparelho.
+ */
+function GavetaAtalhos() {
+  const [aberta, setAberta] = React.useState(() => {
+    if (typeof window === "undefined") return false
+    try {
+      const guardado = localStorage.getItem(CHAVE_ATALHOS)
+      if (guardado) return guardado === "1"
+    } catch {}
+    return !window.matchMedia("(min-width: 64rem)").matches
+  })
+  return (
+    <details
+      className="gaveta"
+      open={aberta}
+      onToggle={(e) => {
+        const agora = e.currentTarget.open
+        if (agora === aberta) return
+        setAberta(agora)
+        try {
+          localStorage.setItem(CHAVE_ATALHOS, agora ? "1" : "0")
+        } catch {}
+      }}
+    >
+      {/* Sem título (h2) aqui dentro: dentro de um <summary> os leitores de tela perdem o título */}
+      <summary className="rotulo-hud -mx-2 flex min-h-10 cursor-pointer items-center gap-2 rounded-xl px-2 transition-colors hover:bg-ink/[0.04] hover:text-ink-2 toque:min-h-11">
+        <ChevronRight className="gaveta-seta size-3.5 shrink-0 text-[var(--b-luz)]" aria-hidden />
+        Atalhos
+        <span className="tabular rounded-full border border-[var(--b-borda)] bg-ink/[0.04] px-2 py-0.5 text-[11px] tracking-normal text-ink-2">{MENU.length}</span>
+      </summary>
+      {/* A folga em volta deixa o contorno de foco dos ladrilhos inteiro (o conteúdo da gaveta corta o que passa dele) */}
+      <div className="-mx-1 px-1 pb-1 pt-2">
+        <MenuAtalhos />
+      </div>
+    </details>
+  )
+}
+
+/* ------------------------------------------------------------------ */
 /* A página                                                            */
 /* ------------------------------------------------------------------ */
 
 /**
  * Hoje: a ponte de comando do dia. A capa (data, frase, linha do dia, captura rápida e o resumo do dia),
- * os rituais, as tarefas e a agenda, os atalhos e os resumos de metas, leitura e projetos.
+ * os rituais, as tarefas e a agenda, a gaveta de atalhos e os resumos de metas, leitura e projetos.
  */
 export function PonteDoDia() {
   const agora = useAgora()
@@ -669,11 +745,7 @@ export function PonteDoDia() {
             <PainelAgenda hoje={hoje} agora={agora} eventos={eventos} carregando={carregandoEventos} />
           </div>
 
-          {/* O dia vem antes: os atalhos repetem o menu e ficam depois do que é para fazer hoje */}
-          <section aria-labelledby="titulo-atalhos" className="pt-2">
-            <CabecalhoPainel id="titulo-atalhos" icone={LayoutGrid} titulo="Atalhos" />
-            <MenuAtalhos />
-          </section>
+          <GavetaAtalhos />
 
           <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
             <PainelMetas />

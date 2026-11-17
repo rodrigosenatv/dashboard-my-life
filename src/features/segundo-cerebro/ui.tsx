@@ -43,12 +43,15 @@ export function AnelProgresso({
   espessura = 6,
   legenda,
   cores = CORES_ANEL,
+  rotulo = "Progresso",
 }: {
   pct: number
   tamanho?: number
   espessura?: number
   legenda?: string
   cores?: [string, string, string]
+  /** O nome do que está sendo medido, para leitores de tela ("Rituais feitos hoje"). */
+  rotulo?: string
 }) {
   const raio = (tamanho - espessura * 2) / 2
   const volta = 2 * Math.PI * raio
@@ -56,7 +59,9 @@ export function AnelProgresso({
   // Um id por anel, só com letras e números (o do React traz sinais que atrapalham o url(#…))
   const id = `anel${useId().replace(/[^a-zA-Z0-9]/g, "")}`
   return (
-    <span className="relative grid shrink-0 place-items-center" style={{ width: tamanho, height: tamanho }} role="img" aria-label={`Progresso: ${pct}%`}>
+    <span className="relative grid shrink-0 place-items-center" style={{ width: tamanho, height: tamanho }}>
+      {/* Quem diz o valor é o <progress> (invisível); o desenho e o número do meio são só para os olhos */}
+      <progress className="sr-only" value={Math.round(fracao * 100)} max={100} aria-label={rotulo} />
       <svg width={tamanho} height={tamanho} viewBox={`0 0 ${tamanho} ${tamanho}`} className="absolute inset-0 -rotate-90 overflow-visible" aria-hidden>
         <defs>
           <linearGradient id={id} x1="0" y1="0" x2="1" y2="1">
@@ -77,7 +82,7 @@ export function AnelProgresso({
             strokeLinecap="round"
             strokeDasharray={volta}
             strokeDashoffset={volta * (1 - fracao)}
-            className="transition-[stroke-dashoffset] duration-700"
+            className="transition-[stroke-dashoffset] duration-700 motion-reduce:transition-none"
           />
         ) : null}
       </svg>

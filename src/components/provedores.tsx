@@ -15,14 +15,16 @@ import { supabaseConfigurado } from "@/lib/supabase/env"
 export type Tema = "sistema" | "claro" | "escuro"
 const CHAVE_TEMA = "dml-tema"
 export const CHAVE_MENU_RECOLHIDO = "dml:menu-recolhido"
+/** Os grupos do menu que a pessoa fechou (uma lista de áreas). */
+export const CHAVE_MENU_FECHADOS = "dml:menu-fechados"
 
 type ContextoTema = { tema: Tema; mudarTema: (t: Tema) => void; escuro: boolean }
 const TemaCtx = React.createContext<ContextoTema>({ tema: "sistema", mudarTema: () => {}, escuro: false })
 
 export const useTema = () => React.useContext(TemaCtx)
 
-/** Script que roda antes da primeira pintura para evitar piscar o tema e a largura do menu. */
-export const scriptTema = `(function(){try{var t=localStorage.getItem('${CHAVE_TEMA}')||'escuro';var d=t==='escuro'||(t==='sistema'&&matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.classList.toggle('dark',d);if(localStorage.getItem('${CHAVE_MENU_RECOLHIDO}')==='1')document.documentElement.dataset.menu='recolhido';}catch(e){}})();`
+/** Script que roda antes da primeira pintura para evitar piscar o tema, a largura do menu e os grupos fechados dele. */
+export const scriptTema = `(function(){try{var t=localStorage.getItem('${CHAVE_TEMA}')||'escuro';var d=t==='escuro'||(t==='sistema'&&matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.classList.toggle('dark',d);if(localStorage.getItem('${CHAVE_MENU_RECOLHIDO}')==='1')document.documentElement.dataset.menu='recolhido';var f=JSON.parse(localStorage.getItem('${CHAVE_MENU_FECHADOS}')||'[]');if(Array.isArray(f)&&f.length)document.documentElement.dataset.menuFechados=f.join(' ');}catch(e){}})();`
 
 function ProvedorTema({ children }: { children: React.ReactNode }) {
   const [tema, setTema] = React.useState<Tema>("escuro")

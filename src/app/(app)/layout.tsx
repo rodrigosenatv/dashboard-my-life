@@ -14,6 +14,10 @@ export default function LayoutApp({ children }: LayoutProps<"/">) {
   return (
     // A cabine (barra lateral, topo e barra de baixo) envolve a página; o fundo dela fica no bloco "A cabine" do globals.css
     <div className="cabine-moldura flex min-h-dvh">
+      {/* Quem navega pelo teclado passa por cima do menu (uns trinta links) com um Enter */}
+      <a href="#conteudo" className="pular-conteudo">
+        Pular para o conteúdo
+      </a>
       {/* A navegação lê a rota atual; em rotas com id ela só resolve na requisição. */}
       <Suspense fallback={<aside aria-hidden className="cabine cabine-lateral sticky top-0 hidden h-dvh w-60 shrink-0 recolhido:w-16 lg:block" />}>
         <BarraLateral />
@@ -26,6 +30,10 @@ export default function LayoutApp({ children }: LayoutProps<"/">) {
           <Suspense fallback={null}>
             <AbasArea />
           </Suspense>
+          {/* O alvo do "Pular para o conteúdo": recebe o foco sem entrar na ordem do Tab */}
+          <span id="conteudo" tabIndex={-1} className="sr-only">
+            Conteúdo da página
+          </span>
           <Suspense fallback={<CarregandoPagina />}>
             <SoNoNavegador esqueleto={<CarregandoPagina />}>{children}</SoNoNavegador>
           </Suspense>

@@ -1734,3 +1734,178 @@ a:focus-visible .livro3d-corpo,
     opacity: 0;
   }
 }
+
+/* =====================================================================
+   Navegação e rolagem (a barra lateral e a página Hoje)
+   ===================================================================== */
+
+/* "Pular para o conteúdo": escondido até receber o foco do teclado; aí aparece fixo no canto, sem empurrar a página */
+.pular-conteudo {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 60;
+  border-radius: 0.5rem;
+  background: var(--surface);
+  padding: 0.5rem 0.875rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--ink);
+  box-shadow: 0 0 0 1px var(--line-strong), 0 8px 24px -8px rgb(0 0 0 / 0.4);
+}
+.pular-conteudo:where(:not(:focus, :active)) {
+  clip-path: inset(50%);
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  padding: 0;
+  white-space: nowrap;
+}
+
+/*
+ * O esmaecido que avisa "tem mais para rolar": a ponta do conteúdo some só do lado em que ainda há o que ver,
+ * e some do aviso quando a rolagem chega ao fim (a máscara cresce com a própria posição da rolagem, sem script).
+ * As duas medidas são registradas para poderem ser animadas.
+ */
+@property --esmaece-ini {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+@property --esmaece-fim {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+@keyframes esmaece-mostra-ini {
+  to {
+    --esmaece-ini: var(--esmaece);
+  }
+}
+@keyframes esmaece-some-fim {
+  from {
+    --esmaece-fim: var(--esmaece);
+  }
+}
+@supports (animation-timeline: scroll()) {
+  .esmaece-y,
+  .esmaece-x {
+    --esmaece: 1.75rem;
+    animation:
+      esmaece-mostra-ini linear both,
+      esmaece-some-fim linear both;
+    animation-range:
+      0 var(--esmaece),
+      calc(100% - var(--esmaece)) 100%;
+  }
+  /* De cima para baixo (a lista do menu) */
+  .esmaece-y {
+    mask:
+      linear-gradient(black, black) no-clip subtract,
+      linear-gradient(to bottom, black, transparent) 0 0 / 100% var(--esmaece-ini) no-repeat no-clip,
+      linear-gradient(to bottom, transparent, black) 0 100% / 100% var(--esmaece-fim) no-repeat no-clip;
+    animation-timeline: scroll(self block);
+  }
+  /* De lado (uma fileira de pílulas): aqui a barra de rolagem pode sumir, porque o esmaecido faz o aviso */
+  .esmaece-x {
+    mask:
+      linear-gradient(black, black) no-clip subtract,
+      linear-gradient(to right, black, transparent) 0 0 / var(--esmaece-ini) 100% no-repeat no-clip,
+      linear-gradient(to right, transparent, black) 100% 0 / var(--esmaece-fim) 100% no-repeat no-clip;
+    animation-timeline: scroll(self inline);
+    scroll-padding-inline: var(--esmaece);
+    scrollbar-width: none;
+  }
+}
+/* Sem rolagem animada no navegador: a lista do menu fica com o esmaecido fixo embaixo (como era) e a fileira mantém a barra de rolagem */
+@supports not (animation-timeline: scroll()) {
+  .esmaece-y {
+    mask-image: linear-gradient(to bottom, #000 calc(100% - 1.5rem), transparent);
+  }
+  .esmaece-x {
+    scrollbar-width: thin;
+  }
+}
+
+/*
+ * Os grupos do menu. Quais estão fechados fica num atributo do <html>, posto antes da primeira pintura
+ * (o mesmo script do tema): assim um grupo fechado não aparece aberto e fecha logo depois de carregar.
+ * O grupo da página aberta (data-atual) fica sempre aberto.
+ */
+.cabine-seta {
+  rotate: 90deg;
+}
+.cabine-grupo[aria-disabled="true"] {
+  cursor: default;
+}
+:root[data-menu-fechados~="rotina"] .cabine-bloco[data-area="rotina"]:not([data-atual]),
+:root[data-menu-fechados~="projetos"] .cabine-bloco[data-area="projetos"]:not([data-atual]),
+:root[data-menu-fechados~="estudos"] .cabine-bloco[data-area="estudos"]:not([data-atual]),
+:root[data-menu-fechados~="conteudo"] .cabine-bloco[data-area="conteudo"]:not([data-atual]),
+:root[data-menu-fechados~="geral"] .cabine-bloco[data-area="geral"]:not([data-atual]) {
+  & > .cabine-lista {
+    display: none;
+  }
+  & .cabine-seta {
+    rotate: 0deg;
+  }
+}
+/* Abrir e fechar deslizando, onde o navegador sabe animar até a altura do conteúdo e a pessoa não pediu menos movimento */
+@supports (interpolate-size: allow-keywords) {
+  @media (prefers-reduced-motion: no-preference) {
+    .cabine-seta {
+      transition: rotate 200ms;
+    }
+    .cabine-lista {
+      interpolate-size: allow-keywords;
+      /* Corta o que desliza sem cortar o contorno de foco nem o traço do item aberto (que fica à esquerda da lista) */
+      clip-path: inset(-6px -6px -6px -1rem);
+      /* Propriedades separadas, e não o atalho "transition": o compilador de CSS reordena as declarações, e o atalho
+         depois de transition-behavior o anularia (aí o conteúdo sumiria no começo do fechar, sem deslizar) */
+      transition-property: block-size, content-visibility;
+      transition-duration: 200ms;
+      transition-timing-function: ease;
+      transition-behavior: allow-discrete;
+    }
+    :root[data-menu-fechados~="rotina"] .cabine-bloco[data-area="rotina"]:not([data-atual]) > .cabine-lista,
+    :root[data-menu-fechados~="projetos"] .cabine-bloco[data-area="projetos"]:not([data-atual]) > .cabine-lista,
+    :root[data-menu-fechados~="estudos"] .cabine-bloco[data-area="estudos"]:not([data-atual]) > .cabine-lista,
+    :root[data-menu-fechados~="conteudo"] .cabine-bloco[data-area="conteudo"]:not([data-atual]) > .cabine-lista,
+    :root[data-menu-fechados~="geral"] .cabine-bloco[data-area="geral"]:not([data-atual]) > .cabine-lista {
+      display: grid;
+      block-size: 0;
+      content-visibility: hidden;
+    }
+  }
+}
+
+/* Uma gaveta (<details>): o conteúdo abre e fecha deslizando; sem suporte, abre e fecha na hora */
+.gaveta > summary {
+  list-style: none;
+}
+.gaveta > summary::-webkit-details-marker {
+  display: none;
+}
+.gaveta[open] > summary .gaveta-seta {
+  rotate: 90deg;
+}
+.gaveta::details-content {
+  interpolate-size: allow-keywords;
+  overflow: clip;
+  /* A contenção fica igual aberta e fechada, para a altura não tremer durante a animação */
+  contain: layout;
+}
+.gaveta:not([open])::details-content {
+  block-size: 0;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .gaveta > summary .gaveta-seta {
+    transition: rotate 200ms;
+  }
+  .gaveta::details-content {
+    transition-property: block-size, content-visibility, display;
+    transition-duration: 250ms;
+    transition-timing-function: ease-in-out;
+    transition-behavior: allow-discrete;
+  }
+}
