@@ -35,7 +35,7 @@ export function PainelPraticar({ itens, className }: { itens: { curso: Curso; pr
     <section aria-labelledby="titulo-praticar" className={cn("vidro p-4 sm:p-5", className)}>
       <div className="flex items-center justify-between gap-3">
         <h2 id="titulo-praticar" className="rotulo-hud flex items-center gap-2">
-          <ListChecks className="size-3.5 text-[var(--b-luz)]" aria-hidden /> Para praticar
+          <ListChecks className="size-3.5 text-ink-3" aria-hidden /> Para praticar
         </h2>
         {itens.length ? <span className="tabular text-xs text-ink-3">{plural(itens.length, "ação", "ações")}</span> : null}
       </div>
@@ -117,7 +117,7 @@ export function ListaPraticas({ curso, praticas }: { curso: Curso; praticas: Pra
     <section aria-labelledby="titulo-acoes" className="vidro p-4 sm:p-5">
       <div className="flex items-center justify-between gap-3">
         <h2 id="titulo-acoes" className="rotulo-hud flex items-center gap-2">
-          <ListChecks className="size-3.5 text-[var(--b-luz)]" aria-hidden /> Para praticar
+          <ListChecks className="size-3.5 text-ink-3" aria-hidden /> Para praticar
         </h2>
         {praticas.length ? (
           <span className="tabular text-xs text-ink-3">

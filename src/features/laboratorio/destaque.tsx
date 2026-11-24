@@ -104,12 +104,11 @@ function Cabecalho({ e }: { e: Experimento }) {
     <>
       <p className="rotulo-hud flex items-center gap-2">
         <span className="relative flex size-2 shrink-0">
-          <span className="absolute inline-flex size-full animate-ping rounded-full bg-[var(--b-luz)] opacity-60 motion-reduce:hidden" />
           <span className="relative inline-flex size-2 rounded-full bg-[var(--b-luz)]" />
         </span>
         <span className="truncate">Em teste{e.kind ? ` · ${e.kind}` : ""}</span>
       </p>
-      <h2 className="mt-1.5 font-display text-[1.35rem] font-semibold leading-[1.12] tracking-tight text-balance sm:text-[1.9rem]">
+      <h2 className="mt-1.5 font-display text-[1.35rem] font-medium leading-[1.12] tracking-tight text-balance sm:text-[1.9rem]">
         <Link href={`/estudos/laboratorio/${e.id}`} className="hover:underline hover:decoration-[var(--b-luz)]/60 hover:underline-offset-4">
           {e.name}
         </Link>
@@ -185,7 +184,7 @@ function BancadaVazia({ aoNovo, ideias, aoComecarIdeia }: { aoNovo: () => void; 
     <section aria-label="Em teste agora" className="vidro relative overflow-hidden px-5 py-10 text-center sm:px-8 sm:py-12">
       <span aria-hidden className="pointer-events-none absolute left-1/2 top-0 size-72 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--b-luz)]/20 hidden" />
       <FlaskConical className="relative mx-auto size-9 text-[var(--b-luz)]" aria-hidden />
-      <h2 className="relative mt-3 font-display text-2xl font-semibold">A bancada está livre</h2>
+      <h2 className="relative mt-3 font-display text-2xl font-medium">A bancada está livre</h2>
       <p className="relative mx-auto mt-1.5 max-w-md text-ink-2">Escolha uma ideia e teste por alguns dias: anote o que acontece a cada dia e, no fim, veja se funcionou.</p>
       <div className="relative mt-5 flex flex-wrap justify-center gap-2">
         <Botao variante="primario" tamanho="lg" onClick={aoNovo} className="">

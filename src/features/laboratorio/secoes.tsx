@@ -96,7 +96,7 @@ export function IdeiasParaTestar({ ideias, aoComecar }: { ideias: Experimento[];
     <section aria-labelledby="titulo-ideias" className="vidro p-4 sm:p-5">
       <div className="flex items-center justify-between gap-3">
         <h2 id="titulo-ideias" className="rotulo-hud flex items-center gap-2">
-          <Lightbulb className="size-3.5 text-[var(--b-luz)]" aria-hidden /> Ideias para testar
+          <Lightbulb className="size-3.5 text-ink-3" aria-hidden /> Ideias para testar
         </h2>
         {ideias.length ? <span className="tabular text-xs text-ink-3">{ideias.length}</span> : null}
       </div>
@@ -150,7 +150,7 @@ export function Pausados({ lista }: { lista: Experimento[] }) {
   if (!lista.length) return null
   return (
     <section aria-labelledby="titulo-pausados">
-      <h2 id="titulo-pausados" className="mb-3 flex items-baseline gap-2 font-display text-xl font-semibold">
+      <h2 id="titulo-pausados" className="mb-3 flex items-baseline gap-2 font-display text-xl font-medium">
         Pausados <span className="tabular text-sm font-normal text-ink-3">{lista.length}</span>
       </h2>
       <ul className="grid gap-2 sm:grid-cols-2">
@@ -180,9 +180,9 @@ export function Resultados({ concluidos, abandonados }: { concluidos: Experiment
       <div className="mb-3 flex items-end justify-between gap-3">
         <div>
           <p className="rotulo-hud flex items-center gap-2">
-            <Telescope className="size-3.5 text-[var(--b-luz)]" aria-hidden /> Resultados
+            <Telescope className="size-3.5 text-ink-3" aria-hidden /> Resultados
           </p>
-          <h2 id="titulo-resultados" className="mt-1 font-display text-xl font-semibold">
+          <h2 id="titulo-resultados" className="mt-1 font-display text-xl font-medium">
             O que você já testou
           </h2>
         </div>
@@ -214,7 +214,7 @@ function FichaResultado({ experimento: e }: { experimento: Experimento }) {
       <div className="flex items-start justify-between gap-3">
         <IconeTipo tipo={e.kind} className="mt-0.5 size-4 shrink-0 text-[var(--b-luz)]" />
         <span className="flex shrink-0 items-center gap-2">
-          {nota !== null ? <span className="tabular text-sm font-semibold text-[var(--b-ambar)]">{String(nota).replace(".", ",")}</span> : null}
+          {nota !== null ? <span className="tabular text-sm font-medium text-[var(--b-ambar)]">{String(nota).replace(".", ",")}</span> : null}
           {abandonado ? <span className="rounded-full border border-[var(--b-borda-2)] px-2.5 py-0.5 text-xs text-ink-3">Deixado de lado</span> : <SeloResultado resultado={resultadoDo(e)} />}
         </span>
       </div>
@@ -257,7 +257,7 @@ export function Descobertas({ insights, experimentos }: { insights: Insight[]; e
   return (
     <section aria-labelledby="titulo-descobertas" className="vidro p-4 sm:p-5">
       <h2 id="titulo-descobertas" className="rotulo-hud flex items-center gap-2">
-        <Sparkles className="size-3.5 text-[var(--b-luz)]" aria-hidden /> Descobertas
+        <Sparkles className="size-3.5 text-ink-3" aria-hidden /> Descobertas
       </h2>
       <form onSubmit={guardar} className="mt-3 grid gap-2">
         <textarea

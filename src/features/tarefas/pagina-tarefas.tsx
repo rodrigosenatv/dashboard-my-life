@@ -70,7 +70,7 @@ function Coluna({ id, titulo, cor, children, total }: { id: string; titulo: stri
   const { setNodeRef, isOver } = useDroppable({ id })
   return (
     <div ref={setNodeRef} className={cn("min-h-40 rounded-xl bg-surface-2/60 p-2.5 transition-colors", isOver && "bg-pen-soft")}>
-      <p className={cn("mb-2 flex items-center justify-between px-1 text-sm font-semibold", cor)}>
+      <p className={cn("mb-2 flex items-center justify-between px-1 text-sm font-medium", cor)}>
         {titulo}
         <span className="tabular font-normal text-ink-3">{total}</span>
       </p>

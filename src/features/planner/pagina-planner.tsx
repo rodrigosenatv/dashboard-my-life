@@ -7,7 +7,7 @@ import { toast } from "sonner"
 import { useAbrirDoEndereco } from "@/lib/abrir-do-endereco"
 import { addDays, addMonths, endOfMonth, endOfWeek, format, startOfMonth, startOfWeek } from "date-fns"
 import { ptBR } from "date-fns/locale"
-import { ArrowRight, ChevronLeft, ChevronRight, Clapperboard, Compass, ExternalLink, FileText, Lightbulb, Link2, Plus, Search, Tags, Wrench, type LucideIcon } from "lucide-react"
+import { ArrowRight, ChevronLeft, ChevronRight, Clapperboard, ExternalLink, FileText, Lightbulb, Plus, Search, Wrench, type LucideIcon } from "lucide-react"
 import { Botao } from "@/components/ui/button"
 import { Carregando, Segmentos } from "@/components/ui/basicos"
 import { ACAO_ACESA } from "@/components/ui/cabecalho-hud"
@@ -121,7 +121,7 @@ function BancoIdeias({
                 type="button"
                 onClick={() => aoProduzir(i)}
                 aria-label={`Produzir ${i.title}: levar para Idealizando`}
-                className="inline-flex min-h-9 shrink-0 items-center gap-1 rounded-full border border-[var(--b-luz)]/40 bg-[var(--b-luz)]/[0.08] px-3 text-xs font-semibold transition-colors hover:border-[var(--b-luz)] hover:bg-[var(--b-luz)]/[0.16] toque:min-h-11"
+                className="inline-flex min-h-9 shrink-0 items-center gap-1 rounded-full border border-[var(--b-luz)]/40 bg-[var(--b-luz)]/[0.08] px-3 text-xs font-medium transition-colors hover:border-[var(--b-luz)] hover:bg-[var(--b-luz)]/[0.16] toque:min-h-11"
               >
                 Produzir <ArrowRight className="size-3.5 text-[var(--b-luz)]" aria-hidden />
               </button>
@@ -145,7 +145,7 @@ function Calendario({ itens, hoje, aoAbrir, aoAbrirDia }: { itens: Conteudo[]; h
   return (
     <section aria-label="Calendário de publicação" className="vidro p-3 sm:p-5">
       <div className="mb-4 flex items-center justify-between gap-2">
-        <h2 className="font-display text-xl font-semibold first-letter:uppercase">{format(mes, "MMMM 'de' yyyy", { locale: ptBR })}</h2>
+        <h2 className="font-display text-xl font-medium first-letter:uppercase">{format(mes, "MMMM 'de' yyyy", { locale: ptBR })}</h2>
         <div className="flex gap-1">
           <button type="button" aria-label="Mês anterior" onClick={() => setMes((m) => addMonths(m, -1))} className="grid size-10 place-items-center rounded-full border border-[var(--b-borda)] text-ink-2 hover:border-[var(--b-borda-2)] hover:text-ink">
             <ChevronLeft className="size-4" />
@@ -157,7 +157,7 @@ function Calendario({ itens, hoje, aoAbrir, aoAbrirDia }: { itens: Conteudo[]; h
       </div>
       <div className="grid grid-cols-7 gap-1 sm:gap-1.5">
         {["dom", "seg", "ter", "qua", "qui", "sex", "sáb"].map((d) => (
-          <div key={d} aria-hidden className="rotulo-hud pb-1 text-center text-[10px]">
+          <div key={d} aria-hidden className="rotulo-hud pb-1 text-center text-[11px]">
             {d}
           </div>
         ))}
@@ -181,7 +181,7 @@ function Calendario({ itens, hoje, aoAbrir, aoAbrirDia }: { itens: Conteudo[]; h
                 aria-label={`${formatar(iso, "EEEE, d 'de' MMMM")}${doDia.length ? `: ${plural(doDia.length, "conteúdo")}` : ""}`}
                 className="absolute inset-0 rounded-lg"
               />
-              <span aria-hidden className={cn("tabular pointer-events-none relative inline-grid size-6 place-items-center rounded-full text-xs", iso === hoje && "bg-pen font-semibold text-pen-ink")}>
+              <span aria-hidden className={cn("tabular pointer-events-none relative inline-grid size-6 place-items-center rounded-full text-xs", iso === hoje && "bg-pen font-medium text-pen-ink")}>
                 {d.getDate()}
               </span>
               {/* No celular, só os pontos (a lista do mês fica embaixo); no computador, os títulos */}
@@ -314,9 +314,9 @@ export function PaginaPlanner() {
           isLoading || !itens.length
             ? []
             : [
-                { n: r.ideias, rotulo: r.ideias === 1 ? "ideia no banco" : "ideias no banco", cor: "var(--b-ambar)" },
-                { n: r.producao, rotulo: "em produção", cor: "var(--b-luz)" },
-                ...(r.publicadosMes ? [{ n: r.publicadosMes, rotulo: r.publicadosMes === 1 ? "publicado no mês" : "publicados no mês", cor: "var(--b-verde)" }] : []),
+                { n: r.ideias, rotulo: r.ideias === 1 ? "ideia no banco" : "ideias no banco" },
+                { n: r.producao, rotulo: "em produção" },
+                ...(r.publicadosMes ? [{ n: r.publicadosMes, rotulo: r.publicadosMes === 1 ? "publicado no mês" : "publicados no mês" }] : []),
               ]
         }
       />
@@ -385,19 +385,19 @@ export function PaginaPlanner() {
         <div className="grid content-start gap-4">
           {estrategia.length ? (
             <section aria-labelledby="titulo-estrategia" className="vidro p-4 sm:p-5">
-              <TituloPainel id="titulo-estrategia" icone={Compass} titulo="Estratégia" cor="var(--b-violeta)" />
+              <TituloPainel id="titulo-estrategia" titulo="Estratégia" cor="var(--b-violeta)" />
               <ListaGuias paginas={estrategia} icone={FileText} />
             </section>
           ) : null}
           {ferramentas.length ? (
             <section aria-labelledby="titulo-ferramentas" className="vidro p-4 sm:p-5">
-              <TituloPainel id="titulo-ferramentas" icone={Wrench} titulo="Ferramentas" cor="var(--b-luz-2)" />
+              <TituloPainel id="titulo-ferramentas" titulo="Ferramentas" cor="var(--b-luz-2)" />
               <ListaGuias paginas={ferramentas} icone={Wrench} />
             </section>
           ) : null}
         </div>
         <section aria-labelledby="titulo-linhas" className="vidro p-4 sm:p-5">
-          <TituloPainel id="titulo-linhas" icone={Tags} titulo="Linhas editoriais" />
+          <TituloPainel id="titulo-linhas" titulo="Linhas editoriais" />
           <ul className="mb-4 flex flex-wrap gap-2">
             {linhas.map((l) => {
               const ativa = filtroLinha === l.id
@@ -437,7 +437,6 @@ export function PaginaPlanner() {
         <section aria-labelledby="titulo-links" className="vidro p-4 sm:p-5">
           <TituloPainel
             id="titulo-links"
-            icone={Link2}
             titulo="Links externos"
             cor="var(--b-luz-2)"
             acao={

@@ -102,7 +102,7 @@ export function PaginaViagem() {
           </div>
           <div className="absolute inset-x-0 bottom-0 p-4 text-white sm:p-6">
             <p className="mb-1.5 inline-flex rounded-full bg-white/20 px-2.5 py-0.5 text-xs font-medium backdrop-blur-sm">{SITUACAO[viagem.situacao]}</p>
-            <h1 className="font-display text-3xl font-semibold leading-tight">{viagem.nome}</h1>
+            <h1 className="font-display text-3xl font-medium leading-tight">{viagem.nome}</h1>
             <p className="mt-1 text-sm text-white/85">
               {viagem.ida ? (
                 <>
@@ -110,7 +110,7 @@ export function PaginaViagem() {
                   {viagem.situacao !== "realizada" ? (
                     <>
                       {" "}
-                      · <span className="font-semibold text-white">{textoContagem(viagem)}</span>
+                      · <span className="font-medium text-white">{textoContagem(viagem)}</span>
                     </>
                   ) : null}
                 </>

@@ -83,7 +83,7 @@ function BlocoMeta({ livros, ano, meta, aoDefinirMeta }: { livros: Livro[]; ano:
           <Anel valor={feitos.length} total={meta} />
           <span className="absolute inset-0 grid place-items-center text-center leading-none">
             <span>
-              <span className="tabular block font-display text-xl font-semibold">{feitos.length}</span>
+              <span className="tabular block font-display text-xl font-medium">{feitos.length}</span>
               <span className="tabular block text-[11px] text-ink-3">de {meta}</span>
             </span>
           </span>
@@ -92,7 +92,7 @@ function BlocoMeta({ livros, ano, meta, aoDefinirMeta }: { livros: Livro[]; ano:
           <span className="rotulo-hud block">Meta {ano}</span>
           <span
             className={cn(
-              "mt-0.5 block text-sm font-semibold",
+              "mt-0.5 block text-sm font-medium",
               ritmo.tom === "atras" ? "text-[var(--b-coral)]" : ritmo.tom === "no-ritmo" ? "text-ink" : "text-[var(--b-ambar)]",
             )}
           >
@@ -123,7 +123,7 @@ function BlocoSequencia({ dias }: { dias: DiaLeitura[] }) {
               Sequência <Flame className={cn("size-3.5", seguidos > 0 ? "text-[var(--b-ambar)]" : "text-ink-3")} aria-hidden />
             </p>
             <p className="mt-1 flex items-baseline gap-1.5">
-              <span className={cn("tabular font-display text-3xl font-semibold leading-none", seguidos > 0 && "text-[var(--b-ambar)]")}>{seguidos}</span>
+              <span className={cn("tabular font-display text-3xl font-medium leading-none", seguidos > 0 && "text-[var(--b-ambar)]")}>{seguidos}</span>
               <span className="text-sm text-ink-2">{seguidos === 1 ? "dia seguido" : "dias seguidos"}</span>
             </p>
           </div>
@@ -135,7 +135,7 @@ function BlocoSequencia({ dias }: { dias: DiaLeitura[] }) {
             const futuro = d > hoje
             return (
               <li key={d} className="grid justify-items-center gap-1" aria-label={`${formatar(d, "EEEE")}: ${lido ? "leu" : futuro ? "ainda não chegou" : "sem leitura"}`}>
-                <span aria-hidden className={cn("text-[10px] font-semibold", ehHoje ? "text-ink" : "text-ink-3")}>
+                <span aria-hidden className={cn("text-[11px] font-medium", ehHoje ? "text-ink" : "text-ink-3")}>
                   {INICIAIS[i]}
                 </span>
                 <span
@@ -175,7 +175,7 @@ function BlocoAcervo({ livros, ano, className }: { livros: Livro[]; ano: number;
         <p className="text-xs text-ink-3">{autores ? plural(autores, "autor", "autores") : `${ano}`}</p>
       </div>
       <p className="mt-1 flex items-baseline gap-1.5">
-        <span className="tabular font-display text-3xl font-semibold leading-none">{total}</span>
+        <span className="tabular font-display text-3xl font-medium leading-none">{total}</span>
         <span className="text-sm text-ink-2">{total === 1 ? "livro" : "livros"}</span>
       </p>
       {total ? (
@@ -252,7 +252,7 @@ export function JanelaMeta({ aberta, aoMudar, ano, meta, aoSalvar }: { aberta: b
             value={valor}
             onFocus={(e) => e.currentTarget.select()}
             onChange={(e) => setValor(e.target.value.replace(/\D/g, "").slice(0, 3))}
-            className="tabular w-32 rounded-xl bg-transparent text-center font-display text-5xl font-semibold text-ink outline-none focus-visible:bg-ink/[0.06]"
+            className="tabular w-32 rounded-xl bg-transparent text-center font-display text-5xl font-medium text-ink outline-none focus-visible:bg-ink/[0.06]"
           />
           <span className="rotulo-hud">livros em {ano}</span>
         </label>

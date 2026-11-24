@@ -226,7 +226,7 @@ function PrimeiroUso({
     )
   return (
     <section aria-labelledby="titulo-montar" className="rounded-xl border border-line bg-surface p-5 sm:p-6">
-      <h2 id="titulo-montar" className="font-display text-lg font-semibold">
+      <h2 id="titulo-montar" className="font-display text-lg font-medium">
         Montar seus hobbies
       </h2>
       <p className="mt-1 max-w-xl text-sm text-ink-2">Achei estes blocos na sua página Hobbies do Notion. Cada um vira um hobby, com as páginas de estudo dele. Nada é apagado nem mudado de lugar.</p>
@@ -263,7 +263,7 @@ function SemanaGeral({ sessoes, hoje }: { sessoes: Sessao[]; hoje: string }) {
     <section aria-label="Esta semana" className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 rounded-xl border border-line bg-surface px-4 py-3.5">
       <div className="min-w-0">
         <p className="text-xs font-medium text-ink-3">Esta semana</p>
-        <p className="mt-0.5 text-sm font-semibold">
+        <p className="mt-0.5 text-sm font-medium">
           {resumo.dias.size ? `${plural(resumo.dias.size, "dia")} de prática` : "Nenhuma prática ainda"}
           {resumo.minutos ? <span className="font-normal text-ink-2"> · {textoMinutos(resumo.minutos)}</span> : null}
         </p>
@@ -285,7 +285,7 @@ function CartaoHobby({ hobby, sessoes, nPaginas, hoje, aoPraticar }: { hobby: Ho
     // Em linha, como no Notion: a foto ao lado e as informações da semana ao lado dela
     <article className="group relative flex h-full overflow-hidden rounded-xl border border-line bg-surface transition-colors hover:border-line-strong">
       <div className="relative w-28 shrink-0 self-stretch overflow-hidden sm:w-36">
-        <CapaHobby hobby={hobby} className="transition-transform duration-300 group-hover:scale-[1.03]" />
+        <CapaHobby hobby={hobby} />
         {resumo.feitoHoje ? (
           <span className="absolute left-1.5 top-1.5 inline-flex items-center gap-1 rounded-full bg-pen px-2 py-0.5 text-[11px] font-medium text-pen-ink">
             <Check className="size-3" aria-hidden strokeWidth={2.5} /> Hoje

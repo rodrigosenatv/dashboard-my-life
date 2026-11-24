@@ -31,7 +31,7 @@ export function TelaYoutube({ video, titulo, iniciar = false }: { video: VideoYo
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={miniaturaYoutube(video.id)} alt="" loading="lazy" className="size-full object-cover opacity-85 transition-opacity group-hover:opacity-100" />
           <span className="absolute inset-0 grid place-items-center">
-            <span className="grid size-14 place-items-center rounded-full bg-black/65 text-white shadow-overlay transition-transform group-hover:scale-105">
+            <span className="grid size-14 place-items-center rounded-full bg-black/65 text-white shadow-overlay transition-colors group-hover:bg-black/80">
               <Play className="size-6 translate-x-0.5" fill="currentColor" />
             </span>
           </span>

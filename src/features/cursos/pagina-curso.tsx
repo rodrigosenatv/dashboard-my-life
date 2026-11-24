@@ -102,7 +102,7 @@ export function PaginaCurso() {
     return (
       <div className={MOLDURA}>
         <div className="vidro mx-auto mt-10 max-w-md px-6 py-10 text-center">
-          <p className="font-display text-xl font-semibold">Curso não encontrado</p>
+          <p className="font-display text-xl font-medium">Curso não encontrado</p>
           <p className="mt-1 text-ink-2">Ele pode ter sido excluído.</p>
           <Botao asChild variante="primario" className="mt-5">
             <Link href="/estudos/cursos">Voltar para os cursos</Link>
@@ -309,7 +309,7 @@ function Cabeca({
             </span>
           ) : null}
         </div>
-        <h1 className="mt-3 font-display text-[1.9rem] font-semibold leading-[1.08] tracking-tight text-balance sm:text-[2.6rem]">{curso.name}</h1>
+        <h1 className="mt-3 font-display text-[1.9rem] font-medium leading-[1.08] tracking-tight text-balance sm:text-[2.6rem]">{curso.name}</h1>
         {curso.categories.length ? (
           <ul className="mt-2.5 flex flex-wrap gap-1.5" aria-label="Áreas">
             {curso.categories.map((k) => (
@@ -334,7 +334,7 @@ function Cabeca({
           >
             <span className="min-w-0 flex-1">
               <span className="rotulo-hud flex items-center gap-1.5">
-                <Radar className="size-3.5 shrink-0 text-[var(--b-rosa)]" aria-hidden />
+                <Radar className="size-3.5 shrink-0 text-ink-3" aria-hidden />
                 <span className="truncate">Você parou em{parou.modulo ? ` · ${textoLimpo(parou.modulo)}` : ""}</span>
               </span>
               <span className="mt-1 flex items-baseline gap-2 text-[15px] font-medium leading-snug">
@@ -387,7 +387,7 @@ function ControleProgresso({ curso }: { curso: Curso }) {
         <div className="barra-luz flex-1" data-cor="estudos" aria-hidden>
           <span style={{ width: "100%" }} />
         </div>
-        <span className="text-sm font-semibold text-[var(--b-ambar)]">Concluído</span>
+        <span className="text-sm font-medium text-[var(--b-ambar)]">Concluído</span>
       </div>
     )
   }
@@ -417,7 +417,7 @@ function ControleProgresso({ curso }: { curso: Curso }) {
       <button type="button" aria-label="Menos 5%" onClick={() => passo(-5)} disabled={valor <= 0} className={BOTAO_PASSO}>
         <Minus className="size-4" />
       </button>
-      <span className="tabular w-11 text-center text-sm font-semibold" aria-live="polite">
+      <span className="tabular w-11 text-center text-sm font-medium" aria-live="polite">
         {valor}%
       </span>
       <button type="button" aria-label="Mais 5%" onClick={() => passo(5)} disabled={valor >= 100} className={BOTAO_PASSO}>
@@ -495,9 +495,9 @@ function Trilha({
       <div className="flex flex-wrap items-end justify-between gap-x-3 gap-y-2">
         <div>
           <p className="rotulo-hud flex items-center gap-2">
-            <Route className="size-3.5 text-[var(--b-luz)]" aria-hidden /> Trilha
+            <Route className="size-3.5 text-ink-3" aria-hidden /> Trilha
           </p>
-          <h2 id="titulo-trilha" className="mt-1 flex flex-wrap items-baseline gap-x-2.5 font-display text-2xl font-semibold">
+          <h2 id="titulo-trilha" className="mt-1 flex flex-wrap items-baseline gap-x-2.5 font-display text-2xl font-medium">
             Aulas
             {mapa.aulas.length ? (
               <span className="font-sans text-sm font-normal text-ink-3">
@@ -571,7 +571,7 @@ function Trilha({
                     {s === "concluido" ? (
                       <Check className="size-3 text-[var(--b-luz)]" />
                     ) : p.numero ? (
-                      <span className={cn("tabular font-display font-semibold leading-none text-[var(--b-luz)]", p.numero.length > 2 ? "text-[8px]" : "text-[10px]")}>{p.numero}</span>
+                      <span className={cn("tabular font-display font-medium leading-none text-[var(--b-luz)]", p.numero.length > 2 ? "text-[8px]" : "text-[11px]")}>{p.numero}</span>
                     ) : (
                       <span className="size-1.5 rounded-full bg-[var(--b-luz)]" />
                     )}
@@ -589,7 +589,7 @@ function Trilha({
                           {p.numero ? <span className="sr-only">Aula {p.numero}:</span> : null}
                           <span className="font-medium leading-snug">{p.nome}</span>
                           {p.tag ? <span className="rounded-md border border-[var(--b-borda)] px-1.5 py-px font-mono text-[11px] text-ink-3">{p.tag}</span> : null}
-                          {atual ? <span className="rounded-full bg-[var(--b-rosa)]/15 px-2 py-0.5 text-[11px] font-semibold text-[var(--b-rosa)]">Você parou aqui</span> : null}
+                          {atual ? <span className="rounded-full bg-[var(--b-rosa)]/15 px-2 py-0.5 text-[11px] font-medium text-[var(--b-rosa)]">Você parou aqui</span> : null}
                         </span>
                         {/* O corte em duas linhas fica num filho: no mesmo elemento, o "block" desligava o corte */}
                         {resumo ? (
@@ -674,7 +674,7 @@ function Caderno({ curso, aberto: abertoAntes }: { curso: Curso; aberto: boolean
       <button type="button" aria-expanded={aberto} onClick={() => setAberto((v) => !v)} className="flex w-full items-center justify-between gap-3 text-left">
         <span>
           <span className="rotulo-hud flex items-center gap-2">
-            <BookText className="size-3.5 text-[var(--b-luz)]" aria-hidden /> Caderno do curso
+            <BookText className="size-3.5 text-ink-3" aria-hidden /> Caderno do curso
           </span>
           <span id="titulo-caderno" className="mt-1 block text-sm text-ink-2">
             Todas as anotações: links, materiais, a trilha e as ações, do jeito que estão escritas.
@@ -701,7 +701,7 @@ function Acesso({ curso, aoEditar }: { curso: Curso; aoEditar: () => void }) {
   return (
     <section aria-labelledby="titulo-acesso" className="vidro p-4 sm:p-5">
       <h2 id="titulo-acesso" className="rotulo-hud flex items-center gap-2">
-        <KeyRound className="size-3.5 text-[var(--b-luz)]" aria-hidden /> Acesso
+        <KeyRound className="size-3.5 text-ink-3" aria-hidden /> Acesso
       </h2>
       {link ? (
         <a href={link} target="_blank" rel="noopener noreferrer" className="mt-3 flex items-center gap-3 rounded-xl border border-[var(--b-borda)] bg-ink/[0.03] px-3 py-2.5 hover:border-[var(--b-borda-2)]">

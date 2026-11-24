@@ -117,7 +117,7 @@ function ListaConversas({ atual, aoAbrir, aoNova }: { atual: string | null; aoAb
       <button
         type="button"
         onClick={aoNova}
-        className="mb-3 flex min-h-11 w-full items-center justify-center gap-2 rounded-full border border-[var(--b-luz)]/45 bg-[var(--b-luz)]/[0.1] px-4 text-sm font-semibold transition-colors hover:border-[var(--b-luz)] hover:bg-[var(--b-luz)]/[0.18]"
+        className="mb-3 flex min-h-11 w-full items-center justify-center gap-2 rounded-full border border-[var(--b-luz)]/45 bg-[var(--b-luz)]/[0.1] px-4 text-sm font-medium transition-colors hover:border-[var(--b-luz)] hover:bg-[var(--b-luz)]/[0.18]"
       >
         <Plus className="size-4 text-[var(--b-luz)]" /> Nova conversa
       </button>
@@ -346,13 +346,13 @@ export function PaginaAssistente() {
         <CabecalhoEstudio icone={Sparkles} papel="Converse com a IA" titulo="Assistente" />
         <div className="vidro mx-auto flex max-w-xl flex-col items-center px-6 py-10 text-center sm:py-12">
           <span className="orbe-ia size-20" data-apagado="" aria-hidden />
-          <h2 className="mt-7 font-display text-xl font-semibold">Nenhuma IA ligada neste navegador.</h2>
+          <h2 className="mt-7 font-display text-xl font-medium">Nenhuma IA ligada neste navegador.</h2>
           <p className="mt-2 text-sm text-ink-2">
             Cadastre a chave de API do Claude, do ChatGPT, do Gemini ou do OpenRouter (que tem modelos gratuitos) em Configurações. A chave fica guardada só neste navegador, e o uso, quando pago, é cobrado pela empresa da IA conforme o consumo.
           </p>
           <Link
             href="/configuracoes#ia"
-            className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-full bg-pen px-5 text-sm font-semibold text-pen-ink transition-[filter] hover:brightness-110"
+            className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-full bg-pen px-5 text-sm font-medium text-pen-ink transition-[filter] hover:brightness-110"
           >
             Abrir Configurações
           </Link>
@@ -401,7 +401,7 @@ export function PaginaAssistente() {
             {mensagens.length === 0 ? (
               <div className="mx-auto flex max-w-3xl flex-col items-center pb-4 pt-2 text-center sm:pt-6">
                 <span className="orbe-ia size-20 sm:size-24" aria-hidden />
-                <h2 className="mt-7 font-display text-2xl font-semibold sm:text-3xl">Como posso ajudar hoje?</h2>
+                <h2 className="mt-7 font-display text-2xl font-medium sm:text-3xl">Como posso ajudar hoje?</h2>
                 <p className="mt-2 inline-flex items-center gap-2 rounded-full border border-[var(--b-borda)] bg-ink/[0.03] px-3 py-1 text-xs text-ink-2">
                   <span aria-hidden className="size-2 rounded-full bg-[var(--b-verde)]" />
                   {nomeIA} conectado
@@ -414,7 +414,7 @@ export function PaginaAssistente() {
                           <s.icone className="size-4" />
                         </span>
                         <span className="min-w-0">
-                          <span className="block text-sm font-semibold">{s.titulo}</span>
+                          <span className="block text-sm font-medium">{s.titulo}</span>
                           <span className="mt-0.5 block text-sm text-ink-2">{s.texto}</span>
                         </span>
                       </button>

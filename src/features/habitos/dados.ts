@@ -152,10 +152,10 @@ export function taxa(h: Habito, dias: Map<string, RegistroHabito> | undefined, i
 
 export type Ritual = "manha" | "noite" | "livre"
 
-export const RITUAIS: { valor: Ritual; titulo: string; emoji: string }[] = [
-  { valor: "manha", titulo: "Ritual Matutino", emoji: "☀️" },
-  { valor: "noite", titulo: "Ritual Noturno", emoji: "🌒" },
-  { valor: "livre", titulo: "Outros hábitos", emoji: "" },
+export const RITUAIS: { valor: Ritual; titulo: string }[] = [
+  { valor: "manha", titulo: "Ritual Matutino" },
+  { valor: "noite", titulo: "Ritual Noturno" },
+  { valor: "livre", titulo: "Outros hábitos" },
 ]
 
 // Divisão usada no Dashboard My Life; vale até a pessoa escolher outra no app.

@@ -31,10 +31,10 @@ function CartaoPrompt({ p }: { p: Prompt }) {
           {origem}
         </Link>
       </p>
-      {p.titulo ? <p className="mt-1.5 font-display font-semibold leading-snug">{p.titulo}</p> : null}
+      {p.titulo ? <p className="mt-1.5 font-display font-medium leading-snug">{p.titulo}</p> : null}
       {/* A tela do prompt: uma barra de terminal com quantos campos há para preencher */}
       <div className="relative mt-3 overflow-hidden rounded-xl border border-[var(--b-borda)] bg-surface">
-        <div className="flex items-center justify-between gap-2 border-b border-[var(--b-borda)] px-3 py-1.5 font-mono text-[10.5px] uppercase tracking-[0.14em] text-ink-3">
+        <div className="flex items-center justify-between gap-2 border-b border-[var(--b-borda)] px-3 py-1.5 font-mono text-xs text-ink-3">
           <span className="flex items-center gap-1.5">
             <span aria-hidden className="size-1.5 rounded-full bg-[var(--b-luz)]" />
             prompt
@@ -77,7 +77,7 @@ function CartaoPrompt({ p }: { p: Prompt }) {
             } catch {}
             router.push("/conteudo/assistente?usar=1")
           }}
-          className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-full border border-[var(--b-luz)]/45 bg-[var(--b-luz)]/[0.1] px-3 text-xs font-semibold text-ink transition-colors hover:border-[var(--b-luz)] hover:bg-[var(--b-luz)]/[0.18] toque:min-h-10"
+          className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-full border border-[var(--b-luz)]/45 bg-[var(--b-luz)]/[0.1] px-3 text-xs font-medium text-ink transition-colors hover:border-[var(--b-luz)] hover:bg-[var(--b-luz)]/[0.18] toque:min-h-10"
         >
           <MessageSquareText className="size-3.5 text-[var(--b-luz)]" /> Usar no assistente
         </button>
@@ -190,7 +190,7 @@ export function PaginaBiblioteca() {
       secoes={SECOES_BIBLIOTECA}
       secaoNova="biblioteca"
       cursos
-      hudExtra={prompts.length ? [{ n: prompts.length, rotulo: "prompts", cor: "var(--b-violeta)" }] : []}
+      hudExtra={prompts.length ? [{ n: prompts.length, rotulo: "prompts" }] : []}
       topo={
         <Segmentos
           rotulo="O que ver na biblioteca"

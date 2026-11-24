@@ -137,7 +137,7 @@ export function SessaoFoco() {
           />
         </svg>
         <div className="grid justify-items-center">
-          <span role="timer" aria-live="off" className="font-display text-6xl font-semibold tabular tracking-tight sm:text-7xl">
+          <span role="timer" aria-live="off" className="font-display text-6xl font-medium tabular tracking-tight sm:text-7xl">
             {mmss(restante)}
           </span>
           <span className="mt-1 text-sm font-medium text-ink-2">
@@ -281,8 +281,8 @@ function PainelDeFoco({
     // As tarefas ainda estão carregando: mostra o nome que ficou guardado
     return (
       <div>
-        <p className="text-xs font-semibold uppercase tracking-wider text-ink-3">Focando em</p>
-        <p className="mt-1.5 font-display text-2xl font-semibold leading-snug text-balance">{s.tarefa.titulo}</p>
+        <p className="text-sm font-medium text-ink-3">Focando em</p>
+        <p className="mt-1.5 font-display text-2xl font-medium leading-snug text-balance">{s.tarefa.titulo}</p>
       </div>
     )
   }
@@ -302,8 +302,8 @@ function PainelDeFoco({
 
   return (
     <div>
-      <p className="text-xs font-semibold uppercase tracking-wider text-ink-3">Focando em</p>
-      <p className={cn("mt-1.5 font-display text-2xl font-semibold leading-snug text-balance", concluida && "line-through text-ink-3")}>{tarefa.title}</p>
+      <p className="text-sm font-medium text-ink-3">Focando em</p>
+      <p className={cn("mt-1.5 font-display text-2xl font-medium leading-snug text-balance", concluida && "line-through text-ink-3")}>{tarefa.title}</p>
       {concluida ? (
         <>
           <p className="mt-2 flex items-center gap-1.5 text-sm font-medium text-rotina">
@@ -404,7 +404,7 @@ function CampoFocoLivre({ hoje, deHoje }: { hoje: string; deHoje: Tarefa[] }) {
   return (
     <div>
       <form onSubmit={enviar}>
-        <label htmlFor="flow-intencao" className="font-display text-xl font-semibold">
+        <label htmlFor="flow-intencao" className="font-display text-xl font-medium">
           Em que você vai focar?
         </label>
         <div className="mt-3 flex gap-2">

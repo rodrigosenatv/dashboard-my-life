@@ -38,7 +38,7 @@ function MesesMeta({ meta, meses, aoEditar }: { meta: Meta; meses: MesMeta[]; ao
               r ? "bg-surface-2" : "bg-transparent",
             )}
           >
-            <span className="block text-[10px] uppercase text-ink-3">{nome}</span>
+            <span className="block text-[11px] text-ink-3 first-letter:uppercase">{nome}</span>
             <span className={cn("tabular block text-xs font-medium", p !== null && p >= 100 ? "text-rotina" : "text-ink")}>
               {r ? (p !== null ? `${p}%` : numero(Number(r.progress), 1)) : "–"}
             </span>

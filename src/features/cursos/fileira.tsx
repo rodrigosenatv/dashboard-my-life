@@ -41,7 +41,7 @@ export function CartaoCurso({ curso: c, capa, className }: { curso: Curso; capa?
         <CapaCurso curso={c} caminho={capa} />
         <span aria-hidden className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-transparent" />
         {s === "concluido" ? (
-          <span aria-hidden className="absolute left-2 top-2 inline-flex items-center gap-1 rounded-full bg-black/55 px-2 py-0.5 text-[11px] font-semibold text-[var(--b-ambar)] ring-1 ring-[var(--b-ambar)]/40 backdrop-blur-sm">
+          <span aria-hidden className="absolute left-2 top-2 inline-flex items-center gap-1 rounded-full bg-black/55 px-2 py-0.5 text-[11px] font-medium text-[var(--b-ambar)] ring-1 ring-[var(--b-ambar)]/40 backdrop-blur-sm">
             <Check className="size-3" /> Concluído
           </span>
         ) : null}
@@ -113,7 +113,7 @@ export function Fileira({
     <section aria-labelledby={rotuloId} className="min-w-0">
       <div className="mb-3 flex items-end justify-between gap-3">
         <div className="min-w-0">
-          <h2 id={rotuloId} className="flex items-baseline gap-2 font-display text-xl font-semibold">
+          <h2 id={rotuloId} className="flex items-baseline gap-2 font-display text-xl font-medium">
             {titulo}
             <span className="tabular text-sm font-normal text-ink-3">{cursos.length}</span>
           </h2>

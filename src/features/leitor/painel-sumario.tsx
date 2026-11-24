@@ -88,7 +88,7 @@ function Lista({ itens, atual, aoIr, nivel }: { itens: ItemSumarioLivro[]; atual
               className={cn(
                 "w-full rounded-lg px-2 py-2.5 text-left text-sm leading-snug hover:bg-[var(--l-realce)]",
                 nivel === 0 ? "font-medium" : "text-[var(--l-suave)]",
-                ativo && "bg-[var(--l-realce)] font-semibold text-[var(--l-link)]",
+                ativo && "bg-[var(--l-realce)] font-medium text-[var(--l-link)]",
               )}
             >
               {item.label?.trim() || "Sem título"}

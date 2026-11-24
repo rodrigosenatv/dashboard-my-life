@@ -172,7 +172,7 @@ export function CartaoDiario({ entradas, colecao }: { entradas: EntradaDiario[];
           <div className="mt-2">
             {deHoje.titulo || deHoje.especial ? (
               <div className="mb-2 flex flex-wrap items-center gap-x-2 gap-y-1">
-                {deHoje.titulo ? <p className="min-w-0 font-semibold">{deHoje.titulo}</p> : null}
+                {deHoje.titulo ? <p className="min-w-0 font-medium">{deHoje.titulo}</p> : null}
                 {deHoje.especial ? (
                   <span className="inline-flex items-center gap-1 rounded-full bg-pen-soft px-2 py-0.5 text-xs font-medium text-pen">
                     <Star aria-hidden className="size-3 fill-current" /> Ocasião especial
@@ -196,7 +196,7 @@ export function CartaoDiario({ entradas, colecao }: { entradas: EntradaDiario[];
 
         {recentes.length ? (
           <section aria-label="Últimos dias" className="mt-5 border-t border-line pt-4">
-            <h3 className="text-xs font-medium uppercase tracking-wide text-ink-3">Últimos dias</h3>
+            <h3 className="text-sm font-medium text-ink-3">Últimos dias</h3>
             <ul className="mt-2 grid gap-1">
               {recentes.map((e) => {
                 const resumo = resumoDoTexto(e.texto)

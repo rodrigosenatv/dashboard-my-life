@@ -66,7 +66,7 @@ export function TrechosRecentes({ insights, livros, aoVerTodos }: { insights: In
     <section aria-labelledby="trechos-recentes" className="min-w-0">
       <div className="mb-3 flex items-end justify-between gap-3">
         <div>
-          <h2 id="trechos-recentes" className="font-display text-xl font-semibold">
+          <h2 id="trechos-recentes" className="font-display text-xl font-medium">
             Trechos guardados
           </h2>
           <p className="text-sm text-ink-3">As frases que você quis lembrar</p>

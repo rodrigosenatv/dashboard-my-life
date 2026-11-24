@@ -183,10 +183,10 @@ export function PaginaProjetos() {
           isLoading || !raiz.length
             ? []
             : [
-                { n: contagem.ativos, rotulo: "em andamento", cor: "var(--b-luz)" },
-                ...(atrasados ? [{ n: atrasados, rotulo: atrasados === 1 ? "atrasado" : "atrasados", cor: "var(--b-rosa)" }] : []),
-                ...(vencendo ? [{ n: vencendo, rotulo: "vencem em 7 dias", cor: "var(--b-ambar)" }] : []),
-                { n: contagem.concluidos, rotulo: contagem.concluidos === 1 ? "concluído" : "concluídos", cor: "var(--b-menta)" },
+                { n: contagem.ativos, rotulo: "em andamento" },
+                ...(atrasados ? [{ n: atrasados, rotulo: atrasados === 1 ? "atrasado" : "atrasados", cor: "var(--danger)" }] : []),
+                ...(vencendo ? [{ n: vencendo, rotulo: "vencem em 7 dias" }] : []),
+                { n: contagem.concluidos, rotulo: contagem.concluidos === 1 ? "concluído" : "concluídos" },
               ]
         }
       />
@@ -218,7 +218,7 @@ export function PaginaProjetos() {
         </div>
         <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[var(--b-borda)] pt-3">
           <span className="tabular text-xs font-medium text-ink-2" aria-live="polite">{plural(lista.length, "projeto")}</span>
-          {haFiltros ? <button type="button" onClick={limpar} className="inline-flex min-h-9 items-center gap-1 rounded-full px-2.5 text-xs font-semibold text-[var(--b-luz)] hover:bg-ink/[0.06]"><X className="size-3.5" /> Limpar filtros</button> : null}
+          {haFiltros ? <button type="button" onClick={limpar} className="inline-flex min-h-9 items-center gap-1 rounded-full px-2.5 text-xs font-medium text-[var(--b-luz)] hover:bg-ink/[0.06]"><X className="size-3.5" /> Limpar filtros</button> : null}
         </div>
       </div>
 
@@ -261,7 +261,7 @@ function CartaoProjeto({ projeto: p, todos, area, tarefas }: { projeto: Projeto;
         <div className="flex items-start gap-3.5">
           <AnelProgresso pct={pct} tamanho={56} espessura={4} />
           <div className="min-w-0 flex-1">
-            <p className="break-words font-display text-[1.05rem] font-semibold leading-snug transition-colors group-hover:text-[var(--b-luz)]">{p.name}</p>
+            <p className="break-words font-display text-[1.05rem] font-medium leading-snug transition-colors group-hover:text-[var(--b-luz)]">{p.name}</p>
             <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
               {area ? <Etiqueta cor="projetos" className="max-w-full">{area}</Etiqueta> : null}
               <ChipPrazo prazo={p.deadline} feito={p.done} className="-ml-1" />
@@ -272,7 +272,7 @@ function CartaoProjeto({ projeto: p, todos, area, tarefas }: { projeto: Projeto;
         <div className="mt-auto pt-5">
           {proxima ? (
             <p className="mb-2 flex min-w-0 items-center gap-2 text-sm">
-              <span className="rotulo-hud shrink-0 text-[10px]">Próxima</span>
+              <span className="rotulo-hud shrink-0 text-[11px]">Próxima</span>
               <span className="min-w-0 truncate text-ink-2">{proxima.name}</span>
             </p>
           ) : null}

@@ -40,7 +40,7 @@ export function PainelLeitor({
       >
         <div className="mx-auto mt-2 h-1 w-10 rounded-full bg-[var(--l-borda)] sm:hidden" aria-hidden />
         <div className="flex items-center justify-between gap-3 px-5 pb-2 pt-2 sm:pt-4">
-          <h2 className="font-display text-base font-semibold">{titulo}</h2>
+          <h2 className="font-display text-base font-medium">{titulo}</h2>
           <button
             type="button"
             onClick={aoFechar}
@@ -85,7 +85,7 @@ export function Opcoes<T extends string | number>({
             style={o.estilo}
             className={cn(
               "min-h-11 truncate rounded-lg px-2 text-sm transition-colors",
-              ativo ? "bg-[var(--l-fundo)] font-semibold shadow-[0_1px_3px_rgb(0_0_0/0.15)]" : "text-[var(--l-suave)] hover:text-[var(--l-texto)]",
+              ativo ? "bg-[var(--l-fundo)] font-medium shadow-[0_1px_3px_rgb(0_0_0/0.15)]" : "text-[var(--l-suave)] hover:text-[var(--l-texto)]",
             )}
           >
             {o.rotulo}
@@ -99,7 +99,7 @@ export function Opcoes<T extends string | number>({
 export function Grupo({ rotulo, children, className }: { rotulo: string; children: React.ReactNode; className?: string }) {
   return (
     <div className={cn("grid gap-2 py-3", className)}>
-      <p className="text-xs font-medium uppercase tracking-wide text-[var(--l-suave)]">{rotulo}</p>
+      <p className="text-sm font-medium text-[var(--l-suave)]">{rotulo}</p>
       {children}
     </div>
   )

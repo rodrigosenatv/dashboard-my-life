@@ -46,7 +46,7 @@ const NoArvore = React.memo(function NoArvore({ pagina, indice, nivel, busca, vi
             <FileText className="size-3.5" />
           </span>
         )}
-        <Link href={`/paginas/${pagina.id}`} className={cn("min-w-0 flex-1 truncate rounded-lg px-2 py-2.5 text-sm transition-colors hover:text-[var(--b-luz)] focus-visible:outline-offset-1 toque:py-3", nivel === 0 && "font-semibold")}>
+        <Link href={`/paginas/${pagina.id}`} className={cn("min-w-0 flex-1 truncate rounded-lg px-2 py-2.5 text-sm transition-colors hover:text-[var(--b-luz)] focus-visible:outline-offset-1 toque:py-3", nivel === 0 && "font-medium")}>
           {pagina.icon && !pagina.icon.startsWith("/") && pagina.icon.length <= 4 ? <span className="mr-1.5">{pagina.icon}</span> : null}
           {pagina.title || "Sem título"}
         </Link>
@@ -144,7 +144,7 @@ export function ListaPaginas({
           carregando || !daSecao.length
             ? []
             : [
-                { n: daSecao.length, rotulo: daSecao.length === 1 ? "página" : "páginas", cor: "var(--b-luz)" },
+                { n: daSecao.length, rotulo: daSecao.length === 1 ? "página" : "páginas" },
                 ...(listaCursos.length ? [{ n: listaCursos.reduce((s, c) => s + c.modulos.length, 0), rotulo: "módulos", cor: "var(--b-luz-2)" }] : []),
                 ...(favoritas.length ? [{ n: favoritas.length, rotulo: favoritas.length === 1 ? "favorita" : "favoritas", cor: "var(--b-ambar)" }] : []),
                 ...(editadas ? [{ n: editadas, rotulo: editadas === 1 ? "editada nesta semana" : "editadas nesta semana" }] : []),

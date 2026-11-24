@@ -197,7 +197,7 @@ export function PaginaProjeto() {
                   rotulo="Renomear o projeto"
                   valor={projeto.name}
                   aoSalvar={(v) => atualizar.mutate({ id: projeto.id, name: v })}
-                  className="font-display text-[1.75rem] font-semibold leading-tight tracking-tight sm:text-[2.25rem]"
+                  className="font-display text-[1.75rem] font-medium leading-tight tracking-tight sm:text-[2.25rem]"
                 />
               </div>
               <div className="mt-2 flex flex-wrap items-center gap-2">
@@ -348,7 +348,7 @@ function Painel({ icone: Icone, titulo, acao, children }: { icone: LucideIcon; t
     <section className="vidro min-w-0 p-4 sm:p-5" aria-label={titulo}>
       <div className="mb-3 flex min-h-8 items-center justify-between gap-3">
         <h2 className="rotulo-hud flex items-center gap-2">
-          <Icone className="size-3.5 text-[var(--b-luz)]" aria-hidden /> {titulo}
+          <Icone className="size-3.5 text-ink-3" aria-hidden /> {titulo}
         </h2>
         {acao}
       </div>

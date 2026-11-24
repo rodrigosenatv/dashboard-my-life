@@ -62,8 +62,8 @@ export function PraticaHobby({ sessoes, resumo, aoRegistrar, aoEditar }: { sesso
                 <li key={s.id}>
                   <button type="button" onClick={() => aoEditar(s)} className="flex w-full items-start gap-3.5 px-4 py-3 text-left transition-colors hover:bg-surface-2 toque:min-h-12" aria-label={`Editar a prática de ${diaCurto(s.data, hoje)}`}>
                     <span aria-hidden className="w-9 shrink-0 text-center">
-                      <span className="block text-[11px] font-medium uppercase text-ink-3">{formatar(s.data, "EEEEEE")}</span>
-                      <span className="block text-lg font-semibold leading-tight tabular">{formatar(s.data, "d")}</span>
+                      <span className="block text-[11px] font-medium text-ink-3 first-letter:uppercase">{formatar(s.data, "EEEEEE")}</span>
+                      <span className="block text-lg font-medium leading-tight tabular">{formatar(s.data, "d")}</span>
                     </span>
                     <span className="min-w-0 flex-1">
                       <span className={s.anotacoes ? "block whitespace-pre-line text-sm" : "block text-sm text-ink-3"}>{s.anotacoes || "Sem anotações"}</span>
@@ -91,7 +91,7 @@ function Numero({ rotulo, valor, detalhe }: { rotulo: string; valor: string; det
   return (
     <div className="flex min-w-0 flex-col gap-0.5 px-3 py-3 sm:px-5">
       <dt className="text-xs text-ink-3">{rotulo}</dt>
-      <dd className="truncate text-sm font-semibold tabular">{valor}</dd>
+      <dd className="truncate text-sm font-medium tabular">{valor}</dd>
       {detalhe ? <dd className="truncate text-xs text-ink-3">{detalhe}</dd> : null}
     </div>
   )

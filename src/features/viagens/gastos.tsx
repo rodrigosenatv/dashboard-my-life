@@ -55,7 +55,7 @@ export function GastosViagem({ viagem, viagens, gastos, aoDefinirOrcamento }: { 
       <Resumo viagem={viagem} gasto={resumo.gasto} previsao={resumo.previsao} faltaPagar={resumo.faltaPagar} aoDefinirOrcamento={aoDefinirOrcamento} />
 
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h3 className="font-display text-base font-semibold">Gastos</h3>
+        <h3 className="font-display text-base font-medium">Gastos</h3>
         <Botao variante="primario" tamanho="sm" onClick={() => setForm({ aberto: true, gasto: null })}>
           <Plus /> Lançar gasto
         </Botao>
@@ -79,7 +79,7 @@ export function GastosViagem({ viagem, viagens, gastos, aoDefinirOrcamento }: { 
             return (
               <section key={c.tipo} aria-label={c.rotulo}>
                 <div className="mb-1.5 flex items-baseline justify-between gap-3">
-                  <h4 className="flex items-center gap-2 text-sm font-semibold">
+                  <h4 className="flex items-center gap-2 text-sm font-medium">
                     <Icone className="size-4 text-ink-3" aria-hidden /> {c.rotulo}
                   </h4>
                   <p className="text-sm tabular text-ink-2">{!c.gasto ? `previsto ${reais(c.previsao)}` : c.previsao > c.gasto ? `${reais(c.gasto)} de ${reais(c.previsao)}` : reais(c.gasto)}</p>
@@ -108,7 +108,7 @@ function Resumo({ viagem, gasto, previsao, faltaPagar, aoDefinirOrcamento }: { v
   return (
     <section aria-label="Resumo dos gastos" className="rounded-xl border border-line bg-surface p-4 sm:p-5">
       <p className="text-sm text-ink-2">Pago até agora</p>
-      <p className="font-display text-3xl font-semibold tabular">{reais(gasto)}</p>
+      <p className="font-display text-3xl font-medium tabular">{reais(gasto)}</p>
       {orcamento !== null ? (
         <p className="text-sm text-ink-3">de {reais(orcamento)} de orçamento</p>
       ) : (
@@ -132,11 +132,11 @@ function Resumo({ viagem, gasto, previsao, faltaPagar, aoDefinirOrcamento }: { v
       <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
         <div>
           <dt className="text-ink-3">Previsão da viagem</dt>
-          <dd className="font-semibold tabular">{reais(previsao)}</dd>
+          <dd className="font-medium tabular">{reais(previsao)}</dd>
         </div>
         <div>
           <dt className="text-ink-3">Falta pagar</dt>
-          <dd className="font-semibold tabular">{reais(faltaPagar)}</dd>
+          <dd className="font-medium tabular">{reais(faltaPagar)}</dd>
         </div>
       </dl>
       {orcamento !== null && previsao > 0 ? (
@@ -170,7 +170,7 @@ function LinhaGasto({ gasto: g, aoAbrir, aoPagar }: { gasto: Gasto; aoAbrir: () 
           Paguei
         </Botao>
       ) : null}
-      <span className={cn("w-20 shrink-0 text-right text-sm font-semibold tabular", pendente && "text-ink-2")}>{reais(valorDoGasto(g))}</span>
+      <span className={cn("w-20 shrink-0 text-right text-sm font-medium tabular", pendente && "text-ink-2")}>{reais(valorDoGasto(g))}</span>
     </li>
   )
 }

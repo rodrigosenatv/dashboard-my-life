@@ -56,7 +56,7 @@ export function Janela({
         >
           <div className="flex items-start justify-between gap-4 border-b border-line px-5 pb-3 pt-4">
             <div className="min-w-0">
-              <Dialog.Title className="font-display text-lg font-semibold">{titulo}</Dialog.Title>
+              <Dialog.Title className="font-display text-lg font-medium">{titulo}</Dialog.Title>
               {descricao ? (
                 <Dialog.Description className="mt-0.5 text-sm text-ink-2">{descricao}</Dialog.Description>
               ) : (

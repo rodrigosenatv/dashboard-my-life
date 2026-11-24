@@ -18,7 +18,7 @@ function acento(nome: string): string {
 function SemFoto({ nome, className }: { nome: string; className?: string }) {
   return (
     <div aria-hidden className={cn("@container relative grid h-full w-full place-items-center overflow-hidden text-white", acento(nome), className)}>
-      <span className="select-none font-display text-[clamp(2rem,38cqw,5rem)] font-semibold leading-none opacity-30">{nome.trim().charAt(0).toUpperCase()}</span>
+      <span className="select-none font-display text-[clamp(2rem,38cqw,5rem)] font-medium leading-none opacity-30">{nome.trim().charAt(0).toUpperCase()}</span>
     </div>
   )
 }
@@ -61,7 +61,7 @@ export function FaixaSemana({ dias, praticados, hoje, className }: { dias: strin
         const futuro = d > hoje
         return (
           <li key={d} aria-label={`${formatar(d, "EEEE, d 'de' MMMM")}: ${feito ? "praticou" : futuro ? "ainda não chegou" : "sem prática"}`} className="flex flex-col items-center gap-1">
-            <span aria-hidden className={cn("text-[11px] font-medium uppercase", ehHoje ? "text-ink" : "text-ink-3")}>
+            <span aria-hidden className={cn("text-[11px] font-medium first-letter:uppercase", ehHoje ? "text-ink" : "text-ink-3")}>
               {formatar(d, "EEEEE")}
             </span>
             <span

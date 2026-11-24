@@ -221,7 +221,7 @@ export function GerarRoteiro({
         >
           <span aria-hidden className="orbe-ia size-7" data-pensando={gerando ? "" : undefined} data-apagado={cred ? undefined : ""} />
           <span className="min-w-0 flex-1">
-            <span className="block text-sm font-semibold">Gerar com IA</span>
+            <span className="block text-sm font-medium">Gerar com IA</span>
             <span className="block truncate text-xs text-ink-3">
               {gerando ? progresso.texto : cred ? `${info.rotulo} · ${resumo}` : "Nenhuma IA conectada neste navegador"}
             </span>

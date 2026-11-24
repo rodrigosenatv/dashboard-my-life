@@ -139,10 +139,10 @@ export function PaginaLeitura() {
       {/* Cabeçalho */}
       <header>
         <p className="rotulo-hud flex items-center gap-2">
-          <Library className="size-3.5 text-[var(--b-luz)]" aria-hidden /> Estudos · Biblioteca
+          <Library className="size-3.5 text-ink-3" aria-hidden /> Estudos · Biblioteca
         </p>
         <div className="mt-1.5 flex items-center justify-between gap-3">
-          <h1 className="font-display text-[2.5rem] font-semibold leading-none tracking-tight sm:text-[3.25rem]">Leitura</h1>
+          <h1 className="font-display text-[2.5rem] font-medium leading-none tracking-tight sm:text-[3.25rem]">Leitura</h1>
           <div className="flex shrink-0 items-center gap-2">
             <Botao variante="primario" tamanho="lg" onClick={() => setAdicionar(true)} className="px-4">
               <Plus /> Livro
@@ -254,7 +254,7 @@ export function PaginaLeitura() {
         ) : visao === "acervo" ? (
           <section aria-labelledby="titulo-acervo">
             <Voltar aoVoltar={voltarAoInicio} />
-            <h2 id="titulo-acervo" className="mb-5 font-display text-2xl font-semibold">
+            <h2 id="titulo-acervo" className="mb-5 font-display text-2xl font-medium">
               Acervo
             </h2>
             <Acervo livros={livros} busca="" estado={estadoAcervo} aoMudar={(e) => irPara(paramsDoAcervo(e))} />
@@ -262,7 +262,7 @@ export function PaginaLeitura() {
         ) : visao === "insights" ? (
           <section aria-labelledby="titulo-trechos">
             <Voltar aoVoltar={voltarAoInicio} />
-            <h2 id="titulo-trechos" className="mb-1 font-display text-2xl font-semibold">
+            <h2 id="titulo-trechos" className="mb-1 font-display text-2xl font-medium">
               Trechos e insights
             </h2>
             <p className="mb-5 text-ink-2">{plural(trechosDeLeitura(insights).length, "trecho guardado", "trechos guardados")}</p>
@@ -345,7 +345,7 @@ function BibliotecaVazia({ aoAdicionar }: { aoAdicionar: () => void }) {
     <section className={cn("vidro relative overflow-hidden px-6 py-14 text-center")}>
       <span aria-hidden className="pointer-events-none absolute left-1/2 top-0 size-80 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--b-luz)]/15 hidden" />
       <Library className="relative mx-auto size-9 text-[var(--b-luz)]" aria-hidden />
-      <h2 className="relative mt-4 font-display text-2xl font-semibold">As prateleiras estão esperando</h2>
+      <h2 className="relative mt-4 font-display text-2xl font-medium">As prateleiras estão esperando</h2>
       <p className="relative mx-auto mt-2 max-w-md text-ink-2">Adicione o primeiro livro: busque pelo nome e a capa, o autor e o número de páginas vêm junto.</p>
       <Botao variante="primario" tamanho="lg" className="relative mt-6" onClick={aoAdicionar}>
         <Plus /> Adicionar livro

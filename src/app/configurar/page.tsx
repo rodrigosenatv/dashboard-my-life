@@ -6,7 +6,7 @@ export default function PaginaConfigurar() {
   return (
     <main className="mx-auto max-w-xl px-5 py-14">
       <p className="font-assinatura text-6xl leading-none text-pen">My life</p>
-      <h1 className="mt-8 font-display text-2xl font-semibold">Falta ligar o banco de dados</h1>
+      <h1 className="mt-8 font-display text-2xl font-medium">Falta ligar o banco de dados</h1>
       <p className="mt-3 text-ink-2">
         O app ainda não sabe qual projeto do Supabase usar. Na Vercel, abra o projeto e vá em{" "}
         <strong className="text-ink">Settings → Environment Variables</strong> e adicione:

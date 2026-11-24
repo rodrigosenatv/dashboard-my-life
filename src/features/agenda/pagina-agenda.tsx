@@ -130,7 +130,7 @@ export function PaginaAgenda() {
       ) : visao === "semana" ? (
         <section aria-label="Semana">
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="font-display text-xl font-semibold">
+            <h2 className="font-display text-xl font-medium">
               {format(diasSemana[0], "d 'de' MMM", { locale: ptBR })} a {format(diasSemana[6], "d 'de' MMM", { locale: ptBR })}
             </h2>
             <div className="flex items-center gap-1">
@@ -154,7 +154,7 @@ export function PaginaAgenda() {
                 <div key={iso} className={cn("min-h-40 rounded-lg border bg-surface p-2", iso === hoje ? "border-pen" : "border-line")}>
                   <button type="button" onClick={() => setNovoDia(iso)} className="mb-2 flex w-full items-baseline justify-between text-left">
                     <span className="text-xs text-ink-3 first-letter:uppercase">{format(d, "EEE", { locale: ptBR })}</span>
-                    <span className={cn("tabular text-lg font-semibold", iso === hoje && "text-pen")}>{d.getDate()}</span>
+                    <span className={cn("tabular text-lg font-medium", iso === hoje && "text-pen")}>{d.getDate()}</span>
                   </button>
                   <div className="grid gap-1">
                     {lista.map((e) => (
@@ -185,7 +185,7 @@ export function PaginaAgenda() {
         <div className="grid gap-10 xl:grid-cols-[minmax(0,1fr)_18rem]">
           <section aria-label="Calendário do mês">
             <div className="mb-3 flex items-center justify-between">
-              <h2 className="font-display text-xl font-semibold first-letter:uppercase">{format(mes, "MMMM 'de' yyyy", { locale: ptBR })}</h2>
+              <h2 className="font-display text-xl font-medium first-letter:uppercase">{format(mes, "MMMM 'de' yyyy", { locale: ptBR })}</h2>
               <div className="flex items-center gap-1">
                 <Botao variante="fantasma" tamanho="icone-sm" aria-label="Mês anterior" onClick={() => setMes((m) => addMonths(m, -1))}>
                   <ChevronLeft />
@@ -222,7 +222,7 @@ export function PaginaAgenda() {
                       <span
                         className={cn(
                           "tabular inline-grid size-6 place-items-center rounded-full text-xs",
-                          iso === hoje ? "bg-pen font-semibold text-pen-ink" : "",
+                          iso === hoje ? "bg-pen font-medium text-pen-ink" : "",
                         )}
                       >
                         {d.getDate()}

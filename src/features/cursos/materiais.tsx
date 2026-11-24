@@ -301,7 +301,7 @@ export function ListaMateriais({ curso, materiais }: { curso: Curso; materiais: 
     >
       <div className="flex items-center justify-between gap-3">
         <h2 id="titulo-materiais" className="rotulo-hud flex items-center gap-2">
-          <Paperclip className="size-3.5 text-[var(--b-luz)]" aria-hidden /> Links e arquivos
+          <Paperclip className="size-3.5 text-ink-3" aria-hidden /> Links e arquivos
         </h2>
         {materiais.length ? <span className="tabular text-xs text-ink-3">{materiais.length}</span> : null}
       </div>

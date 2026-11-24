@@ -41,7 +41,7 @@ export function Fileira({ id, titulo, itens, aoAbrir }: { id: string; titulo: st
   return (
     <section aria-labelledby={rotuloId} className="min-w-0">
       <div className="mb-3 flex items-baseline gap-2">
-        <h2 id={rotuloId} className="font-display text-lg font-semibold">
+        <h2 id={rotuloId} className="font-display text-lg font-medium">
           {titulo}
         </h2>
         <span className="text-sm text-ink-3">{itens.length}</span>
@@ -92,10 +92,10 @@ export function CartaoTitulo({ titulo: t, aoAbrir, largura = "fileira" }: { titu
         onClick={() => aoAbrir(t)}
         className="group block w-full rounded-lg text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pen/50"
       >
-        <span className="relative block aspect-[2/3] overflow-hidden rounded-lg bg-surface-2 shadow-sm ring-1 ring-line motion-safe:transition-transform motion-safe:duration-200 motion-safe:group-hover:scale-[1.04]">
+        <span className="relative block aspect-[2/3] overflow-hidden rounded-lg bg-surface-2 shadow-sm ring-1 ring-line transition-shadow duration-150 group-hover:ring-line-strong">
           <Cartaz titulo={t} />
           {t.plataforma ? (
-            <span aria-hidden className="absolute left-1.5 top-1.5 max-w-[70%] truncate rounded bg-black/60 px-1.5 py-0.5 text-[10px] font-medium leading-tight text-white">
+            <span aria-hidden className="absolute left-1.5 top-1.5 max-w-[70%] truncate rounded bg-black/60 px-1.5 py-0.5 text-[11px] font-medium leading-tight text-white">
               {t.plataforma}
             </span>
           ) : null}
@@ -105,7 +105,7 @@ export function CartaoTitulo({ titulo: t, aoAbrir, largura = "fileira" }: { titu
             </span>
           ) : null}
           {t.nota !== null ? (
-            <span aria-hidden className={cn("absolute left-1.5 rounded bg-black/60 px-1.5 py-0.5 text-xs font-semibold text-white", progresso ? "bottom-8" : "bottom-1.5")}>
+            <span aria-hidden className={cn("absolute left-1.5 rounded bg-black/60 px-1.5 py-0.5 text-xs font-medium text-white", progresso ? "bottom-8" : "bottom-1.5")}>
               ★ {t.nota}
             </span>
           ) : null}

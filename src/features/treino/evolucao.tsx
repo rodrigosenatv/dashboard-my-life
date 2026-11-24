@@ -103,7 +103,7 @@ export function EvolucaoCorporal({ colecao }: { colecao: Colecao | undefined }) 
               {ultimoPeso ? (
                 <div>
                   <dt className="text-xs text-ink-3">Peso</dt>
-                  <dd className="text-3xl font-semibold leading-tight">{kg(ultimoPeso.peso!)}</dd>
+                  <dd className="text-3xl font-medium leading-tight">{kg(ultimoPeso.peso!)}</dd>
                   <dd className="text-sm text-ink-2">
                     {diferenca !== null
                       ? `${diferenca > 0 ? "+" : diferenca < 0 ? "−" : ""}${kg(Math.abs(diferenca))} desde ${formatar(primeiroPeso!.data, "MMM yyyy")}`
@@ -114,7 +114,7 @@ export function EvolucaoCorporal({ colecao }: { colecao: Colecao | undefined }) 
               {ultimaGordura ? (
                 <div>
                   <dt className="text-xs text-ink-3">Gordura</dt>
-                  <dd className="text-3xl font-semibold leading-tight">{pct(ultimaGordura.gordura!)}</dd>
+                  <dd className="text-3xl font-medium leading-tight">{pct(ultimaGordura.gordura!)}</dd>
                   <dd className="text-sm text-ink-2">em {formatar(ultimaGordura.data, "d MMM yyyy")}</dd>
                 </div>
               ) : null}
@@ -300,7 +300,7 @@ function GraficoPeso({ avaliacoes, className }: { avaliacoes: Avaliacao[]; class
                 onPointerEnter={() => setAtivo(i)}
               />
             ))}
-            <text x={fim.x + 10} y={fim.y} dy="0.32em" className="fill-ink text-xs font-semibold">
+            <text x={fim.x + 10} y={fim.y} dy="0.32em" className="fill-ink text-xs font-medium">
               {kg(fim.peso)}
             </text>
             <text x={xy[0].x} y={ALTURA_GRAFICO - 6} textAnchor="start" className="fill-ink-3 text-[11px]">
@@ -317,7 +317,7 @@ function GraficoPeso({ avaliacoes, className }: { avaliacoes: Avaliacao[]; class
             className="pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-full whitespace-nowrap rounded-md border border-line bg-surface px-2.5 py-1.5 text-xs shadow-overlay"
             style={{ left: destaque.x, top: destaque.y - 10 }}
           >
-            <strong className="block text-sm font-semibold text-ink">{kg(destaque.peso)}</strong>
+            <strong className="block text-sm font-medium text-ink">{kg(destaque.peso)}</strong>
             <span className="text-ink-3">{formatar(destaque.a.data, "d 'de' MMM yyyy")}</span>
           </div>
         ) : null}

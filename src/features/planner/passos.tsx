@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { ArrowRight, BatteryLow, CalendarPlus, ChartColumn, CheckCheck, ListChecks, Radio, TriangleAlert, type LucideIcon } from "lucide-react"
+import { ArrowRight, BatteryLow, CalendarPlus, ChartColumn, CheckCheck, Radio, TriangleAlert, type LucideIcon } from "lucide-react"
 import { Botao } from "@/components/ui/button"
 import { TituloPainel } from "@/features/conteudo/moldura"
 import type { Passo } from "@/features/conteudo/logica"
@@ -132,7 +132,7 @@ export function ProximosPassos({
   const mostrar = todos ? linhas : linhas.slice(0, VISIVEIS)
   return (
     <section aria-labelledby="titulo-passos" className="vidro min-w-0 p-4 sm:p-5">
-      <TituloPainel id="titulo-passos" icone={ListChecks} titulo="Próximos passos" cor="var(--b-luz-2)" extra={linhas.length ? <span className="tabular text-ink-3">{linhas.length}</span> : null} />
+      <TituloPainel id="titulo-passos" titulo="Próximos passos" cor="var(--b-luz-2)" extra={linhas.length ? <span className="tabular text-ink-3">{linhas.length}</span> : null} />
       {linhas.length === 0 ? (
         <div className="flex items-start gap-3 py-2">
           <span className="icone-aceso size-9" style={{ "--cor": "var(--b-verde)" } as React.CSSProperties} aria-hidden>

@@ -281,7 +281,7 @@ function Treinando({ sessao, aoSair }: { sessao: SessaoAtiva; aoSair: (aviso: st
             <X />
           </Botao>
           <div className="min-w-0 flex-1 text-center">
-            <p className="truncate text-sm font-semibold">{ficha}</p>
+            <p className="truncate text-sm font-medium">{ficha}</p>
             <p className="text-xs text-ink-3 tabular">
               {tempo(decorrido)} · {c.feitas} de {c.previstas} séries
             </p>
@@ -329,7 +329,7 @@ function Treinando({ sessao, aoSair }: { sessao: SessaoAtiva; aoSair: (aviso: st
             <ChevronRight />
           </Botao>
         </div>
-        <h1 className="mt-1 text-center font-display text-2xl font-semibold leading-tight">{ex.nome}</h1>
+        <h1 className="mt-1 text-center font-display text-2xl font-medium leading-tight">{ex.nome}</h1>
         <p className="mt-1 text-center text-sm text-ink-2">
           {prescricao(ex)}
           {notaVisivel(ex) ? ` · ${notaVisivel(ex)}` : ""}
@@ -385,7 +385,7 @@ function Treinando({ sessao, aoSair }: { sessao: SessaoAtiva; aoSair: (aviso: st
                         <Trophy className="size-3" /> recorde
                       </span>
                     ) : null}
-                    <span className="ml-auto font-semibold tabular">{marcaTexto(feita)}</span>
+                    <span className="ml-auto font-medium tabular">{marcaTexto(feita)}</span>
                   </button>
                 </li>
               )
@@ -522,7 +522,7 @@ function Descanso({ restante, total, aoSomar, aoPular }: { restante: number; tot
       <div className="flex items-center gap-2">
         <Timer className="size-4 shrink-0 text-ink-2" aria-hidden />
         <span className="text-sm text-ink-2">Descanso</span>
-        <span className="text-lg font-semibold tabular">{mmss(restante)}</span>
+        <span className="text-lg font-medium tabular">{mmss(restante)}</span>
         <div className="ml-auto flex gap-1">
           <Botao variante="fantasma" tamanho="sm" onClick={aoSomar}>
             +30 s
@@ -568,7 +568,7 @@ function Passo({ id, rotulo, valor, aoMudar, decimal }: { id: string; rotulo: st
           value={valor}
           onChange={(e) => aoMudar(decimal ? e.target.value.replace(/[^\d.,]/g, "").slice(0, 6) : e.target.value.replace(/\D/g, "").slice(0, 3))}
           placeholder="–"
-          className="h-12 w-full min-w-0 rounded-lg border border-line-strong bg-surface text-center text-lg font-semibold tabular placeholder:text-ink-3 focus-visible:border-pen focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pen/25"
+          className="h-12 w-full min-w-0 rounded-lg border border-line-strong bg-surface text-center text-lg font-medium tabular placeholder:text-ink-3 focus-visible:border-pen focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pen/25"
         />
         <button
           type="button"
@@ -692,7 +692,7 @@ function ResumoTreino({
             ].map(([rotulo, valor]) => (
               <div key={rotulo} className="rounded-lg bg-surface-2 px-3 py-2">
                 <dt className="text-xs text-ink-3">{rotulo}</dt>
-                <dd className="text-lg font-semibold">{valor}</dd>
+                <dd className="text-lg font-medium">{valor}</dd>
               </div>
             ))}
           </dl>

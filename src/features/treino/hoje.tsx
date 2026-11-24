@@ -81,7 +81,7 @@ export function HojeTreino({ exercicios: colecao, historico }: { exercicios: Col
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="min-w-0">
           <p className="text-xs font-medium text-warning">Ainda não salvo</p>
-          <h3 className="text-2xl font-semibold leading-tight">{rotuloDaFicha(sessao.ficha)}</h3>
+          <h3 className="text-2xl font-medium leading-tight">{rotuloDaFicha(sessao.ficha)}</h3>
           <p className="mt-1 text-sm text-ink-2">
             Ficou guardado neste aparelho. {salvando ? "Salvando…" : "É salvo sozinho quando a internet voltar."}
           </p>
@@ -98,7 +98,7 @@ export function HojeTreino({ exercicios: colecao, historico }: { exercicios: Col
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="min-w-0">
           <p className="text-xs font-medium text-pen">Em andamento</p>
-          <h3 className="text-2xl font-semibold leading-tight">{rotuloDaFicha(sessao.ficha)}</h3>
+          <h3 className="text-2xl font-medium leading-tight">{rotuloDaFicha(sessao.ficha)}</h3>
           <p className="mt-1 text-sm text-ink-2">
             Começou {dia === hoje ? "" : `${dataRelativa(dia)} `}às {formatar(sessao.inicio, "HH:mm")} · {c.feitas} de {c.previstas} séries
           </p>
@@ -117,7 +117,7 @@ export function HojeTreino({ exercicios: colecao, historico }: { exercicios: Col
           <p className="mb-4 flex items-center gap-2 rounded-lg bg-pen-soft px-3 py-2 text-sm">
             <Check className="size-4 shrink-0 text-pen" />
             <span>
-              <strong className="font-semibold">{nomeCurto(deHoje.ficha)}</strong> feito hoje
+              <strong className="font-medium">{nomeCurto(deHoje.ficha)}</strong> feito hoje
               {deHoje.duracao ? ` · ${deHoje.duracao} min` : ""} · {plural(deHoje.series.length, "série")}
             </span>
           </p>
@@ -125,7 +125,7 @@ export function HojeTreino({ exercicios: colecao, historico }: { exercicios: Col
         <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-3">
           <div className="min-w-0">
             <p className="text-xs text-ink-3">{ficha.valor !== sugerida?.valor ? "Treino escolhido" : ultima ? "Próximo treino" : "Para começar"}</p>
-            <h3 className="text-2xl font-semibold leading-tight">{rotuloDaFicha(ficha.valor)}</h3>
+            <h3 className="text-2xl font-medium leading-tight">{rotuloDaFicha(ficha.valor)}</h3>
             <p className="mt-1 text-sm text-ink-2">
               {plural(daFicha.length, "exercício")}
               {seriesDaFicha ? ` · ${seriesDaFicha} séries` : ""}

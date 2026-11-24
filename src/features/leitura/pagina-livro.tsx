@@ -57,7 +57,7 @@ export function PaginaLivro() {
     return (
       <div className={moldura}>
         <div className="vidro mx-auto mt-10 max-w-md px-6 py-10 text-center">
-          <p className="font-display text-xl font-semibold">Livro não encontrado</p>
+          <p className="font-display text-xl font-medium">Livro não encontrado</p>
           <p className="mt-1 text-ink-2">Ele pode ter sido excluído.</p>
           <Botao asChild variante="primario" className="mt-5">
             <Link href="/estudos/leitura">Voltar para a biblioteca</Link>
@@ -115,7 +115,7 @@ export function PaginaLivro() {
           <SecaoLivroDigital livro={livro} />
           <Trechos livro={livro} insights={doLivro} />
           <section aria-labelledby="titulo-anotacoes" className="min-w-0">
-            <h2 id="titulo-anotacoes" className="mb-3 font-display text-xl font-semibold">
+            <h2 id="titulo-anotacoes" className="mb-3 font-display text-xl font-medium">
               Anotações
             </h2>
             <div className="vidro p-4 sm:p-5">
@@ -195,7 +195,7 @@ function Cabeca({
           {codigoDoLivro(l)}
           {l.category ? ` · ${l.category}` : ""}
         </p>
-        <h1 className="mt-2 font-display text-[2rem] font-semibold leading-[1.08] tracking-tight text-balance sm:text-[2.75rem]">{l.title}</h1>
+        <h1 className="mt-2 font-display text-[2rem] font-medium leading-[1.08] tracking-tight text-balance sm:text-[2.75rem]">{l.title}</h1>
         {l.author ? <p className="mt-2 text-lg text-ink-2">{l.author}</p> : null}
 
         <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
@@ -220,7 +220,7 @@ function Cabeca({
               <div className="barra-luz flex-1" role="progressbar" aria-label="Progresso da leitura" aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct}>
                 <span style={{ width: `${pct}%` }} />
               </div>
-              <span className="tabular w-11 shrink-0 text-right text-sm font-semibold">{pct}%</span>
+              <span className="tabular w-11 shrink-0 text-right text-sm font-medium">{pct}%</span>
             </div>
             <p className="tabular mt-2 text-sm text-ink-2">
               {l.status === "finalizado" ? (l.pages_total ? `${numero(l.pages_total)} páginas lidas` : "Lido") : textoPagina(l)}
@@ -327,7 +327,7 @@ function Sinopse({ livro }: { livro: Livro }) {
   if (!texto && !resumo) return null
   return (
     <section aria-labelledby="titulo-sinopse" className="min-w-0">
-      <h2 id="titulo-sinopse" className="mb-3 font-display text-xl font-semibold">
+      <h2 id="titulo-sinopse" className="mb-3 font-display text-xl font-medium">
         {resumo ? "Resumo" : "Sinopse"}
       </h2>
       {resumo ? <p className="max-w-[68ch] whitespace-pre-line text-ink-2">{resumo}</p> : null}
@@ -357,7 +357,7 @@ function Trechos({ livro, insights }: { livro: Livro; insights: { id: string; te
   const [frase, setFrase] = React.useState("")
   return (
     <section aria-labelledby="titulo-trechos-livro" className="min-w-0">
-      <h2 id="titulo-trechos-livro" className="mb-3 flex items-baseline gap-2 font-display text-xl font-semibold">
+      <h2 id="titulo-trechos-livro" className="mb-3 flex items-baseline gap-2 font-display text-xl font-medium">
         Trechos <span className="tabular text-sm font-normal text-ink-3">{insights.length || ""}</span>
       </h2>
       <form
@@ -455,12 +455,12 @@ function Diario({ dias }: { dias: DiaLeitura[] }) {
           const n = porDia.get(d) ?? 0
           return (
             <span key={d} className="flex-1 rounded-t-sm bg-ink/[0.06]" style={{ height: `${Math.max(6, (n / maior) * 100)}%` }}>
-              {n ? <span className="block size-full rounded-t-sm bg-gradient-to-t from-[var(--b-luz-2)] to-[var(--b-luz)]" /> : null}
+              {n ? <span className="block size-full rounded-t-sm bg-[var(--b-luz)]" /> : null}
             </span>
           )
         })}
       </div>
-      <p className="mt-1.5 flex justify-between text-[10px] text-ink-3" aria-hidden>
+      <p className="mt-1.5 flex justify-between text-[11px] text-ink-3" aria-hidden>
         <span>{formatar(janela[0], "d MMM")}</span>
         <span>hoje</span>
       </p>

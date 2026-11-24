@@ -314,7 +314,7 @@ export function JanelaAdicionar({
           <div className="flex items-center gap-3 rounded-xl border border-line p-3">
             <Miniatura caminho={escolhido.poster} nome={escolhido.nome} grande />
             <div className="min-w-0 flex-1">
-              <p className="font-display text-lg font-semibold leading-snug">{escolhido.nome}</p>
+              <p className="font-display text-lg font-medium leading-snug">{escolhido.nome}</p>
               <p className="text-sm text-ink-3">{[escolhido.ano, escolhido.tipo === "tv" ? "Série" : "Filme"].filter(Boolean).join(" · ")}</p>
             </div>
             {!trocarCartazDe ? (
@@ -358,7 +358,7 @@ function Miniatura({ caminho, nome, grande = false }: { caminho: string | null; 
         // eslint-disable-next-line @next/next/no-img-element
         <img src={src} alt="" loading="lazy" decoding="async" className="size-full object-cover" />
       ) : (
-        <span className="grid size-full place-items-center p-1 text-center text-[9px] font-semibold leading-tight text-white" style={{ backgroundImage: gradienteDoTitulo(nome) }}>
+        <span className="grid size-full place-items-center p-1 text-center text-[11px] font-medium leading-tight text-white" style={{ backgroundImage: gradienteDoTitulo(nome) }}>
           {nome}
         </span>
       )}

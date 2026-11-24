@@ -92,7 +92,7 @@ export function MalaViagem({ viagem }: { viagem: Viagem }) {
       <section aria-label="Andamento da mala" className="rounded-xl border border-line bg-surface p-4">
         <div className="flex items-center justify-between gap-3">
           <p className="text-sm">
-            <span className="text-2xl font-semibold tabular">{prontos}</span>
+            <span className="text-2xl font-medium tabular">{prontos}</span>
             <span className="text-ink-2"> de {mala.length} na mala</span>
           </p>
           <div className="flex items-center gap-1.5">
@@ -142,7 +142,7 @@ export function MalaViagem({ viagem }: { viagem: Viagem }) {
         return (
           <section key={g.grupo} aria-label={g.grupo}>
             <div className="mb-1.5 flex items-baseline justify-between gap-3">
-              <h3 className="text-sm font-semibold">
+              <h3 className="text-sm font-medium">
                 {g.grupo}
                 {g.grupo === "Roupas" && viagem.dias ? <span className="ml-2 font-normal text-ink-3">para {textoDias(viagem.dias)}</span> : null}
               </h3>
@@ -308,7 +308,7 @@ export function EditorModelo({ aberta, aoMudar }: { aberta: boolean; aoMudar: (v
         {grupos.map((g, i) => (
           <section key={i} className="grid gap-1.5">
             <div className="flex items-center gap-2">
-              <Entrada value={g.grupo} onChange={(e) => mudarGrupo(i, (x) => ({ ...x, grupo: e.target.value }))} aria-label="Nome do grupo" className="h-8 max-w-60 font-semibold toque:h-10" />
+              <Entrada value={g.grupo} onChange={(e) => mudarGrupo(i, (x) => ({ ...x, grupo: e.target.value }))} aria-label="Nome do grupo" className="h-8 max-w-60 font-medium toque:h-10" />
               <Botao variante="fantasma" tamanho="icone-sm" aria-label={`Tirar o grupo ${g.grupo}`} className="text-ink-3 hover:text-danger" onClick={() => mudarGrupo(i, () => null)}>
                 <Trash2 />
               </Botao>

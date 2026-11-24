@@ -109,14 +109,14 @@ export function PainelCompetencias({ cursos, aoVerArea }: { cursos: Curso[]; aoV
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="rotulo-hud flex items-center gap-2">
-            <Trophy className="size-3.5 text-[var(--b-ambar)]" aria-hidden /> Suas competências
+            <Trophy className="size-3.5 text-ink-3" aria-hidden /> Suas competências
           </p>
-          <h2 id="titulo-competencias" className="mt-1 font-display text-xl font-semibold">
+          <h2 id="titulo-competencias" className="mt-1 font-display text-xl font-medium">
             O que você já domina
           </h2>
         </div>
         <p className="text-sm text-ink-3">
-          <span className="tabular font-display text-2xl font-semibold text-[var(--b-ambar)]">{concluidos}</span>{" "}
+          <span className="tabular font-display text-2xl font-medium text-[var(--b-ambar)]">{concluidos}</span>{" "}
           {concluidos === 1 ? "curso concluído" : "cursos concluídos"}
         </p>
       </div>

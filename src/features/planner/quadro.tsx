@@ -107,7 +107,7 @@ function Coluna({ status, children, total, aoCriar, extra }: { status: StatusCon
       style={{ "--cor": etapa.cor } as React.CSSProperties}
     >
       <div className="mb-2.5 flex items-center justify-between gap-2 pl-1.5 pt-1">
-        <h3 className="flex min-w-0 items-center gap-2 text-sm font-semibold">
+        <h3 className="flex min-w-0 items-center gap-2 text-sm font-medium">
           {etapa.rec ? <span className="ponto-rec" aria-hidden /> : <Icone className="size-4 shrink-0" style={{ color: etapa.cor }} aria-hidden />}
           <span className="truncate">{STATUS_CONTEUDO[status]}</span>
           <span className="tabular rounded-full border border-[var(--b-borda)] bg-ink/[0.04] px-1.5 text-[11px] font-medium text-ink-2">{total}</span>

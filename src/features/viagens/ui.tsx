@@ -69,7 +69,7 @@ export function CapaViagem({ viagem, className }: { viagem: Pick<Viagem, "capa" 
   return (
     <div aria-hidden className={cn("@container relative grid h-full w-full place-items-center overflow-hidden bg-petroleo text-petroleo-tinta", className)}>
       <Plane className="size-[clamp(1.5rem,14cqw,2.75rem)] opacity-30" strokeWidth={1.5} />
-      <span className="pointer-events-none absolute -bottom-[0.18em] -right-[0.04em] select-none font-display text-[clamp(3rem,38cqw,8rem)] font-semibold leading-none opacity-[0.07]">
+      <span className="pointer-events-none absolute -bottom-[0.18em] -right-[0.04em] select-none font-display text-[clamp(3rem,38cqw,8rem)] font-medium leading-none opacity-[0.07]">
         {viagem.nome.trim().charAt(0).toUpperCase()}
       </span>
     </div>

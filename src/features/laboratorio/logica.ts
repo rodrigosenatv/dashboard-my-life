@@ -162,13 +162,13 @@ function limpar(t: string): string {
 export type ChaveSecao = "objetivo" | "hipotese" | "procedimento" | "evidencias" | "resultado" | "aprendizados" | "conclusao"
 
 const SECOES: { chave: ChaveSecao; padrao: RegExp; titulo: string }[] = [
-  { chave: "objetivo", padrao: /^objetivos?$/, titulo: "🎯 Objetivo" },
-  { chave: "hipotese", padrao: /^hipoteses?$/, titulo: "💡 Hipótese" },
-  { chave: "procedimento", padrao: /^(procedimento|como fazer|roteiro|metodo)$/, titulo: "📋 Procedimento" },
-  { chave: "evidencias", padrao: /^evidencias?$/, titulo: "📁 Evidências" },
-  { chave: "resultado", padrao: /^resultados?$/, titulo: "📊 Resultado" },
-  { chave: "aprendizados", padrao: /^aprendizados?(-| )?(chaves?)?$/, titulo: "📚 Aprendizados-chave" },
-  { chave: "conclusao", padrao: /^conclusao( final)?$/, titulo: "📌 Conclusão final" },
+  { chave: "objetivo", padrao: /^objetivos?$/, titulo: "Objetivo" },
+  { chave: "hipotese", padrao: /^hipoteses?$/, titulo: "Hipótese" },
+  { chave: "procedimento", padrao: /^(procedimento|como fazer|roteiro|metodo)$/, titulo: "Procedimento" },
+  { chave: "evidencias", padrao: /^evidencias?$/, titulo: "Evidências" },
+  { chave: "resultado", padrao: /^resultados?$/, titulo: "Resultado" },
+  { chave: "aprendizados", padrao: /^aprendizados?(-| )?(chaves?)?$/, titulo: "Aprendizados-chave" },
+  { chave: "conclusao", padrao: /^conclusao( final)?$/, titulo: "Conclusão final" },
 ]
 
 type Secao = { chave: ChaveSecao; linha: number; fim: number; nivel: number }
@@ -305,8 +305,8 @@ export function escreverConclusao(texto: string | null | undefined, c: Conclusao
 /** As anotações iniciais de um experimento novo (só as seções preenchidas). */
 export function protocoloInicial(dados: { objetivo?: string; procedimento?: string }): string | null {
   const partes: string[] = []
-  if (dados.objetivo?.trim()) partes.push(`### 🎯 Objetivo\n\n${dados.objetivo.trim()}`)
-  if (dados.procedimento?.trim()) partes.push(`### 📋 Procedimento\n\n${dados.procedimento.trim()}`)
+  if (dados.objetivo?.trim()) partes.push(`### Objetivo\n\n${dados.objetivo.trim()}`)
+  if (dados.procedimento?.trim()) partes.push(`### Procedimento\n\n${dados.procedimento.trim()}`)
   return partes.length ? partes.join("\n\n") + "\n" : null
 }
 

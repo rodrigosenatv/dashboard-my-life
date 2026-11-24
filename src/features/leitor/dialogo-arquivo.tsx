@@ -302,7 +302,7 @@ function Resumo({ estado, nuvem, aoMudarNuvem }: { estado: Extract<Estado, { fas
             ].map(([rotulo, valor]) => (
               <div key={rotulo} className="rounded-lg bg-surface-2 px-2 py-2.5">
                 <dt className="text-xs text-ink-3">{rotulo}</dt>
-                <dd className="tabular font-display text-lg font-semibold">{valor}</dd>
+                <dd className="tabular font-display text-lg font-medium">{valor}</dd>
               </div>
             ))}
           </dl>

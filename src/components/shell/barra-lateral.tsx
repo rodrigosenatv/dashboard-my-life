@@ -143,7 +143,7 @@ export function BarraLateral() {
         >
           <Search className="size-4" />
           <span className="flex-1 text-left recolhido:hidden">Buscar</span>
-          <kbd className="rounded-md border border-[var(--b-borda)] bg-surface px-1.5 font-sans text-[10px] tracking-wider recolhido:hidden">{tecla} K</kbd>
+          <kbd className="rounded-[4px] border border-[var(--b-borda)] bg-surface px-1.5 font-sans text-[11px] leading-4 recolhido:hidden">{tecla} K</kbd>
         </button>
       </div>
 
@@ -232,7 +232,7 @@ export function MenuUsuario({ compacto }: { compacto?: boolean }) {
         )}
         aria-label="Conta e tema"
       >
-        <span className="cabine-avatar grid size-7 shrink-0 place-items-center rounded-full font-display text-sm font-semibold">
+        <span className="cabine-avatar grid size-7 shrink-0 place-items-center rounded-full font-display text-sm font-medium">
           {inicial}
         </span>
         {compacto ? null : <span className="min-w-0 flex-1 truncate text-ink-2 recolhido:hidden">{email || "Conta"}</span>}

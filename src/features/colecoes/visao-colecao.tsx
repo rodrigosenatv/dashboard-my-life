@@ -269,7 +269,7 @@ export function BlocoColecao({
   return (
     <section className={cn("min-w-0", className)} aria-label={titulo ?? colecao.name}>
       <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-2">
-        <h2 className="mr-auto font-display text-lg font-semibold">
+        <h2 className="mr-auto font-display text-lg font-medium">
           <Link href={`/colecoes/${colecao.id}`} className="hover:underline">
             {titulo ?? colecao.name}
           </Link>{" "}

@@ -24,7 +24,7 @@ export const COLUNA = {
 export function CapaGerada({ nome, className }: { nome: string; className?: string }) {
   return (
     <span aria-hidden className={cn("grid size-full place-items-center p-3 text-center", className)} style={{ backgroundImage: gradienteDoTitulo(nome) }}>
-      <span className="line-clamp-4 font-display text-[15px] font-semibold leading-snug text-white">{nome}</span>
+      <span className="line-clamp-4 font-display text-[15px] font-medium leading-snug text-white">{nome}</span>
     </span>
   )
 }

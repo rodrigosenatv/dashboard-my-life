@@ -40,7 +40,7 @@ export function AguaDoDia({ dias, dia, config, aoMudar }: { dias: Map<string, Di
       <div className="rounded-xl border border-line bg-surface p-4 sm:p-5">
         <div className="flex items-baseline justify-between gap-3">
           <p>
-            <span className="text-2xl font-semibold">{litros(total)}</span>
+            <span className="text-2xl font-medium">{litros(total)}</span>
             <span className="text-sm text-ink-2"> de {litros(meta)}</span>
           </p>
           <GlassWater className="size-5 text-ink-3" aria-hidden />

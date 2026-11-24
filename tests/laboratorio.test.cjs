@@ -142,14 +142,14 @@ test('concluir: troca resultado, aprendizados e conclusão sem mexer no resto', 
   const simples = L.escreverConclusao('### 🎯 Objetivo\n\nDormir melhor\n', { resultado: 'parcial', nota: null, aprendizados: ['Cafeína depois das 16h atrapalha'], conclusao: '', proximo: null })
   assert.equal(
     simples,
-    '### 🎯 Objetivo\n\nDormir melhor\n\n### 📊 Resultado\n\n- **Funcionou?** Parcial\n\n### 📚 Aprendizados-chave\n\n- Cafeína depois das 16h atrapalha\n',
+    '### 🎯 Objetivo\n\nDormir melhor\n\n### Resultado\n\n- **Funcionou?** Parcial\n\n### Aprendizados-chave\n\n- Cafeína depois das 16h atrapalha\n',
   )
   // Texto vazio
-  assert.equal(L.escreverConclusao(null, { resultado: 'nao_funcionou', nota: 3, aprendizados: [], conclusao: 'Não serve para mim.', proximo: 'parar' }), '### 📊 Resultado\n\n- **Funcionou?** Não funcionou\n- **Nota:** 3\n- **Próximo passo:** Deixar de lado\n\n### 📌 Conclusão final\n\nNão serve para mim.\n')
+  assert.equal(L.escreverConclusao(null, { resultado: 'nao_funcionou', nota: 3, aprendizados: [], conclusao: 'Não serve para mim.', proximo: 'parar' }), '### Resultado\n\n- **Funcionou?** Não funcionou\n- **Nota:** 3\n- **Próximo passo:** Deixar de lado\n\n### Conclusão final\n\nNão serve para mim.\n')
 })
 
 test('protocolo inicial só com o que foi preenchido', () => {
   assert.equal(L.protocoloInicial({}), null)
-  assert.equal(L.protocoloInicial({ procedimento: '1. Ler 20 min' }), '### 📋 Procedimento\n\n1. Ler 20 min\n')
-  assert.equal(L.protocoloInicial({ objetivo: 'Foco', procedimento: 'Ler' }), '### 🎯 Objetivo\n\nFoco\n\n### 📋 Procedimento\n\nLer\n')
+  assert.equal(L.protocoloInicial({ procedimento: '1. Ler 20 min' }), '### Procedimento\n\n1. Ler 20 min\n')
+  assert.equal(L.protocoloInicial({ objetivo: 'Foco', procedimento: 'Ler' }), '### Objetivo\n\nFoco\n\n### Procedimento\n\nLer\n')
 })

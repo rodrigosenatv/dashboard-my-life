@@ -9,15 +9,15 @@ import { cn } from "@/lib/utils"
 
 export type ItemHud = { n: number | string; rotulo: string; cor?: string }
 
-/** Os números do resumo, em pílulas de vidro. */
+/** Os números do resumo, na cor da tinta (cor só quando o número é um alerta, como atrasados). */
 export function ChipsHud({ itens, className }: { itens: ItemHud[]; className?: string }) {
   if (!itens.length) return null
   return (
     // No celular as pílulas ficam numa linha que desliza para o lado; a partir do tablet, quebram linha
     <ul className={cn("-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0", className)} aria-label="Resumo">
       {itens.map((h) => (
-        <li key={h.rotulo} className="inline-flex min-h-9 shrink-0 items-baseline gap-1.5 whitespace-nowrap rounded-full border border-[var(--b-borda)] bg-ink/[0.03] px-3 py-1 text-sm text-ink-2">
-          <span className="tabular font-display text-base font-semibold" style={h.cor ? { color: h.cor } : undefined}>
+        <li key={h.rotulo} className="inline-flex min-h-9 shrink-0 items-baseline gap-1.5 whitespace-nowrap rounded-md border border-[var(--b-borda)] bg-ink/[0.03] px-3 py-1 text-sm text-ink-2">
+          <span className="tabular font-display text-base font-medium text-ink" style={h.cor ? { color: h.cor } : undefined}>
             {h.n}
           </span>
           {h.rotulo}
@@ -63,12 +63,12 @@ export function CabecalhoHud({
   return (
     <header className={cn("mb-7 sm:mb-8", className)}>
       {voltar ? (
-        <Link href={voltar.href} className="-ml-2 mb-2 inline-flex min-h-10 max-w-full items-center gap-1.5 rounded-full px-2 text-sm text-ink-2 hover:text-ink">
+        <Link href={voltar.href} className="-ml-2 mb-2 inline-flex min-h-10 max-w-full items-center gap-1.5 rounded-md px-2 text-sm text-ink-2 hover:text-ink">
           <ArrowLeft className="size-4 shrink-0" aria-hidden /> <span className="truncate">{voltar.rotulo}</span>
         </Link>
       ) : null}
       <p className="rotulo-hud flex items-center gap-2">
-        <Marca className="size-3.5 shrink-0 text-[var(--b-luz)]" aria-hidden />
+        <Marca className="size-3.5 shrink-0 text-ink-3" aria-hidden />
         {/* No celular as abas já dizem qual é a área: fica só o papel da tela */}
         <span className="truncate">
           {papel ? (
@@ -82,7 +82,7 @@ export function CabecalhoHud({
         </span>
       </p>
       <div className="mt-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
-        <h1 className="flex min-w-0 items-center gap-3 font-display text-[2.1rem] font-semibold leading-[1.05] tracking-tight sm:text-[3rem]">
+        <h1 className="flex min-w-0 items-center gap-3 font-display text-[2.1rem] font-medium leading-[1.05] tracking-[-0.02em] sm:text-[3rem]">
           <span className="icone-aceso hidden size-12 sm:grid" aria-hidden>
             <Icone className="size-6" />
           </span>

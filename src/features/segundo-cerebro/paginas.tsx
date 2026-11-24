@@ -247,7 +247,6 @@ function SituacaoArea({ status }: { status: string }) {
   return (
     <span className={cn("inline-flex items-center gap-1.5 text-xs font-medium", ativa ? "text-[var(--b-menta)]" : "text-ink-3")}>
       <span className="relative flex size-2 shrink-0">
-        {ativa ? <span className="absolute inline-flex size-full animate-ping rounded-full bg-[var(--b-menta)] opacity-60 motion-reduce:hidden" /> : null}
         <span className={cn("relative inline-flex size-2 rounded-full", ativa ? "bg-[var(--b-menta)]" : "bg-ink-3/60")} />
       </span>
       {STATUS_AREA[status as keyof typeof STATUS_AREA] ?? status}
@@ -260,7 +259,7 @@ function Nucleo({ nome, ativa, tamanho = 48 }: { nome: string; ativa: boolean; t
   return (
     <span
       aria-hidden
-      className="nucleo shrink-0 font-display font-semibold text-ink"
+      className="nucleo shrink-0 font-display font-medium text-ink"
       data-parado={ativa ? undefined : ""}
       style={{ width: tamanho, height: tamanho, fontSize: tamanho * 0.4, "--r": `${tamanho / 2}px` } as React.CSSProperties}
     >
@@ -343,7 +342,7 @@ export function PaginaAreas() {
                     <div className="flex items-center gap-4 pr-9">
                       <Nucleo nome={a.name} ativa={a.status === "ativa"} />
                       <div className="min-w-0">
-                        <p className="break-words font-display text-lg font-semibold leading-tight transition-colors group-hover:text-[var(--b-luz)]">{a.name}</p>
+                        <p className="break-words font-display text-lg font-medium leading-tight transition-colors group-hover:text-[var(--b-luz)]">{a.name}</p>
                         <p className="mt-1">
                           <SituacaoArea status={a.status} />
                         </p>
@@ -352,12 +351,12 @@ export function PaginaAreas() {
                     {a.description ? <p className="mt-3 line-clamp-2 text-sm text-ink-2">{a.description}</p> : null}
                     <dl className="mt-auto grid grid-cols-2 gap-2 pt-4">
                       <div className="rounded-xl border border-[var(--b-borda)] bg-surface px-3 py-2">
-                        <dt className="rotulo-hud text-[10px]">Projetos</dt>
-                        <dd className="tabular font-display text-xl font-semibold text-[var(--b-luz)]">{n.projetos}</dd>
+                        <dt className="rotulo-hud text-[11px]">Projetos</dt>
+                        <dd className="tabular font-display text-xl font-medium text-[var(--b-luz)]">{n.projetos}</dd>
                       </div>
                       <div className="rounded-xl border border-[var(--b-borda)] bg-surface px-3 py-2">
-                        <dt className="rotulo-hud text-[10px]">Capturas</dt>
-                        <dd className="tabular font-display text-xl font-semibold">{n.capturas}</dd>
+                        <dt className="rotulo-hud text-[11px]">Capturas</dt>
+                        <dd className="tabular font-display text-xl font-medium">{n.capturas}</dd>
                       </div>
                     </dl>
                   </Link>
@@ -458,7 +457,7 @@ export function PaginaArea() {
       {projetosArea.length ? (
         <section aria-labelledby="titulo-projetos-area" className="mb-10">
           <h2 id="titulo-projetos-area" className="rotulo-hud mb-3 flex items-center gap-2">
-            <FolderKanban className="size-3.5 text-[var(--b-luz)]" aria-hidden /> Projetos da área
+            <FolderKanban className="size-3.5 text-ink-3" aria-hidden /> Projetos da área
           </h2>
           <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
             {projetosArea.map((p) => {
@@ -490,7 +489,7 @@ export function PaginaArea() {
 
       <section aria-labelledby="titulo-capturas-area">
         <h2 id="titulo-capturas-area" className="rotulo-hud mb-3 flex items-center gap-2">
-          <NotebookPen className="size-3.5 text-[var(--b-luz)]" aria-hidden /> {plural(n.capturas, "captura")} da área
+          <NotebookPen className="size-3.5 text-ink-3" aria-hidden /> {plural(n.capturas, "captura")} da área
         </h2>
         <ListaCapturas modo={{ area: area.id }} agrupamentos={["nenhum", "tag", "tipo"]} />
       </section>
