@@ -468,10 +468,11 @@
    As telas das áreas: o papel limpo, com alguns detalhes de luz
    Leitura, Cursos, Laboratório, Hoje, Segundo Cérebro e Conteúdo e IA
    seguem o tema claro ou escuro do app, com o fundo liso da página e
-   cartões simples (superfície e borda fina). De futurista ficam só
-   detalhes: os rótulos de HUD, os anéis e as barras de progresso, a
-   linha do dia, os pontos que pulsam, a trilha das aulas, o livro em 3D
-   e o núcleo da IA. Cada tela tem a sua cor de destaque (--b-luz).
+   cartões simples (superfície e borda fina). De detalhe ficam os anéis
+   e as barras de progresso, a linha do dia, a trilha das aulas, o livro
+   em 3D e a marca da IA, todos parados (nada pulsa ou gira em loop).
+   Cada tela tem a sua cor de destaque (--b-luz); os ícones ficam na cor
+   do texto e a área aparece no ponto ou no traço do marca-texto.
 
    Os nomes de cor (--b-*) são os mesmos de antes, então as telas não
    mudam: --b-fundo, --b-tinta, --b-vidro e --b-borda viram as cores do
@@ -526,38 +527,38 @@
   --b-luz-2: #1f6079;
 }
 
-/* No escuro, os destaques acendem (o detalhe futurista que fica) */
+/* No escuro, os destaques ficam um tom mais claro para ler no papel escuro, sem virar neon: são as
+   mesmas cores das áreas do app (a caneta petróleo e os marca-textos) */
 .dark :is(.tema-biblioteca, .tema-cursos, .tema-lab, .tema-hoje, .tema-cerebro, .tema-estudio),
 .dark:is(.tema-biblioteca, .tema-cursos, .tema-lab, .tema-hoje, .tema-cerebro, .tema-estudio) {
-  --b-luz: #63e3ff;
-  --b-luz-2: #9a8cff;
-  --b-ambar: #f5c54a;
-  --b-verde: #3ccb92;
-  --b-menta: #7cf5c4;
-  --b-violeta: #b69cff;
-  --b-rosa: #ff8fd1;
-  --b-coral: #ff9e7d;
+  --b-luz: var(--pen);
+  --b-luz-2: var(--projetos);
+  --b-ambar: var(--estudos);
+  --b-verde: var(--rotina);
+  --b-menta: #4fc9a0;
+  --b-violeta: var(--projetos);
+  --b-rosa: var(--conteudo);
+  --b-coral: #f0916f;
   --pen-ink: #0b1418;
 }
 .dark .tema-cursos,
 .dark.tema-cursos {
-  --b-luz: #7ef0ff;
-  --b-luz-2: #a78bfa;
+  --b-luz-2: var(--projetos);
 }
 .dark .tema-lab,
 .dark.tema-lab {
-  --b-luz: #5cffc4;
-  --b-luz-2: #6ee7ff;
+  --b-luz: var(--b-menta);
+  --b-luz-2: var(--pen);
 }
 .dark .tema-cerebro,
 .dark.tema-cerebro {
-  --b-luz: #b69cff;
-  --b-luz-2: #6ee7ff;
+  --b-luz: var(--projetos);
+  --b-luz-2: var(--pen);
 }
 .dark .tema-estudio,
 .dark.tema-estudio {
-  --b-luz: #ff6fb5;
-  --b-luz-2: #5ee7ff;
+  --b-luz: var(--conteudo);
+  --b-luz-2: var(--pen);
 }
 
 /* O fundo das telas: o papel liso da página (sem grade, rede, ondas ou brilhos) */
@@ -583,17 +584,20 @@
 .vidro {
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: 1.25rem;
+  border-radius: 1rem;
 }
 
-/* Rótulo de painel (letras pequenas, espaçadas): o detalhe de HUD que fica */
+/* Rótulo de painel: texto pequeno e calmo, na caixa em que foi escrito (sem maiúsculas espaçadas) */
 .rotulo-hud {
-  font-size: 0.6875rem;
-  line-height: 1rem;
-  font-weight: 600;
-  letter-spacing: 0.16em;
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--ink-2);
+}
+/* Textos que chegam em minúsculas ("hoje", "qua., 26 de nov.") começam com maiúscula, como uma frase */
+.rotulo-hud::first-letter {
   text-transform: uppercase;
-  color: var(--ink-3);
 }
 
 /* Barra de progresso: trilho discreto e a cor de destaque */
@@ -768,17 +772,9 @@ a:focus-visible .livro3d-corpo,
   pointer-events: none;
 }
 
-@keyframes flutuar {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-5px);
-  }
-}
+/* O livro do destaque fica parado, apoiado na sombra (antes flutuava em loop) */
 .flutuar {
-  animation: flutuar 6s ease-in-out infinite;
+  display: block;
 }
 
 /* A prateleira: os livros apoiados numa tábua fina */
@@ -861,7 +857,7 @@ a:focus-visible .livro3d-corpo,
   }
 }
 
-/* A trilha de aulas: uma linha com um nó por aula; a aula onde parou pulsa */
+/* A trilha de aulas: uma linha com um nó por aula; a aula onde parou ganha um anel */
 .trilha {
   position: relative;
 }
@@ -895,23 +891,8 @@ a:focus-visible .livro3d-corpo,
   position: absolute;
   inset: -6px;
   border-radius: 50%;
-  border: 2px solid var(--b-rosa);
-  opacity: 0.5;
-}
-@media (prefers-reduced-motion: no-preference) {
-  .no-trilha[data-atual]::after {
-    animation: pulso-no 2.2s ease-out infinite;
-  }
-}
-@keyframes pulso-no {
-  0% {
-    transform: scale(0.75);
-    opacity: 0.9;
-  }
-  100% {
-    transform: scale(1.6);
-    opacity: 0;
-  }
+  border: 1.5px solid var(--b-rosa);
+  opacity: 0.4;
 }
 
 /* Barra de competência: o quanto da área já foi estudado */
@@ -960,33 +941,9 @@ a:focus-visible .livro3d-corpo,
   background: var(--surface-2);
 }
 
-/* As bolhas do experimento em teste: sobem devagar */
-@keyframes bolhas {
-  0% {
-    transform: translateY(0) scale(0.6);
-    opacity: 0;
-  }
-  25% {
-    opacity: 0.7;
-  }
-  100% {
-    transform: translateY(-46px) scale(1);
-    opacity: 0;
-  }
-}
+/* As bolhas do experimento em teste: decoração em loop, desligadas (o anel e o "em teste" já dizem o estado) */
 .bolha {
-  position: absolute;
-  bottom: 8px;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--b-luz);
-  opacity: 0;
-}
-@media (prefers-reduced-motion: no-preference) {
-  .bolha {
-    animation: bolhas 3.2s ease-in infinite;
-  }
+  display: none;
 }
 
 /* A capa do dia (Hoje): um cartão simples; com imagem de Configurações, um véu na cor do papel */
@@ -995,16 +952,16 @@ a:focus-visible .livro3d-corpo,
   isolation: isolate;
   overflow: hidden;
   border: 1px solid var(--line);
-  border-radius: 1.5rem;
+  border-radius: 1.25rem;
   background: var(--surface);
 }
 
 /* O número do dia: grande, na cor da tinta */
 .numero-dia {
   font-family: var(--font-display);
-  font-weight: 700;
+  font-weight: 500;
   font-variant-numeric: tabular-nums;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.03em;
   line-height: 0.85;
   color: var(--ink);
 }
@@ -1070,8 +1027,8 @@ a:focus-visible .livro3d-corpo,
 .vidro-vivo {
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: 1.25rem;
-  transition: border-color 200ms, box-shadow 200ms;
+  border-radius: 1rem;
+  transition: border-color 160ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 160ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 .vidro-vivo:hover,
 .vidro-vivo:focus-within {
@@ -1079,17 +1036,17 @@ a:focus-visible .livro3d-corpo,
   box-shadow: 0 10px 24px -18px rgb(0 0 0 / 0.4);
 }
 
-/* O ícone de um tipo, na própria cor (--cor) sobre um fundo suave */
+/* O ícone de um tipo: na cor do texto, sobre um fundo neutro (a cor da área fica para o ponto e o traço) */
 .icone-aceso {
   display: grid;
   place-items: center;
   flex-shrink: 0;
-  border-radius: 0.8rem;
-  color: var(--cor, var(--b-luz));
-  background: color-mix(in oklab, var(--cor, var(--b-luz)) 12%, transparent);
+  border-radius: 0.625rem;
+  color: var(--ink-2);
+  background: color-mix(in oklab, var(--ink) 5%, transparent);
 }
 
-/* O núcleo de uma área: um anel com a inicial e um ponto que gira devagar */
+/* O núcleo de uma área: um anel com a inicial e um ponto parado sobre o anel tracejado */
 .nucleo {
   position: relative;
   display: grid;
@@ -1116,18 +1073,6 @@ a:focus-visible .livro3d-corpo,
   margin-left: -3px;
   border-radius: 50%;
   background: var(--b-luz-2);
-  /* Gira em volta do centro do núcleo (--r é a metade do tamanho dele), sobre o anel tracejado */
-  transform-origin: 3px calc(10px + var(--r, 24px));
-}
-@media (prefers-reduced-motion: no-preference) {
-  .nucleo::after {
-    animation: orbita 9s linear infinite;
-  }
-}
-@keyframes orbita {
-  to {
-    transform: rotate(360deg);
-  }
 }
 .nucleo[data-parado]::after {
   display: none;
@@ -1193,48 +1138,35 @@ a:focus-visible .livro3d-corpo,
   }
 }
 
-/* O núcleo da IA: uma esfera rosa e violeta com um anel girando (mais rápido quando pensa) */
+/* A marca da IA: um disco plano na cor da tela com o miolo cheio (antes, uma esfera rosa e violeta com brilho).
+   Só se mexe enquanto a resposta está sendo escrita: o miolo acende e apaga, como um cursor */
 .orbe-ia {
   position: relative;
   display: grid;
   flex-shrink: 0;
   place-items: center;
   border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, #ffe0f0 0%, #ff6fb5 26%, #7d3cff 72%);
-  box-shadow: 0 8px 24px -12px rgb(125 60 255 / 0.55);
+  background: color-mix(in oklab, var(--b-luz, var(--conteudo)) 14%, var(--surface));
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--b-luz, var(--conteudo)) 32%, transparent);
 }
 .orbe-ia::before {
   content: "";
   position: absolute;
-  inset: -12%;
+  inset: 34%;
   border-radius: 50%;
-  /* Fora de uma tela com tema (ex.: o conteúdo aberto pelo "Novo" do topo), o anel fica nas cores do estúdio */
-  background: conic-gradient(from 0deg, transparent, var(--b-luz-2, #1f6079), transparent 30%, var(--b-luz, var(--conteudo)), transparent 62%);
-  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1.5px));
-  mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1.5px));
+  background: var(--b-luz, var(--conteudo));
 }
 .orbe-ia[data-apagado] {
-  filter: grayscale(0.8) opacity(0.6);
+  filter: grayscale(1) opacity(0.6);
 }
 @media (prefers-reduced-motion: no-preference) {
-  .orbe-ia::before {
-    animation: girar-anel 9s linear infinite;
-  }
   .orbe-ia[data-pensando]::before {
-    animation-duration: 1.4s;
-  }
-  .orbe-ia[data-pensando] {
-    animation: orbe-pulsa 1.6s ease-in-out infinite;
+    animation: orbe-pensa 1.2s cubic-bezier(0.22, 1, 0.36, 1) infinite alternate;
   }
 }
-@keyframes girar-anel {
+@keyframes orbe-pensa {
   to {
-    transform: rotate(360deg);
-  }
-}
-@keyframes orbe-pulsa {
-  50% {
-    transform: scale(1.04);
+    opacity: 0.35;
   }
 }
 
@@ -1270,7 +1202,7 @@ a:focus-visible .livro3d-corpo,
    barra de baixo são do papel, no tema claro ou escuro. De detalhe,
    fica a cor da área no item aberto (Rotina verde, Segundo Cérebro
    violeta, Estudos âmbar, Conteúdo rosa; Hoje e o resto, petróleo):
-   o traço ao lado, o ponto do grupo e o ícone.
+   o traço ao lado do item aberto e o ponto do grupo.
    ===================================================================== */
 
 @layer components {
@@ -1386,13 +1318,12 @@ a:focus-visible .livro3d-corpo,
   color: var(--ink-2);
 }
 
-/* O título de cada grupo: rótulo de HUD, o ponto da área e um fio que some */
+/* O título de cada grupo: o ponto da área, o nome em caixa normal e um fio que some */
 .cabine-grupo {
-  font-size: 0.65625rem;
+  font-size: var(--text-xs);
   line-height: 1rem;
-  font-weight: 600;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
+  font-weight: 500;
+  letter-spacing: 0;
   color: var(--ink-3);
 }
 .cabine-ponto {
@@ -1430,7 +1361,7 @@ a:focus-visible .livro3d-corpo,
   background: color-mix(in oklab, var(--ink) 12%, transparent);
 }
 .cabine-item[aria-current="page"] > svg {
-  color: var(--area);
+  color: var(--ink);
 }
 .cabine-item[aria-current="page"]::before {
   content: "";
