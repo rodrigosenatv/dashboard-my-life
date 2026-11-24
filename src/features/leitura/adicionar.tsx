@@ -163,7 +163,7 @@ export function JanelaAdicionarLivro({
           <div className="flex gap-4">
             <CapaDoResultado resultado={escolhido} className="w-24 sm:w-28" />
             <div className="min-w-0 self-center">
-              <p className="font-display text-xl font-semibold leading-tight">{escolhido.titulo}</p>
+              <p className="font-display text-xl font-medium leading-tight">{escolhido.titulo}</p>
               {escolhido.subtitulo ? <p className="mt-0.5 line-clamp-2 text-sm text-ink-2">{escolhido.subtitulo}</p> : null}
               {escolhido.autores.length ? <p className="mt-1.5 text-sm text-ink-2">{escolhido.autores.join(", ")}</p> : null}
               <p className="mt-1 text-xs text-ink-3">{[escolhido.ano, escolhido.paginas ? plural(escolhido.paginas, "página") : null, escolhido.editora].filter(Boolean).join(" · ")}</p>

@@ -173,7 +173,7 @@ function ItemDoFeed({
       <TelaDoFeed video={video} distancia={distancia} titulo={titulo} />
       <footer className="mx-auto flex w-full max-w-md items-end gap-2 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3">
         <div className="min-w-0 flex-1">
-          <Link href={`/paginas/${video.paginaId}`} className="block truncate rounded-sm text-sm font-semibold hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60">
+          <Link href={`/paginas/${video.paginaId}`} className="block truncate rounded-sm text-sm font-medium hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60">
             {video.paginaTitulo}
             {video.parte ? <span className="font-normal text-white/70"> · {video.parte}</span> : null}
           </Link>
@@ -505,7 +505,7 @@ function Feed() {
       ) : feed.naoAchado ? (
         <div className="absolute inset-0 grid place-items-center p-6 text-center">
           <div className="grid max-w-sm justify-items-center gap-3">
-            <p className="text-lg font-semibold">Não achei esses vídeos.</p>
+            <p className="text-lg font-medium">Não achei esses vídeos.</p>
             <p className="text-sm text-white/70">O hobby ou a página pode ter sido excluído.</p>
             <Link href="/vida/hobbies" className={cn(botaoClaro, "h-11 px-5 text-sm")}>
               Ver os hobbies
@@ -515,12 +515,12 @@ function Feed() {
       ) : !lista.length ? (
         <div className="absolute inset-0 grid place-items-center p-6 text-center">
           <div className="grid max-w-sm justify-items-center gap-3">
-            <p className="text-lg font-semibold">Nenhum vídeo ainda</p>
+            <p className="text-lg font-medium">Nenhum vídeo ainda</p>
             <p className="text-sm text-white/70">
               {feed.destinos.length || feed.hobby ? "Cole o link de um vídeo do YouTube, do Instagram, do TikTok ou do Facebook e ele aparece aqui." : "Crie um hobby e adicione páginas de estudo para guardar vídeos."}
             </p>
             {feed.destinos.length || feed.hobby ? (
-              <button type="button" onClick={() => setAdicionando(true)} className="mt-1 inline-flex h-11 items-center gap-2 rounded-full bg-white px-5 text-sm font-semibold text-black hover:bg-white/90">
+              <button type="button" onClick={() => setAdicionando(true)} className="mt-1 inline-flex h-11 items-center gap-2 rounded-full bg-white px-5 text-sm font-medium text-black hover:bg-white/90">
                 <Plus className="size-4" /> Adicionar vídeo
               </button>
             ) : null}
@@ -534,7 +534,7 @@ function Feed() {
             <X className="size-6" />
           </button>
           <div className="min-w-0 flex-1">
-            <h1 className="truncate text-base font-semibold leading-tight">{feed.titulo}</h1>
+            <h1 className="truncate text-base font-medium leading-tight">{feed.titulo}</h1>
             <p className="text-xs text-white/70" aria-live="polite">
               {lista.length ? `${Math.min(atual, lista.length - 1) + 1} de ${plural(lista.length, "vídeo")}` : "Vídeos"}
             </p>

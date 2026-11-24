@@ -1,6 +1,6 @@
 "use client"
 
-import { AudioWaveform, type LucideIcon } from "lucide-react"
+import { AudioWaveform } from "lucide-react"
 import type { ComponentProps, ReactNode } from "react"
 import { TemaDasJanelas } from "@/components/ui/tema-janelas"
 import { CabecalhoHud } from "@/components/ui/cabecalho-hud"
@@ -33,10 +33,9 @@ export function CabecalhoEstudio(props: Omit<ComponentProps<typeof CabecalhoHud>
   return <CabecalhoHud marca={MARCA} {...props} />
 }
 
-/** O título de um painel: rótulo de HUD com o ícone aceso numa cor e uma ação à direita. */
+/** O título de um painel: o ponto do marca-texto na cor da área e uma ação à direita (como nos painéis de Hoje). */
 export function TituloPainel({
   id,
-  icone: Icone,
   titulo,
   cor = "var(--b-luz)",
   extra,
@@ -44,7 +43,6 @@ export function TituloPainel({
   className,
 }: {
   id?: string
-  icone: LucideIcon
   titulo: string
   cor?: string
   extra?: ReactNode
@@ -54,7 +52,7 @@ export function TituloPainel({
   return (
     <div className={cn("mb-3 flex min-h-8 items-center justify-between gap-3", className)}>
       <h2 id={id} className="rotulo-hud flex min-w-0 items-center gap-2">
-        <Icone className="size-3.5 shrink-0" style={{ color: cor }} aria-hidden />
+        <span aria-hidden className="size-1.5 shrink-0 rounded-full" style={{ background: cor }} />
         <span className="truncate">{titulo}</span>
         {extra}
       </h2>

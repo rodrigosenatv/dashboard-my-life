@@ -60,8 +60,8 @@ export function Destaque({ titulo: t, motivo, aoAbrir }: { titulo: Titulo; motiv
       <span aria-hidden className="absolute inset-0 -z-10 hidden bg-gradient-to-r from-black/90 via-black/40 to-transparent md:block" />
 
       <div className="flex flex-col justify-end gap-3 p-5 pt-[36%] sm:p-8 sm:pt-[36%] md:h-full md:max-w-2xl md:justify-center md:pt-8">
-        <p className="text-xs font-semibold uppercase tracking-widest text-white/70">{MOTIVO[motivo]}</p>
-        <h2 className="font-display text-3xl font-bold leading-tight sm:text-5xl">{t.nome}</h2>
+        <p className="text-sm font-medium text-white/75">{MOTIVO[motivo]}</p>
+        <h2 className="font-display text-3xl font-medium leading-tight tracking-[-0.02em] sm:text-5xl">{t.nome}</h2>
         {linha ? <p className="text-sm text-white/80">{linha}</p> : null}
         {/* A sinopse fica na janela do título no celular, para o destaque caber na primeira tela */}
         {t.tmdb?.sinopse ? <p className="hidden max-w-xl text-white/85 sm:line-clamp-3">{t.tmdb.sinopse}</p> : null}

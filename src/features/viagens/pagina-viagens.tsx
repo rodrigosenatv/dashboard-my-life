@@ -132,7 +132,7 @@ export function PaginaViagens() {
               ) : null}
               <section aria-labelledby="titulo-suas-viagens">
                 <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-                  <h2 id="titulo-suas-viagens" className="font-display text-lg font-semibold">
+                  <h2 id="titulo-suas-viagens" className="font-display text-lg font-medium">
                     Suas viagens
                   </h2>
                   <Segmentos
@@ -190,17 +190,17 @@ function Destaque({ viagem, paradas, gastos }: { viagem: Viagem; paradas: Parada
   return (
     <section aria-labelledby="titulo-destaque" className="overflow-hidden rounded-xl border border-line bg-surface">
       <Link href={`/vida/viagens/${viagem.id}`} className="group relative block aspect-[16/9] max-h-80 w-full overflow-hidden sm:aspect-[21/8]">
-        <CapaViagem viagem={viagem} className="transition-transform duration-500 group-hover:scale-[1.02]" />
+        <CapaViagem viagem={viagem} />
         <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent" />
         <div className="absolute inset-x-0 bottom-0 p-4 text-white sm:p-6">
           <p className="mb-1.5 inline-flex rounded-full bg-white/20 px-2.5 py-0.5 text-xs font-medium backdrop-blur-sm">
             {viagem.situacao === "andamento" ? "Em viagem" : "Próxima viagem"}
           </p>
-          <h2 id="titulo-destaque" className="font-display text-2xl font-semibold leading-tight sm:text-3xl">
+          <h2 id="titulo-destaque" className="font-display text-2xl font-medium leading-tight sm:text-3xl">
             {viagem.nome}
           </h2>
           <p className="mt-1 text-sm text-white/85">
-            {textoPeriodo(viagem.ida, viagem.volta)} · {textoDias(viagem.dias)} · <span className="font-semibold text-white">{textoContagem(viagem)}</span>
+            {textoPeriodo(viagem.ida, viagem.volta)} · {textoDias(viagem.dias)} · <span className="font-medium text-white">{textoContagem(viagem)}</span>
           </p>
         </div>
       </Link>
@@ -247,7 +247,7 @@ function Atalho({ href, icone: Icone, rotulo, valor, detalhe, vazio }: { href: s
       <span className="flex items-center gap-1.5 text-xs text-ink-3">
         <Icone className="size-3.5" aria-hidden /> {rotulo}
       </span>
-      <span className={vazio ? "text-sm font-medium text-pen" : "truncate text-sm font-semibold tabular"}>{valor}</span>
+      <span className={vazio ? "text-sm font-medium text-pen" : "truncate text-sm font-medium tabular"}>{valor}</span>
       {detalhe ? <span className="truncate text-xs text-ink-3">{detalhe}</span> : null}
     </Link>
   )
@@ -288,7 +288,7 @@ function CartaoViagem({ viagem: v, gastos }: { viagem: Viagem; gastos: Gasto[] }
       className="group flex h-full overflow-hidden rounded-xl border border-line bg-surface transition-colors hover:border-line-strong sm:flex-col"
     >
       <div className="relative aspect-[4/3] w-28 shrink-0 overflow-hidden sm:aspect-[16/9] sm:w-full">
-        <CapaViagem viagem={v} className="transition-transform duration-300 group-hover:scale-[1.03]" />
+        <CapaViagem viagem={v} />
         {v.situacao === "andamento" ? (
           <span className="absolute left-1.5 top-1.5 rounded-full bg-pen px-2 py-0.5 text-[11px] font-medium text-pen-ink sm:left-2.5 sm:top-2.5">Em viagem</span>
         ) : null}
@@ -316,7 +316,7 @@ function Realizadas({ viagens, gastos }: { viagens: Viagem[]; gastos: Gasto[] })
         return (
           <section key={ano} aria-label={ano}>
             <h3 className="mb-3 flex items-baseline gap-2">
-              <span className="font-display text-base font-semibold">{ano}</span>
+              <span className="font-display text-base font-medium">{ano}</span>
               <span className="text-sm text-ink-3">
                 {plural(lista.length, "viagem", "viagens")}
                 {dias ? ` · ${textoDias(dias)}` : ""}

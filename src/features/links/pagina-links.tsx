@@ -25,7 +25,7 @@ export function Inicial({ texto }: { texto: string }) {
   const letra = (texto.trim()[0] ?? "?").toUpperCase()
   const tons = ["bg-rotina-soft text-rotina", "bg-projetos-soft text-projetos", "bg-estudos-soft text-estudos", "bg-conteudo-soft text-conteudo", "bg-pen-soft text-pen"]
   const tom = tons[[...texto].reduce((s, c) => s + c.charCodeAt(0), 0) % tons.length]
-  return <span aria-hidden className={cn("grid size-9 shrink-0 place-items-center rounded-lg font-display text-base font-semibold", tom)}>{letra}</span>
+  return <span aria-hidden className={cn("grid size-9 shrink-0 place-items-center rounded-lg font-display text-base font-medium", tom)}>{letra}</span>
 }
 
 export function DialogoLink({ aberta, aoMudar, link, grupoInicial }: { aberta: boolean; aoMudar: (v: boolean) => void; link: Link_ | null; grupoInicial: Grupo }) {
@@ -200,7 +200,7 @@ export function PaginaLinks() {
           {secoes.map(([titulo, itens]) => (
             <section key={titulo}>
               {secoes.length > 1 || busca ? (
-                <h2 className="mb-3 font-display text-lg font-semibold">
+                <h2 className="mb-3 font-display text-lg font-medium">
                   {titulo} <span className="tabular text-sm font-normal text-ink-3">{itens.length}</span>
                 </h2>
               ) : null}

@@ -99,7 +99,7 @@ export function Cabecalho({
   return (
     <header className={cn("mb-6 flex flex-wrap items-end justify-between gap-x-6 gap-y-3", className)}>
       <div className="min-w-0">
-        <h1 className="flex items-center gap-2.5 font-display text-3xl font-semibold">
+        <h1 className="flex items-center gap-2.5 font-display text-3xl font-medium">
           {area ? <MarcaArea area={area} /> : null}
           {titulo}
         </h1>
@@ -144,7 +144,7 @@ export function Secao({
     <section className={cn("min-w-0", className)}>
       <div className="mb-3 flex items-baseline justify-between gap-3">
         <div>
-          <h2 className="font-display text-lg font-semibold">{titulo}</h2>
+          <h2 className="font-display text-lg font-medium">{titulo}</h2>
           {descricao ? <p className="text-sm text-ink-3">{descricao}</p> : null}
         </div>
         {acao}

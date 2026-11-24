@@ -449,7 +449,7 @@ export function LeitorLivro({ arquivo, titulo, voltarPara, posicaoInicial, apare
             <ArrowLeft className="size-5" />
           </Link>
           <div className="min-w-0 flex-1 px-1">
-            <p className="truncate text-sm font-semibold">{titulo || tituloDoArquivo}</p>
+            <p className="truncate text-sm font-medium">{titulo || tituloDoArquivo}</p>
             {capitulo ? <p className="truncate text-xs text-[var(--l-suave)]">{capitulo}</p> : null}
           </div>
           <BotaoBarra rotulo="Buscar no livro" ativo={painel === "busca"} onClick={() => setPainel(painel === "busca" ? null : "busca")}>

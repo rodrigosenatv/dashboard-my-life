@@ -82,7 +82,7 @@ export function PainelBusca({
       <div className="grid gap-4">
         {grupos.map((g, i) => (
           <section key={i}>
-            {g.rotulo ? <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-[var(--l-suave)]">{g.rotulo}</h3> : null}
+            {g.rotulo ? <h3 className="mb-1 text-sm font-medium text-[var(--l-suave)]">{g.rotulo}</h3> : null}
             <ul className="grid">
               {g.itens.map((item) => (
                 <li key={item.cfi}>

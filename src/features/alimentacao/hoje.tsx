@@ -139,7 +139,7 @@ export function HojeAlimentacao({
         <div className="p-4 pb-3 sm:px-5">
           <div className="mb-2 flex items-baseline justify-between gap-3">
             <p className="text-sm">
-              <span className="text-2xl font-semibold">{feitas.size}</span>
+              <span className="text-2xl font-medium">{feitas.size}</span>
               <span className="text-ink-2"> de {plural(total, "refeição", "refeições")}</span>
             </p>
             {completo ? (
@@ -221,7 +221,7 @@ function Semana({ dias, total, dia, aoEscolher }: { dias: Map<string, Dia>; tota
                 onClick={() => aoEscolher(d)}
                 className="group flex w-full flex-col items-center gap-1 rounded-lg py-1 disabled:cursor-default"
               >
-                <span className={cn("text-xs", d === hoje ? "font-semibold text-ink" : "text-ink-3")}>{LETRAS[i]}</span>
+                <span className={cn("text-xs", d === hoje ? "font-medium text-ink" : "text-ink-3")}>{LETRAS[i]}</span>
                 <span
                   className={cn(
                     "grid size-9 place-items-center rounded-full border text-xs transition-colors tabular",

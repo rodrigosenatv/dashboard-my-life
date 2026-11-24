@@ -126,7 +126,7 @@ export function TrocarPorReceita({
                     aoFechar()
                   }}
                 >
-                  <span className="text-base font-semibold tabular">{n}</span>
+                  <span className="text-base font-medium tabular">{n}</span>
                   <span className="text-[11px] font-normal text-ink-3 tabular">{porcao} kcal</span>
                 </Botao>
               )

@@ -12,7 +12,7 @@ import { fraseDoDia, iniciais } from "./logica"
 /** Iniciais num círculo. O nome já está escrito ao lado, então o leitor de tela pula isto. */
 export function Iniciais({ nome, className }: { nome: string; className?: string }) {
   return (
-    <span aria-hidden className={cn("grid size-9 shrink-0 place-items-center rounded-full bg-surface-2 text-xs font-semibold text-ink-2", className)}>
+    <span aria-hidden className={cn("grid size-9 shrink-0 place-items-center rounded-full bg-surface-2 text-xs font-medium text-ink-2", className)}>
       {iniciais(nome)}
     </span>
   )

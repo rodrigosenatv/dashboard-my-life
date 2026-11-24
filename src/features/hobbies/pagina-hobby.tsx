@@ -131,7 +131,7 @@ export function PaginaHobby() {
             </Menu>
           </div>
           <div className="absolute inset-x-0 bottom-0 p-4 text-white sm:p-6">
-            <h1 className="font-display text-3xl font-semibold leading-tight">{hobby.nome}</h1>
+            <h1 className="font-display text-3xl font-medium leading-tight">{hobby.nome}</h1>
             {hobby.objetivo ? <p className="mt-1 max-w-xl text-sm text-white/85">{hobby.objetivo}</p> : null}
           </div>
         </div>
@@ -140,7 +140,7 @@ export function PaginaHobby() {
       <section aria-label="Esta semana" className="mb-6 flex flex-wrap items-center justify-between gap-x-6 gap-y-4 rounded-xl border border-line bg-surface p-4">
         <div className="min-w-0">
           <p className="text-xs font-medium text-ink-3">Esta semana</p>
-          <p className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-semibold">
+          <p className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-medium">
             {textoSemana(hobby.meta, resumo.diasNaSemana.length)}
             {hobby.meta ? <Bolinhas feitas={resumo.diasNaSemana.length} meta={hobby.meta} /> : null}
           </p>

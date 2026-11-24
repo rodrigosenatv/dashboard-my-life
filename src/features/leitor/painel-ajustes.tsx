@@ -44,7 +44,7 @@ export function PainelAjustes({ aparencia, aoMudar, aoFechar }: { aparencia: Apa
               <Minus className="size-4" /> A
             </span>
           </button>
-          <span className="tabular w-16 text-center text-sm font-semibold" aria-live="polite">
+          <span className="tabular w-16 text-center text-sm font-medium" aria-live="polite">
             {aparencia.tamanho}%
           </span>
           <button

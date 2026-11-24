@@ -30,7 +30,7 @@ export function SelosDaCapa({ livro: l }: { livro: Livro }) {
         </span>
       ) : null}
       {l.rating && l.status === "finalizado" ? (
-        <span aria-hidden className="absolute bottom-1.5 left-1.5 rounded-md bg-black/60 px-1.5 py-0.5 text-[11px] font-semibold tabular text-[var(--b-ambar)] backdrop-blur-sm">
+        <span aria-hidden className="absolute bottom-1.5 left-1.5 rounded-md bg-black/60 px-1.5 py-0.5 text-[11px] font-medium tabular text-[var(--b-ambar)] backdrop-blur-sm">
           ★ {l.rating}
         </span>
       ) : null}
@@ -90,7 +90,7 @@ export function Prateleira({
     <section aria-labelledby={rotuloId} className="min-w-0">
       <div className="mb-1 flex items-end justify-between gap-3">
         <div className="min-w-0">
-          <h2 id={rotuloId} className="flex items-baseline gap-2 font-display text-xl font-semibold">
+          <h2 id={rotuloId} className="flex items-baseline gap-2 font-display text-xl font-medium">
             {titulo}
             <span className="tabular text-sm font-normal text-ink-3">{livros.length}</span>
           </h2>

@@ -55,7 +55,7 @@ export function JanelaConcluir({ experimento: e, aberta, aoMudar, aoNovaRodada }
     // Terminou antes do prazo: o fim passa a ser hoje
     const ends_on = !e.ends_on || e.ends_on > hoje ? hoje : e.ends_on
     mutate({ id: e.id, status: "concluido", result: resultado, ends_on, starts_on: e.starts_on ?? hoje, notes })
-    toast.success(resultado === "funcionou" ? "Experimento concluído: funcionou!" : "Experimento concluído. Todo resultado ensina.", {
+    toast.success(resultado === "funcionou" ? "Experimento concluído: funcionou" : "Experimento concluído. Todo resultado ensina.", {
       action: { label: "Desfazer", onClick: () => mutate({ id: e.id, ...antes }) },
     })
     if (proximo === "ajustar") acoes.novaRodada(e, aoNovaRodada)
@@ -115,7 +115,7 @@ export function JanelaConcluir({ experimento: e, aberta, aoMudar, aoNovaRodada }
             <label htmlFor="concluir-nota" className="text-sm font-medium text-ink-2">
               Nota
             </label>
-            <span className="tabular text-sm font-semibold">{nota === null ? "—" : `${String(nota).replace(".", ",")} de 10`}</span>
+            <span className="tabular text-sm font-medium">{nota === null ? "—" : `${String(nota).replace(".", ",")} de 10`}</span>
           </div>
           <input id="concluir-nota" type="range" min={0} max={10} step={0.5} value={nota ?? 5} onChange={(ev) => setNota(Number(ev.target.value))} className="h-11 w-full accent-[var(--pen)]" />
         </div>

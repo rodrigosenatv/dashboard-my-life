@@ -234,7 +234,7 @@ export function JanelaDetalhes({ titulo: t, aberta, aoMudar }: { titulo: Titulo 
 function Bloco({ titulo, children }: { titulo: string; children: React.ReactNode }) {
   return (
     <section className="grid gap-2.5">
-      <h3 className="text-sm font-semibold text-ink">{titulo}</h3>
+      <h3 className="text-sm font-medium text-ink">{titulo}</h3>
       {children}
     </section>
   )
@@ -276,7 +276,7 @@ function Contador({
         <Botao variante="contorno" tamanho="icone" aria-label={anterior} disabled={atual <= 1} onClick={() => aoMudar(Math.max(1, atual - 1))}>
           <Minus />
         </Botao>
-        <span aria-live="polite" className="tabular w-12 text-center text-base font-semibold">
+        <span aria-live="polite" className="tabular w-12 text-center text-base font-medium">
           {valor ?? "–"}
         </span>
         <Botao variante="contorno" tamanho="icone" aria-label={proxima} onClick={() => aoMudar(atual + 1)}>

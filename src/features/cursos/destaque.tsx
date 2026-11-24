@@ -106,7 +106,7 @@ function CartaoDestaque({ curso: c, capa, aoAnotar, prioridade }: { curso: Curso
             Estudando agora{plataforma ? <span className="hidden sm:inline"> · {plataforma.nome}</span> : null}
           </span>
         </p>
-        <h2 className="mt-1.5 font-display text-[1.3rem] font-semibold leading-[1.12] tracking-tight text-balance sm:mt-2 sm:text-[2rem]">
+        <h2 className="mt-1.5 font-display text-[1.3rem] font-medium leading-[1.12] tracking-tight text-balance sm:mt-2 sm:text-[2rem]">
           <Link href={`/estudos/cursos/${c.id}`} className="hover:underline hover:decoration-[var(--b-luz)]/60 hover:underline-offset-4">
             {c.name}
           </Link>
@@ -119,7 +119,7 @@ function CartaoDestaque({ curso: c, capa, aoAnotar, prioridade }: { curso: Curso
           {parou && partes ? (
             <>
               <p className="rotulo-hud flex items-center gap-1.5">
-                <Radar className="size-3.5 text-[var(--b-rosa)]" aria-hidden /> Parou em{parou.modulo ? ` · ${parou.modulo}` : ""}
+                <Radar className="size-3.5 text-ink-3" aria-hidden /> Parou em{parou.modulo ? ` · ${parou.modulo}` : ""}
               </p>
               <p className="mt-1 flex items-baseline gap-2 text-[15px] font-medium leading-snug">
                 {partes.numero ? <span className="tabular shrink-0 font-display text-[var(--b-luz)]">{partes.numero}</span> : null}
@@ -140,7 +140,7 @@ function CartaoDestaque({ curso: c, capa, aoAnotar, prioridade }: { curso: Curso
             <div className="barra-luz flex-1" role="progressbar" aria-label={`Progresso de ${c.name}`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct}>
               <span style={{ width: `${pct}%` }} />
             </div>
-            <span className="tabular w-10 shrink-0 text-right text-sm font-semibold">{pct}%</span>
+            <span className="tabular w-10 shrink-0 text-right text-sm font-medium">{pct}%</span>
           </div>
         ) : null}
 
@@ -171,7 +171,7 @@ function SemCurso({ aoEscolher, temFila }: { aoEscolher: () => void; temFila: bo
     <section aria-label="Estudando agora" className="vidro relative overflow-hidden px-6 py-10 text-center sm:py-12">
       <span aria-hidden className="pointer-events-none absolute left-1/2 top-0 size-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--b-luz-2)]/25 hidden" />
       <Route className="relative mx-auto size-8 text-[var(--b-luz)]" aria-hidden />
-      <h2 className="relative mt-3 font-display text-2xl font-semibold">Nenhum curso em andamento</h2>
+      <h2 className="relative mt-3 font-display text-2xl font-medium">Nenhum curso em andamento</h2>
       <p className="relative mx-auto mt-1.5 max-w-sm text-ink-2">
         {temFila ? "Escolha um curso da fila ou retome um pausado: ele aparece aqui, com a aula onde você parou." : "Cadastre um curso e marque como “Em andamento” para ele aparecer aqui."}
       </p>

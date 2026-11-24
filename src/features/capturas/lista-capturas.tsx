@@ -160,7 +160,7 @@ export function ListaCapturas({
           {/* No celular: título, prévia e, por último, as ações; no computador as ações ficam à direita do título */}
           <div className="grid min-w-0 flex-1 gap-2 sm:grid-cols-[minmax(0,1fr)_auto] sm:gap-x-3">
             <button type="button" onClick={() => setAberta(c)} className="min-w-0 rounded-md text-left focus-visible:outline-offset-4">
-              <p className="break-words text-[15px] font-semibold leading-snug transition-colors group-hover:text-[var(--b-luz)]">{c.title || "Sem título"}</p>
+              <p className="break-words text-[15px] font-medium leading-snug transition-colors group-hover:text-[var(--b-luz)]">{c.title || "Sem título"}</p>
               <p className="mt-1 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-xs text-ink-3">
                 {c.kind ? <span className="font-medium" style={{ color: tipoCaptura(c.kind).cor } as CSSProperties}>{c.kind}</span> : null}
                 {c.category ? <span>{c.category}</span> : null}
@@ -270,11 +270,11 @@ export function ListaCapturas({
           <p aria-live="polite" className="tabular text-xs font-medium text-ink-2">{lista.length === 1 ? "1 captura" : `${lista.length} capturas`} {haFiltros ? (lista.length === 1 ? "encontrada" : "encontradas") : "no total"}</p>
           <div className="flex items-center gap-1">
             {temFiltros && !tipo && !categoria ? (
-              <button type="button" onClick={() => setFiltrosAbertos((v) => !v)} aria-expanded={filtrosAbertos} className="inline-flex min-h-9 items-center gap-1.5 rounded-full px-2.5 text-xs font-semibold text-ink-2 hover:bg-ink/[0.06] hover:text-ink sm:hidden">
+              <button type="button" onClick={() => setFiltrosAbertos((v) => !v)} aria-expanded={filtrosAbertos} className="inline-flex min-h-9 items-center gap-1.5 rounded-full px-2.5 text-xs font-medium text-ink-2 hover:bg-ink/[0.06] hover:text-ink sm:hidden">
                 <SlidersHorizontal className="size-3.5" aria-hidden /> {filtrosAbertos ? "Esconder filtros" : "Filtros"}
               </button>
             ) : null}
-            {haFiltros ? <button type="button" onClick={limparFiltros} className="inline-flex min-h-9 items-center gap-1.5 rounded-full px-2.5 text-xs font-semibold text-[var(--b-luz)] hover:bg-ink/[0.06]"><X className="size-3.5" /> Limpar filtros</button> : null}
+            {haFiltros ? <button type="button" onClick={limparFiltros} className="inline-flex min-h-9 items-center gap-1.5 rounded-full px-2.5 text-xs font-medium text-[var(--b-luz)] hover:bg-ink/[0.06]"><X className="size-3.5" /> Limpar filtros</button> : null}
           </div>
         </div>
       </div>
@@ -296,7 +296,7 @@ export function ListaCapturas({
             return (
             <section key={g.titulo || "todas"}>
               {g.titulo ? (
-                <h2 className={cn("mb-3 flex items-center gap-2 font-display text-base font-semibold", agrupar === "mes" && "first-letter:uppercase")}>
+                <h2 className={cn("mb-3 flex items-center gap-2 font-display text-base font-medium", agrupar === "mes" && "first-letter:uppercase")}>
                   <span className="min-w-0 break-words">{agrupar === "tag" && !g.titulo.startsWith("Sem ") ? `#${g.titulo}` : g.titulo}</span>
                   <span className="tabular shrink-0 rounded-full border border-[var(--b-borda)] bg-ink/[0.04] px-2 py-0.5 text-xs font-medium text-[var(--b-luz)]">{g.itens.length}</span>
                   <span aria-hidden className="h-px min-w-6 flex-1 bg-gradient-to-r from-[var(--b-borda-2)] to-transparent" />

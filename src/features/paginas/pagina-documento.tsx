@@ -84,9 +84,9 @@ export function PaginaDocumento() {
         {futurista ? <span aria-hidden className="pointer-events-none absolute -left-16 -top-20 size-56 rounded-full bg-[var(--b-luz)]/15 hidden" /> : null}
         <div className="relative min-w-0 flex-[1_1_100%] sm:flex-1">
           {futurista ? (
-            <TituloEditavel rotulo="Renomear a página" valor={pagina.title} aoSalvar={(v) => atualizar.mutate({ id: pagina.id, title: v })} className="font-display text-[1.75rem] font-semibold leading-tight tracking-tight sm:text-3xl" />
+            <TituloEditavel rotulo="Renomear a página" valor={pagina.title} aoSalvar={(v) => atualizar.mutate({ id: pagina.id, title: v })} className="font-display text-[1.75rem] font-medium leading-tight tracking-tight sm:text-3xl" />
           ) : (
-            <EdicaoEmLinha rotulo="Título da página" valor={pagina.title} aoSalvar={(v) => atualizar.mutate({ id: pagina.id, title: v || "Sem título" })} className="break-words font-display text-[1.75rem] font-semibold leading-tight sm:text-3xl" />
+            <EdicaoEmLinha rotulo="Título da página" valor={pagina.title} aoSalvar={(v) => atualizar.mutate({ id: pagina.id, title: v || "Sem título" })} className="break-words font-display text-[1.75rem] font-medium leading-tight sm:text-3xl" />
           )}
           <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-ink-3">
             Editada {haQuanto(pagina.updated_at)}

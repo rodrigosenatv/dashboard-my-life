@@ -39,20 +39,20 @@ export function PaginaLaboratorio() {
   const p = React.useMemo(() => placar(experimentos), [experimentos])
 
   const hud = [
-    { n: g.em_teste.length, rotulo: "em teste", cor: "var(--b-luz)" },
+    { n: g.em_teste.length, rotulo: "em teste" },
     { n: g.a_iniciar.length, rotulo: g.a_iniciar.length === 1 ? "ideia" : "ideias" },
     { n: p.concluidos, rotulo: p.concluidos === 1 ? "concluído" : "concluídos" },
-    ...(p.concluidos ? [{ n: p.funcionou, rotulo: p.funcionou === 1 ? "funcionou" : "funcionaram", cor: "var(--b-ambar)" }] : []),
+    ...(p.concluidos ? [{ n: p.funcionou, rotulo: p.funcionou === 1 ? "funcionou" : "funcionaram" }] : []),
   ]
 
   return (
     <div className={MOLDURA}>
       <header>
         <p className="rotulo-hud flex items-center gap-2">
-          <FlaskConical className="size-3.5 text-[var(--b-luz)]" aria-hidden /> Estudos · Laboratório de experimentos
+          <FlaskConical className="size-3.5 text-ink-3" aria-hidden /> Estudos · Laboratório de experimentos
         </p>
         <div className="mt-1.5 flex items-center justify-between gap-3">
-          <h1 className="font-display text-[2.4rem] font-semibold leading-none tracking-tight sm:text-[3.25rem]">Laboratório</h1>
+          <h1 className="font-display text-[2.4rem] font-medium leading-none tracking-tight sm:text-[3.25rem]">Laboratório</h1>
           <Botao variante="primario" tamanho="lg" onClick={() => setNovo(true)} className="shrink-0 px-4">
             <Plus /> Experimento
           </Botao>
@@ -63,8 +63,8 @@ export function PaginaLaboratorio() {
         {experimentos.length ? (
           <ul className="mt-4 flex flex-wrap gap-2" aria-label="Seus experimentos">
             {hud.map((h) => (
-              <li key={h.rotulo} className="inline-flex min-h-9 items-baseline gap-1.5 rounded-full border border-[var(--b-borda)] bg-ink/[0.03] px-3 py-1 text-sm text-ink-2">
-                <span className="tabular font-display text-base font-semibold" style={h.cor ? { color: h.cor } : undefined}>
+              <li key={h.rotulo} className="inline-flex min-h-9 items-baseline gap-1.5 rounded-md border border-[var(--b-borda)] bg-ink/[0.03] px-3 py-1 text-sm text-ink-2">
+                <span className="tabular font-display text-base font-medium text-ink">
                   {h.n}
                 </span>
                 {h.rotulo}

@@ -39,7 +39,7 @@ export function CartaoOutfit({ outfit: o, aoAbrir, hoje }: { outfit: Outfit; aoA
         onClick={() => aoAbrir(o)}
         className="group block w-full rounded-xl text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pen/50"
       >
-        <ColagemOutfit pecas={o.pecas} className="motion-safe:transition-transform motion-safe:duration-200 motion-safe:group-hover:scale-[1.02]" />
+        <ColagemOutfit pecas={o.pecas} />
         <span aria-hidden className="mt-2 block">
           <span className="line-clamp-2 block text-sm font-medium leading-snug text-ink">{o.nome}</span>
           {meta ? <span className="mt-0.5 block truncate text-xs text-ink-3">{meta}</span> : null}
@@ -129,7 +129,7 @@ export function JanelaOutfit({
                 <span className="relative block aspect-[4/5] overflow-hidden rounded-lg bg-surface-2 ring-1 ring-line">
                   <FotoPeca peca={p} className="absolute inset-0" />
                   {!p.comprado ? (
-                    <span aria-hidden className="absolute left-1.5 top-1.5 rounded bg-black/60 px-1.5 py-0.5 text-[10px] text-white">
+                    <span aria-hidden className="absolute left-1.5 top-1.5 rounded bg-black/60 px-1.5 py-0.5 text-[11px] text-white">
                       Desejo
                     </span>
                   ) : null}
@@ -304,7 +304,7 @@ export function JanelaMontarOutfit({
                         <span className={cn("relative block aspect-square overflow-hidden rounded-lg bg-surface-2", ativa ? "ring-2 ring-pen" : "ring-1 ring-line")}>
                           <FotoPeca peca={p} className="absolute inset-0" />
                           {!p.comprado ? (
-                            <span aria-hidden className="absolute left-1 top-1 rounded bg-black/60 px-1 text-[10px] text-white">
+                            <span aria-hidden className="absolute left-1 top-1 rounded bg-black/60 px-1 text-[11px] text-white">
                               Desejo
                             </span>
                           ) : null}

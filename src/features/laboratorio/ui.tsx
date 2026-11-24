@@ -52,8 +52,8 @@ export function AnelDias({ dia, total, tamanho = 112, bolhas = false }: { dia: n
         </span>
       ) : null}
       <span className="relative text-center leading-none">
-        <span className="rotulo-hud block text-[10px]">Dia</span>
-        <span className="tabular mt-1 block font-display text-3xl font-semibold text-[var(--b-luz)]" style={{ fontSize: tamanho < 90 ? "1.4rem" : undefined }}>
+        <span className="rotulo-hud block text-[11px]">Dia</span>
+        <span className="tabular mt-1 block font-display text-3xl font-medium text-[var(--b-luz)]" style={{ fontSize: tamanho < 90 ? "1.4rem" : undefined }}>
           {dia}
         </span>
         {total ? <span className="tabular mt-1 block text-xs text-ink-3">de {total}</span> : null}
@@ -90,5 +90,5 @@ const COR_RESULTADO: Record<ResultadoExp, string> = {
 
 /** O selo do resultado (Funcionou, Parcial, Não funcionou). */
 export function SeloResultado({ resultado, className }: { resultado: ResultadoExp; className?: string }) {
-  return <span className={cn("inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold", COR_RESULTADO[resultado], className)}>{RESULTADOS[resultado]}</span>
+  return <span className={cn("inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium", COR_RESULTADO[resultado], className)}>{RESULTADOS[resultado]}</span>
 }

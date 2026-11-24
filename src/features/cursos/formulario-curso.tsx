@@ -220,7 +220,7 @@ export function JanelaCurso({
                 onChange={(e) => setProgresso(Number(e.target.value))}
                 className="h-11 flex-1 accent-[var(--pen)]"
               />
-              <span className="tabular w-12 text-right text-sm font-semibold">{progresso === null ? "—" : `${progresso}%`}</span>
+              <span className="tabular w-12 text-right text-sm font-medium">{progresso === null ? "—" : `${progresso}%`}</span>
             </div>
           </div>
         ) : null}

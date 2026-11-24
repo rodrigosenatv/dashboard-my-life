@@ -43,7 +43,7 @@ export function BotaoNovo({ compacto, className }: { compacto?: boolean; classNa
             <Plus />
           </Botao>
         ) : (
-          <Botao variante="primario" aria-label="Novo" title="Novo" className={cn("cabine-acao w-full justify-start rounded-lg font-semibold recolhido:justify-center recolhido:px-0", className)}>
+          <Botao variante="primario" aria-label="Novo" title="Novo" className={cn("cabine-acao w-full justify-start rounded-lg font-medium recolhido:justify-center recolhido:px-0", className)}>
             <Plus />
             <span className="recolhido:hidden">Novo</span>
           </Botao>

@@ -31,7 +31,7 @@ export function EscolhaPilulas<T extends string>({
             aria-checked={ativo}
             onClick={() => aoMudar(o.id)}
             className={cn(
-              "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-sm transition-colors toque:min-h-11",
+              "inline-flex items-center gap-1.5 rounded-md border px-3 py-1 text-sm transition-colors toque:min-h-11",
               ativo ? "border-pen bg-pen/15 text-ink" : "border-line text-ink-2 hover:border-line-strong hover:text-ink",
             )}
           >

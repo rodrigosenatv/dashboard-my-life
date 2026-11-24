@@ -87,11 +87,11 @@ export function AnelProgresso({
         ) : null}
       </svg>
       <span className="relative text-center leading-none" aria-hidden>
-        <span className="tabular block font-display font-semibold text-ink" style={{ fontSize: tamanho >= 100 ? "1.9rem" : tamanho >= 64 ? "1.15rem" : "0.8rem" }}>
+        <span className="tabular block font-display font-medium text-ink" style={{ fontSize: tamanho >= 100 ? "1.9rem" : tamanho >= 64 ? "1.15rem" : "0.8rem" }}>
           {pct}
           <span className="text-[0.55em] text-ink-2">%</span>
         </span>
-        {legenda && tamanho >= 100 ? <span className="rotulo-hud mt-1 block text-[10px]">{legenda}</span> : null}
+        {legenda && tamanho >= 100 ? <span className="rotulo-hud mt-1 block text-[11px]">{legenda}</span> : null}
       </span>
     </span>
   )
@@ -147,7 +147,7 @@ export function VazioCerebro({
       <span aria-hidden className="icone-aceso relative mx-auto size-14 rounded-2xl" style={{ "--cor": comemorar ? "var(--b-menta)" : "var(--b-luz)" } as CSSProperties}>
         <Icone className="size-6" />
       </span>
-      <p className="relative mt-4 font-display text-xl font-semibold">{titulo}</p>
+      <p className="relative mt-4 font-display text-xl font-medium">{titulo}</p>
       {descricao ? <p className="relative mx-auto mt-1.5 max-w-md text-sm text-ink-2">{descricao}</p> : null}
       {acao ? <div className="relative mt-5 flex justify-center">{acao}</div> : null}
     </div>

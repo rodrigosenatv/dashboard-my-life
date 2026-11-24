@@ -130,7 +130,7 @@ export function Pomodoro({ className, aoConcluirFoco }: { className?: string; ao
   return (
     <section aria-label="Pomodoro" className={cn("rounded-xl border border-line bg-surface p-4", className)}>
       <div className="mb-3 flex items-center justify-between">
-        <p className="flex items-center gap-1.5 text-sm font-semibold">
+        <p className="flex items-center gap-1.5 text-sm font-medium">
           <Timer className="size-4 text-estudos" /> Pomodoro
         </p>
         <span className="tabular text-xs text-ink-3" title="Ciclos de foco concluídos hoje">
@@ -165,7 +165,7 @@ export function Pomodoro({ className, aoConcluirFoco }: { className?: string; ao
             className={cn("transition-[stroke-dashoffset] duration-300", modo === "foco" ? "stroke-estudos" : "stroke-rotina")}
           />
         </svg>
-        <span className="tabular font-display text-3xl font-semibold" role="timer" aria-live="off">
+        <span className="tabular font-display text-3xl font-medium" role="timer" aria-live="off">
           {mmss(restante)}
         </span>
       </div>

@@ -88,7 +88,6 @@ function DialogoHabito({ aberta, aoMudar, habito }: { aberta: boolean; aoMudar: 
           <Seletor id="h-ritual" value={ritual} onChange={(e) => setRitual(e.target.value as Ritual)}>
             {RITUAIS.map((r) => (
               <option key={r.valor} value={r.valor}>
-                {r.emoji ? `${r.emoji} ` : ""}
                 {r.titulo}
               </option>
             ))}
@@ -150,7 +149,7 @@ function MapaCalor({ habitos, indice, hoje }: { habitos: Habito[]; indice: Retur
   return (
     <div className="overflow-x-auto pb-1">
       <div className="flex gap-[3px]" role="img" aria-label={`Cumprimento diário dos hábitos nas últimas ${semanas} semanas`}>
-        <div className="mr-1 grid grid-rows-7 gap-[3px] text-[10px] text-ink-3">
+        <div className="mr-1 grid grid-rows-7 gap-[3px] text-[11px] text-ink-3">
           {DIAS.map((d, i) => (
             <span key={i} className="flex h-3.5 items-center">{i % 2 ? d : ""}</span>
           ))}
@@ -262,9 +261,8 @@ export function PaginaHabitos() {
                   <tbody key={g.valor}>
                     {grupos.length > 1 ? (
                       <tr className="border-b border-line bg-surface-2/60">
-                        <th colSpan={10} scope="colgroup" className="px-4 py-1.5 text-left text-xs font-semibold text-ink-2">
+                        <th colSpan={10} scope="colgroup" className="px-4 py-1.5 text-left text-xs font-medium text-ink-2">
                           <span className="sticky left-4 inline-block">
-                            {g.emoji ? <span aria-hidden className="mr-1.5">{g.emoji}</span> : null}
                             {g.titulo}
                           </span>
                         </th>
@@ -340,7 +338,7 @@ export function PaginaHabitos() {
                       const feitos = validos.filter((h) => indice.get(h.id)?.has(d)).length
                       const pct = validos.length ? Math.round((feitos / validos.length) * 100) : 0
                       return (
-                        <td key={d} className={cn("tabular py-2.5 text-center text-xs", d > hoje ? "text-ink-3/50" : pct >= 100 ? "font-semibold text-rotina" : "text-ink-2")}>
+                        <td key={d} className={cn("tabular py-2.5 text-center text-xs", d > hoje ? "text-ink-3/50" : pct >= 100 ? "font-medium text-rotina" : "text-ink-2")}>
                           {d > hoje ? "–" : `${pct}%`}
                         </td>
                       )

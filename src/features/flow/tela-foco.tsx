@@ -125,12 +125,12 @@ export function TelaDeFoco({ url, aoFechar }: { url: string; aoFechar: () => voi
               <div className="min-w-0 flex-1 sm:flex sm:items-center sm:gap-5">
                 {/* Em tela baixa, a fase e o tempo ficam numa linha só */}
                 <div className="shrink-0 baixa:flex baixa:items-baseline baixa:gap-3">
-                  <p className="flex items-center gap-1.5 text-[0.6875rem] font-semibold uppercase tracking-[0.16em] text-white/70">
+                  <p className="flex items-center gap-1.5 text-sm font-medium text-white/75">
                     <span aria-hidden className={cn("size-1.5 rounded-full", s.fase === "foco" ? "bg-estudos" : "bg-rotina", contando && "motion-safe:animate-pulse")} />
                     {ROTULO_FASE[s.fase]}
                     {pausada ? <span className="text-white/50"> · pausado</span> : null}
                   </p>
-                  <p role="timer" aria-live="off" className={cn("font-display text-4xl font-semibold leading-tight tracking-tight tabular sm:text-5xl baixa:text-3xl", !contando && "text-white/80")}>
+                  <p role="timer" aria-live="off" className={cn("font-display text-4xl font-medium leading-tight tracking-tight tabular sm:text-5xl baixa:text-3xl", !contando && "text-white/80")}>
                     {mmss(restante)}
                   </p>
                 </div>
@@ -146,7 +146,7 @@ export function TelaDeFoco({ url, aoFechar }: { url: string; aoFechar: () => voi
                 type="button"
                 onClick={() => foco.alternar()}
                 aria-label={rotuloBotao(s)}
-                className="inline-flex h-12 min-w-12 shrink-0 items-center justify-center gap-2 rounded-full bg-white px-3.5 text-sm font-semibold text-black transition-colors hover:bg-white/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:px-5 baixa:h-11 [&_svg]:size-5"
+                className="inline-flex h-12 min-w-12 shrink-0 items-center justify-center gap-2 rounded-full bg-white px-3.5 text-sm font-medium text-black transition-colors hover:bg-white/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:px-5 baixa:h-11 [&_svg]:size-5"
               >
                 {contando ? <Pause aria-hidden /> : <Play aria-hidden />}
                 <span className="hidden sm:inline">{rotuloBotao(s)}</span>

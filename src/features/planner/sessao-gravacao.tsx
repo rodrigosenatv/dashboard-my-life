@@ -88,7 +88,7 @@ function Sessao({ ids, aoFechar }: { ids: string[]; aoFechar: () => void }) {
           <span className="icone-aceso size-12" style={{ "--cor": "var(--b-verde)" } as React.CSSProperties} aria-hidden>
             <Clapperboard className="size-6" />
           </span>
-          <p className="font-display text-2xl font-semibold">{feitos.length ? "Sessão concluída" : "Nada gravado desta vez"}</p>
+          <p className="font-display text-2xl font-medium">{feitos.length ? "Sessão concluída" : "Nada gravado desta vez"}</p>
           <p className="text-ink-2">
             {feitos.length
               ? `${plural(feitos.length, "conteúdo foi", "conteúdos foram")} para Editando. Ao fechar, dá para desfazer.`
@@ -106,7 +106,7 @@ function Sessao({ ids, aoFechar }: { ids: string[]; aoFechar: () => void }) {
             ))}
           </ol>
           <p className="rotulo-hud">{[atual.format, atual.publish_date ? `sai ${dataRelativa(atual.publish_date)}` : null].filter(Boolean).join(" · ") || "Gravando"}</p>
-          <h3 id="sessao-titulo" className="mt-1.5 font-display text-2xl font-semibold leading-tight sm:text-3xl">
+          <h3 id="sessao-titulo" className="mt-1.5 font-display text-2xl font-medium leading-tight sm:text-3xl">
             {atual.title}
           </h3>
           {atual.script?.trim() ? (

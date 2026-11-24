@@ -51,7 +51,7 @@ export function PaginaExperimento() {
     return (
       <div className={MOLDURA}>
         <div className="vidro mx-auto mt-10 max-w-md px-6 py-10 text-center">
-          <p className="font-display text-xl font-semibold">Experimento não encontrado</p>
+          <p className="font-display text-xl font-medium">Experimento não encontrado</p>
           <p className="mt-1 text-ink-2">Ele pode ter sido excluído.</p>
           <Botao asChild variante="primario" className="mt-5">
             <Link href="/estudos/laboratorio">Voltar para o laboratório</Link>
@@ -162,8 +162,8 @@ function Cabeca({ e, registros, aoConcluir, aoComecar }: { e: Experimento; regis
             <span className="text-center">
               {nota !== null ? (
                 <>
-                  <span className="rotulo-hud block text-[10px]">Nota</span>
-                  <span className="tabular mt-1 block font-display text-4xl font-semibold text-[var(--b-ambar)]">{String(nota).replace(".", ",")}</span>
+                  <span className="rotulo-hud block text-[11px]">Nota</span>
+                  <span className="tabular mt-1 block font-display text-4xl font-medium text-[var(--b-ambar)]">{String(nota).replace(".", ",")}</span>
                 </>
               ) : (
                 <IconeTipo tipo={e.kind} className="mx-auto size-10 text-[var(--b-luz)]" />
@@ -181,7 +181,6 @@ function Cabeca({ e, registros, aoConcluir, aoComecar }: { e: Experimento; regis
         <p className="rotulo-hud flex flex-wrap items-center gap-x-2 gap-y-1">
           {s === "em_teste" ? (
             <span className="relative flex size-2 shrink-0">
-              <span className="absolute inline-flex size-full animate-ping rounded-full bg-[var(--b-luz)] opacity-60 motion-reduce:hidden" />
               <span className="relative inline-flex size-2 rounded-full bg-[var(--b-luz)]" />
             </span>
           ) : null}
@@ -195,7 +194,7 @@ function Cabeca({ e, registros, aoConcluir, aoComecar }: { e: Experimento; regis
             </>
           ) : null}
         </p>
-        <h1 className="mt-2 font-display text-[1.9rem] font-semibold leading-[1.08] tracking-tight text-balance sm:text-[2.5rem]">{e.name}</h1>
+        <h1 className="mt-2 font-display text-[1.9rem] font-medium leading-[1.08] tracking-tight text-balance sm:text-[2.5rem]">{e.name}</h1>
         {e.hypothesis ? <p className="mt-3 max-w-2xl border-l-2 border-[var(--b-luz)]/60 pl-3 text-base italic leading-relaxed text-ink-2">{e.hypothesis}</p> : null}
         <p className="mt-3 text-sm text-ink-3">
           {periodo}
@@ -290,9 +289,9 @@ function Diario({ e, registros }: { e: Experimento; registros: Insight[] }) {
   return (
     <section aria-labelledby="titulo-diario" className="min-w-0">
       <p className="rotulo-hud flex items-center gap-2">
-        <NotebookPen className="size-3.5 text-[var(--b-luz)]" aria-hidden /> Diário do experimento
+        <NotebookPen className="size-3.5 text-ink-3" aria-hidden /> Diário do experimento
       </p>
-      <h2 id="titulo-diario" className="mt-1 font-display text-2xl font-semibold">
+      <h2 id="titulo-diario" className="mt-1 font-display text-2xl font-medium">
         O que aconteceu a cada dia
       </h2>
 
@@ -342,7 +341,7 @@ function Diario({ e, registros }: { e: Experimento; registros: Insight[] }) {
               <li key={d} className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-3.5">
                 <span className="mt-1.5 size-2.5 rounded-full bg-[var(--b-luz)]" aria-hidden />
                 <div className="min-w-0">
-                  <p className="text-xs font-medium uppercase tracking-wider text-ink-3">
+                  <p className="text-sm font-medium text-ink-3">
                     {formatar(d, "EEE, d 'de' MMM")}
                     {n && n >= 1 ? ` · dia ${n}` : ""}
                     {d === hoje ? " · hoje" : ""}
@@ -410,7 +409,7 @@ function ItemDiario({ item, aoSalvar, aoApagar }: { item: Insight; aoSalvar: (t:
     <li className={cn("group flex items-start gap-2 rounded-xl border px-3 py-2.5", item.kind && item.kind !== OBSERVACAO ? "border-[var(--b-luz)]/35 bg-[var(--b-luz)]/[0.06]" : "border-[var(--b-borda)] bg-ink/[0.03]")}>
       <button type="button" onClick={() => setEditando(true)} className="min-w-0 flex-1 text-left text-[15px] leading-snug" aria-label={`Editar: ${item.text}`}>
         {item.kind && item.kind !== OBSERVACAO ? (
-          <span className="mb-0.5 flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-[var(--b-luz)]">
+          <span className="mb-0.5 flex items-center gap-1 text-xs font-medium text-[var(--b-luz)]">
             <Lightbulb className="size-3" aria-hidden /> {item.kind}
             {item.potential ? <span className="font-normal normal-case tracking-normal text-ink-3"> · potencial {item.potential.toLowerCase()}</span> : null}
           </span>
@@ -434,7 +433,7 @@ function ItemDiario({ item, aoSalvar, aoApagar }: { item: Insight; aoSalvar: (t:
 /* ------------------------------------------------------------------ */
 
 /** O modelo que abre quando o protocolo ainda está em branco. */
-const MODELO_PROTOCOLO = "### 🎯 Objetivo\n\n\n### 📋 Procedimento\n1. \n\n### 📁 Evidências\n"
+const MODELO_PROTOCOLO = "### Objetivo\n\n\n### Procedimento\n1. \n\n### Evidências\n"
 
 function Protocolo({ e }: { e: Experimento }) {
   const { mutate } = useAtualizar("experiments")
@@ -443,7 +442,7 @@ function Protocolo({ e }: { e: Experimento }) {
   return (
     <section aria-labelledby="titulo-protocolo" className="vidro p-4 sm:p-6">
       <p className="rotulo-hud flex items-center gap-2">
-        <BookText className="size-3.5 text-[var(--b-luz)]" aria-hidden /> Protocolo
+        <BookText className="size-3.5 text-ink-3" aria-hidden /> Protocolo
       </p>
       <h2 id="titulo-protocolo" className="mt-1 text-sm text-ink-2">
         Objetivo, procedimento, evidências e o que mais quiser anotar sobre o teste.
@@ -489,7 +488,7 @@ function Resultado({ e, aoEditar, className }: { e: Experimento; aoEditar: () =>
         <SeloResultado resultado={resultadoDo(e)} className="px-3 py-1 text-sm" />
         {nota !== null ? (
           <span className="text-sm text-ink-2">
-            nota <span className="tabular font-display text-xl font-semibold text-[var(--b-ambar)]">{String(nota).replace(".", ",")}</span>
+            nota <span className="tabular font-display text-xl font-medium text-[var(--b-ambar)]">{String(nota).replace(".", ",")}</span>
           </span>
         ) : null}
       </div>

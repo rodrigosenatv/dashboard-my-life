@@ -17,7 +17,7 @@ export default function PaginaLogin() {
 
       <div className="grid place-items-center px-5 py-10 sm:px-10">
         <div className="w-full max-w-sm">
-          <h1 className="font-display text-3xl font-semibold">Entrar</h1>
+          <h1 className="font-display text-3xl font-medium">Entrar</h1>
           <p className="mt-2 text-ink-2">Entre para ver o seu dia.</p>
           <Suspense>
             <FormLogin />

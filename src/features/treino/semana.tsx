@@ -49,7 +49,7 @@ export function SemanaTreino() {
     <div>
       <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
         <p className="text-sm">
-          <span className="font-semibold">Esta semana:</span> {feitos} de {plural(previstos, "treino")}
+          <span className="font-medium">Esta semana:</span> {feitos} de {plural(previstos, "treino")}
           {seq > 1 ? <span className="text-ink-3"> · {seq} seguidos</span> : null}
         </p>
         <Link href="/rotina/habitos" className="text-sm text-ink-2 hover:text-ink">
@@ -74,7 +74,7 @@ export function SemanaTreino() {
                 onClick={() => marcar(d)}
                 className="group flex w-full flex-col items-center gap-1.5 rounded-lg py-1.5 disabled:cursor-default"
               >
-                <span className={cn("text-xs", ehHoje ? "font-semibold text-ink" : "text-ink-3")}>{LETRAS[i]}</span>
+                <span className={cn("text-xs", ehHoje ? "font-medium text-ink" : "text-ink-3")}>{LETRAS[i]}</span>
                 <span
                   className={cn(
                     "grid size-10 place-items-center rounded-full border text-sm transition-colors",
@@ -161,7 +161,7 @@ function UltimasSemanas({ habito, dias }: { habito: Habito; dias: Map<string, Re
                   className="pointer-events-none absolute left-1/2 z-10 hidden -translate-x-1/2 whitespace-nowrap rounded-md border border-line bg-surface px-2 py-1 text-xs shadow-overlay group-hover:block group-focus-visible:block"
                   style={{ bottom: h + 20 }}
                 >
-                  <strong className="font-semibold text-ink">{plural(s.feitos, "treino")}</strong>
+                  <strong className="font-medium text-ink">{plural(s.feitos, "treino")}</strong>
                   <span className="block text-ink-3">{s.ehAtual ? "esta semana" : periodo}</span>
                 </span>
               </li>

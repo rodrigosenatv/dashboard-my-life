@@ -186,7 +186,7 @@ function ModoCozinha({ receita, aoFechar }: { receita: Receita | null; aoFechar:
       {receita && receita.calc.itens.length ? (
         <div className="mb-4 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 rounded-lg bg-surface-2 px-3 py-2.5 text-sm">
           <p>
-            <span className="font-semibold tabular">{kcal((receita.calc.rendeConhecido ? receita.calc.porPorcao : receita.calc.total).kcal)} kcal</span> ·{" "}
+            <span className="font-medium tabular">{kcal((receita.calc.rendeConhecido ? receita.calc.porPorcao : receita.calc.total).kcal)} kcal</span> ·{" "}
             {gramas((receita.calc.rendeConhecido ? receita.calc.porPorcao : receita.calc.total).p)} g de proteína{" "}
             <span className="text-ink-2">{receita.calc.rendeConhecido ? `por porção (rende ${receita.calc.rende})` : "a receita toda"}</span>
           </p>

@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Activity, BatteryFull, BatteryLow, BatteryWarning, Check, ChevronDown, Flame, Plus } from "lucide-react"
+import { BatteryFull, BatteryLow, BatteryWarning, Check, ChevronDown, Flame, Plus } from "lucide-react"
 import { Botao } from "@/components/ui/button"
 import { Menu, MenuConteudo, MenuGatilho, MenuItem, MenuRotulo, MenuSeparador } from "@/components/ui/menu"
 import { TituloPainel } from "@/features/conteudo/moldura"
@@ -75,7 +75,7 @@ function Semanas({ semanas, meta }: { semanas: { inicio: string; publicados: num
           )
         })}
       </div>
-      <div aria-hidden className="mt-1 flex justify-between text-[10px] text-ink-3">
+      <div aria-hidden className="mt-1 flex justify-between text-[11px] text-ink-3">
         <span>{semanas.length} semanas atrás</span>
         <span>esta semana</span>
       </div>
@@ -102,7 +102,7 @@ function Reserva({ itens, meta }: { itens: Conteudo[]; meta: number }) {
         <span className="sr-only">{r.nivel === "boa" ? "(boa)" : r.nivel === "baixa" ? "(baixa)" : "(vazia)"}</span>
       </p>
       <p className="mt-2 flex items-baseline gap-1.5">
-        <span className="font-display text-3xl font-semibold leading-none">{r.prontos}</span>
+        <span className="font-display text-3xl font-medium leading-none">{r.prontos}</span>
         <span className="text-sm text-ink-2">{r.prontos === 1 ? "pronto para publicar" : "prontos para publicar"}</span>
       </p>
       <p className="mt-1.5 text-xs text-ink-2">{texto}</p>
@@ -142,10 +142,10 @@ export function PainelRitmo({
 
   return (
     <section aria-labelledby="titulo-ritmo" className="vidro min-w-0 p-4 sm:p-5">
-      <TituloPainel id="titulo-ritmo" icone={Activity} titulo="Ritmo da semana" acao={<MenuMeta meta={meta} aoMudar={aoMudarMeta} />} />
+      <TituloPainel id="titulo-ritmo" titulo="Ritmo da semana" acao={<MenuMeta meta={meta} aoMudar={aoMudarMeta} />} />
 
       <p className="flex items-baseline gap-2">
-        <span className="font-display text-[3rem] font-semibold leading-none tracking-tight">{r.publicados}</span>
+        <span className="font-display text-[3rem] font-medium leading-none tracking-tight">{r.publicados}</span>
         <span className="text-base text-ink-2">de {meta} publicados nesta semana</span>
       </p>
       <div aria-hidden className="mt-3 flex gap-0.5">
@@ -186,7 +186,7 @@ export function PainelRitmo({
                 )}
               >
                 <span className={cn("text-[11px] font-medium", d.hoje ? "text-[var(--b-luz)]" : "text-ink-3")}>{DIAS[k]}</span>
-                <span className="tabular text-sm font-semibold leading-none">{Number(d.dia.slice(8))}</span>
+                <span className="tabular text-sm font-medium leading-none">{Number(d.dia.slice(8))}</span>
                 <span aria-hidden className="flex h-3 items-center gap-0.5">
                   {d.itens.slice(0, 3).map((i) => {
                     const cor = i.status === "publicado" ? "var(--b-verde)" : d.passou ? "var(--danger)" : etapaDe(i.status).cor
@@ -197,7 +197,7 @@ export function PainelRitmo({
                       <span key={i.id} className="size-2 rounded-full border-2" style={{ borderColor: cor }} />
                     )
                   })}
-                  {d.itens.length > 3 ? <span className="text-[10px] leading-none text-ink-3">+{d.itens.length - 3}</span> : null}
+                  {d.itens.length > 3 ? <span className="text-[11px] leading-none text-ink-3">+{d.itens.length - 3}</span> : null}
                   {vazio && !d.passou ? <Plus className="size-3 text-ink-3 opacity-60" /> : null}
                 </span>
               </button>

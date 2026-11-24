@@ -53,7 +53,7 @@ export function Medidor({ rotulo, unidade, consumido, previsto, meta }: { rotulo
     <div className="min-w-0">
       <p className="text-xs text-ink-3">{rotulo}</p>
       <p className="mt-0.5 truncate text-sm text-ink-2">
-        <span className="text-lg font-semibold text-ink tabular">{numero(Math.round(consumido))}</span>
+        <span className="text-lg font-medium text-ink tabular">{numero(Math.round(consumido))}</span>
         {meio} {unidade}
       </p>
       <div
@@ -154,7 +154,7 @@ export function DetalheCalculo({
         {secoes.length > 1 ? (
           <div className="rounded-lg bg-surface-2 px-3 py-2.5 text-sm">
             <p>
-              <span className="font-semibold tabular">{kcal(total.kcal)} kcal</span> · {gramas(total.p)} g de proteína
+              <span className="font-medium tabular">{kcal(total.kcal)} kcal</span> · {gramas(total.p)} g de proteína
             </p>
             <p className="text-xs text-ink-3">
               {gramas(total.c)} g de carboidrato · {gramas(total.g)} g de gordura
@@ -186,7 +186,7 @@ function SecaoDoCalculo({ secao: s, editando, aoEditar }: { secao: SecaoCalculo;
           </h3>
         ) : null}
         <p className="text-sm text-ink-2">
-          <span className="font-semibold text-ink tabular">{kcal(t.kcal)} kcal</span> · {gramas(t.p)} g prot.{s.rende ? " por porção" : ""}
+          <span className="font-medium text-ink tabular">{kcal(t.kcal)} kcal</span> · {gramas(t.p)} g prot.{s.rende ? " por porção" : ""}
         </p>
       </div>
       {s.rende ? <Rende rende={s.rende} total={s.calculo.total} /> : null}
@@ -228,7 +228,7 @@ function Rende({ rende, total }: { rende: NonNullable<SecaoCalculo["rende"]>; to
         <Botao variante="contorno" tamanho="icone-sm" aria-label="Uma porção a menos" disabled={n <= 1} onClick={() => aoMudar(n - 1)}>
           <Minus />
         </Botao>
-        <span className="w-6 text-center font-semibold tabular" aria-live="polite">
+        <span className="w-6 text-center font-medium tabular" aria-live="polite">
           {n}
         </span>
         <Botao variante="contorno" tamanho="icone-sm" aria-label="Uma porção a mais" disabled={n >= 50} onClick={() => aoMudar(n + 1)}>
@@ -453,7 +453,7 @@ function AjusteItem({ item, aoSalvar, aoCancelar }: { item: ItemCalculado; aoSal
           </div>
           {previa && (previa.tipo === "alimento" || previa.tipo === "valores") ? (
             <p className="text-sm">
-              = <span className="font-semibold tabular">{kcal(previa.nutrientes.kcal)} kcal</span> · {gramas(previa.nutrientes.p)} g de proteína
+              = <span className="font-medium tabular">{kcal(previa.nutrientes.kcal)} kcal</span> · {gramas(previa.nutrientes.p)} g de proteína
             </p>
           ) : null}
         </>

@@ -78,7 +78,7 @@ export function LendoAgora({
               onClick={() => ir(i)}
               className="relative grid h-6 place-items-center px-1 toque:h-8"
             >
-              <span className={cn("block h-1.5 rounded-full transition-all", i === atual ? "w-6 bg-[var(--b-luz)]" : "w-1.5 bg-ink/25")} />
+              <span className={cn("block h-1.5 rounded-full transition-colors", i === atual ? "w-6 bg-[var(--b-luz)]" : "w-1.5 bg-ink/25")} />
             </button>
           ))}
         </div>
@@ -122,7 +122,7 @@ function CartaoLendo({ livro: l, dias, temArquivo, aoAtualizar, prioridade }: { 
             Lendo agora<span className="hidden sm:inline"> · {codigoDoLivro(l)}</span>
           </span>
         </p>
-        <h2 className="mt-2 font-display text-[1.5rem] font-semibold leading-[1.1] tracking-tight text-balance sm:text-4xl">
+        <h2 className="mt-2 font-display text-[1.5rem] font-medium leading-[1.1] tracking-tight text-balance sm:text-4xl">
           <Link href={`/estudos/leitura/${l.id}`} className="hover:underline hover:decoration-[var(--b-luz)]/60 hover:underline-offset-4">
             {l.title}
           </Link>
@@ -135,7 +135,7 @@ function CartaoLendo({ livro: l, dias, temArquivo, aoAtualizar, prioridade }: { 
           <div className="barra-luz flex-1" role="progressbar" aria-label={`Progresso de ${l.title}`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct}>
             <span style={{ width: `${pct}%` }} />
           </div>
-          <span className="tabular w-11 shrink-0 text-right text-sm font-semibold">{l.pages_total ? `${pct}%` : ""}</span>
+          <span className="tabular w-11 shrink-0 text-right text-sm font-medium">{l.pages_total ? `${pct}%` : ""}</span>
         </div>
         <p className="tabular mt-2 text-sm text-ink-2">
           {textoPagina(l)}
@@ -182,7 +182,7 @@ function SemLeitura({ aoEscolherProximo, temFila }: { aoEscolherProximo: () => v
     <section aria-label="Lendo agora" className="vidro relative overflow-hidden px-6 py-10 text-center sm:py-12">
       <span aria-hidden className="pointer-events-none absolute left-1/2 top-0 size-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--b-luz)]/15 hidden" />
       <Library className="relative mx-auto size-8 text-[var(--b-luz)]" aria-hidden />
-      <h2 className="relative mt-3 font-display text-2xl font-semibold">A sala de leitura está em silêncio</h2>
+      <h2 className="relative mt-3 font-display text-2xl font-medium">A sala de leitura está em silêncio</h2>
       <p className="relative mx-auto mt-1.5 max-w-sm text-ink-2">
         {temFila ? "Escolha o próximo livro da fila e ele aparece aqui, pronto para continuar." : "Adicione um livro e marque como “Lendo” para ele aparecer aqui."}
       </p>

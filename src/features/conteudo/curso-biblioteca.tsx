@@ -72,14 +72,14 @@ function CartaoModulo({ modulo, paginas }: { modulo: Modulo; paginas: Map<string
         </span>
         <div className="min-w-0 flex-1">
           <p className="rotulo-hud">{modulo.numero ? `Módulo ${modulo.numero}` : "Coleção"}</p>
-          <h3 className="mt-0.5 break-words font-display text-[15px] font-semibold leading-snug">{modulo.nome}</h3>
+          <h3 className="mt-0.5 break-words font-display text-[15px] font-medium leading-snug">{modulo.nome}</h3>
         </div>
         <span className="tabular shrink-0 pt-0.5 text-xs text-ink-3">{total === 1 ? "1 aula" : `${total} aulas`}</span>
       </div>
       <ul className="mt-3 grid min-w-0 gap-px border-l border-[var(--b-borda-2)] pl-2">
         {visiveis.map((g, i) => (
           <React.Fragment key={`${g.titulo ?? "grupo"}-${i}`}>
-            {g.titulo ? <li className="rotulo-hud px-2 pb-0.5 pt-2 text-[10px] first:pt-0.5">{g.titulo}</li> : null}
+            {g.titulo ? <li className="rotulo-hud px-2 pb-0.5 pt-2 text-[11px] first:pt-0.5">{g.titulo}</li> : null}
             {g.ids.map((id) => (
               <li key={id} className="min-w-0">
                 <Link href={`/paginas/${id}`} className="block truncate rounded-lg px-2 py-1.5 text-sm text-ink-2 transition-colors hover:bg-ink/[0.05] hover:text-[var(--b-luz)] toque:py-2.5">
@@ -117,7 +117,7 @@ export function MapaDoCurso({ curso, paginas }: { curso: Curso; paginas: Map<str
             <p className="rotulo-hud">
               Curso · {modulos.length} módulos · {aulas} aulas
             </p>
-            <h2 id={idTitulo} className="truncate font-display text-xl font-semibold sm:text-2xl">
+            <h2 id={idTitulo} className="truncate font-display text-xl font-medium sm:text-2xl">
               {pagina.title}
             </h2>
           </div>

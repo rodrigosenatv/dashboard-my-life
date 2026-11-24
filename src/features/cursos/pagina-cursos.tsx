@@ -101,10 +101,10 @@ export function PaginaCursos() {
     <div className="tema-cursos plataforma -mx-4 -mb-28 -mt-5 min-h-[calc(100dvh-7rem)] px-4 pb-32 pt-6 sm:mx-0 sm:mb-0 sm:mt-0 sm:min-h-0 sm:rounded-[1.75rem] sm:px-6 sm:pb-10 sm:pt-8 lg:px-8">
       <header>
         <p className="rotulo-hud flex items-center gap-2">
-          <GraduationCap className="size-3.5 text-[var(--b-luz)]" aria-hidden /> Estudos · Plataforma de cursos
+          <GraduationCap className="size-3.5 text-ink-3" aria-hidden /> Estudos · Plataforma de cursos
         </p>
         <div className="mt-1.5 flex items-center justify-between gap-3">
-          <h1 className="font-display text-[2.5rem] font-semibold leading-none tracking-tight sm:text-[3.25rem]">Cursos</h1>
+          <h1 className="font-display text-[2.5rem] font-medium leading-none tracking-tight sm:text-[3.25rem]">Cursos</h1>
           <div className="flex shrink-0 items-center gap-2">
             <BotaoFoco className="hidden sm:inline-flex" />
             <Botao variante="primario" tamanho="lg" onClick={() => setNovo(true)} className="px-4">
@@ -137,7 +137,7 @@ export function PaginaCursos() {
                   onClick={() => abrirCatalogo({ status: h.status })}
                   className="inline-flex min-h-9 items-baseline gap-1.5 rounded-full border border-[var(--b-borda)] bg-ink/[0.03] px-3 py-1 text-sm text-ink-2 backdrop-blur hover:border-[var(--b-borda-2)] hover:text-ink toque:min-h-11 toque:items-center"
                 >
-                  <span className="tabular font-display text-base font-semibold" style={h.cor ? { color: h.cor } : undefined}>
+                  <span className="tabular font-display text-base font-medium" style={h.cor ? { color: h.cor } : undefined}>
                     {h.n}
                   </span>
                   {h.rotulo}
@@ -185,7 +185,7 @@ export function PaginaCursos() {
             <button type="button" onClick={voltarAoInicio} className="-ml-2 mb-3 inline-flex min-h-10 items-center gap-1.5 rounded-full px-2 text-sm text-ink-2 hover:text-ink">
               <ArrowLeft className="size-4" aria-hidden /> Início
             </button>
-            <h2 id="titulo-catalogo" className="mb-4 font-display text-2xl font-semibold">
+            <h2 id="titulo-catalogo" className="mb-4 font-display text-2xl font-medium">
               Todos os cursos
             </h2>
             <Catalogo cursos={cursos} capas={capas} busca="" estado={estado} aoMudar={mudarFiltros} />
@@ -247,7 +247,7 @@ function SemCursos({ aoCriar }: { aoCriar: () => void }) {
     <div className="vidro relative overflow-hidden px-6 py-12 text-center">
       <span aria-hidden className="pointer-events-none absolute left-1/2 top-0 size-72 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--b-luz-2)]/25 hidden" />
       <GraduationCap className="relative mx-auto size-9 text-[var(--b-luz)]" aria-hidden />
-      <h2 className="relative mt-3 font-display text-2xl font-semibold">Sua plataforma está pronta</h2>
+      <h2 className="relative mt-3 font-display text-2xl font-medium">Sua plataforma está pronta</h2>
       <p className="relative mx-auto mt-1.5 max-w-md text-ink-2">
         Cadastre o curso que você está fazendo: o link da plataforma, as aulas que for anotando e o que vai colocar em prática ficam juntos aqui. Os cursos do Notion chegam por Configurações › Importar do Notion.
       </p>

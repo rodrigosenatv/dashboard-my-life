@@ -6,8 +6,11 @@ export type Mensagem = { role: "user" | "assistant"; content: string }
 
 /** As conversas ficam como páginas (seção "assistente"), legíveis também fora do chat. */
 export const SECAO_CONVERSAS = "assistente"
-const VOCE = "#### 🧑 Você"
-const CLAUDE = "#### ✨ Claude"
+const VOCE = "#### Você"
+const CLAUDE = "#### Claude"
+// O formato antigo, com emoji, das conversas salvas antes
+const VOCE_ANTIGO = "#### 🧑 Você"
+const CLAUDE_ANTIGO = "#### ✨ Claude"
 
 export function conversaParaTexto(mensagens: Mensagem[]): string {
   return mensagens
@@ -20,9 +23,11 @@ export function textoParaConversa(texto: string): Mensagem[] {
   const saida: Mensagem[] = []
   let atual: Mensagem | null = null
   for (const linha of texto.split("\n")) {
-    if (linha.trim() === VOCE || linha.trim() === CLAUDE) {
+    const t = linha.trim()
+    const ehVoce = t === VOCE || t === VOCE_ANTIGO
+    if (ehVoce || t === CLAUDE || t === CLAUDE_ANTIGO) {
       if (atual) saida.push({ ...atual, content: atual.content.trim() })
-      atual = { role: linha.trim() === VOCE ? "user" : "assistant", content: "" }
+      atual = { role: ehVoce ? "user" : "assistant", content: "" }
     } else if (atual) atual.content += `${linha}\n`
   }
   if (atual) saida.push({ ...atual, content: atual.content.trim() })

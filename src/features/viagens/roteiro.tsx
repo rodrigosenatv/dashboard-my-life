@@ -96,7 +96,7 @@ export function RoteiroViagem({
             return (
               <li key={d.chave} ref={ehHoje ? refHoje : undefined} className="scroll-mt-24">
                 <div className="mb-2 flex items-center justify-between gap-3">
-                  <h3 className="flex flex-wrap items-baseline gap-x-2 font-display text-base font-semibold">
+                  <h3 className="flex flex-wrap items-baseline gap-x-2 font-display text-base font-medium">
                     {nome}
                     {subtitulo ? <span className="text-sm font-normal text-ink-3">{subtitulo}</span> : null}
                     {ehHoje ? <span className="self-center rounded-full bg-pen px-1.5 py-0.5 text-[11px] font-medium text-pen-ink">hoje</span> : null}
@@ -145,7 +145,7 @@ function LinhaParada({ parada: p, aoAbrir, aoAlternar }: { parada: Parada; aoAbr
       <div className="min-w-0 flex-1">
         <button type="button" onClick={aoAbrir} className="block w-full text-left">
           <span className={cn("block leading-snug", p.feito && "text-ink-3 line-through")}>
-            {p.hora ? <span className="mr-1.5 font-semibold tabular text-ink-2">{p.hora}</span> : null}
+            {p.hora ? <span className="mr-1.5 font-medium tabular text-ink-2">{p.hora}</span> : null}
             <span className="font-medium">{p.titulo}</span>
           </span>
           {p.obs ? <span className="mt-0.5 line-clamp-2 block text-xs text-ink-3">{p.obs}</span> : null}

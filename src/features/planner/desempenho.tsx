@@ -3,7 +3,7 @@
 import * as React from "react"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
-import { CopyPlus, Eye, Flame, Heart, Recycle, Shapes, Tags, TrendingUp, type LucideIcon } from "lucide-react"
+import { CopyPlus, TrendingUp } from "lucide-react"
 import { Botao } from "@/components/ui/button"
 import { TituloPainel } from "@/features/conteudo/moldura"
 import { VazioCerebro } from "@/features/segundo-cerebro/ui"
@@ -16,11 +16,11 @@ const compacto = new Intl.NumberFormat("pt-BR", { notation: "compact", maximumFr
 const curto = (n: number) => (n < 10_000 ? numero(Math.round(n)) : compacto.format(n))
 
 /** O que funciona: a média de visualizações e o engajamento por formato ou por linha editorial. */
-function PorGrupo({ titulo, icone, grupos, rotulo, vazio }: { titulo: string; icone: LucideIcon; grupos: ReturnType<typeof desempenhoPorGrupo>; rotulo: (chave: string) => string; vazio: string }) {
+function PorGrupo({ titulo, grupos, rotulo, vazio }: { titulo: string; grupos: ReturnType<typeof desempenhoPorGrupo>; rotulo: (chave: string) => string; vazio: string }) {
   const max = Math.max(1, ...grupos.map((g) => g.mediaViews))
   return (
     <section aria-label={titulo} className="vidro min-w-0 p-4 sm:p-5">
-      <TituloPainel icone={icone} titulo={titulo} className="mb-1" />
+      <TituloPainel titulo={titulo} className="mb-1" />
       <p className="mb-3 text-xs text-ink-3">Média de visualizações por post e o engajamento médio.</p>
       {grupos.length < 2 ? (
         <p className="text-sm text-ink-2">{vazio}</p>
@@ -69,10 +69,10 @@ export function Desempenho({
   if (!d.lista.length)
     return <VazioCerebro icone={TrendingUp} titulo="Nada para medir ainda." descricao="Registre visualizações e curtidas nos conteúdos publicados (uns 7 dias depois de publicar) para ver o que funciona." />
   const indicadores = [
-    { rotulo: "Visualizações", valor: numero(d.visualizacoes), icone: Eye, cor: "var(--b-luz)" },
-    { rotulo: "Curtidas", valor: numero(d.curtidas), icone: Heart, cor: "var(--b-rosa)" },
-    { rotulo: "Engajamento médio", valor: d.mediaEngajamento === null ? "–" : `${numero(d.mediaEngajamento, 1)}%`, icone: TrendingUp, cor: "var(--b-verde)" },
-    { rotulo: "Mais visto", valor: d.melhor ? numero(d.melhor.views) : "–", detalhe: d.melhor?.title, icone: Flame, cor: "var(--b-ambar)" },
+    { rotulo: "Visualizações", valor: numero(d.visualizacoes) },
+    { rotulo: "Curtidas", valor: numero(d.curtidas) },
+    { rotulo: "Engajamento médio", valor: d.mediaEngajamento === null ? "–" : `${numero(d.mediaEngajamento, 1)}%` },
+    { rotulo: "Mais visto", valor: d.melhor ? numero(d.melhor.views) : "–", detalhe: d.melhor?.title },
   ]
   const porFormato = desempenhoPorGrupo(itens, (i) => i.format)
   const porLinha = desempenhoPorGrupo(itens, (i) => i.editorial_line_id)
@@ -83,20 +83,17 @@ export function Desempenho({
       <ul className="grid grid-cols-2 gap-3 lg:grid-cols-4" aria-label="Resumo do desempenho">
         {indicadores.map((x) => (
           <li key={x.rotulo} className="vidro min-w-0 p-4">
-            <p className="rotulo-hud flex items-center gap-1.5">
-              <x.icone className="size-3.5 shrink-0" style={{ color: x.cor }} aria-hidden /> <span className="truncate">{x.rotulo}</span>
-            </p>
-            <p className="mt-2 font-display text-2xl font-semibold sm:text-3xl">{x.valor}</p>
+            <p className="rotulo-hud truncate">{x.rotulo}</p>
+            <p className="tabular mt-2 font-display text-2xl font-medium sm:text-3xl">{x.valor}</p>
             {x.detalhe ? <p className="mt-0.5 truncate text-xs text-ink-3">{x.detalhe}</p> : null}
           </li>
         ))}
       </ul>
 
       <div className="grid gap-4 md:grid-cols-2">
-        <PorGrupo titulo="O que funciona por formato" icone={Shapes} grupos={porFormato} rotulo={(c) => c} vazio="Quando dois formatos ou mais tiverem posts com números, a comparação aparece aqui." />
+        <PorGrupo titulo="O que funciona por formato" grupos={porFormato} rotulo={(c) => c} vazio="Quando dois formatos ou mais tiverem posts com números, a comparação aparece aqui." />
         <PorGrupo
           titulo="O que funciona por linha editorial"
-          icone={Tags}
           grupos={porLinha}
           rotulo={(c) => nomesLinha.get(c) ?? "Linha removida"}
           vazio="Quando duas linhas editoriais ou mais tiverem posts com números, a comparação aparece aqui."
@@ -105,7 +102,7 @@ export function Desempenho({
 
       {reaproveitar.length ? (
         <section aria-labelledby="titulo-reaproveitar" className="vidro p-4 sm:p-5">
-          <TituloPainel id="titulo-reaproveitar" icone={Recycle} titulo="Vale uma nova versão" cor="var(--b-verde)" />
+          <TituloPainel id="titulo-reaproveitar" titulo="Vale uma nova versão" cor="var(--b-verde)" />
           <p className="-mt-1 mb-3 max-w-2xl text-sm text-ink-2">Assuntos que já funcionaram, publicados há um mês ou mais. Leve para outro formato: um terço do que você publica pode sair daqui.</p>
           <ul className="grid gap-1">
             {reaproveitar.map((c) => (
@@ -128,7 +125,7 @@ export function Desempenho({
       ) : null}
 
       <section aria-labelledby="titulo-ranking" className="vidro p-3 sm:p-5">
-        <TituloPainel id="titulo-ranking" icone={TrendingUp} titulo="Os mais vistos" />
+        <TituloPainel id="titulo-ranking" titulo="Os mais vistos" />
         <div aria-hidden className="hidden grid-cols-[2rem_minmax(0,1fr)_13rem_5rem_6rem_6rem] gap-3 px-2 pb-2 text-xs text-ink-3 lg:grid">
           <span />
           <span>Conteúdo</span>
@@ -147,7 +144,7 @@ export function Desempenho({
                   onClick={() => aoAbrir(p)}
                   className="grid w-full grid-cols-[2rem_minmax(0,1fr)] items-center gap-x-3 gap-y-1.5 rounded-xl px-2 py-2.5 text-left text-sm transition-colors hover:bg-ink/[0.04] lg:grid-cols-[2rem_minmax(0,1fr)_13rem_5rem_6rem_6rem]"
                 >
-                  <span className={cn("tabular row-span-3 self-start pt-0.5 text-center font-display text-lg font-semibold lg:row-span-1 lg:self-center lg:pt-0", i === 0 ? "text-[var(--b-ambar)]" : "text-ink-3")}>{i + 1}</span>
+                  <span className={cn("tabular row-span-3 self-start pt-0.5 text-center font-display text-lg font-medium lg:row-span-1 lg:self-center lg:pt-0", i === 0 ? "text-[var(--b-ambar)]" : "text-ink-3")}>{i + 1}</span>
                   <span className="min-w-0">
                     <span className="block truncate font-medium">{p.title}</span>
                     <span className="block truncate text-xs text-ink-3">

@@ -79,7 +79,7 @@ export function PaginaColecao() {
     <div>
       <Link href="/colecoes" className="mb-4 inline-flex items-center gap-1.5 text-sm text-ink-2 hover:text-ink"><ArrowLeft className="size-4" /> Coleções</Link>
       <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
-        <EdicaoEmLinha rotulo="Nome da coleção" valor={colecao.name} aoSalvar={(v) => v && atualizarCol.mutate({ id: colecao.id, name: v })} className="max-w-xl font-display text-3xl font-semibold" />
+        <EdicaoEmLinha rotulo="Nome da coleção" valor={colecao.name} aoSalvar={(v) => v && atualizarCol.mutate({ id: colecao.id, name: v })} className="max-w-xl font-display text-3xl font-medium" />
         <Botao variante="fantasma" tamanho="icone" aria-label="Excluir coleção" onClick={() => setApagar(true)}><Trash /></Botao>
       </div>
       <BlocoColecao colecao={colecao} titulo="Itens" />
@@ -130,7 +130,7 @@ export function PaginaItem() {
       <Link href={voltar || `/colecoes/${item.collection_id}`} className="mb-4 inline-flex items-center gap-1.5 text-sm text-ink-2 hover:text-ink"><ArrowLeft className="size-4" /> {voltar ? nomeDoHub(voltar) : (colecao?.name ?? "Coleção")}</Link>
       {item.cover_path ? <div className="mb-6 overflow-hidden rounded-xl"><Capa caminho={item.cover_path} className="aspect-[3/1] max-h-72" /></div> : null}
       <div className="mb-6 flex items-start gap-3">
-        <EdicaoEmLinha rotulo="Título" valor={item.title} aoSalvar={(v) => atualizar.mutate({ id: item.id, title: v })} className="font-display text-3xl font-semibold" />
+        <EdicaoEmLinha rotulo="Título" valor={item.title} aoSalvar={(v) => atualizar.mutate({ id: item.id, title: v })} className="font-display text-3xl font-medium" />
         <Botao variante="fantasma" tamanho="icone" aria-label="Excluir item" onClick={() => setApagar(true)}><Trash /></Botao>
       </div>
       {todas.length ? (

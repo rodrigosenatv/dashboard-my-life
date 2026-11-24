@@ -36,14 +36,14 @@ export function CartaoPeca({ peca, aoAbrir }: { peca: Peca; aoAbrir: (p: Peca) =
         className="group block w-full rounded-xl text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pen/50"
       >
         <span className="relative block aspect-[4/5] overflow-hidden rounded-xl bg-surface-2 ring-1 ring-line">
-          <FotoPeca peca={peca} className="absolute inset-0 motion-safe:transition-transform motion-safe:duration-200 motion-safe:group-hover:scale-[1.03]" />
+          <FotoPeca peca={peca} className="absolute inset-0" />
         </span>
         <span aria-hidden className="mt-2 block">
           <span className="line-clamp-2 block text-sm font-medium leading-snug text-ink">{peca.nome}</span>
           {!peca.comprado ? (
             // O preço em destaque; sem preço, discreto. Depois, marca e tamanho em cinza (como em linhaDoDesejo)
             <span className="mt-0.5 block truncate text-sm">
-              {peca.valor !== null ? <span className="font-semibold text-ink">{reais(peca.valor)}</span> : <span className="text-ink-3">sem preço</span>}
+              {peca.valor !== null ? <span className="font-medium text-ink">{reais(peca.valor)}</span> : <span className="text-ink-3">sem preço</span>}
               {meta ? <span className="text-ink-3">{` · ${meta}`}</span> : null}
             </span>
           ) : meta ? (
@@ -149,7 +149,7 @@ export function JanelaPeca({
 
         <div className="grid content-start gap-4">
           {desejo ? (
-            <p className="font-display text-2xl font-semibold">{peca.valor !== null ? reais(peca.valor) : "Sem preço"}</p>
+            <p className="font-display text-2xl font-medium">{peca.valor !== null ? reais(peca.valor) : "Sem preço"}</p>
           ) : null}
 
           {temDados ? (
@@ -184,7 +184,7 @@ export function JanelaPeca({
 
           {!desejo ? (
             <section className="grid gap-2">
-              <h3 className="text-sm font-semibold text-ink">Outfits</h3>
+              <h3 className="text-sm font-medium text-ink">Outfits</h3>
               {outfitsDela.length ? (
                 <ul className="flex flex-wrap gap-1.5">
                   {outfitsDela.map((o) => (
